@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback } from 'react';
 import { Users, Calendar, AlertCircle, TrendingUp, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
+import { usePlatformContext } from '@/contexts/PlatformContext';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -49,6 +50,7 @@ const VisitItem = memo(({
 
 export const Dashboard: React.FC = () => {
   const { speakers, hosts, visits } = useData();
+  const { deviceType, isTabletS10Ultra, orientation } = usePlatformContext();
   const navigate = useNavigate();
   
   // Device detection for mobile optimizations
@@ -185,8 +187,25 @@ export const Dashboard: React.FC = () => {
 
       {/* Statistics Cards - Mobile Optimized Grid */}
       <div className={`grid gap-3 sm:gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
-        {stats.map((stat) => (
-          <Card key={stat.label} hoverable className="relative overflow-hidden">
+        {stats.map((stat, index) => (
+          <Card 
+            key={stat.label} 
+            hoverable 
+            className="relative overflow-hidden cursor-pointer"
+            onClick={() => {
+              // Navigation basée sur la carte cliquée
+              if (index === 0 || index === 1) {
+                // Orateurs actifs ou Contacts d'accueil -> Page Orateurs
+                navigate('/speakers');
+              } else if (index === 2) {
+                // Visites ce mois -> Page Planning
+                navigate('/planning');
+              } else if (index === 3) {
+                // Actions requises -> Page Planning avec filtre
+                navigate('/planning');
+              }
+            }}
+          >
             <CardBody className="flex items-center">
               <div className={`p-2 sm:p-3 rounded-xl ${stat.bg} mr-3 sm:mr-4`}>
                 <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
@@ -208,8 +227,22 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Charts - Mobile Responsive */}
-      <div className={`grid gap-4 sm:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
-        <Card className={`${!isMobile ? 'lg:col-span-2' : ''}`}>
+      <div className={`grid gap-4 sm:gap-6 ${
+        deviceType === 'tablet' && orientation === 'landscape' 
+          ? 'tablet-landscape-grid' 
+          : deviceType === 'tablet' 
+            ? 'tablet-grid' 
+            : isMobile 
+              ? 'grid-cols-1' 
+              : 'grid-cols-1 lg:grid-cols-3'
+      }`}>
+        <Card className={`${
+          deviceType === 'tablet' && orientation === 'landscape' 
+            ? 'col-span-2' 
+            : !isMobile && deviceType !== 'tablet' 
+              ? 'lg:col-span-2' 
+              : ''
+        }`}>
           <CardHeader>
             <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
@@ -304,7 +337,15 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Main Sections - Mobile Stacked Layout */}
-      <div className={`grid gap-4 sm:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+      <div className={`grid gap-4 sm:gap-6 ${
+        deviceType === 'tablet' && orientation === 'landscape'
+          ? 'grid-cols-2'
+          : deviceType === 'tablet'
+            ? 'grid-cols-1'
+            : isMobile 
+              ? 'grid-cols-1' 
+              : 'grid-cols-1 lg:grid-cols-2'
+      }`}>
         {/* Upcoming Visits */}
         <Card>
           <CardHeader className="flex items-center justify-between">

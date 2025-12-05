@@ -2,6 +2,16 @@
 
 Application complète de gestion des orateurs visiteurs pour la congrégation KBV DV Lyon.
 
+## 🔗 Dépôt GitHub
+
+**Repository** : [https://github.com/pinto1230766/KBV2](https://github.com/pinto1230766/KBV2)
+
+```bash
+# Cloner le projet
+git clone https://github.com/pinto1230766/KBV2.git
+cd KBV2
+```
+
 ## 🚀 Fonctionnalités
 
 - 📊 **Dashboard** : Vue d'ensemble avec statistiques et graphiques

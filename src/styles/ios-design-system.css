@@ -1,0 +1,330 @@
+/**
+ * iOS Design System - Styles Globaux
+ * Applique le look & feel iOS à toute l'application
+ */
+
+/* ========================================
+   TYPOGRAPHIE iOS
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Font Stack iOS */
+  --ios-font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+  
+  /* Font Smoothing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--ios-font-family);
+  font-size: 17px; /* iOS body size */
+  line-height: 1.4;
+}
+
+/* ========================================
+   COULEURS iOS - Light Mode
+   ======================================== */
+
+:root {
+  /* System Colors */
+  --ios-blue: #007AFF;
+  --ios-green: #34C759;
+  --ios-indigo: #5856D6;
+  --ios-orange: #FF9500;
+  --ios-pink: #FF2D55;
+  --ios-purple: #AF52DE;
+  --ios-red: #FF3B30;
+  --ios-teal: #5AC8FA;
+  --ios-yellow: #FFCC00;
+  
+  /* Grays */
+  --ios-gray: #8E8E93;
+  --ios-gray-2: #AEAEB2;
+  --ios-gray-3: #C7C7CC;
+  --ios-gray-4: #D1D1D6;
+  --ios-gray-5: #E5E5EA;
+  --ios-gray-6: #F2F2F7;
+  
+  /* Labels */
+  --ios-label: #000000;
+  --ios-secondary-label: rgba(60, 60, 67, 0.6);
+  --ios-tertiary-label: rgba(60, 60, 67, 0.3);
+  --ios-quaternary-label: rgba(60, 60, 67, 0.18);
+  
+  /* Backgrounds */
+  --ios-system-background: #FFFFFF;
+  --ios-secondary-system-background: #F2F2F7;
+  --ios-tertiary-system-background: #FFFFFF;
+  
+  /* Grouped Backgrounds */
+  --ios-system-grouped-background: #F2F2F7;
+  --ios-secondary-system-grouped-background: #FFFFFF;
+  --ios-tertiary-system-grouped-background: #F2F2F7;
+  
+  /* Fills */
+  --ios-system-fill: rgba(120, 120, 128, 0.2);
+  --ios-secondary-system-fill: rgba(120, 120, 128, 0.16);
+  --ios-tertiary-system-fill: rgba(118, 118, 128, 0.12);
+  --ios-quaternary-system-fill: rgba(116, 116, 128, 0.08);
+  
+  /* Separators */
+  --ios-separator: rgba(60, 60, 67, 0.29);
+  --ios-opaque-separator: #C6C6C8;
+  
+  /* Blur */
+  --ios-blur-light: rgba(255, 255, 255, 0.8);
+  --ios-backdrop-filter: blur(20px);
+}
+
+/* ========================================
+   COULEURS iOS - Dark Mode
+   ======================================== */
+
+.dark {
+  /* Labels */
+  --ios-label: #FFFFFF;
+  --ios-secondary-label: rgba(235, 235, 245, 0.6);
+  --ios-tertiary-label: rgba(235, 235, 245, 0.3);
+  --ios-quaternary-label: rgba(235, 235, 245, 0.18);
+  
+  /* Backgrounds */
+  --ios-system-background: #000000;
+  --ios-secondary-system-background: #1C1C1E;
+  --ios-tertiary-system-background: #2C2C2E;
+  
+  /* Grouped Backgrounds */
+  --ios-system-grouped-background: #000000;
+  --ios-secondary-system-grouped-background: #1C1C1E;
+  --ios-tertiary-system-grouped-background: #2C2C2E;
+  
+  /* Fills */
+  --ios-system-fill: rgba(120, 120, 128, 0.36);
+  --ios-secondary-system-fill: rgba(120, 120, 128, 0.32);
+  --ios-tertiary-system-fill: rgba(118, 118, 128, 0.24);
+  --ios-quaternary-system-fill: rgba(118, 118, 128, 0.18);
+  
+  /* Separators */
+  --ios-separator: rgba(84, 84, 88, 0.65);
+  --ios-opaque-separator: #38383A;
+  
+  /* Blur */
+  --ios-blur-light: rgba(28, 28, 30, 0.8);
+}
+
+/* ========================================
+   SAFE AREA
+   ======================================== */
+
+:root {
+  --ios-safe-area-top: env(safe-area-inset-top, 0px);
+  --ios-safe-area-right: env(safe-area-inset-right, 0px);
+  --ios-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --ios-safe-area-left: env(safe-area-inset-left, 0px);
+  
+  --ios-status-bar-height: 44px;
+  --ios-nav-bar-height: 44px;
+  --ios-nav-bar-large-height: 96px;
+  --ios-tab-bar-height: 49px;
+  --ios-tab-bar-safe-height: 83px; /* 49px + 34px safe area */
+}
+
+/* ========================================
+   ANIMATIONS iOS
+   ======================================== */
+
+* {
+  transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Désactiver transitions pour certains éléments */
+input,
+textarea,
+select,
+button:active {
+  transition: none;
+}
+
+/* ========================================
+   SCROLLBAR iOS (masqué)
+   ======================================== */
+
+/* Masquer scrollbar mais garder la fonctionnalité */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+/* ========================================
+   TOUCH & GESTURES
+   ======================================== */
+
+/* Améliorer le touch feedback */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button,
+a,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* Active state pour touch */
+button:active,
+a:active,
+[role="button"]:active {
+  transform: scale(0.95);
+}
+
+/* ========================================
+   BLUR EFFECTS iOS
+   ======================================== */
+
+.ios-blur {
+  background: var(--ios-blur-light);
+  backdrop-filter: var(--ios-backdrop-filter);
+  -webkit-backdrop-filter: var(--ios-backdrop-filter);
+}
+
+/* ========================================
+   SAFE AREA HELPERS
+   ======================================== */
+
+.ios-safe-top {
+  padding-top: var(--ios-safe-area-top);
+}
+
+.ios-safe-bottom {
+  padding-bottom: var(--ios-safe-area-bottom);
+}
+
+.ios-safe-left {
+  padding-left: var(--ios-safe-area-left);
+}
+
+.ios-safe-right {
+  padding-right: var(--ios-safe-area-right);
+}
+
+.ios-safe-all {
+  padding-top: var(--ios-safe-area-top);
+  padding-right: var(--ios-safe-area-right);
+  padding-bottom: var(--ios-safe-area-bottom);
+  padding-left: var(--ios-safe-area-left);
+}
+
+/* ========================================
+   TYPOGRAPHY CLASSES
+   ======================================== */
+
+.ios-large-title {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.ios-title-1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ios-title-2 {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.ios-title-3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ios-headline {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ios-body {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.ios-callout {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.ios-subheadline {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.ios-footnote {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.ios-caption-1 {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+.ios-caption-2 {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
+/* ========================================
+   RESET & OVERRIDES
+   ======================================== */
+
+/* Supprimer les styles par défaut des boutons */
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Supprimer les styles par défaut des inputs */
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+/* Focus visible pour accessibilité */
+*:focus-visible {
+  outline: 2px solid var(--ios-blue);
+  outline-offset: 2px;
+}

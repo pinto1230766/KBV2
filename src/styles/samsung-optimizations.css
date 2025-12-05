@@ -1,0 +1,121 @@
+/* Breakpoints pour Samsung */
+
+/* Samsung S25 Ultra (Phone Portrait) - 1440x3120 */
+@media (max-width: 767px) {
+  :root {
+    --base-font-size: 16px;
+    --spacing-unit: 4px;
+  }
+}
+
+/* Samsung Tab S10 Ultra (Tablet Portrait) - 1848x2960 */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  :root {
+    --base-font-size: 18px;
+    --spacing-unit: 6px;
+  }
+
+  /* Layout 2 colonnes pour tablette */
+  .tablet-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Samsung Tab S10 Ultra (Tablet Landscape) - 2960x1848 */
+@media (min-width: 1024px) and (max-width: 1439px) and (orientation: landscape) {
+  :root {
+    --base-font-size: 18px;
+    --spacing-unit: 6px;
+  }
+
+  /* Layout 3 colonnes pour tablette paysage */
+  .tablet-landscape-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* Sidebar pour navigation */
+  .tablet-sidebar {
+    width: 280px;
+  }
+}
+
+/* Desktop et grands écrans */
+@media (min-width: 1440px) {
+  :root {
+    --base-font-size: 16px;
+    --spacing-unit: 8px;
+  }
+}
+
+/* Optimisations spécifiques Samsung */
+.samsung-optimized {
+  /* Amélioration du rendu sur écrans AMOLED */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Optimisation des couleurs pour AMOLED */
+  color-scheme: light dark;
+}
+
+/* Support S Pen */
+.s-pen-hover:hover {
+  cursor: crosshair;
+  outline: 2px solid var(--ios-blue);
+  outline-offset: 2px;
+}
+
+/* Annotations S Pen */
+.s-pen-annotation {
+  position: relative;
+  cursor: crosshair;
+}
+
+.s-pen-annotation canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Gestures Android */
+.swipeable {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.long-pressable {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Optimisations performance pour grands écrans */
+@media (min-width: 1024px) {
+  .virtualized-list {
+    contain: layout style paint;
+  }
+
+  .lazy-image {
+    content-visibility: auto;
+  }
+}
+
+/* Mode DeX (Samsung Desktop Experience) */
+@media (min-width: 1920px) {
+  .dex-mode {
+    max-width: 1920px;
+    margin: 0 auto;
+  }
+}
+
+/* Support multi-fenêtres Samsung */
+@media (max-width: 600px) and (orientation: landscape) {
+  .multi-window-compact {
+    font-size: 14px;
+    padding: 8px;
+  }
+}

@@ -4,7 +4,8 @@ import { DataProvider } from '@/contexts/DataContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { PlatformProvider } from '@/contexts/PlatformContext';
+import { IOSMainLayout } from '@/components/layout/IOSMainLayout';
 import { Spinner } from '@/components/ui/Spinner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -26,53 +27,55 @@ const PageLoader = () => (
 function App() {
   return (
     <ErrorBoundary>
-      <SettingsProvider>
-        <ToastProvider>
-          <ConfirmProvider>
-            <DataProvider>
-              <BrowserRouter>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<MainLayout />}>
-                      <Route index element={
-                        <ErrorBoundary>
-                          <Dashboard />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="planning" element={
-                        <ErrorBoundary>
-                          <Planning />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="messages" element={
-                        <ErrorBoundary>
-                          <Messages />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="speakers" element={
-                        <ErrorBoundary>
-                          <Speakers />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="talks" element={
-                        <ErrorBoundary>
-                          <Talks />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="settings" element={
-                        <ErrorBoundary>
-                          <Settings />
-                        </ErrorBoundary>
-                      } />
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
-            </DataProvider>
-          </ConfirmProvider>
-        </ToastProvider>
-      </SettingsProvider>
+      <PlatformProvider>
+        <SettingsProvider>
+          <ToastProvider>
+            <ConfirmProvider>
+              <DataProvider>
+                <BrowserRouter>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
+                      <Route path="/" element={<IOSMainLayout />}>
+                        <Route index element={
+                          <ErrorBoundary>
+                            <Dashboard />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="planning" element={
+                          <ErrorBoundary>
+                            <Planning />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="messages" element={
+                          <ErrorBoundary>
+                            <Messages />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="speakers" element={
+                          <ErrorBoundary>
+                            <Speakers />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="talks" element={
+                          <ErrorBoundary>
+                            <Talks />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="settings" element={
+                          <ErrorBoundary>
+                            <Settings />
+                          </ErrorBoundary>
+                        } />
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </DataProvider>
+            </ConfirmProvider>
+          </ToastProvider>
+        </SettingsProvider>
+      </PlatformProvider>
     </ErrorBoundary>
   );
 }

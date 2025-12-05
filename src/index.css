@@ -1,4 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import "./styles/ios-design-system.css";
+@import "./styles/samsung-optimizations.css";
 
 @tailwind base;
 @tailwind components;
@@ -144,7 +146,7 @@
   .no-scrollbar {
     -ms-overflow-style: none;
   }
-  
+
   @supports (scrollbar-width: none) {
     .no-scrollbar {
       scrollbar-width: none;

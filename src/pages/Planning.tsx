@@ -1,10 +1,12 @@
 import React, { useState, useMemo, memo, useCallback } from 'react';
 import { useData } from '@/contexts/DataContext';
+import { usePlatformContext } from '@/contexts/PlatformContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
 import { PlanningWeekView } from '@/components/planning/PlanningWeekView';
 import { PlanningCalendarView } from '@/components/planning/PlanningCalendarView';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
+import { VisitActionModal } from '@/components/planning/VisitActionModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -19,7 +21,7 @@ import {
   Filter,
   Eye
 } from 'lucide-react';
-import { LocationType, VisitStatus } from '@/types';
+import { LocationType, VisitStatus, Visit } from '@/types';
 
 type ViewType = 'cards' | 'list' | 'week' | 'calendar' | 'timeline';
 
@@ -79,11 +81,15 @@ const ViewOption = memo(({
 
 export const Planning: React.FC = () => {
   const { visits } = useData();
+  const { deviceType, isTabletS10Ultra, orientation } = usePlatformContext();
   const [view, setView] = useState<ViewType>('cards');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<VisitStatus | 'all'>('all');
   const [typeFilter, setTypeFilter] = useState<LocationType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
+  const [selectedAction, setSelectedAction] = useState<'edit' | 'delete' | 'status' | 'message'>('edit');
 
   // Memoized event handlers to prevent unnecessary re-renders
   const handleSetView = useCallback((newView: ViewType) => setView(newView), []);
@@ -95,6 +101,15 @@ export const Planning: React.FC = () => {
     setTypeFilter(e.target.value as LocationType | 'all'), []);
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
+  const handleVisitAction = useCallback((visit: Visit, action: 'edit' | 'delete' | 'status' | 'message') => {
+    setSelectedVisit(visit);
+    setSelectedAction(action);
+    setIsActionModalOpen(true);
+  }, []);
+  const handleCloseActionModal = useCallback(() => {
+    setIsActionModalOpen(false);
+    setSelectedVisit(null);
+  }, []);
 
   // Optimized filtered and sorted visits with proper dependencies
   const filteredVisits = useMemo(() => {
@@ -259,7 +274,7 @@ export const Planning: React.FC = () => {
       {/* Content */}
       <div className="min-h-[400px] md:min-h-[600px]">
         {view === 'cards' && (
-          <PlanningCardsView visits={filteredVisits} />
+          <PlanningCardsView visits={filteredVisits} onVisitAction={handleVisitAction} />
         )}
 
         {view === 'list' && (
@@ -317,6 +332,13 @@ export const Planning: React.FC = () => {
       <ScheduleVisitModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+      />
+      
+      <VisitActionModal
+        isOpen={isActionModalOpen}
+        onClose={handleCloseActionModal}
+        visit={selectedVisit}
+        action={selectedAction}
       />
     </div>
   );
