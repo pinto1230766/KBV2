@@ -17,11 +17,9 @@ export const SPenCursor: React.FC<SPenCursorProps> = ({ children }) => {
       {children}
       {/* Curseur personnalisé S Pen */}
       <div
-        className="fixed pointer-events-none z-[9999] transition-opacity duration-100"
+        className={`fixed pointer-events-none z-[9999] transition-opacity duration-100 transform-gpu`}
         style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: 'translate(-50%, -50%)',
+          transform: `translate(${position.x}px, ${position.y}px) translate(-50%, -50%)`,
         }}
       >
         <div className="relative">

@@ -1,11 +1,15 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { memo, useMemo, useCallback, useState } from 'react';
 import { Users, Calendar, AlertCircle, TrendingUp, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
+import { StatCardSkeleton, ChartSkeleton, ListSkeleton } from '@/components/ui/Skeleton';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { useNavigate } from 'react-router-dom';
 import { Visit } from '@/types';
 
@@ -49,9 +53,34 @@ const VisitItem = memo(({
 ));
 
 export const Dashboard: React.FC = () => {
-  const { speakers, hosts, visits } = useData();
-  const { deviceType, isTabletS10Ultra, orientation } = usePlatformContext();
+  const { speakers, hosts, visits, refreshData } = useData();
+  const { deviceType, orientation } = usePlatformContext();
   const navigate = useNavigate();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isInitialLoading, setIsInitialLoading] = useState(false);
+  
+  // Pull-to-refresh
+  const { isRefreshing, pullDistance } = usePullToRefresh({
+    onRefresh: async () => {
+      if (refreshData) {
+        await refreshData();
+      }
+    },
+  });
+  
+  // Écouter les changements de connexion
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   // Device detection for mobile optimizations
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -363,7 +392,7 @@ export const Dashboard: React.FC = () => {
           </CardHeader>
           <CardBody>
             {upcomingVisits.length > 0 ? (
-              <div className="space-y-3" style={{ maxHeight: optimalHeight, overflowY: 'auto' }}>
+              <div className={`space-y-3 overflow-y-auto ${isMobile ? 'max-h-64' : 'max-h-80'}`}>
                 {upcomingVisits.slice(0, isMobile ? 3 : 5).map((visit) => (
                   <VisitItem 
                     key={visit.id} 

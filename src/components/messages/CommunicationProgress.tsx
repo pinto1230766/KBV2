@@ -30,17 +30,32 @@ export const CommunicationProgress: React.FC<CommunicationProgressProps> = ({
 
   const totalSteps = steps.length;
   const completedCount = completedSteps.length;
-  const progress = (completedCount / totalSteps) * 100;
+  const progress = Math.round((completedCount / totalSteps) * 100);
 
   const iconSize = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4';
+  
+  // Classes Tailwind pour les différentes largeurs de progression
+  const getProgressWidthClass = (progress: number) => {
+    if (progress === 0) return 'w-0';
+    if (progress === 20) return 'w-1/5';
+    if (progress === 40) return 'w-2/5';
+    if (progress === 60) return 'w-3/5';
+    if (progress === 80) return 'w-4/5';
+    if (progress === 100) return 'w-full';
+    if (progress < 20) return 'w-[5%]';
+    if (progress < 40) return 'w-[25%]';
+    if (progress < 60) return 'w-[45%]';
+    if (progress < 80) return 'w-[65%]';
+    if (progress < 100) return 'w-[85%]';
+    return 'w-full';
+  };
 
   return (
     <div className="space-y-2">
       {/* Barre de progression */}
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
         <div 
-          className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500 ease-out"
-          style={{ width: `${progress}%` }}
+          className={`bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500 ease-out ${getProgressWidthClass(progress)}`}
         />
       </div>
 

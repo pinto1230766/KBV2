@@ -580,6 +580,7 @@ export const Settings: React.FC = () => {
                               ...settings,
                               aiSettings: { ...settings.aiSettings, temperature: parseFloat(e.target.value) }
                             })}
+                            aria-label="Créativité - Température"
                             className="flex-1"
                           />
                           <span className="text-xs text-gray-500">Créatif</span>

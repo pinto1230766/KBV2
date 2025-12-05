@@ -68,7 +68,7 @@ export function useDataCache<T>(
     }
     
     fetchData();
-  }, [key, ttl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, ttl, fetchData]);
 
   return {
     data,
