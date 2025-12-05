@@ -1,0 +1,4 @@
+﻿src/contexts/ConfirmContext.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/contexts/ToastContext.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/hooks/useDataCache.ts(2,1): error TS6133: 'useData' is declared but its value is never read.
+src/hooks/useVisitNotifications.ts(1,10): error TS6133: 'useEffect' is declared but its value is never read.
