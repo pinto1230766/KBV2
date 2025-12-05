@@ -1,3 +1,28 @@
+/* Layout plein écran pour tablette */
+@media (min-width: 768px) {
+  .tablet-full-width {
+    max-width: 100% !important;
+    width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .tablet-container {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Tablette en paysage - utilisation maximale */
+@media (min-width: 768px) and (orientation: landscape) {
+  .tablet-landscape-full {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
 /* Breakpoints pour Samsung */
 
 /* Samsung S25 Ultra (Phone Portrait) - 1440x3120 */
@@ -118,4 +143,23 @@
     font-size: 14px;
     padding: 8px;
   }
+}
+
+/* Curseur S Pen personnalisé */
+.spen-cursor {
+  position: fixed;
+  will-change: transform, opacity;
+}
+
+/* Variables CSS pour la position du curseur */
+:root {
+  --spen-cursor-x: 0px;
+  --spen-cursor-y: 0px;
+}
+
+/* Curseur S Pen avec variables CSS */
+.spen-cursor-positioned {
+  left: var(--spen-cursor-x);
+  top: var(--spen-cursor-y);
+  transform: translate(-50%, -50%);
 }

@@ -218,8 +218,13 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistics Cards - Mobile Optimized Grid */}
-      <div className={`grid gap-3 sm:gap-6 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
+      {/* Statistics Cards - Grilles adaptatives tablette */}
+      <div className={`grid gap-3 sm:gap-6 ${
+        isMobile ? 'grid-cols-2' : 
+        deviceType === 'tablet' && orientation === 'landscape' ? 'grid-cols-4' :
+        deviceType === 'tablet' ? 'grid-cols-3' :
+        'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+      }`}>
         {stats.map((stat, index) => (
           <Card 
             key={stat.label} 

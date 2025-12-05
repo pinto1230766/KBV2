@@ -12,16 +12,18 @@ export const SPenCursor: React.FC<SPenCursorProps> = ({ children }) => {
     return <>{children}</>;
   }
 
+  // Utiliser les variables CSS pour éviter les styles inline
+  React.useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--spen-cursor-x', `${position.x}px`);
+    root.style.setProperty('--spen-cursor-y', `${position.y}px`);
+  }, [position.x, position.y]);
+
   return (
     <>
       {children}
       {/* Curseur personnalisé S Pen */}
-      <div
-        className={`fixed pointer-events-none z-[9999] transition-opacity duration-100 transform-gpu`}
-        style={{
-          transform: `translate(${position.x}px, ${position.y}px) translate(-50%, -50%)`,
-        }}
-      >
+      <div className="spen-cursor spen-cursor-positioned pointer-events-none z-[9999] transition-opacity duration-100">
         <div className="relative">
           {/* Point central */}
           <div className="w-2 h-2 bg-ios-blue rounded-full" />

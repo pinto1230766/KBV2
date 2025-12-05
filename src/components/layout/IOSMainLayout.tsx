@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { IOSTabBar } from '@/components/navigation/IOSTabBar';
 import { IOSNavBar } from '@/components/navigation/IOSNavBar';
 import { SPenCursor } from '@/components/spen/SPenCursor';
+import { usePlatformContext } from '@/contexts/PlatformContext';
 
 // Mapping des routes vers les titres
 const PAGE_TITLES: Record<string, string> = {
@@ -16,7 +17,9 @@ const PAGE_TITLES: Record<string, string> = {
 
 export const IOSMainLayout: React.FC = () => {
   const location = useLocation();
+  const { deviceType } = usePlatformContext();
   const title = PAGE_TITLES[location.pathname] || 'KBV Lyon';
+  const isTablet = deviceType === 'tablet';
 
   return (
     <SPenCursor>
@@ -27,9 +30,9 @@ export const IOSMainLayout: React.FC = () => {
           largeTitle={true}
         />
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto pb-[83px] px-4">
-          <div className="max-w-7xl mx-auto py-4">
+        {/* Main Content - Plein écran sur tablette */}
+        <main className={`flex-1 overflow-y-auto pb-[83px] ${isTablet ? 'tablet-full-width' : 'px-4'}`}>
+          <div className={isTablet ? '' : 'max-w-7xl mx-auto py-4'}>
             <Outlet />
           </div>
         </main>
