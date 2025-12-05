@@ -1,6 +1,5 @@
 import React, { useState, useMemo, memo, useCallback } from 'react';
 import { useData } from '@/contexts/DataContext';
-import { usePlatformContext } from '@/contexts/PlatformContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
 import { PlanningWeekView } from '@/components/planning/PlanningWeekView';
@@ -81,7 +80,6 @@ const ViewOption = memo(({
 
 export const Planning: React.FC = () => {
   const { visits } = useData();
-  const { deviceType, isTabletS10Ultra, orientation } = usePlatformContext();
   const [view, setView] = useState<ViewType>('cards');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<VisitStatus | 'all'>('all');

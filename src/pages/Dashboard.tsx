@@ -8,7 +8,6 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
-import { StatCardSkeleton, ChartSkeleton, ListSkeleton } from '@/components/ui/Skeleton';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { useNavigate } from 'react-router-dom';
 import { Visit } from '@/types';

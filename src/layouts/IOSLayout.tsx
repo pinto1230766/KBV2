@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { IOSTabBar } from './IOSTabBar';
-import { IOSNavBar } from './IOSNavBar';
+import { IOSTabBar } from '@/components/navigation/IOSTabBar';
+import { IOSNavBar } from '@/components/navigation/IOSNavBar';
 
 interface IOSLayoutProps {
   children: ReactNode;
