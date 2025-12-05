@@ -56,6 +56,8 @@ export const Dashboard: React.FC = () => {
   const { deviceType, orientation } = usePlatformContext();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  const isTablet = deviceType === 'tablet';
   
   // Pull-to-refresh
   const { isRefreshing, pullDistance } = usePullToRefresh({
@@ -194,15 +196,18 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className={`${isMobile ? 'space-y-4' : 'space-y-6'} ${isLowEndDevice ? 'optimize-rendering' : ''}`}>
+    <div className={`
+      ${isTablet ? 'h-full flex flex-col space-y-4 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'} 
+      ${isLowEndDevice ? 'optimize-rendering' : ''}
+    `}>
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Offline Banner */}
       <OfflineBanner isOnline={isOnline} />
       
-      {/* Header - Mobile Optimized */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      {/* Header - Fixed on Tablet */}
+      <div className="flex-shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
             Tableau de bord
@@ -218,11 +223,11 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistics Cards - Grilles adaptatives tablette */}
-      <div className={`grid gap-3 sm:gap-6 ${
+      {/* Stats Cards - Fixed height on Tablet */}
+      <div className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
         isMobile ? 'grid-cols-2' : 
         deviceType === 'tablet' && orientation === 'landscape' ? 'grid-cols-4' :
-        deviceType === 'tablet' ? 'grid-cols-3' :
+        deviceType === 'tablet' ? 'grid-cols-4' :
         'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
       }`}>
         {stats.map((stat, index) => (
@@ -231,17 +236,8 @@ export const Dashboard: React.FC = () => {
             hoverable 
             className="relative overflow-hidden cursor-pointer"
             onClick={() => {
-              // Navigation basée sur la carte cliquée
-              if (index === 0 || index === 1) {
-                // Orateurs actifs ou Contacts d'accueil -> Page Orateurs
-                navigate('/speakers');
-              } else if (index === 2) {
-                // Visites ce mois -> Page Planning
-                navigate('/planning');
-              } else if (index === 3) {
-                // Actions requises -> Page Planning avec filtre
-                navigate('/planning');
-              }
+              if (index === 0 || index === 1) navigate('/speakers');
+              else if (index === 2 || index === 3) navigate('/planning');
             }}
           >
             <CardBody className="flex items-center">
@@ -264,217 +260,164 @@ export const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Charts - Mobile Responsive */}
-      <div className={`grid gap-4 sm:gap-6 ${
-        deviceType === 'tablet' && orientation === 'landscape' 
-          ? 'tablet-landscape-grid' 
-          : deviceType === 'tablet' 
-            ? 'tablet-grid' 
-            : isMobile 
-              ? 'grid-cols-1' 
-              : 'grid-cols-1 lg:grid-cols-3'
-      }`}>
-        <Card className={`${
-          deviceType === 'tablet' && orientation === 'landscape' 
-            ? 'col-span-2' 
-            : !isMobile && deviceType !== 'tablet' 
-              ? 'lg:col-span-2' 
-              : ''
-        }`}>
-          <CardHeader>
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
-              Évolution mensuelle des visites
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className={`${isMobile ? 'h-64' : 'h-80'} w-full`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
-                  <XAxis
-                    dataKey="name"
-                    stroke="#6B7280"
-                    fontSize={isMobile ? 10 : 12}
-                    tickLine={false}
-                    axisLine={false}
-                    className="dark:fill-gray-400"
-                  />
-                  <YAxis
-                    stroke="#6B7280"
-                    fontSize={isMobile ? 10 : 12}
-                    tickLine={false}
-                    axisLine={false}
-                    className="dark:fill-gray-400"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'rgb(255 255 255)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                      color: 'rgb(17 24 39)'
-                    }}
-                    cursor={{ fill: '#F3F4F6' }}
-                  />
-                  <Bar dataKey="visites" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Calendar className="w-4 h-4 md:w-5 md:h-5" />
-              Répartition par type
-            </h3>
-          </CardHeader>
-          <CardBody>
-            <div className={`${isMobile ? 'h-48' : 'h-64'} w-full`}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={isMobile ? 30 : 50}
-                    outerRadius={isMobile ? 60 : 80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-col gap-2 mt-4">
-              {pieData.map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-2 h-2 md:w-3 md:h-3 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></div>
-                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
-                      {item.name}
-                    </span>
-                  </div>
-                  <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Main Sections - Mobile Stacked Layout */}
-      <div className={`grid gap-4 sm:gap-6 ${
-        deviceType === 'tablet' && orientation === 'landscape'
-          ? 'grid-cols-2'
-          : deviceType === 'tablet'
-            ? 'grid-cols-1'
-            : isMobile 
-              ? 'grid-cols-1' 
-              : 'grid-cols-1 lg:grid-cols-2'
-      }`}>
-        {/* Upcoming Visits */}
-        <Card>
-          <CardHeader className="flex items-center justify-between">
-            <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Clock className="w-4 h-4 md:w-5 md:h-5" />
-              Prochaines visites (7 jours)
-            </h3>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleNavigateToPlanning}
-            >
-              Voir tout
-            </Button>
-          </CardHeader>
-          <CardBody>
-            {upcomingVisits.length > 0 ? (
-              <div className={`space-y-3 overflow-y-auto ${isMobile ? 'max-h-64' : 'max-h-80'}`}>
-                {upcomingVisits.slice(0, isMobile ? 3 : 5).map((visit) => (
-                  <VisitItem 
-                    key={visit.id} 
-                    visit={visit} 
-                    onClick={handleNavigateToPlanning}
-                    showStatus={true}
-                  />
-                ))}
+      {/* Main Content Area - Scrollable internal on Tablet */}
+      <div className={`
+        ${isTablet ? 'flex-1 min-h-0 grid gap-6 overflow-hidden' : 'grid gap-4 sm:gap-6'}
+        ${isTablet && orientation === 'landscape' ? 'grid-cols-12' : isTablet ? 'grid-cols-1' : ''}
+      `}>
+        
+        {/* Left Column (Charts) - 7/12 on Tablet Landscape */}
+        <div className={`
+          ${isTablet && orientation === 'landscape' ? 'col-span-7 flex flex-col gap-6 overflow-y-auto pr-1' : 'grid gap-4 sm:gap-6'}
+          ${!isTablet && !isMobile ? 'grid-cols-1 lg:grid-cols-3' : (!isTablet ? 'grid-cols-1' : '')} 
+        `}>
+          <Card className={`${
+            (isTablet && orientation === 'landscape') || (!isMobile && !isTablet) ? 'lg:col-span-2' : ''
+          }`}>
+            <CardHeader>
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
+                Évolution mensuelle
+              </h3>
+            </CardHeader>
+            <CardBody>
+              <div className={`${isMobile ? 'h-64' : 'h-80'} w-full`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
+                    <XAxis dataKey="name" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#6B7280" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '8px', border: 'none' }} />
+                    <Bar dataKey="visites" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p className="font-medium">Aucune visite programmée</p>
-                <p className="text-sm mt-1">dans les 7 prochains jours</p>
-              </div>
-            )}
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
 
-        {/* Actions Required */}
-        <Card>
-          <CardHeader className="flex items-center justify-between">
-            <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
-              Actions requises
-            </h3>
-            {visitsNeedingAction.length > 0 && (
-              <Badge variant="danger" className="text-xs">
-                {visitsNeedingAction.length} alerte{visitsNeedingAction.length > 1 ? 's' : ''}
-              </Badge>
-            )}
-          </CardHeader>
-          <CardBody>
-            {visitsNeedingAction.length > 0 ? (
-              <div className="space-y-3" style={{ maxHeight: optimalHeight, overflowY: 'auto' }}>
-                {visitsNeedingAction.slice(0, isMobile ? 3 : 5).map((visit) => (
-                  <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={handleNavigateToPlanning}>
-                      <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {visit.status === 'pending' ? 'Validation requise' : 'Visite passée'}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {visit.nom} • {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
-                            day: 'numeric',
-                            month: 'short'
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/planning');
-                      }}
+          <Card>
+            <CardHeader>
+              <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Calendar className="w-4 h-4 md:w-5 md:h-5" />
+                Répartition
+              </h3>
+            </CardHeader>
+            <CardBody>
+              <div className={`${isMobile ? 'h-48' : 'h-64'} w-full`}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={isMobile ? 30 : 50}
+                      outerRadius={isMobile ? 60 : 80}
+                      paddingAngle={5}
+                      dataKey="value"
                     >
-                      Traiter
-                    </Button>
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-2 mt-4">
+                {pieData.map((item) => (
+                  <div key={item.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 md:w-3 md:h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
+                    </div>
+                    <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">{item.value}</span>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p className="font-medium">Aucune action requise</p>
-                <p className="text-sm mt-1">Toutes les visites sont à jour</p>
-              </div>
-            )}
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Right Column (Lists) - 5/12 on Tablet Landscape */}
+        <div className={`
+          ${isTablet && orientation === 'landscape' ? 'col-span-5 flex flex-col gap-6 overflow-y-auto pr-1' : 'grid gap-4 sm:gap-6'}
+          ${!isTablet && !isMobile ? 'grid-cols-1 lg:grid-cols-2' : (!isTablet ? 'grid-cols-1' : '')}
+        `}>
+          {/* Upcoming Visits */}
+          <Card className={isTablet ? 'flex-1 flex flex-col' : ''}>
+            <CardHeader className="flex items-center justify-between flex-shrink-0">
+              <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 md:w-5 md:h-5" />
+                Prochaines visites
+              </h3>
+              <Button variant="secondary" size="sm" onClick={handleNavigateToPlanning}>
+                Voir tout
+              </Button>
+            </CardHeader>
+            <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
+              {upcomingVisits.length > 0 ? (
+                <div className={`space-y-3 ${isTablet ? '' : isMobile ? 'max-h-64' : 'max-h-80 overflow-y-auto'}`}>
+                  {upcomingVisits.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit) => (
+                    <VisitItem key={visit.id} visit={visit} onClick={handleNavigateToPlanning} showStatus={true} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
+                  <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p className="font-medium">Aucune visite programmée</p>
+                  <p className="text-sm mt-1">dans les 7 prochains jours</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Actions Required */}
+          <Card className={isTablet ? 'flex-1 flex flex-col' : ''}>
+            <CardHeader className="flex items-center justify-between flex-shrink-0">
+              <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
+                Actions requises
+              </h3>
+              {visitsNeedingAction.length > 0 && (
+                <Badge variant="danger" className="text-xs">
+                  {visitsNeedingAction.length} alerte{visitsNeedingAction.length > 1 ? 's' : ''}
+                </Badge>
+              )}
+            </CardHeader>
+            <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
+              {visitsNeedingAction.length > 0 ? (
+                <div className="space-y-3" style={!isTablet ? { maxHeight: optimalHeight, overflowY: 'auto' } : {}}>
+                  {visitsNeedingAction.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit) => (
+                    <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={handleNavigateToPlanning}>
+                        <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {visit.status === 'pending' ? 'Validation requise' : 'Visite passée'}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {visit.nom} • {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
+                              day: 'numeric', month: 'short'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); navigate('/planning'); }}>
+                        Traiter
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
+                  <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p className="font-medium">Aucune action requise</p>
+                  <p className="text-sm mt-1">Toutes les visites sont à jour</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </div>
   );

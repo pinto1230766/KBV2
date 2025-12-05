@@ -20,6 +20,7 @@ export const IOSMainLayout: React.FC = () => {
   const { deviceType } = usePlatformContext();
   const title = PAGE_TITLES[location.pathname] || 'KBV Lyon';
   const isTablet = deviceType === 'tablet';
+  const isDashboard = location.pathname === '/';
 
   return (
     <SPenCursor>
@@ -30,9 +31,9 @@ export const IOSMainLayout: React.FC = () => {
           largeTitle={true}
         />
 
-        {/* Main Content - Plein écran sur tablette */}
-        <main className={`flex-1 overflow-y-auto pb-[83px] ${isTablet ? 'tablet-full-width' : 'px-4'}`}>
-          <div className={isTablet ? '' : 'max-w-7xl mx-auto py-4'}>
+        {/* Main Content - Plein écran sur tablette, pas de scroll si Dashboard tablette */}
+        <main className={`flex-1 ${isTablet && isDashboard ? 'overflow-hidden' : 'overflow-y-auto'} pb-[83px] ${isTablet ? 'tablet-full-width' : 'px-4'}`}>
+          <div className={`${isTablet ? 'h-full' : 'max-w-7xl mx-auto py-4'}`}>
             <Outlet />
           </div>
         </main>

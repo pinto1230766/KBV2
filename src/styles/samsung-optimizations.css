@@ -163,3 +163,16 @@
   top: var(--spen-cursor-y);
   transform: translate(-50%, -50%);
 }
+
+/* Variables CSS pour Pull-to-Refresh */
+:root {
+  --ptr-transform: translateY(0px);
+  --ptr-opacity: 0;
+}
+
+/* Indicateur Pull-to-Refresh */
+.pull-refresh-indicator {
+  transform: var(--ptr-transform);
+  opacity: var(--ptr-opacity);
+  will-change: transform, opacity;
+}

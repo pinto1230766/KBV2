@@ -17,14 +17,15 @@ export const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
 
   if (pullDistance === 0 && !isRefreshing) return null;
 
+  // Utiliser les variables CSS pour éviter les styles inline
+  React.useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--ptr-transform', `translateY(${isRefreshing ? '60px' : `${pullDistance}px`})`);
+    root.style.setProperty('--ptr-opacity', isRefreshing ? '1' : opacity.toString());
+  }, [pullDistance, isRefreshing, opacity]);
+
   return (
-    <div
-      className="fixed top-0 left-0 right-0 flex justify-center items-center z-50 transition-all duration-200"
-      style={{
-        transform: `translateY(${isRefreshing ? '60px' : `${pullDistance}px`})`,
-        opacity: isRefreshing ? 1 : opacity,
-      }}
-    >
+    <div className="pull-refresh-indicator fixed top-0 left-0 right-0 flex justify-center items-center z-50 transition-all duration-200">
       <div className="bg-white dark:bg-gray-800 rounded-full p-3 shadow-lg">
         {isRefreshing ? (
           <Loader2 className="w-6 h-6 text-ios-blue animate-spin" />
