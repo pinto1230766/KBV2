@@ -50,6 +50,7 @@ interface DataContextValue extends AppData {
   importData: (json: string) => void;
   resetData: () => void;
   syncWithGoogleSheet: () => Promise<void>;
+  refreshData: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -375,6 +376,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshData = async (): Promise<void> => {
+    // Simuler un délai de rafraîchissement
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Les données sont déjà en mémoire, pas besoin de recharger
+    // Cette fonction peut être étendue pour recharger depuis une API
+  };
+
   if (!loaded) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -404,6 +412,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         importData,
         resetData,
         syncWithGoogleSheet,
+        refreshData,
       }}
     >
       {children}

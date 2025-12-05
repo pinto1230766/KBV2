@@ -57,7 +57,6 @@ export const Dashboard: React.FC = () => {
   const { deviceType, orientation } = usePlatformContext();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [isInitialLoading, setIsInitialLoading] = useState(false);
   
   // Pull-to-refresh
   const { isRefreshing, pullDistance } = usePullToRefresh({
@@ -197,6 +196,12 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className={`${isMobile ? 'space-y-4' : 'space-y-6'} ${isLowEndDevice ? 'optimize-rendering' : ''}`}>
+      {/* Pull to Refresh Indicator */}
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
+      
+      {/* Offline Banner */}
+      <OfflineBanner isOnline={isOnline} />
+      
       {/* Header - Mobile Optimized */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
