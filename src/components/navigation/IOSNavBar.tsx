@@ -64,6 +64,23 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
         {/* Large Title (visible at top) */}
         {largeTitle && (
           <div className="px-4 pb-3">
+            {/* Logo SVG */}
+            <div className="flex items-center justify-center mb-2">
+              <img 
+                src="/logo.svg" 
+                alt="KBV Lyon Logo" 
+                className="h-12 w-auto"
+                onError={(e) => {
+                  // Fallback en cas d'erreur de chargement du logo
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="h-12 flex items-center justify-center bg-gradient-to-r from-blue-800 to-blue-500 rounded-lg px-4"><span class="text-white font-bold text-lg">KBV</span></div>';
+                  }
+                }}
+              />
+            </div>
             <h1 className="ios-large-title text-gray-900 dark:text-white">
               {title}
             </h1>
