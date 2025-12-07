@@ -1,6 +1,6 @@
 {
   "name": "kbv-lyon",
-  "version": "1.10.0",
+  "version": "1.20.0",
   "description": "Application de gestion des orateurs visiteurs - KBV DV Lyon",
   "type": "module",
   "scripts": {

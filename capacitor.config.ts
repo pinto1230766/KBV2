@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.kbv.lyon',
-  appName: 'KBV Lyon',
+  appId: 'com.kbvfp.app',
+  appName: 'KBVFP',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
