@@ -18,7 +18,7 @@ import {
 import { Speaker, Visit } from '@/types';
 
 export const Messages: React.FC = () => {
-  const { visits, speakers } = useData();
+  const { visits, speakers, updateVisit } = useData();
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
@@ -81,6 +81,17 @@ export const Messages: React.FC = () => {
         setGeneratorVisit(visit);
         setIsGeneratorModalOpen(true);
       }
+    } else if (action === 'confirm' && visit) {
+      // Confirmer la visite
+      const updatedVisit: Visit = {
+        ...visit,
+        status: 'confirmed',
+        updatedAt: new Date().toISOString()
+      };
+      updateVisit(updatedVisit);
+    } else if (action === 'host_request' && visit) {
+      setGeneratorVisit(visit);
+      setIsHostRequestModalOpen(true);
     }
   };
 
