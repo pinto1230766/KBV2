@@ -69,14 +69,14 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
               <img 
                 src="/logo.svg" 
                 alt="KBV Lyon Logo" 
-                className="h-12 w-auto"
+                className="h-36 w-auto"
                 onError={(e) => {
                   // Fallback en cas d'erreur de chargement du logo
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   const parent = target.parentElement;
                   if (parent) {
-                    parent.innerHTML = '<div class="h-12 flex items-center justify-center bg-gradient-to-r from-blue-800 to-blue-500 rounded-lg px-4"><span class="text-white font-bold text-lg">KBV</span></div>';
+                    parent.innerHTML = '<div class="h-36 flex items-center justify-center bg-gradient-to-r from-blue-800 to-blue-500 rounded-lg px-4"><span class="text-white font-bold text-2xl">KBV</span></div>';
                   }
                 }}
               />
