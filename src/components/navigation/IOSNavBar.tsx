@@ -39,7 +39,7 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
         </div>
         
         {/* Small Nav Bar (always visible) */}
-        <div className="flex items-center justify-between h-9 px-4">
+        <div className="flex items-center justify-between h-7 px-4">
           {/* Left Button */}
           <div className="w-20">
             {showBackButton && (
@@ -55,11 +55,9 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
 
           {/* Center Title (only visible when scrolled) */}
           <div className="flex-1 text-center">
-            {!largeTitle && (
-              <h1 className="text-ios-body font-semibold text-gray-900 dark:text-white truncate text-sm">
-                {title}
-              </h1>
-            )}
+            <h1 className="text-ios-body font-semibold text-gray-900 dark:text-white truncate text-sm">
+              {title}
+            </h1>
           </div>
 
           {/* Right Button */}
@@ -67,15 +65,6 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
             {rightButton}
           </div>
         </div>
-
-        {/* Large Title (visible at top) - Very reduced height */}
-        {largeTitle && (
-          <div className="px-4 pb-1">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-              {title}
-            </h1>
-          </div>
-        )}
       </div>
     </div>
   );
