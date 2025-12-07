@@ -31,8 +31,15 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
     <div className="ios-safe-top">
       {/* Blur Background */}
       <div className="ios-blur border-b border-gray-200 dark:border-gray-800">
+        {/* KBV LYON FP Header - Fixed at top */}
+        <div className="px-4 py-1 bg-gradient-to-r from-blue-800 to-blue-600">
+          <h1 className="text-lg font-bold text-white">
+            KBV LYON FP
+          </h1>
+        </div>
+        
         {/* Small Nav Bar (always visible) */}
-        <div className="flex items-center justify-between h-11 px-4">
+        <div className="flex items-center justify-between h-9 px-4">
           {/* Left Button */}
           <div className="w-20">
             {showBackButton && (
@@ -40,8 +47,8 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
                 onClick={handleBack}
                 className="flex items-center gap-1 text-ios-blue active:opacity-50 transition-opacity"
               >
-                <ChevronLeft className="w-5 h-5" />
-                <span className="text-ios-body font-normal">Retour</span>
+                <ChevronLeft className="w-4 h-4" />
+                <span className="text-ios-body font-normal text-sm">Retour</span>
               </button>
             )}
           </div>
@@ -49,7 +56,7 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
           {/* Center Title (only visible when scrolled) */}
           <div className="flex-1 text-center">
             {!largeTitle && (
-              <h1 className="text-ios-body font-semibold text-gray-900 dark:text-white truncate">
+              <h1 className="text-ios-body font-semibold text-gray-900 dark:text-white truncate text-sm">
                 {title}
               </h1>
             )}
@@ -61,10 +68,10 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
           </div>
         </div>
 
-        {/* Large Title (visible at top) - Reduced height */}
+        {/* Large Title (visible at top) - Very reduced height */}
         {largeTitle && (
-          <div className="px-4 pb-2">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="px-4 pb-1">
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">
               {title}
             </h1>
           </div>
