@@ -20,7 +20,8 @@ import {
   Sun,
   Monitor,
   RefreshCw,
-  Copy
+  Copy,
+  Link
 } from 'lucide-react';
 import { CongregationProfile, Language, Theme } from '@/types';
 
@@ -534,6 +535,32 @@ export const Settings: React.FC = () => {
                               Importer un backup
                            </Button>
                         </div>
+                     </div>
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                     <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                        <Link className="w-4 h-4" />
+                        Liens Utiles
+                     </h4>
+                     <div className="flex flex-col sm:flex-row gap-4">
+                        <Button asChild variant="secondary">
+                           <a 
+                              href="https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg"
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                           >
+                              Ouvrir Google Sheet
+                           </a>
+                        </Button>
+                        <Button asChild variant="outline">
+                           <a 
+                              href="https://www.jw.org/kea/" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                           >
+                              JW.ORG (Cap-Verdien)
+                           </a>
+                        </Button>
                      </div>
                   </div>
                 </div>
