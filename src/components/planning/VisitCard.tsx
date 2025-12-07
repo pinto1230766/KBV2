@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, User, Clock, MoreVertical, Edit2, Trash2, MessageSquare, CheckCircle } from 'lucide-react';
+import { Calendar, MapPin, User, Clock, MoreVertical, Edit2, Trash2, MessageSquare, CheckCircle, Star, CreditCard, Truck } from 'lucide-react';
 import { Visit } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -10,7 +10,7 @@ import { fr } from 'date-fns/locale';
 interface VisitCardProps {
   visit: Visit;
   onClick?: () => void;
-  onAction?: (visit: Visit, action: 'edit' | 'delete' | 'status' | 'message') => void;
+  onAction?: (visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => void;
 }
 
 export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }) => {
@@ -31,7 +31,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
     }
   };
 
-  const handleActionClick = (action: 'edit' | 'delete' | 'status' | 'message', e: React.MouseEvent) => {
+  const handleActionClick = (action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses', e: React.MouseEvent) => {
     e.stopPropagation();
     if (onAction) {
       onAction(visit, action);
@@ -42,7 +42,10 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
   const actionOptions = [
     { action: 'edit', label: 'Modifier', icon: Edit2, color: 'text-blue-600' },
     { action: 'message', label: 'Envoyer un message', icon: MessageSquare, color: 'text-green-600' },
+    { action: 'expenses', label: 'Dépenses', icon: CreditCard, color: 'text-purple-600' },
+    { action: 'logistics', label: 'Logistique', icon: Truck, color: 'text-blue-500' },
     { action: 'status', label: 'Changer le statut', icon: CheckCircle, color: 'text-orange-600' },
+    { action: 'feedback', label: 'Bilan', icon: Star, color: 'text-yellow-500' },
     { action: 'delete', label: 'Supprimer', icon: Trash2, color: 'text-red-600' },
   ];
 
@@ -92,6 +95,14 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
               <span className="line-clamp-1">Chez {visit.host}</span>
             </div>
           )}
+
+          {/* Logistics Indicator */}
+          {visit.logistics?.checklist && visit.logistics.checklist.some(item => !item.isCompleted) && (
+            <div className="flex items-center text-xs text-orange-600 dark:text-orange-400 mt-1">
+              <Truck className="w-3 h-3 mr-2" />
+              <span>Logistique à compléter</span>
+            </div>
+          )}
         </div>
 
         {/* Barre de progression communication */}
@@ -122,7 +133,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
                   <button
                     key={option.action}
                     className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                    onClick={(e) => handleActionClick(option.action as 'edit' | 'delete' | 'status' | 'message', e)}
+                    onClick={(e) => handleActionClick(option.action as any, e)}
                   >
                     <option.icon className={`w-4 h-4 ${option.color}`} />
                     {option.label}

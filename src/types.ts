@@ -70,9 +70,8 @@ export interface Expense {
 
 export interface ChecklistItem {
   id: string;
-  text: string;
-  completed: boolean;
-  completedAt?: string; // ISO date
+  label: string;
+  isCompleted: boolean;
 }
 
 export interface Feedback {
@@ -80,6 +79,35 @@ export interface Feedback {
   comments?: string;
   submittedBy?: string;
   submittedAt?: string; // ISO date
+  category?: string;
+}
+
+
+
+export interface Itinerary {
+  transportMode: 'car' | 'train' | 'plane' | 'other';
+  distance?: number; // km
+  duration?: string; // e.g., "1h 30m"
+  meetingPoint?: string;
+  mapLink?: string;
+  notes?: string;
+}
+
+export interface Accommodation {
+  type: 'hotel' | 'host' | 'other';
+  name: string;
+  address?: string;
+  checkIn?: string; // ISO date or time
+  checkOut?: string;
+  bookingReference?: string;
+  notes?: string;
+  mapLink?: string;
+}
+
+export interface Logistics {
+  itinerary?: Itinerary;
+  accommodation?: Accommodation;
+  checklist?: ChecklistItem[];
 }
 
 export interface Visit {
@@ -102,8 +130,9 @@ export interface Visit {
   notes?: string;
   attachments?: Attachment[];
   expenses?: Expense[];
-  checklist?: ChecklistItem[];
-  feedback?: Feedback;
+  logistics?: Logistics;
+  visitFeedback?: VisitFeedback; // Nouveau système
+  feedback?: string; // Ancien champ texte simple (legacy)
   zoomLink?: string;
   streamingLink?: string;
   createdAt?: string; // ISO date
@@ -367,6 +396,48 @@ export interface TalkStats {
 }
 
 // ============================================================================
+// GESTION DE LA CHARGE (WORKLOAD)
+// ============================================================================
+
+export interface WorkloadBalance {
+  speakerId: string;
+  speakerName: string;
+  currentLoad: number; // 0-100%
+  maxCapacity: number;
+  lastVisit: string | null; // ISO Date
+  travelTime?: number; // en minutes (estimé)
+  workloadScore: number; // 1-5 (1: faible, 5: critique)
+  availabilityNextMonth: boolean;
+}
+
+// ============================================================================
+// SYSTÈME DE FEEDBACK
+// ============================================================================
+
+export interface VisitFeedback {
+  id: string;
+  visitId: string;
+  speakerRating: number; // 1-5
+  hostRating?: number; // 1-5
+  organizationRating?: number; // 1-5
+  comments: string;
+  areasForImprovement?: string[];
+  isPrivate: boolean; // Si vrai, visible uniquement par les admins/coordinateurs
+  submittedBy: string;
+  submittedAt: string; // ISO date
+}
+
+export interface SatisfactionMetrics {
+  period: string; // "month", "year", "all"
+  averageSpeakerRating: number;
+  averageHostRating: number;
+  averageOrganizationRating: number;
+  trendDirection: 'up' | 'down' | 'stable';
+  totalFeedbacks: number;
+  responseRate: number; // Pourcentage
+}
+
+// ============================================================================
 // TYPES POUR LE CACHE
 // ============================================================================
 
@@ -383,4 +454,32 @@ export interface CachedData {
   monthlyStats?: CacheEntry<MonthlyStats[]>;
   speakerTags?: CacheEntry<string[]>;
   hostTags?: CacheEntry<string[]>;
+  workload?: CacheEntry<WorkloadBalance[]>;
+  satisfaction?: CacheEntry<SatisfactionMetrics>;
+}
+
+// ============================================================================
+// SYNCHRONISATION
+// ============================================================================
+
+export type SyncActionType = 
+  | 'ADD_SPEAKER' | 'UPDATE_SPEAKER' | 'DELETE_SPEAKER'
+  | 'ADD_VISIT' | 'UPDATE_VISIT' | 'DELETE_VISIT' | 'COMPLETE_VISIT'
+  | 'ADD_HOST' | 'UPDATE_HOST' | 'DELETE_HOST';
+
+export interface SyncAction {
+  id: string; // UUID unique de l'action
+  type: SyncActionType;
+  payload: any;
+  timestamp: number;
+  status: 'pending' | 'syncing' | 'synced' | 'failed';
+  retryCount: number;
+  error?: string;
+}
+
+export interface SyncState {
+  isOnline: boolean;
+  isSyncing: boolean;
+  lastSyncAttempt: number | null;
+  pendingActions: SyncAction[];
 }

@@ -3,6 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Host, Gender } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -104,6 +105,16 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Photo de profil */}
+        <div className="flex justify-center mb-4">
+          <ImageUpload
+            value={formData.photoUrl}
+            onChange={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
+            label="Photo du contact"
+            size="lg"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
             label="Nom complet"

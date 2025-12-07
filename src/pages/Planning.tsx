@@ -1,4 +1,4 @@
-import React, { useState, useMemo, memo, useCallback } from 'react';
+import React, { useState, useMemo, memo, useCallback, useRef } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
@@ -18,11 +18,20 @@ import {
   Search,
   Download,
   Filter,
-  Eye
+
+  Eye,
+  BarChart,
+  PieChart
 } from 'lucide-react';
 import { LocationType, VisitStatus, Visit } from '@/types';
+import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
+import { PlanningTimelineView } from '@/components/planning/PlanningTimelineView';
+import { FinancialDashboard } from '@/components/expenses/FinancialDashboard';
+import { useReactToPrint } from 'react-to-print';
+import { PlanningFilterModal } from '@/components/planning/PlanningFilterModal';
 
-type ViewType = 'cards' | 'list' | 'week' | 'calendar' | 'timeline';
+
+type ViewType = 'cards' | 'list' | 'week' | 'calendar' | 'timeline' | 'workload' | 'finance';
 
 // Memoized statistics component for performance
 const StatCard = memo(({ 
@@ -86,8 +95,17 @@ export const Planning: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<LocationType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
-  const [selectedAction, setSelectedAction] = useState<'edit' | 'delete' | 'status' | 'message'>('edit');
+  const [selectedAction, setSelectedAction] = useState<'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'>('edit');
+
+  const componentRef = useRef<HTMLDivElement>(null);
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: `Planning-visites-${new Date().toLocaleDateString()}`,
+  });
+
 
   // Memoized event handlers to prevent unnecessary re-renders
   const handleSetView = useCallback((newView: ViewType) => setView(newView), []);
@@ -99,7 +117,7 @@ export const Planning: React.FC = () => {
     setTypeFilter(e.target.value as LocationType | 'all'), []);
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
-  const handleVisitAction = useCallback((visit: Visit, action: 'edit' | 'delete' | 'status' | 'message') => {
+  const handleVisitAction = useCallback((visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => {
     setSelectedVisit(visit);
     setSelectedAction(action);
     setIsActionModalOpen(true);
@@ -112,7 +130,7 @@ export const Planning: React.FC = () => {
   // Optimized filtered and sorted visits with proper dependencies
   const filteredVisits = useMemo(() => {
     return visits
-      .filter(visit => {
+      .filter((visit: Visit) => {
         const matchesSearch =
           visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
           visit.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -121,19 +139,24 @@ export const Planning: React.FC = () => {
 
         const matchesStatus = statusFilter === 'all' || visit.status === statusFilter;
         const matchesType = typeFilter === 'all' || visit.locationType === typeFilter;
+        
+        const visitDate = new Date(visit.visitDate);
+        const matchesDateRange = 
+            (!dateRange.start || visitDate >= dateRange.start) &&
+            (!dateRange.end || visitDate <= dateRange.end);
 
-        return matchesSearch && matchesStatus && matchesType;
+        return matchesSearch && matchesStatus && matchesType && matchesDateRange;
       })
-      .sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
-  }, [visits, searchTerm, statusFilter, typeFilter]);
+      .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
+  }, [visits, searchTerm, statusFilter, typeFilter, dateRange]);
 
   // Optimized statistics calculation
   const stats = useMemo(() => {
     const total = filteredVisits.length;
-    const confirmed = filteredVisits.filter(v => v.status === 'confirmed').length;
-    const pending = filteredVisits.filter(v => v.status === 'pending').length;
-    const completed = filteredVisits.filter(v => v.status === 'completed').length;
-    const upcoming = filteredVisits.filter(v => {
+    const confirmed = filteredVisits.filter((v: Visit) => v.status === 'confirmed').length;
+    const pending = filteredVisits.filter((v: Visit) => v.status === 'pending').length;
+    const completed = filteredVisits.filter((v: Visit) => v.status === 'completed').length;
+    const upcoming = filteredVisits.filter((v: Visit) => {
       const visitDate = new Date(v.visitDate);
       const today = new Date();
       return visitDate >= today && v.status === 'confirmed';
@@ -147,7 +170,10 @@ export const Planning: React.FC = () => {
     { id: 'list', label: 'Liste', icon: List, description: 'Tableau détaillé' },
     { id: 'week', label: 'Semaine', icon: Clock, description: 'Vue hebdomadaire' },
     { id: 'calendar', label: 'Calendrier', icon: CalendarIcon, description: 'Calendrier mensuel' },
-    { id: 'timeline', label: 'Chronologie', icon: Eye, description: 'Timeline verticale' }
+
+    { id: 'timeline', label: 'Chronologie', icon: Eye, description: 'Timeline verticale' },
+    { id: 'workload', label: 'Charge', icon: BarChart, description: 'Disponibilité orateurs' },
+    { id: 'finance', label: 'Finances', icon: PieChart, description: 'Suivi des coûts' }
   ], []);
 
   return (
@@ -259,10 +285,10 @@ export const Planning: React.FC = () => {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />}>
+            <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handlePrint}>
               Exporter
             </Button>
-            <Button variant="secondary" size="sm" leftIcon={<Filter className="w-4 h-4" />}>
+            <Button variant="secondary" size="sm" leftIcon={<Filter className="w-4 h-4" />} onClick={() => setIsFilterModalOpen(true)}>
               Filtres
             </Button>
           </div>
@@ -270,13 +296,21 @@ export const Planning: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="min-h-[400px] md:min-h-[600px]">
+      <div className="min-h-[400px] md:min-h-[600px]" ref={componentRef}>
         {view === 'cards' && (
-          <PlanningCardsView visits={filteredVisits} onVisitAction={handleVisitAction} />
+          <PlanningCardsView 
+            visits={filteredVisits} 
+            onVisitAction={handleVisitAction} 
+            onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+          />
         )}
 
         {view === 'list' && (
-          <PlanningListView visits={filteredVisits} />
+          <PlanningListView 
+            visits={filteredVisits} 
+            onVisitAction={handleVisitAction}
+            onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+          />
         )}
 
         {view === 'week' && (
@@ -288,23 +322,20 @@ export const Planning: React.FC = () => {
         )}
 
         {view === 'timeline' && (
-          <div className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="text-center py-8 md:py-12">
-              <Eye className="w-12 h-12 md:w-16 md:h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Vue Chronologie
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">
-                Timeline verticale des visites
-              </p>
-              <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">En développement</span>
-            </div>
-          </div>
+          <PlanningTimelineView visits={filteredVisits} />
+        )}
+
+        {view === 'workload' && (
+          <PlanningWorkloadView />
+        )}
+
+        {view === 'finance' && (
+          <FinancialDashboard />
         )}
       </div>
 
       {/* Past Visits Alert */}
-      {visits.filter(v => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length > 0 && (
+      {visits.filter((v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length > 0 && (
         <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -316,7 +347,7 @@ export const Planning: React.FC = () => {
                   Visites passées à archiver
                 </h4>
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  {visits.filter(v => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length} visite(s) passée(s) nécessite(nt) une action
+                  {visits.filter((v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length} visite(s) passée(s) nécessite(nt) une action
                 </p>
               </div>
             </div>
@@ -337,6 +368,13 @@ export const Planning: React.FC = () => {
         onClose={handleCloseActionModal}
         visit={selectedVisit}
         action={selectedAction}
+      />
+
+      <PlanningFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
       />
     </div>
   );

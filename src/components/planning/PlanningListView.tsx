@@ -7,9 +7,10 @@ import { Edit, Trash2, MessageSquare } from 'lucide-react';
 interface PlanningListViewProps {
   visits: Visit[];
   onVisitClick?: (visit: Visit) => void;
+  onVisitAction?: (visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => void;
 }
 
-export const PlanningListView: React.FC<PlanningListViewProps> = ({ visits, onVisitClick }) => {
+export const PlanningListView: React.FC<PlanningListViewProps> = ({ visits, onVisitClick, onVisitAction }) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
@@ -106,21 +107,21 @@ export const PlanningListView: React.FC<PlanningListViewProps> = ({ visits, onVi
                   <div className="flex items-center justify-end gap-2">
                     <button 
                       className="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 p-1"
-                      onClick={(e) => { e.stopPropagation(); /* Action */ }}
+                      onClick={(e) => { e.stopPropagation(); onVisitAction?.(visit, 'edit'); }}
                       title="Modifier"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button 
                       className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1"
-                      onClick={(e) => { e.stopPropagation(); /* Action */ }}
+                      onClick={(e) => { e.stopPropagation(); onVisitAction?.(visit, 'message'); }}
                       title="Message"
                     >
                       <MessageSquare className="w-4 h-4" />
                     </button>
                     <button 
                       className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1"
-                      onClick={(e) => { e.stopPropagation(); /* Action */ }}
+                      onClick={(e) => { e.stopPropagation(); onVisitAction?.(visit, 'delete'); }}
                       title="Supprimer"
                     >
                       <Trash2 className="w-4 h-4" />

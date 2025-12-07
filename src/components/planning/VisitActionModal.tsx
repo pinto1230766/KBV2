@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
 import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit } from '@/types';
-import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle } from 'lucide-react';
+import { Visit, VisitFeedback } from '@/types';
+import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star } from 'lucide-react';
+import { FeedbackForm } from '@/components/feedback/FeedbackForm';
+import { ExpenseForm } from '@/components/expenses/ExpenseForm';
+import { ExpenseList } from '@/components/expenses/ExpenseList';
+import { Expense } from '@/types';
+import { CreditCard, Truck } from 'lucide-react';
+import { LogisticsManager } from '@/components/logistics/LogisticsManager';
+import { RoadmapView } from '@/components/reports/RoadmapView';
 
 interface VisitActionModalProps {
   isOpen: boolean;
   onClose: () => void;
   visit: Visit | null;
-  action: 'edit' | 'delete' | 'status' | 'message';
+  action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics';
 }
 
 export const VisitActionModal: React.FC<VisitActionModalProps> = ({
@@ -21,10 +28,20 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   visit,
   action
 }) => {
-  const { updateVisit, deleteVisit, logCommunication } = useData();
+  const { updateVisit, deleteVisit, logCommunication, speakers, hosts } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<Partial<Visit>>(visit || {});
+  const [formData, setFormData] = useState<Partial<Visit>>({});
+
+  // Expenses Logic
+  const [isAddingExpense, setIsAddingExpense] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
+
+  useEffect(() => {
+    if (visit) {
+      setFormData(visit);
+    }
+  }, [visit]);
 
   if (!visit) return null;
 
@@ -81,6 +98,73 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       onClose();
     } catch (error) {
       addToast('Erreur lors de l\'envoi', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
+    setIsLoading(true);
+    try {
+      const newFeedback: VisitFeedback = {
+        ...feedbackData,
+        id: crypto.randomUUID(),
+        visitId: visit.visitId,
+        submittedBy: 'currentUser', // À remplacer par l'ID réel de l'utilisateur
+        submittedAt: new Date().toISOString()
+      };
+      
+      await updateVisit({ 
+        ...visit, 
+        visitFeedback: newFeedback 
+      });
+      
+      addToast('Bilan enregistré avec succès', 'success');
+      onClose();
+    } catch (error) {
+      addToast('Erreur lors de l\'enregistrement du bilan', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveExpense = async (expenseData: Omit<Expense, 'id'>) => {
+    setIsLoading(true);
+    try {
+      const currentExpenses = visit.expenses || [];
+      let newExpenses: Expense[];
+
+      if (editingExpense) {
+        // Update existing
+        newExpenses = currentExpenses.map(e => 
+          e.id === editingExpense.id ? { ...expenseData, id: editingExpense.id } : e
+        );
+      } else {
+        // Add new
+        newExpenses = [...currentExpenses, { ...expenseData, id: crypto.randomUUID() }];
+      }
+
+      await updateVisit({ ...visit, expenses: newExpenses });
+      addToast(editingExpense ? 'Dépense modifiée' : 'Dépense ajoutée', 'success');
+      setIsAddingExpense(false);
+      setEditingExpense(undefined);
+    } catch (error) {
+      addToast('Erreur lors de la sauvegarde de la dépense', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    if (!window.confirm('Supprimer cette dépense ?')) return;
+
+    setIsLoading(true);
+    try {
+      const newExpenses = (visit.expenses || []).filter(e => e.id !== expenseId);
+      await updateVisit({ ...visit, expenses: newExpenses });
+      addToast('Dépense supprimée', 'success');
+    } catch (error) {
+      addToast('Erreur lors de la suppression', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -248,6 +332,77 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           </div>
         );
 
+      case 'feedback':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              Bilan de la visite
+            </h3>
+            <FeedbackForm 
+              visitId={visit.visitId}
+              initialFeedback={visit.visitFeedback}
+              onSubmit={handleFeedbackSubmit}
+              onCancel={onClose}
+            />
+          </div>
+        );
+
+      case 'expenses':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-green-600" />
+              Gestion des coûts
+            </h3>
+            
+            {isAddingExpense || editingExpense ? (
+              <ExpenseForm
+                initialData={editingExpense}
+                onSubmit={handleSaveExpense}
+                onCancel={() => {
+                  setIsAddingExpense(false);
+                  setEditingExpense(undefined);
+                }}
+              />
+            ) : (
+              <ExpenseList
+                expenses={visit.expenses || []}
+                onAdd={() => setIsAddingExpense(true)}
+                onEdit={setEditingExpense}
+                onDelete={handleDeleteExpense}
+                readOnly={isLoading}
+              />
+            )}
+          </div>
+        );
+
+      case 'logistics':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Truck className="w-5 h-5 text-blue-600" />
+              Logistique
+            </h3>
+            <LogisticsManager
+              logistics={visit.logistics}
+              onUpdate={(updatedLogistics) => updateVisit({ ...visit, logistics: updatedLogistics })}
+              readOnly={isLoading}
+            />
+            
+            <div className="border-t pt-4 mt-4">
+              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Documents</h4>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <RoadmapView 
+                   visit={visit} 
+                   speaker={speakers.find(s => s.id === visit.id)}
+                   host={hosts.find(h => h.nom === visit.host)}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -277,6 +432,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
             </Button>
           </>
         );
+      case 'feedback':
+      case 'expenses':
+        return null; // Le formulaire a ses propres boutons
       default:
         return (
           <Button variant="ghost" onClick={onClose} disabled={isLoading}>

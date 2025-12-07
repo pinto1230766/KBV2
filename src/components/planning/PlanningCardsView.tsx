@@ -5,7 +5,7 @@ import { VisitCard } from './VisitCard';
 interface PlanningCardsViewProps {
   visits: Visit[];
   onVisitClick?: (visit: Visit) => void;
-  onVisitAction?: (visit: Visit, action: 'edit' | 'delete' | 'status' | 'message') => void;
+  onVisitAction?: (visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => void;
 }
 
 export const PlanningCardsView: React.FC<PlanningCardsViewProps> = ({ visits, onVisitClick, onVisitAction }) => {
@@ -19,9 +19,9 @@ export const PlanningCardsView: React.FC<PlanningCardsViewProps> = ({ visits, on
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {visits.map((visit) => (
+      {visits.map((visit, index) => (
         <VisitCard 
-          key={visit.id} 
+          key={`${visit.id}-${index}`} 
           visit={visit} 
           onClick={() => onVisitClick?.(visit)}
           onAction={onVisitAction}

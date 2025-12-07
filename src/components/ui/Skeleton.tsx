@@ -29,14 +29,45 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     none: '',
   };
 
-  const style: React.CSSProperties = {};
-  if (width) style.width = typeof width === 'number' ? `${width}px` : width;
-  if (height) style.height = typeof height === 'number' ? `${height}px` : height;
+  // Utiliser des classes Tailwind pour éviter les styles inline
+  const getSizeClasses = () => {
+    const classes = [];
+    if (width) {
+      const widthValue = typeof width === 'number' ? `${width}px` : width;
+      if (widthValue.includes('px')) {
+        classes.push(`w-[${widthValue}]`);
+      } else if (widthValue === '100%') {
+        classes.push('w-full');
+      } else if (widthValue === '60%') {
+        classes.push('w-[60%]');
+      } else if (widthValue === '40%') {
+        classes.push('w-[40%]');
+      } else if (widthValue === '50%') {
+        classes.push('w-[50%]');
+      } else if (widthValue === '70%') {
+        classes.push('w-[70%]');
+      } else if (widthValue === '80%') {
+        classes.push('w-[80%]');
+      } else {
+        classes.push(`w-[${widthValue}]`);
+      }
+    }
+    if (height) {
+      const heightValue = typeof height === 'number' ? `${height}px` : height;
+      if (heightValue.includes('px')) {
+        classes.push(`h-[${heightValue}]`);
+      } else if (heightValue === '100%') {
+        classes.push('h-full');
+      } else {
+        classes.push(`h-[${heightValue}]`);
+      }
+    }
+    return classes.join(' ');
+  };
 
   return (
     <div
-      className={`${baseClasses} ${variantClasses[variant]} ${animationClasses[animation]} ${className}`}
-      style={style}
+      className={`${baseClasses} ${variantClasses[variant]} ${animationClasses[animation]} ${getSizeClasses()} ${className}`}
     />
   );
 };

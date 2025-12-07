@@ -118,6 +118,11 @@
   .fade-in {
     animation: fadeIn 0.2s ease-out;
   }
+
+  /* Progress Bar */
+  .progress-bar {
+    width: var(--progress-width, 0%);
+  }
 }
 
 @layer utilities {

@@ -7,6 +7,7 @@ import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { PlatformProvider } from '@/contexts/PlatformContext';
 import { IOSMainLayout } from '@/components/layout/IOSMainLayout';
 import { Spinner } from '@/components/ui/Spinner';
+import '@/styles/print.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Lazy load pages for code splitting

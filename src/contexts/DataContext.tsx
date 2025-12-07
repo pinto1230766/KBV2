@@ -1,8 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language } from '@/types';
+import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language, SyncAction } from '@/types';
 import * as idb from '@/utils/idb';
 import { defaultAppData } from '@/data/constants';
 import { useToast } from '@/contexts/ToastContext';
+import { useSyncQueue } from '@/hooks/useSyncQueue';
+import { useOfflineMode } from '@/hooks/useOfflineMode';
 
 // Utility functions for Google Sheets sync
 const UNASSIGNED_HOST = 'À définir';
@@ -50,7 +52,14 @@ interface DataContextValue extends AppData {
   importData: (json: string) => void;
   resetData: () => void;
   syncWithGoogleSheet: () => Promise<void>;
+
   refreshData: () => Promise<void>;
+  
+  // Sync
+  syncQueue: SyncAction[];
+  isOnline: boolean;
+  clearSyncQueue: () => void;
+  mergeDuplicates: (type: 'speaker' | 'host' | 'visit', keepId: string, duplicateIds: string[]) => void;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -59,6 +68,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(defaultAppData);
   const [loaded, setLoaded] = useState(false);
   const { addToast } = useToast();
+  
+  const { queue: syncQueue, addAction: addToSyncQueue, clearQueue: clearSyncQueue } = useSyncQueue();
+  // On utilise useOfflineMode simplement pour le statut online ici, 
+  // car le chargement de données est déjà géré par useEffect + idb ci-dessous
+  const { isOnline } = useOfflineMode('app_state', async () => defaultAppData);
 
   // Load
   useEffect(() => {
@@ -76,6 +90,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Speakers
   const addSpeaker = (speaker: Speaker) => {
     setData((d) => ({ ...d, speakers: [...d.speakers, speaker] }));
+    addToSyncQueue('ADD_SPEAKER', speaker);
   };
 
   const updateSpeaker = (speaker: Speaker) => {
@@ -83,15 +98,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
       ...d,
       speakers: d.speakers.map((s) => (s.id === speaker.id ? speaker : s)),
     }));
+    addToSyncQueue('UPDATE_SPEAKER', speaker);
   };
 
   const deleteSpeaker = (id: string) => {
     setData((d) => ({ ...d, speakers: d.speakers.filter((s) => s.id !== id) }));
+    addToSyncQueue('DELETE_SPEAKER', { id });
   };
 
   // Visits
   const addVisit = (visit: Visit) => {
     setData((d) => ({ ...d, visits: [...d.visits, visit] }));
+    addToSyncQueue('ADD_VISIT', visit);
   };
 
   const updateVisit = (visit: Visit) => {
@@ -99,10 +117,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       ...d,
       visits: d.visits.map((v) => (v.visitId === visit.visitId ? visit : v)),
     }));
+    addToSyncQueue('UPDATE_VISIT', visit);
   };
 
   const deleteVisit = (visitId: string) => {
     setData((d) => ({ ...d, visits: d.visits.filter((v) => v.visitId !== visitId) }));
+    addToSyncQueue('DELETE_VISIT', { visitId });
   };
 
   const completeVisit = (visit: Visit) => {
@@ -175,17 +195,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Export/Import
-  const exportData = () => JSON.stringify(data, null, 2);
 
-  const importData = (json: string) => {
-    try {
-      const imported = JSON.parse(json);
-      setData({ ...defaultAppData, ...imported });
-    } catch (e) {
-      console.error('Import error:', e);
-    }
-  };
 
   const resetData = () => {
     setData(defaultAppData);
@@ -383,6 +393,94 @@ export function DataProvider({ children }: { children: ReactNode }) {
     // Cette fonction peut être étendue pour recharger depuis une API
   };
 
+  const exportData = (): string => {
+    return JSON.stringify(data, null, 2);
+  };
+
+  const importData = (json: string) => {
+    try {
+      const parsed = JSON.parse(json);
+      // Basic validation: check for key properties
+      if (!parsed.speakers || !parsed.visits || !parsed.dataVersion) {
+        throw new Error("Format de données invalide ou version manquante");
+      }
+      
+      // Update state and persistence
+      setData(parsed);
+      setLoaded(true);
+      // Force immediate save to IDB
+      idb.set('kbv-app-data', parsed).then(() => {
+         addToast('Données importées avec succès !', 'success');
+      });
+      
+    } catch (e) {
+      console.error('Import error:', e);
+      addToast(`Erreur lors de l'importation: ${e instanceof Error ? e.message : 'Format invalide'}`, 'error');
+    }
+  };
+
+  // Merge Duplicates
+  const mergeDuplicates = (type: 'speaker' | 'host' | 'visit', keepId: string, duplicateIds: string[]) => {
+    setData(prev => {
+      let newState = { ...prev };
+      const updates: string[] = [];
+
+      if (type === 'speaker') {
+        const keepSpeaker = prev.speakers.find(s => s.id === keepId);
+        if (!keepSpeaker) return prev;
+
+        // 1. Mettre à jour toutes les visites pointant vers les doublons
+        newState.visits = prev.visits.map(v => {
+          if (duplicateIds.includes(v.id)) {
+            updates.push(`Visite ${v.visitDate} réassignée à ${keepSpeaker.nom}`);
+            return {
+              ...v,
+              id: keepId,
+              nom: keepSpeaker.nom,
+              telephone: keepSpeaker.telephone || v.telephone,
+              photoUrl: keepSpeaker.photoUrl || v.photoUrl
+            };
+          }
+          return v;
+        });
+
+        // 2. Supprimer les doublons
+        newState.speakers = prev.speakers.filter(s => !duplicateIds.includes(s.id));
+        addToSyncQueue('DELETE_SPEAKER', { count: duplicateIds.length, ids: duplicateIds });
+      } 
+      else if (type === 'host') {
+        // keepId est le NOM de l'hôte à garder
+        const keepHostName = keepId;
+        
+        // 1. Mettre à jour toutes les visites utilisant les noms en doublon
+        newState.visits = prev.visits.map(v => {
+          if (duplicateIds.includes(v.host)) {
+            updates.push(`Visite ${v.visitDate} hôte mis à jour: ${v.host} -> ${keepHostName}`);
+            return { ...v, host: keepHostName };
+          }
+          return v;
+        });
+
+        // 2. Supprimer les doublons
+        newState.hosts = prev.hosts.filter(h => !duplicateIds.includes(h.nom));
+        addToSyncQueue('DELETE_HOST', { count: duplicateIds.length, names: duplicateIds });
+      }
+      else if (type === 'visit') {
+        // keepId est le visitId à garder
+        // 1. Supprimer les autres visites
+        newState.visits = prev.visits.filter(v => 
+          v.visitId === keepId || !duplicateIds.includes(v.visitId)
+        );
+        addToSyncQueue('DELETE_VISIT', { count: duplicateIds.length, visitIds: duplicateIds });
+      }
+
+      if (updates.length > 0) {
+        addToast(`${updates.length} relation(s) mise(s) à jour lors de la fusion`, 'info');
+      }
+      return newState;
+    });
+  };
+
   if (!loaded) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -413,6 +511,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
         resetData,
         syncWithGoogleSheet,
         refreshData,
+        syncQueue,
+        isOnline,
+        clearSyncQueue,
+        mergeDuplicates,
       }}
     >
       {children}

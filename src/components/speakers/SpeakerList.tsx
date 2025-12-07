@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Edit, Trash2, Phone, Mail, Car, Search } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { useData } from '@/contexts/DataContext';
+import { calculateWorkload } from '@/utils/workload';
+import { WorkloadIndicator } from '@/components/workload/WorkloadIndicator';
 
 interface SpeakerListProps {
   speakers: Speaker[];
@@ -12,6 +15,7 @@ interface SpeakerListProps {
 }
 
 export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDelete }) => {
+  const { visits } = useData();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredSpeakers = speakers.filter(speaker =>
@@ -43,7 +47,8 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white">{speaker.nom}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{speaker.congregation}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{speaker.congregation}</p>
+                    <WorkloadIndicator workload={calculateWorkload(speaker, visits)} size="sm" />
                   </div>
                 </div>
                 <div className="flex gap-1">

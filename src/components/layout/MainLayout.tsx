@@ -11,6 +11,7 @@ import {
   X
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
+import { SyncStatusIndicator } from '@/components/layout/SyncStatusIndicator';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -63,7 +64,10 @@ export const MainLayout: React.FC = () => {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+          <div className="flex justify-center">
+            <SyncStatusIndicator />
+          </div>
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Mode sombre</span>
             <button
@@ -90,14 +94,19 @@ export const MainLayout: React.FC = () => {
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0">
           <h1 className="text-lg font-bold text-primary-600 dark:text-primary-400">KBV Lyon</h1>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            title={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            className="p-2 rounded-md text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="scale-90">
+              <SyncStatusIndicator />
+            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              title={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              className="p-2 rounded-md text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </header>
 
         {/* Mobile Menu Overlay */}

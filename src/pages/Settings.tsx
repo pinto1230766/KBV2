@@ -1,5 +1,6 @@
 ﻿import React, { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
+import { DuplicateDetection } from '@/components/settings/DuplicateDetection';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -18,16 +19,17 @@ import {
   Moon,
   Sun,
   Monitor,
-  RefreshCw
+  RefreshCw,
+  Copy
 } from 'lucide-react';
 import { CongregationProfile, Language, Theme } from '@/types';
 
 export const Settings: React.FC = () => {
-  const { congregationProfile, updateCongregationProfile, syncWithGoogleSheet } = useData();
+  const { congregationProfile, updateCongregationProfile, syncWithGoogleSheet, exportData, importData } = useData();
   const { settings, updateSettings } = useSettings();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'ai'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'ai' | 'duplicates'>('profile');
   const [profileForm, setProfileForm] = useState<CongregationProfile>(congregationProfile);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -37,7 +39,8 @@ export const Settings: React.FC = () => {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Sécurité', icon: Shield },
     { id: 'data', label: 'Données', icon: Database },
-    { id: 'ai', label: 'IA', icon: Key }
+    { id: 'ai', label: 'IA', icon: Key },
+    { id: 'duplicates', label: 'Doublons', icon: Copy }
   ];
 
   const handleSaveProfile = () => {
@@ -469,6 +472,70 @@ export const Settings: React.FC = () => {
                       </p>
                     </div>
                   )}
+
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                     <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                        <Save className="w-4 h-4" />
+                        Sauvegarde et Restauration
+                     </h4>
+                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        Exportez vos données pour les sécuriser ou transférez-les vers un autre appareil.
+                     </p>
+                     
+                     <div className="flex flex-col sm:flex-row gap-4">
+                        <Button
+                           variant="secondary"
+                           onClick={() => {
+                              const json = exportData();
+                              const blob = new Blob([json], { type: 'application/json' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                           }}
+                           leftIcon={<Save className="w-4 h-4" />}
+                        >
+                           Exporter les données (Backup)
+                        </Button>
+
+                        <div className="relative">
+                           <input
+                              type="file"
+                              accept=".json"
+                              aria-label="Selectionner un fichier de backup pour l'importation"
+                              title="Importer un fichier de sauvegarde"
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              onChange={(e) => {
+                                 const file = e.target.files?.[0];
+                                 if (!file) return;
+                                 
+                                 if (window.confirm("ATTENTION : Cette action va REMPLACER toutes les données actuelles par celles du fichier. Êtes-vous sûr de vouloir continuer ?")) {
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                       if (event.target?.result) {
+                                          importData(event.target.result as string);
+                                       }
+                                    };
+                                    reader.readAsText(file);
+                                 }
+                                 // Reset value
+                                 e.target.value = '';
+                              }}
+                           />
+                           <Button
+                              variant="outline"
+                              leftIcon={<RefreshCw className="w-4 h-4" />}
+                              className="w-full"
+                           >
+                              Importer un backup
+                           </Button>
+                        </div>
+                     </div>
+                  </div>
                 </div>
               </CardBody>
             </Card>
@@ -605,6 +672,15 @@ export const Settings: React.FC = () => {
                     </div>
                   </>
                 )}
+              </CardBody>
+            </Card>
+          )}
+
+          {/* Doublons */}
+          {activeTab === 'duplicates' && (
+            <Card>
+              <CardBody>
+                <DuplicateDetection />
               </CardBody>
             </Card>
           )}

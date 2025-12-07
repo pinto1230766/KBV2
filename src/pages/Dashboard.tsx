@@ -23,33 +23,46 @@ const VisitItem = memo(({
   visit: Visit; 
   onClick?: () => void;
   showStatus?: boolean;
-}) => (
-  <div 
-    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
-    onClick={onClick}
-  >
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
-        {visit.nom.charAt(0).toUpperCase()}
+}) => {
+  const getStatusBadge = () => {
+    switch (visit.status) {
+      case 'confirmed':
+        return <Badge variant="success" className="text-xs">Confirmé</Badge>;
+      case 'pending':
+        return <Badge variant="warning" className="text-xs">En attente</Badge>;
+      case 'completed':
+        return <Badge variant="default" className="text-xs">Terminé</Badge>;
+      case 'cancelled':
+        return <Badge variant="danger" className="text-xs">Annulé</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div 
+      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
+          {visit.nom.charAt(0).toUpperCase()}
+        </div>
+        <div>
+          <p className="font-medium text-gray-900 dark:text-white">{visit.nom}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short'
+            })} à {visit.visitTime} • {visit.talkNoOrType}
+          </p>
+        </div>
       </div>
-      <div>
-        <p className="font-medium text-gray-900 dark:text-white">{visit.nom}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short'
-          })} à {visit.visitTime} • {visit.talkNoOrType}
-        </p>
-      </div>
+      {showStatus && getStatusBadge()}
     </div>
-    {showStatus && (
-      <Badge variant="success" className="text-xs">
-        Confirmé
-      </Badge>
-    )}
-  </div>
-));
+  );
+});
 
 export const Dashboard: React.FC = () => {
   const { speakers, hosts, visits, refreshData } = useData();
@@ -96,16 +109,17 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   const upcomingVisits = useMemo(() => {
-    return visits.filter(visit => {
+    return visits.filter((visit: Visit) => {
       const visitDate = new Date(visit.visitDate);
+      // Inclure les visites confirmées ET en attente dans les 7 prochains jours
       return visitDate >= dateCalculations.today && 
              visitDate <= dateCalculations.nextWeek && 
-             visit.status === 'confirmed';
-    });
+             (visit.status === 'confirmed' || visit.status === 'pending');
+    }).sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
   }, [visits, dateCalculations]);
 
   const visitsNeedingAction = useMemo(() => {
-    return visits.filter(visit =>
+    return visits.filter((visit: Visit) =>
       visit.status === 'pending' ||
       (visit.status === 'confirmed' && new Date(visit.visitDate) < dateCalculations.today)
     );
@@ -113,7 +127,7 @@ export const Dashboard: React.FC = () => {
 
   const currentMonthVisits = useMemo(() => {
     const now = dateCalculations.today;
-    return visits.filter(v => {
+    return visits.filter((v: Visit) => {
       const visitDate = new Date(v.visitDate);
       return visitDate.getMonth() === now.getMonth() && 
              visitDate.getFullYear() === now.getFullYear();
@@ -161,7 +175,7 @@ export const Dashboard: React.FC = () => {
 
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthVisits = visits.filter(visit => {
+      const monthVisits = visits.filter((visit: Visit) => {
         const visitDate = new Date(visit.visitDate);
         return visitDate.getMonth() === date.getMonth() && 
                visitDate.getFullYear() === date.getFullYear();
@@ -177,9 +191,9 @@ export const Dashboard: React.FC = () => {
   }, [visits, dateCalculations]);
 
   const pieData = useMemo(() => [
-    { name: 'Physique', value: visits.filter(v => v.locationType === 'physical').length, color: '#3B82F6' },
-    { name: 'Zoom', value: visits.filter(v => v.locationType === 'zoom').length, color: '#10B981' },
-    { name: 'Streaming', value: visits.filter(v => v.locationType === 'streaming').length, color: '#F59E0B' }
+    { name: 'Physique', value: visits.filter((v: Visit) => v.locationType === 'physical').length, color: '#3B82F6' },
+    { name: 'Zoom', value: visits.filter((v: Visit) => v.locationType === 'zoom').length, color: '#10B981' },
+    { name: 'Streaming', value: visits.filter((v: Visit) => v.locationType === 'streaming').length, color: '#F59E0B' }
   ], [visits]);
 
   // Memoized event handlers
@@ -357,7 +371,7 @@ export const Dashboard: React.FC = () => {
             <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
               {upcomingVisits.length > 0 ? (
                 <div className={`space-y-3 ${isTablet ? '' : isMobile ? 'max-h-64' : 'max-h-80 overflow-y-auto'}`}>
-                  {upcomingVisits.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit) => (
+                  {upcomingVisits.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit: Visit) => (
                     <VisitItem key={visit.id} visit={visit} onClick={handleNavigateToPlanning} showStatus={true} />
                   ))}
                 </div>
@@ -386,8 +400,8 @@ export const Dashboard: React.FC = () => {
             </CardHeader>
             <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
               {visitsNeedingAction.length > 0 ? (
-                <div className="space-y-3" style={!isTablet ? { maxHeight: optimalHeight, overflowY: 'auto' } : {}}>
-                  {visitsNeedingAction.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit) => (
+                <div className={`space-y-3 ${!isTablet ? 'overflow-y-auto' : ''}`} style={!isTablet ? { maxHeight: optimalHeight || '300px' } : {}}>
+                  {visitsNeedingAction.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit: Visit) => (
                     <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
                       <div className="flex items-center gap-3 cursor-pointer" onClick={handleNavigateToPlanning}>
                         <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
