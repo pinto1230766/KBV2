@@ -952,6 +952,9 @@ export const initialData = {
   savedViews: [],
   specialDates: [],
   speakerMessages: [],
+  archivedVisits: [], // Added missing property
+  customTemplates: {}, // Added missing property
+  customHostRequestTemplates: {}, // Added missing property
   lastSync: undefined,
   dataVersion: '1.0.0',
 };

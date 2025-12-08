@@ -179,13 +179,7 @@ export const Planning: React.FC = () => {
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header & Stats */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-6">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Planning des visites</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {stats.total} visite{stats.total > 1 ? 's' : ''} • {stats.upcoming} à venir • {stats.pending} en attente
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Button
           leftIcon={<Plus className="w-4 h-4" />}
           onClick={handleOpenModal}

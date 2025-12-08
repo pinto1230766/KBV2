@@ -1,142 +1,100 @@
 #!/usr/bin/env python3
 """
-Script pour créer un logo et une icône pour l'application KBV
-avec les couleurs de jw.org
+Générateur d'icônes Android simplifié pour KBV Lyon
 """
 
-from PIL import Image, ImageDraw, ImageFont
 import os
+from PIL import Image, ImageDraw
 
-def hex_to_rgb(hex_color):
-    """Convertit une couleur hex en tuple RGB"""
-    hex_color = hex_color.lstrip('#')
-    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-
-def create_logo_svg():
-    """Crée un logo SVG avec le texte demandé"""
-    svg_content = """<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200">
-  <!-- Arrière-plan avec dégradé bleu jw.org -->
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Rectangle de fond arrondi -->
-  <rect width="300" height="200" rx="20" fill="url(#bgGradient)"/>
-  
-  <!-- KBV - ligne 1 -->
-  <text x="150" y="70" font-family="Arial, sans-serif" font-size="36" font-weight="bold" 
-        fill="white" text-anchor="middle">KBV</text>
-  
-  <!-- LYON - ligne 2 -->
-  <text x="150" y="110" font-family="Arial, sans-serif" font-size="24" font-weight="normal" 
-        fill="white" text-anchor="middle">LYON</text>
-  
-  <!-- PF - ligne 3 -->
-  <text x="150" y="145" font-family="Arial, sans-serif" font-size="20" font-weight="normal" 
-        fill="white" text-anchor="middle">PF</text>
-</svg>"""
+def create_android_icon(output_dir, size):
+    """Crée une icône Android"""
     
-    with open('public/logo.svg', 'w', encoding='utf-8') as f:
-        f.write(svg_content)
-    print("✅ Logo SVG créé : public/logo.svg")
-
-def create_app_icon_png():
-    """Crée une icône PNG pour l'application Android"""
-    # Taille standard pour icônes Android
-    icon_size = (512, 512)
+    # Créer le dossier de sortie
+    os.makedirs(output_dir, exist_ok=True)
     
-    # Couleurs jw.org
-    jw_blue = hex_to_rgb('#1e3a8a')  # Bleu foncé
-    jw_light_blue = hex_to_rgb('#3b82f6')  # Bleu clair
-    
-    # Créer une image avec fond dégradé
-    img = Image.new('RGBA', icon_size, (0, 0, 0, 0))
+    # Créer une nouvelle image avec fond dégradé
+    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    # Dessiner le fond arrondi
-    margin = 40
-    draw.rounded_rectangle(
-        [margin, margin, icon_size[0] - margin, icon_size[1] - margin],
-        radius=80,
-        fill=jw_blue
-    )
+    # Couleurs du dégradé
+    start_color = (30, 64, 175)  # #1e40af
+    end_color = (59, 130, 246)   # #3b82f6
     
-    # Essayer de charger une police, sinon utiliser la police par défaut
-    try:
-        font_large = ImageFont.truetype("arial.ttf", 120)
-        font_medium = ImageFont.truetype("arial.ttf", 80)
-        font_small = ImageFont.truetype("arial.ttf", 60)
-    except:
-        try:
-            font_large = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 120)
-            font_medium = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 80)
-            font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 60)
-        except:
-            font_large = ImageFont.load_default()
-            font_medium = ImageFont.load_default()
-            font_small = ImageFont.load_default()
-    
-    # Centrer le texte
-    def draw_centered_text(text, y, font, color='white'):
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        x = (icon_size[0] - text_width) // 2
-        draw.text((x, y), text, font=font, fill=color)
-    
-    # KBV - ligne 1
-    draw_centered_text("KBV", 140, font_large)
-    
-    # LYON - ligne 2  
-    draw_centered_text("LYON", 240, font_medium)
-    
-    # PF - ligne 3
-    draw_centered_text("PF", 320, font_small)
-    
-    # Sauvegarder l'icône en plusieurs tailles
-    sizes = [192, 144, 96, 72, 48, 36]
-    for size in sizes:
-        resized_icon = img.resize((size, size), Image.Resampling.LANCZOS)
+    # Créer le dégradé
+    for y in range(size):
+        ratio = y / size
+        r = int(start_color[0] + (end_color[0] - start_color[0]) * ratio)
+        g = int(start_color[1] + (end_color[1] - start_color[1]) * ratio)
+        b = int(start_color[2] + (end_color[2] - start_color[2]) * ratio)
         
-        # Créer le dossier android/app/src/main/res s'il n'existe pas
-        android_dir = "android/app/src/main/res"
-        os.makedirs(android_dir, exist_ok=True)
-        
-        # Icônes pour les différentes densités
-        if size == 192:
-            resized_icon.save(f"{android_dir}/mipmap-xxxhdpi/ic_launcher.png")
-        elif size == 144:
-            resized_icon.save(f"{android_dir}/mipmap-xxhdpi/ic_launcher.png")
-        elif size == 96:
-            resized_icon.save(f"{android_dir}/mipmap-xhdpi/ic_launcher.png")
-        elif size == 72:
-            resized_icon.save(f"{android_dir}/mipmap-hdpi/ic_launcher.png")
-        elif size == 48:
-            resized_icon.save(f"{android_dir}/mipmap-mdpi/ic_launcher.png")
-        elif size == 36:
-            resized_icon.save(f"{android_dir}/mipmap-ldpi/ic_launcher.png")
+        draw.line([(0, y), (size, y)], fill=(r, g, b, 255))
     
-    # Icône principale
-    img.save("android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png")
-    print("✅ Icônes PNG créées dans android/app/src/main/res/mipmap-*/")
+    # Ajouter un border arrondi (masque)
+    mask = Image.new('L', (size, size), 0)
+    mask_draw = ImageDraw.Draw(mask)
+    mask_draw.rounded_rectangle([0, 0, size, size], radius=size//8, fill=255)
+    
+    # Appliquer le masque
+    img.putalpha(mask)
+    
+    # Ajouter le texte KBV
+    text_size = max(12, size // 8)
+    text_color = (255, 255, 255, 255)
+    
+    # KBV - texte principal
+    kbv_width = len("KBV") * text_size // 2
+    kbv_x = (size - kbv_width) // 2
+    kbv_y = size // 3
+    
+    draw.text((kbv_x, kbv_y), "KBV", fill=text_color)
+    
+    # LYON - sous-titre
+    lyon_size = text_size // 2
+    lyon_width = len("LYON") * lyon_size // 2
+    lyon_x = (size - lyon_width) // 2
+    lyon_y = size // 2
+    
+    draw.text((lyon_x, lyon_y), "LYON", fill=text_color)
+    
+    # PF - tagline
+    pf_size = text_size // 3
+    pf_width = len("PF") * pf_size // 2
+    pf_x = (size - pf_width) // 2
+    pf_y = size * 2 // 3
+    
+    draw.text((pf_x, pf_y), "PF", fill=text_color)
+    
+    # Sauvegarder
+    output_path = os.path.join(output_dir, f"ic_launcher_{size}x{size}.png")
+    img.save(output_path, "PNG", quality=95)
+    print(f"Icone creee: {output_path}")
 
 def main():
     """Fonction principale"""
-    print("🎨 Création du logo et de l'icône pour KBV...")
-    print("📏 Utilisation des couleurs de jw.org")
     
-    # Créer le logo SVG
-    create_logo_svg()
+    # Tailles d'icônes Android standard
+    sizes = [48, 72, 96, 144, 192]
     
-    # Créer les icônes PNG
-    create_app_icon_png()
+    # Créer la structure Android
+    android_dirs = {
+        48: "android/app/src/main/res/mipmap-mdpi",
+        72: "android/app/src/main/res/mipmap-hdpi", 
+        96: "android/app/src/main/res/mipmap-xhdpi",
+        144: "android/app/src/main/res/mipmap-xxhdpi",
+        192: "android/app/src/main/res/mipmap-xxxhdpi"
+    }
     
-    print("\n✨ Fichiers créés avec succès :")
-    print("   📄 public/logo.svg - Logo pour l'application web")
-    print("   📱 android/app/src/main/res/mipmap-*/ic_launcher.png - Icônes Android")
+    print("Generation des icones Android pour KBV Lyon...")
+    
+    # Créer les dossiers
+    for dir_path in android_dirs.values():
+        os.makedirs(dir_path, exist_ok=True)
+    
+    # Générer les icônes
+    for size in sizes:
+        create_android_icon(android_dirs[size], size)
+    
+    print("Toutes les icones Android ont été generées avec succès!")
 
 if __name__ == "__main__":
     main()

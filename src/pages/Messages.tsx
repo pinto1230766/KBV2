@@ -98,33 +98,25 @@ export const Messages: React.FC = () => {
   return (
     <div className="h-[calc(100vh-12rem)] flex flex-col">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Messagerie</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {stats.total} orateur{stats.total > 1 ? 's' : ''} • {stats.pending} visite{stats.pending > 1 ? 's' : ''} en attente
-          </p>
-        </div>
-        <div className="flex gap-3">
-          {/* Bouton demande d'accueil - conditionnel */}
-          {stats.needingHost > 0 && (
-            <Button
-              variant="secondary"
-              className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50"
-              leftIcon={<Users className="w-4 h-4" />}
-              onClick={() => setIsHostRequestModalOpen(true)}
-            >
-              Demande d'accueil ({stats.needingHost})
-            </Button>
-          )}
+      <div className="flex justify-end gap-3 mb-6">
+        {/* Bouton demande d'accueil - conditionnel */}
+        {stats.needingHost > 0 && (
           <Button
             variant="secondary"
-            leftIcon={<Plus className="w-4 h-4" />}
-            onClick={() => setIsGeneratorModalOpen(true)}
+            className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50"
+            leftIcon={<Users className="w-4 h-4" />}
+            onClick={() => setIsHostRequestModalOpen(true)}
           >
-            Nouveau message
+            Demande d'accueil ({stats.needingHost})
           </Button>
-        </div>
+        )}
+        <Button
+          variant="secondary"
+          leftIcon={<Plus className="w-4 h-4" />}
+          onClick={() => setIsGeneratorModalOpen(true)}
+        >
+          Nouveau message
+        </Button>
       </div>
 
       {/* Statistics Cards */}

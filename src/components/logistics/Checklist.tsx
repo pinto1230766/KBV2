@@ -3,6 +3,7 @@ import { ChecklistItem } from '@/types';
 import { Check, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { generateUUID } from '@/utils/uuid';
 
 interface ChecklistProps {
   items: ChecklistItem[];
@@ -30,7 +31,7 @@ export const Checklist: React.FC<ChecklistProps> = ({ items = [], onUpdate }) =>
     if (!newItemLabel.trim()) return;
 
     const newItem: ChecklistItem = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       label: newItemLabel.trim(),
       isCompleted: false
     };

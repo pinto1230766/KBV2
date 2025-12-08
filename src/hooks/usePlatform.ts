@@ -68,14 +68,19 @@ function detectPlatform(): PlatformInfo {
                           (isSamsung && width >= 1440 && width <= 1440 && height >= 3120);
   
   // Détection du type d'appareil basé sur la taille d'écran
+  // En paysage, on utilise la hauteur pour détecter car la largeur peut être réduite par le scaling
+  const minDimension = Math.min(width, height);
+  const maxDimension = Math.max(width, height);
+  
   let deviceType: DeviceType = 'desktop';
   
-  if (width < 768) {
-    deviceType = 'phone';
-  } else if (width >= 768 && width < 1440) {
+  // Si la plus grande dimension est > 1000px, c'est une tablette
+  if (maxDimension >= 1000) {
     deviceType = 'tablet';
+  } else if (minDimension < 600) {
+    deviceType = 'phone';
   } else {
-    deviceType = 'desktop';
+    deviceType = 'tablet';
   }
   
   // Override pour les appareils Samsung spécifiques

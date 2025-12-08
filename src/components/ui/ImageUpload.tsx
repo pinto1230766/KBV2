@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useId } from 'react';
 import { Camera, Trash2, User } from 'lucide-react';
 
 interface ImageUploadProps {
@@ -18,6 +18,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const id = useId();
 
   const sizeClasses = {
     sm: 'w-16 h-16',
@@ -120,7 +121,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           {label}
         </label>
       )}
@@ -173,11 +174,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         )}
 
         <input
+          id={id}
           ref={fileInputRef}
           type="file"
           accept="image/*"
           onChange={handleFileChange}
           className="hidden"
+          aria-label={label}
         />
       </div>
 

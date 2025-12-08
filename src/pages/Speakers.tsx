@@ -62,18 +62,7 @@ export const Speakers: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {activeTab === 'speakers' ? 'Gestion des Orateurs' : "Gestion de l'Accueil"}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {activeTab === 'speakers' 
-              ? `${speakers.length} orateur${speakers.length > 1 ? 's' : ''} enregistré${speakers.length > 1 ? 's' : ''}`
-              : `${hosts.length} contact${hosts.length > 1 ? 's' : ''} d'accueil`
-            }
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Button 
           leftIcon={<Plus className="w-4 h-4" />}
           onClick={() => {

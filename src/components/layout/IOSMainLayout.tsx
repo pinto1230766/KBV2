@@ -11,7 +11,6 @@ const PAGE_TITLES: Record<string, string> = {
   '/planning': 'Planning',
   '/messages': 'Messages',
   '/speakers': 'Orateurs',
-  '/talks': 'Discours',
   '/settings': 'Réglages',
 };
 
@@ -32,8 +31,8 @@ export const IOSMainLayout: React.FC = () => {
         />
 
         {/* Main Content - Plein écran sur tablette, pas de scroll si Dashboard tablette */}
-        <main className={`flex-1 ${isTablet && isDashboard ? 'overflow-hidden' : 'overflow-y-auto'} pb-[83px] ${isTablet ? 'tablet-full-width' : 'px-4'}`}>
-          <div className={`${isTablet ? 'h-full' : 'max-w-7xl mx-auto py-4'}`}>
+        <main className={`flex-1 ${isTablet && isDashboard ? 'overflow-hidden' : 'overflow-y-auto'} pb-[83px] ${isTablet ? 'w-full px-0' : 'px-4'}`}>
+          <div className={`${isTablet ? 'h-full w-full' : 'max-w-7xl mx-auto py-4'}`}>
             <Outlet />
           </div>
         </main>

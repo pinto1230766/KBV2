@@ -67,6 +67,23 @@ Créer un fichier `.env` à la racine :
 VITE_GEMINI_API_KEY=votre_cle_api_google_gemini
 ```
 
+## 📚 Documentation Supplémentaire
+
+### Optimisation Samsung Tab S10 Ultra
+- 📱 [Guide d'Optimisation Samsung](GUIDE_OPTIMISATION_SAMSUNG.md) - Fonctionnalités et optimisations
+- 🚀 [Quick Start](QUICK_START.md) - Déploiement en 3 commandes
+- 🔧 [Guide Build & Deploy](GUIDE_BUILD_DEPLOY.md) - Instructions détaillées
+- 🔧 [Troubleshooting](TROUBLESHOOTING.md) - Résolution des problèmes
+- ✅ [Template Rapport Test](TEMPLATE_RAPPORT_TEST.md) - Checklist de validation
+- 🔍 [Vérification Implémentation](VERIFICATION_IMPLEMENTATION.md) - État du code
+
+### Fonctionnalités Tablette
+- ✅ Sidebar de navigation intelligente (320px)
+- ✅ Layout adaptatif portrait/paysage
+- ✅ Dashboard optimisé 2 colonnes
+- ✅ Support S Pen et gestures Android
+- ✅ Détection automatique Samsung Tab S10 Ultra
+
 ## 📄 License
 
 Copyright © 2025 KBV DV Lyon

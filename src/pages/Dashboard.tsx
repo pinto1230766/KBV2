@@ -12,7 +12,7 @@ import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { useNavigate } from 'react-router-dom';
 import { Visit } from '@/types';
 
-import { isLowMemoryDevice, getOptimalListHeight } from '@/utils/mobileOptimization';
+import { isLowMemoryDevice } from '@/utils/mobileOptimization';
 
 // Memoized components for performance
 const VisitItem = memo(({ 
@@ -71,6 +71,8 @@ export const Dashboard: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   const isTablet = deviceType === 'tablet';
+  // Détection spécifique Samsung Tab S10 Ultra (ajusté pour le scaling Chrome: 1200px au lieu de 1848px)
+  const isSamsungTablet = isTablet && window.innerWidth >= 1200;
   
   // Pull-to-refresh
   const { isRefreshing, pullDistance } = usePullToRefresh({
@@ -98,7 +100,6 @@ export const Dashboard: React.FC = () => {
   // Device detection for mobile optimizations
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const isLowEndDevice = isLowMemoryDevice();
-  const optimalHeight = getOptimalListHeight();
 
   // Memoized calculations
   const dateCalculations = useMemo(() => {
@@ -199,43 +200,24 @@ export const Dashboard: React.FC = () => {
   // Memoized event handlers
   const handleNavigateToPlanning = useCallback(() => navigate('/planning'), [navigate]);
 
-  // Auto-update timestamp (memoized to avoid re-renders)
-  const lastUpdate = useMemo(() => {
-    return new Date().toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }, []);
-
   return (
-    <div className={`
-      ${isTablet ? 'h-full flex flex-col space-y-4 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'} 
-      ${isLowEndDevice ? 'optimize-rendering' : ''}
-    `}>
+    <>
+      <div className={`
+        ${isTablet ? 'h-full flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'} 
+        ${isTablet && orientation === 'landscape' ? 'px-4' : isTablet ? 'px-4' : 'px-4'}
+        ${isLowEndDevice ? 'optimize-rendering' : ''}
+      `}
+      style={{
+        width: '100%',
+        maxWidth: 'none',
+        margin: 0,
+        padding: isTablet && orientation === 'landscape' ? '0 16px' : '0 16px'
+      }}>
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Offline Banner */}
       <OfflineBanner isOnline={isOnline} />
-      
-      {/* Header - Fixed on Tablet */}
-      <div className="flex-shrink-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-            Tableau de bord
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Vue d'ensemble de l'activité de la congrégation
-          </p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            Dernière mise à jour: {lastUpdate}
-          </span>
-        </div>
-      </div>
 
       {/* Stats Cards - Fixed height on Tablet */}
       <div className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
@@ -274,15 +256,16 @@ export const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Main Content Area - Scrollable internal on Tablet */}
+      {/* Main Content Area - Optimisé pour Samsung Tab S10 Ultra */}
       <div className={`
         ${isTablet ? 'flex-1 min-h-0 grid gap-6 overflow-hidden' : 'grid gap-4 sm:gap-6'}
-        ${isTablet && orientation === 'landscape' ? 'grid-cols-12' : isTablet ? 'grid-cols-1' : ''}
+        ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'grid-cols-12' : 'grid-cols-1'}
       `}>
         
-        {/* Left Column (Charts) - 7/12 on Tablet Landscape */}
+        {/* Left Column (Charts) - 8/12 on Samsung Tablet Landscape, Full width otherwise */}
         <div className={`
-          ${isTablet && orientation === 'landscape' ? 'col-span-7 flex flex-col gap-6 overflow-y-auto pr-1' : 'grid gap-4 sm:gap-6'}
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-8' : ''}
+          ${isTablet ? 'flex flex-col gap-6' : 'grid gap-4 sm:gap-6'}
           ${!isTablet && !isMobile ? 'grid-cols-1 lg:grid-cols-3' : (!isTablet ? 'grid-cols-1' : '')} 
         `}>
           <Card className={`${
@@ -295,7 +278,7 @@ export const Dashboard: React.FC = () => {
               </h3>
             </CardHeader>
             <CardBody>
-              <div className={`${isMobile ? 'h-64' : 'h-80'} w-full`}>
+              <div className={`${isMobile ? 'h-48' : isTablet ? 'h-56' : 'h-80'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
@@ -317,7 +300,7 @@ export const Dashboard: React.FC = () => {
               </h3>
             </CardHeader>
             <CardBody>
-              <div className={`${isMobile ? 'h-48' : 'h-64'} w-full`}>
+              <div className={`${isMobile ? 'h-40' : isTablet ? 'h-48' : 'h-64'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -352,13 +335,15 @@ export const Dashboard: React.FC = () => {
           </Card>
         </div>
 
-        {/* Right Column (Lists) - 5/12 on Tablet Landscape */}
+        {/* Right Column (Lists) - 4/12 on Samsung Tablet Landscape, Full width otherwise */}
         <div className={`
-          ${isTablet && orientation === 'landscape' ? 'col-span-5 flex flex-col gap-6 overflow-y-auto pr-1' : 'grid gap-4 sm:gap-6'}
-          ${!isTablet && !isMobile ? 'grid-cols-1 lg:grid-cols-2' : (!isTablet ? 'grid-cols-1' : '')}
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-4 flex flex-col gap-6' : ''}
+          ${isTablet && !(isSamsungTablet && orientation === 'landscape') ? 'flex flex-col gap-6' : ''}
+          ${!isTablet && !isMobile ? 'grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2' : ''}
+          ${!isTablet && isMobile ? 'grid gap-4 grid-cols-1' : ''}
         `}>
           {/* Upcoming Visits */}
-          <Card className={isTablet ? 'flex-1 flex flex-col' : ''}>
+          <Card className={isTablet && isSamsungTablet && orientation === 'landscape' ? 'flex flex-col h-[400px]' : isTablet ? 'flex-1 flex flex-col min-h-0' : ''}>
             <CardHeader className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <Clock className="w-4 h-4 md:w-5 md:h-5" />
@@ -368,10 +353,10 @@ export const Dashboard: React.FC = () => {
                 Voir tout
               </Button>
             </CardHeader>
-            <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
+            <CardBody className={isTablet ? 'flex-1 overflow-y-auto min-h-0' : ''}>
               {upcomingVisits.length > 0 ? (
-                <div className={`space-y-3 ${isTablet ? '' : isMobile ? 'max-h-64' : 'max-h-80 overflow-y-auto'}`}>
-                  {upcomingVisits.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit: Visit) => (
+                <div className="space-y-3">
+                  {upcomingVisits.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
                     <VisitItem key={visit.id} visit={visit} onClick={handleNavigateToPlanning} showStatus={true} />
                   ))}
                 </div>
@@ -386,7 +371,7 @@ export const Dashboard: React.FC = () => {
           </Card>
 
           {/* Actions Required */}
-          <Card className={isTablet ? 'flex-1 flex flex-col' : ''}>
+          <Card className={isTablet && isSamsungTablet && orientation === 'landscape' ? 'flex flex-col h-[400px]' : isTablet ? 'flex-1 flex flex-col min-h-0' : ''}>
             <CardHeader className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
@@ -398,10 +383,10 @@ export const Dashboard: React.FC = () => {
                 </Badge>
               )}
             </CardHeader>
-            <CardBody className={isTablet ? 'flex-1 overflow-auto min-h-0' : ''}>
-              {visitsNeedingAction.length > 0 ? (
-                <div className={`space-y-3 ${!isTablet ? 'overflow-y-auto' : ''}`} style={!isTablet ? { maxHeight: optimalHeight || '300px' } : {}}>
-                  {visitsNeedingAction.slice(0, isTablet ? 10 : isMobile ? 3 : 5).map((visit: Visit) => (
+            <CardBody className={isTablet ? 'flex-1 overflow-y-auto min-h-0' : ''}>
+              <div className="space-y-3">
+                {visitsNeedingAction.length > 0 ? (
+                  visitsNeedingAction.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
                     <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
                       <div className="flex items-center gap-3 cursor-pointer" onClick={handleNavigateToPlanning}>
                         <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
@@ -420,19 +405,20 @@ export const Dashboard: React.FC = () => {
                         Traiter
                       </Button>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
-                  <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p className="font-medium">Aucune action requise</p>
-                  <p className="text-sm mt-1">Toutes les visites sont à jour</p>
-                </div>
-              )}
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                    <p className="font-medium">Aucune action requise</p>
+                    <p className="text-sm mt-1">Toutes les visites sont à jour</p>
+                  </div>
+                )}
+              </div>
             </CardBody>
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };

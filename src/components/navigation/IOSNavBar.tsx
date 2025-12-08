@@ -33,7 +33,7 @@ export const IOSNavBar: React.FC<IOSNavBarProps> = ({
       <div className="ios-blur border-b border-gray-200 dark:border-gray-800">
         {/* KBV LYON FP Header - Fixed at top */}
         <div className="px-4 py-1 bg-gradient-to-r from-blue-800 to-blue-600">
-          <h1 className="text-lg font-bold text-white">
+          <h1 className={`font-bold text-white ${largeTitle ? 'text-lg' : 'text-base'}`}>
             KBV LYON FP
           </h1>
         </div>

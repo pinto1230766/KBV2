@@ -197,8 +197,7 @@ export const FinancialDashboard: React.FC = () => {
                         </div>
                         <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                           <div 
-                            className="bg-purple-600 h-2 rounded-full transition-all duration-500" 
-                            style={{ width: `${percentage}%` }}
+                            className={`bg-purple-600 h-2 rounded-full transition-all duration-500 w-[${percentage}%]`}
                           />
                         </div>
                       </div>

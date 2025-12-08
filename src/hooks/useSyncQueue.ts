@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SyncAction, SyncActionType } from '@/types';
+import { generateUUID } from '@/utils/uuid';
 
 const QUEUE_STORAGE_KEY = 'kbv_sync_queue';
 
@@ -32,7 +33,7 @@ export function useSyncQueue() {
 
   const addAction = useCallback((type: SyncActionType, payload: any) => {
     const newAction: SyncAction = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       type,
       payload,
       timestamp: Date.now(),

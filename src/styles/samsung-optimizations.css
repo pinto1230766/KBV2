@@ -1,15 +1,22 @@
 /* Layout plein écran pour tablette */
 @media (min-width: 768px) {
   .tablet-full-width {
-    max-width: 100% !important;
-    width: 100%;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    max-width: none !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .tablet-container {
-    width: 100%;
-    max-width: none;
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
+  /* Forcer pleine largeur sur tous les conteneurs tablette */
+  main, .main-content, [role="main"] {
+    max-width: none !important;
   }
 }
 
@@ -46,6 +53,18 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
+
+  /* Amélioration de l'espacement pour Samsung Tab S10 Ultra */
+  .samsung-tablet-padding {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  /* Optimisation des cartes pour écran large */
+  .samsung-card-optimized {
+    max-width: 100%;
+    margin: 0 auto;
+  }
 }
 
 /* Samsung Tab S10 Ultra (Tablet Landscape) - 2960x1848 */
@@ -62,9 +81,33 @@
     gap: 24px;
   }
 
+  /* Layout 2 colonnes optimisé pour Samsung Tab S10 Ultra paysage */
+  .samsung-landscape-2col {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
   /* Sidebar pour navigation */
   .tablet-sidebar {
     width: 280px;
+  }
+
+  /* Optimisation pour utilisation maximale de l'espace */
+  .samsung-landscape-full-width {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  /* Amélioration des cartes en mode paysage */
+  .samsung-landscape-card {
+    height: fit-content;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
   }
 }
 

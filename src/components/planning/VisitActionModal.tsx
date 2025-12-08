@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-
 import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -14,6 +13,7 @@ import { Expense } from '@/types';
 import { CreditCard, Truck } from 'lucide-react';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { RoadmapView } from '@/components/reports/RoadmapView';
+import { generateUUID } from '@/utils/uuid';
 
 interface VisitActionModalProps {
   isOpen: boolean;
@@ -108,7 +108,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     try {
       const newFeedback: VisitFeedback = {
         ...feedbackData,
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         visitId: visit.visitId,
         submittedBy: 'currentUser', // À remplacer par l'ID réel de l'utilisateur
         submittedAt: new Date().toISOString()
@@ -141,7 +141,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         );
       } else {
         // Add new
-        newExpenses = [...currentExpenses, { ...expenseData, id: crypto.randomUUID() }];
+        newExpenses = [...currentExpenses, { ...expenseData, id: generateUUID() }];
       }
 
       await updateVisit({ ...visit, expenses: newExpenses });
