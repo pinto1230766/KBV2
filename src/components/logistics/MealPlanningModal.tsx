@@ -291,6 +291,7 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
                         </div>
                         <button
                           onClick={() => removeMeal(meal.id)}
+                          aria-label="Supprimer ce repas"
                           className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
                         >
                           <X className="w-4 h-4" />
@@ -306,6 +307,7 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
                             type="time"
                             value={meal.time}
                             onChange={(e) => updateMeal(meal.id, { time: e.target.value })}
+                            aria-label="Heure du repas"
                             className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           />
                         </div>
@@ -318,6 +320,7 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
                             value={meal.attendees}
                             onChange={(e) => updateMeal(meal.id, { attendees: Number(e.target.value) })}
                             min="1"
+                            aria-label="Nombre de personnes"
                             className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                           />
                         </div>

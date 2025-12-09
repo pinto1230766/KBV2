@@ -170,6 +170,7 @@ export const TravelCoordinationModal: React.FC<TravelCoordinationModalProps> = (
               type="time"
               value={departureTime}
               onChange={(e) => setDepartureTime(e.target.value)}
+              aria-label="Heure de départ"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
@@ -182,6 +183,7 @@ export const TravelCoordinationModal: React.FC<TravelCoordinationModalProps> = (
               type="time"
               value={arrivalTime}
               onChange={(e) => setArrivalTime(e.target.value)}
+              aria-label="Heure d'arrivée"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>

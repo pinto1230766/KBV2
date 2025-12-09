@@ -109,6 +109,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
             key={star}
             type="button"
             onClick={() => onRate(star)}
+            aria-label={`Noter ${star} étoile${star > 1 ? 's' : ''}`}
             className="focus:outline-none transition-transform hover:scale-110"
           >
             <Star
@@ -207,6 +208,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
                       key={star}
                       type="button"
                       onClick={() => handleCategoryRating(category.id, star)}
+                      aria-label={`${category.label}: ${star} étoile${star > 1 ? 's' : ''}`}
                       className="focus:outline-none"
                     >
                       <Star
