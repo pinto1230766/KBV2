@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Copy, Trash2, AlertTriangle, Users, Merge, CheckCircle } from 'lucide-react';
+import { Copy, Trash2, AlertTriangle, Merge, CheckCircle } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -45,7 +45,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       speakerGroups.get(key)!.push(speaker);
     });
 
-    speakerGroups.forEach((group, key) => {
+    speakerGroups.forEach((group) => {
       if (group.length > 1) {
         const reasons: string[] = ['Nom identique'];
         
@@ -82,7 +82,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       hostGroups.get(key)!.push(host);
     });
 
-    hostGroups.forEach((group, key) => {
+    hostGroups.forEach((group) => {
       if (group.length > 1) {
         const reasons: string[] = ['Nom identique'];
         
@@ -116,7 +116,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       visitGroups.get(key)!.push(visit);
     });
 
-    visitGroups.forEach((group, key) => {
+    visitGroups.forEach((group) => {
       if (group.length > 1) {
         groups.push({
           type: 'visit',
@@ -251,12 +251,11 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
             duplicateGroups.map((group, index) => (
               <Card
                 key={index}
-                className={`border-l-4 ${
+                className={`${
+                  group.similarity >= 90 ? 'border-l-4 border-l-red-600' : 'border-l-4 border-l-orange-500'
+                } ${
                   selectedGroups.has(index) ? 'ring-2 ring-primary-500' : ''
                 }`}
-                style={{
-                  borderLeftColor: group.similarity >= 90 ? '#DC2626' : '#F59E0B'
-                }}
               >
                 <CardBody>
                   <div className="space-y-4">

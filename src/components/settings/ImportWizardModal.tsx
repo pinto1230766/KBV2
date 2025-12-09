@@ -56,7 +56,6 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
   const [columns, setColumns] = useState<string[]>([]);
   const [mapping, setMapping] = useState<ColumnMapping>({});
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const [isImporting, setIsImporting] = useState(false);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -96,7 +95,6 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
   };
 
   const handleImport = async () => {
-    setIsImporting(true);
     setCurrentStep('import');
 
     try {
@@ -116,8 +114,6 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
       setCurrentStep('result');
     } catch (error) {
       console.error('Erreur lors de l\'import:', error);
-    } finally {
-      setIsImporting(false);
     }
   };
 
@@ -219,10 +215,10 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                   id="csv-file"
                 />
                 <label htmlFor="csv-file">
-                  <Button variant="primary" as="span">
+                  <span className="inline-flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg cursor-pointer transition-colors">
                     <Upload className="w-4 h-4 mr-2" />
                     Parcourir
-                  </Button>
+                  </span>
                 </label>
               </div>
             </div>

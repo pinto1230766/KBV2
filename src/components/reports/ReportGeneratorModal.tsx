@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { FileText, Download, Calendar, Users, BarChart3, Filter, Settings } from 'lucide-react';
+import { Download, Calendar, Users, BarChart3, Settings } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useData } from '@/contexts/DataContext';
 
