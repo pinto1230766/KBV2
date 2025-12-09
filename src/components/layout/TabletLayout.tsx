@@ -70,7 +70,7 @@ export const TabletLayout: React.FC = () => {
 
   return (
     <SPenCursor>
-      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden samsung-optimized" style={{ width: '100vw', maxWidth: 'none' }}>
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden samsung-optimized w-screen max-w-none">
         {/* Sidebar - Cache en mode portrait si pliée */}
         <aside className={cn(
           "flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300",

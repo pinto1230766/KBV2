@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Utensils, AlertCircle, Plus, X, Clock } from 'lucide-react';
+import { Utensils, AlertCircle, Plus, X } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Visit } from '@/types';
 

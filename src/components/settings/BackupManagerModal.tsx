@@ -318,9 +318,9 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                   id="backup-file"
                 />
                 <label htmlFor="backup-file">
-                  <Button variant="outline" as="span">
+                  <span className="inline-flex items-center justify-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-lg cursor-pointer transition-colors">
                     Parcourir
-                  </Button>
+                  </span>
                 </label>
               </div>
             </div>

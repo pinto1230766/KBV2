@@ -4,7 +4,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
-import { Visit, Speaker } from '@/types';
+import { Visit } from '@/types';
 import { useData } from '@/contexts/DataContext';
 
 interface TravelCoordinationModalProps {

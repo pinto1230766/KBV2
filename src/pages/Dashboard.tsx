@@ -208,16 +208,10 @@ export const Dashboard: React.FC = () => {
   return (
     <>
       <div className={`
-        ${isTablet ? 'h-full flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'} 
+        ${isTablet ? 'h-full flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'}
         ${isTablet && orientation === 'landscape' ? 'px-4' : isTablet ? 'px-4' : 'px-4'}
         ${isLowEndDevice ? 'optimize-rendering' : ''}
-      `}
-      style={{
-        width: '100%',
-        maxWidth: 'none',
-        margin: 0,
-        padding: isTablet && orientation === 'landscape' ? '0 16px' : '0 16px'
-      }}>
+      `}>
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       

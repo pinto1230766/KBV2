@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Star, MessageSquare, ThumbsUp, ThumbsDown, Camera, Save } from 'lucide-react';
+import { Star, MessageSquare, ThumbsUp, Save } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Visit, VisitFeedback } from '@/types';
 
 interface FeedbackFormModalProps {

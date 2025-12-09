@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { XCircle, Calendar, MessageSquare, RotateCcw, Send, AlertTriangle } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { Visit } from '@/types';
 
 interface CancellationModalProps {

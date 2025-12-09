@@ -268,10 +268,10 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
         ) : (
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {conflicts.map((conflict) => (
-              <Card key={conflict.id} className="border-l-4" style={{
-                borderLeftColor: conflict.severity === 'critical' ? '#DC2626' : 
-                                 conflict.severity === 'warning' ? '#F59E0B' : '#3B82F6'
-              }}>
+              <Card key={conflict.id} className={`border-l-4 ${
+                conflict.severity === 'critical' ? 'border-l-red-600' : 
+                conflict.severity === 'warning' ? 'border-l-orange-500' : 'border-l-blue-500'
+              }`}>
                 <CardBody className="space-y-4">
                   {/* En-tête du conflit */}
                   <div className="flex items-start gap-3">
