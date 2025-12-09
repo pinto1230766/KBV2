@@ -44,7 +44,7 @@ export const TravelCoordinationModal: React.FC<TravelCoordinationModalProps> = (
   visit,
   onSave
 }) => {
-  const { visits, speakers } = useData();
+  const { visits } = useData();
   const [transportMode, setTransportMode] = useState<TravelPlan['transportMode']>('car');
   const [departureTime, setDepartureTime] = useState('');
   const [arrivalTime, setArrivalTime] = useState('');

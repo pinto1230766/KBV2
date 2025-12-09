@@ -166,8 +166,8 @@ export const TabletLayout: React.FC = () => {
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Contenu principal - Pleine largeur sur tablette */}
-          <main className="flex-1 overflow-hidden pt-4" style={{ width: '100%', maxWidth: 'none', margin: 0, padding: 0 }}>
-            <div className="h-full overflow-y-auto" style={{ width: '100%', maxWidth: 'none', margin: 0, padding: 0 }}>
+          <main className="flex-1 overflow-hidden pt-4">
+            <div className="h-full overflow-y-auto">
               <Outlet />
             </div>
           </main>

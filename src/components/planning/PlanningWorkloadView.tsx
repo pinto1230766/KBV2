@@ -61,16 +61,16 @@ export const PlanningWorkloadView: React.FC = () => {
                     <span className="text-gray-500">Charge actuelle</span>
                     <span className="font-medium text-gray-900 dark:text-white">{workload.currentLoad}%</span>
                   </div>
-                  <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${
-                        workload.workloadScore >= 5 ? 'bg-red-500' : 
-                        workload.workloadScore >= 4 ? 'bg-orange-500' : 
-                        workload.workloadScore >= 3 ? 'bg-yellow-500' : 'bg-green-500'
-                      }`}
-                      style={{ width: `${Math.min(workload.currentLoad, 100)}%` }}
-                    />
-                  </div>
+                  <progress
+                    value={workload.currentLoad}
+                    max={100}
+                    className={`w-full h-2 rounded-full ${
+                      workload.workloadScore >= 5 ? '[&::-webkit-progress-value]:bg-red-500 [&::-moz-progress-bar]:bg-red-500' :
+                      workload.workloadScore >= 4 ? '[&::-webkit-progress-value]:bg-orange-500 [&::-moz-progress-bar]:bg-orange-500' :
+                      workload.workloadScore >= 3 ? '[&::-webkit-progress-value]:bg-yellow-500 [&::-moz-progress-bar]:bg-yellow-500' :
+                      '[&::-webkit-progress-value]:bg-green-500 [&::-moz-progress-bar]:bg-green-500'
+                    } [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-bar]:dark:bg-gray-700 [&::-moz-progress-bar]:bg-gray-100 [&::-moz-progress-bar]:dark:bg-gray-700`}
+                  />
                 </div>
 
                 <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-3">

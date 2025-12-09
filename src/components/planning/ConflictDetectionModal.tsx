@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, Calendar, User, Home, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { AlertTriangle, Calendar, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -46,7 +46,7 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
   visit,
   onResolve
 }) => {
-  const { visits, speakers, hosts } = useData();
+  const { visits, hosts } = useData();
   const [selectedResolutions, setSelectedResolutions] = useState<Map<string, string>>(new Map());
 
   // Détection des conflits

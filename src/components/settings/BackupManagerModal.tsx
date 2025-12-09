@@ -3,8 +3,7 @@ import { Save, Download, Upload, Clock, HardDrive, Shield, CheckCircle, AlertTri
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { AppData } from '@/types';
+import { Card, CardBody } from '@/components/ui/Card';
 
 interface BackupManagerModalProps {
   isOpen: boolean;
