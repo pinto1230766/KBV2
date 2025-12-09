@@ -415,7 +415,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             addedVisitsDetails.push(`- ${newVisit.nom} (${displayDate})`);
           }
         }
-        return { ...prev, speakers: newSpeakers, visits: newVisits };
+        // IMPORTANT: Préserver les hôtes lors de la sync
+        return { ...prev, speakers: newSpeakers, visits: newVisits, hosts: prev.hosts };
       });
 
       let toastMessage = `Synchronisation depuis les onglets ${successfulGids.join(', ')} terminée !\n- ${addedCount} visite(s) ajoutée(s)\n- ${updatedCount} visite(s) mise(s) à jour\n- ${skippedCount} ligne(s) ignorée(s)`;
