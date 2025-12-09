@@ -10,8 +10,9 @@ import { FeedbackForm } from '@/components/feedback/FeedbackForm';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { Expense } from '@/types';
-import { CreditCard, Truck } from 'lucide-react';
+import { CreditCard, Truck, Car, Utensils, Home as HomeIcon } from 'lucide-react';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
+import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { generateUUID } from '@/utils/uuid';
 
@@ -36,6 +37,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Expenses Logic
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
+  const [isTravelModalOpen, setIsTravelModalOpen] = useState(false);
+  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
+  const [isAccommodationModalOpen, setIsAccommodationModalOpen] = useState(false);
 
   useEffect(() => {
     if (visit) {
@@ -398,6 +402,34 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <Truck className="w-5 h-5 text-blue-600" />
               Logistique
             </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => setIsTravelModalOpen(true)}
+                className="w-full justify-start"
+                leftIcon={<Car className="w-4 h-4" />}
+              >
+                Voyage
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setIsMealModalOpen(true)}
+                className="w-full justify-start"
+                leftIcon={<Utensils className="w-4 h-4" />}
+              >
+                Repas
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setIsAccommodationModalOpen(true)}
+                className="w-full justify-start"
+                leftIcon={<HomeIcon className="w-4 h-4" />}
+              >
+                Hébergement
+              </Button>
+            </div>
+
             <LogisticsManager
               logistics={visit.logistics}
               onUpdate={(updatedLogistics) => updateVisit({ ...visit, logistics: updatedLogistics })}
@@ -459,13 +491,47 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      size="md"
-      footer={getFooter()}
-    >
-      {getModalContent()}
-    </Modal>
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="md"
+        footer={getFooter()}
+      >
+        {getModalContent()}
+      </Modal>
+
+      <TravelCoordinationModal
+        isOpen={isTravelModalOpen}
+        onClose={() => setIsTravelModalOpen(false)}
+        visit={visit}
+        onSave={(travelData) => {
+          console.log('Travel data saved:', travelData);
+          setIsTravelModalOpen(false);
+          addToast('Informations de voyage enregistrées', 'success');
+        }}
+      />
+
+      <MealPlanningModal
+        isOpen={isMealModalOpen}
+        onClose={() => setIsMealModalOpen(false)}
+        visit={visit}
+        onSave={(mealData) => {
+          console.log('Meal data saved:', mealData);
+          setIsMealModalOpen(false);
+          addToast('Informations de repas enregistrées', 'success');
+        }}
+      />
+
+      <AccommodationMatchingModal
+        isOpen={isAccommodationModalOpen}
+        onClose={() => setIsAccommodationModalOpen(false)}
+        visit={visit}
+        onSelectHost={() => {
+          setIsAccommodationModalOpen(false);
+          addToast('Hôte sélectionné', 'success');
+        }}
+      />
+    </>
   );
 };

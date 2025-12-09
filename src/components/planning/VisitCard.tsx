@@ -137,7 +137,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 min-w-48">
+              <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48">
                 {actionOptions.map((option) => (
                   <button
                     key={option.action}
@@ -157,7 +157,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
       {/* Overlay to close menu when clicking outside */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-0" 
+          className="fixed inset-0 z-40" 
           onClick={() => setShowMenu(false)}
         />
       )}

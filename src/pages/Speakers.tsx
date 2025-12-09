@@ -7,7 +7,8 @@ import { HostList } from '@/components/hosts/HostList';
 import { HostFormModal } from '@/components/hosts/HostFormModal';
 import { Button } from '@/components/ui/Button';
 import { Plus, Users, Home } from 'lucide-react';
-import { Speaker, Host } from '@/types';
+import { Speaker, Host, Visit } from '@/types';
+import { FeedbackFormModal } from '@/components/modals';
 
 type Tab = 'speakers' | 'hosts';
 
@@ -22,6 +23,8 @@ export const Speakers: React.FC = () => {
 
   const [isHostModalOpen, setIsHostModalOpen] = useState(false);
   const [editingHost, setEditingHost] = useState<Host | undefined>(undefined);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackVisit, setFeedbackVisit] = useState<Visit | null>(null);
 
   // Speaker Handlers
   const handleEditSpeaker = (speaker: Speaker) => {
@@ -138,6 +141,22 @@ export const Speakers: React.FC = () => {
         onClose={handleCloseHostModal}
         host={editingHost}
       />
+
+      {feedbackVisit && (
+        <FeedbackFormModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => {
+            setIsFeedbackModalOpen(false);
+            setFeedbackVisit(null);
+          }}
+          visit={feedbackVisit}
+          onSubmit={(feedback) => {
+            console.log('Feedback submitted:', feedback);
+            addToast('Évaluation enregistrée', 'success');
+            setIsFeedbackModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };

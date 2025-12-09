@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language, SyncAction } from '@/types';
-import * as idb from '@/utils/idb';
+import * as storage from '@/utils/storage';
 import { defaultAppData } from '@/data/constants';
 import { useToast } from '@/contexts/ToastContext';
 import { useSyncQueue } from '@/hooks/useSyncQueue';
@@ -75,23 +75,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // car le chargement de données est déjà géré par useEffect + idb ci-dessous
   const { isOnline } = useOfflineMode('app_state', async () => defaultAppData);
 
-  // Load - Charger depuis IDB ou depuis le fichier JSON initial
+  // Load - Charger depuis le stockage ou depuis le fichier JSON initial
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const saved = await idb.get<AppData>('kbv-app-data');
+        // Migration automatique si nécessaire
+        await storage.migrateToCapacitor();
+        
+        const saved = await storage.get<AppData>('kbv-app-data');
         
         if (saved && saved.speakers && saved.speakers.length > 0) {
-          // Données existantes dans IDB - ajouter les titres manquants et les hôtes s'ils sont vides
+          // Données existantes - ajouter les titres manquants et les hôtes s'ils sont vides
           const visitsWithTitles = saved.visits.map(visit => ({
             ...visit,
             talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
           }));
           
-          // Injecter les hôtes par défaut s'ils sont manquants (migration)
+          // IMPORTANT: Toujours utiliser les hôtes par défaut s'ils sont manquants
           const hosts = (!saved.hosts || saved.hosts.length === 0) ? defaultAppData.hosts : saved.hosts;
           
-          setData({ ...defaultAppData, ...saved, visits: visitsWithTitles, hosts });
+          const mergedData = { ...defaultAppData, ...saved, visits: visitsWithTitles, hosts };
+          setData(mergedData);
+          // Sauvegarder immédiatement pour persister les hôtes
+          await storage.set('kbv-app-data', mergedData);
         } else {
           // Première utilisation : charger depuis le fichier JSON
           const response = await fetch('/kbv-backup-2025-12-08.json');
@@ -104,8 +110,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
             }));
             const mergedData = { ...defaultAppData, ...jsonData, visits: visitsWithTitles };
             setData(mergedData);
-            // Sauvegarder immédiatement dans IDB
-            await idb.set('kbv-app-data', mergedData);
+            // Sauvegarder immédiatement dans le stockage
+            await storage.set('kbv-app-data', mergedData);
             addToast('Données initiales chargées avec succès !', 'success');
           } else {
             setData(defaultAppData);
@@ -124,7 +130,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // Save
   useEffect(() => {
-    if (loaded) idb.set('kbv-app-data', data);
+    if (loaded) storage.set('kbv-app-data', data);
   }, [data, loaded]);
 
   // Speakers
@@ -239,7 +245,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const resetData = () => {
     setData(defaultAppData);
-    idb.clear();
+    storage.clear();
   };
 
   // Google Sheets Sync
@@ -455,8 +461,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // Update state and persistence
       setData(parsed);
       setLoaded(true);
-      // Force immediate save to IDB
-      idb.set('kbv-app-data', parsed).then(() => {
+      // Force immediate save to storage
+      storage.set('kbv-app-data', parsed).then(() => {
          addToast('Données importées avec succès !', 'success');
       });
       

@@ -1,5 +1,5 @@
-import React, { memo, useMemo, useCallback, useState } from 'react';
-import { Users, Calendar, AlertCircle, TrendingUp, Clock } from 'lucide-react';
+import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
+import { Users, Calendar, AlertCircle, TrendingUp, Clock, Zap, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { Visit } from '@/types';
 
 import { isLowMemoryDevice } from '@/utils/mobileOptimization';
+import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
+import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
 
 // Memoized components for performance
 const VisitItem = memo(({ 
@@ -74,6 +76,8 @@ export const Dashboard: React.FC = () => {
   const { deviceType, orientation } = usePlatformContext();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const isTablet = deviceType === 'tablet';
   // Détection spécifique Samsung Tab S10 Ultra (ajusté pour le scaling Chrome: 1200px au lieu de 1848px)
@@ -202,6 +206,18 @@ export const Dashboard: React.FC = () => {
     { name: 'Streaming', value: visits.filter((v: Visit) => v.locationType === 'streaming').length, color: '#F59E0B' }
   ], [visits]);
 
+  // Keyboard shortcut for Quick Actions (Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsQuickActionsOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Memoized event handlers
   const handleNavigateToPlanning = useCallback(() => navigate('/planning'), [navigate]);
 
@@ -217,6 +233,26 @@ export const Dashboard: React.FC = () => {
       
       {/* Offline Banner */}
       <OfflineBanner isOnline={isOnline} />
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 flex-shrink-0">
+        <Button
+          variant="secondary"
+          size="sm"
+          leftIcon={<Zap className="w-4 h-4" />}
+          onClick={() => setIsQuickActionsOpen(true)}
+        >
+          Actions rapides (Ctrl+K)
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          leftIcon={<FileText className="w-4 h-4" />}
+          onClick={() => setIsReportModalOpen(true)}
+        >
+          Générer un rapport
+        </Button>
+      </div>
 
       {/* Stats Cards - Fixed height on Tablet */}
       <div className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
@@ -320,15 +356,18 @@ export const Dashboard: React.FC = () => {
                 </ResponsiveContainer>
               </div>
               <div className="flex flex-col gap-2 mt-4">
-                {pieData.map((item) => (
-                  <div key={item.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 md:w-3 md:h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
+                {pieData.map((item) => {
+                  const dotClass = item.name === 'Physique' ? 'bg-blue-500' : item.name === 'Zoom' ? 'bg-green-500' : 'bg-amber-500';
+                  return (
+                    <div key={item.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${dotClass}`}></div>
+                        <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
+                      </div>
+                      <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">{item.value}</span>
                     </div>
-                    <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">{item.value}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardBody>
           </Card>
@@ -418,6 +457,23 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       </div>
+
+      {/* Modals */}
+      <QuickActionsModal
+        isOpen={isQuickActionsOpen}
+        onClose={() => setIsQuickActionsOpen(false)}
+        onAction={() => {
+          setIsQuickActionsOpen(false);
+        }}
+      />
+      <ReportGeneratorModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onGenerate={(config) => {
+          console.log('Generate report:', config);
+          setIsReportModalOpen(false);
+        }}
+      />
     </>
   );
 };

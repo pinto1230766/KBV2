@@ -69,6 +69,10 @@ VITE_GEMINI_API_KEY=votre_cle_api_google_gemini
 
 ## 📚 Documentation Supplémentaire
 
+### 🔧 Fixes & Maintenance
+- 🔧 [Fix Données Perdues](FIX_DONNEES_PERDUES.md) - Solution persistance des données
+- 🧪 [Test Fix Données](TEST_FIX_DONNEES.md) - Guide de test du fix
+
 ### Optimisation Samsung Tab S10 Ultra
 - 📱 [Guide d'Optimisation Samsung](GUIDE_OPTIMISATION_SAMSUNG.md) - Fonctionnalités et optimisations
 - 🚀 [Quick Start](QUICK_START.md) - Déploiement en 3 commandes

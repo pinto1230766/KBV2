@@ -2,7 +2,8 @@
 
 ## 🎯 Configuration Terminée
 
-### ✅ Prérequis déjà configurés :
+### ✅ Prérequis déjà configurés
+
 - **Package ID** : `com.kbvfp.app`
 - **Nom de l'app** : `KBVFP`
 - **Version** : `1.20.0`
@@ -16,6 +17,7 @@
 ## 🔧 Instructions pour Android Studio
 
 ### 1. **Ouvrir le Projet Android**
+
 ```bash
 # Dans Android Studio, ouvrir le dossier :
 android/
@@ -24,6 +26,7 @@ android/
 ### 2. **Vérifier la Configuration**
 
 #### **Fichier : `android/app/build.gradle`**
+
 ```gradle
 android {
     compileSdkVersion 34
@@ -53,6 +56,7 @@ android {
 ```
 
 #### **Fichier : `android/app/src/main/AndroidManifest.xml`**
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -125,6 +129,7 @@ android {
 ## 🚀 Étapes de Compilation
 
 ### **Option 1 : APK de Débogage (Rapide)**
+
 1. **Connecter un appareil Android** ou **démarrer un émulateur**
 2. **Dans Android Studio** :
    - Cliquer sur **"Build"** → **"Build Bundle(s) / APK(s)"** → **"Build APK(s)"**
@@ -134,12 +139,15 @@ android {
    - Aller dans : `android/app/build/outputs/apk/debug/app-debug.apk`
 
 ### **Option 2 : APK de Release (Optimisé)**
+
 1. **Créer une clé de signature** :
+
    ```bash
    keytool -genkey -v -keystore kbvfp-release-key.keystore -alias kbvfp -keyalg RSA -keysize 2048 -validity 10000
    ```
 
 2. **Configurer le signing** dans `android/app/build.gradle` :
+
    ```gradle
    android {
        signingConfigs {
@@ -175,6 +183,7 @@ android {
 ## 🔍 Vérifications Post-Compilation
 
 ### **Structure des Fichiers Générés**
+
 ```
 android/app/build/outputs/apk/
 ├── debug/
@@ -184,6 +193,7 @@ android/app/build/outputs/apk/
 ```
 
 ### **Icônes Vérifiées**
+
 ```
 android/app/src/main/res/
 ├── mipmap-mdpi/ic_launcher.png         # 48x48
@@ -199,6 +209,7 @@ android/app/src/main/res/
 ## 📊 Informations de l'Application
 
 ### **Détails APK**
+
 - **Nom** : KBVFP
 - **Package** : com.kbvfp.app
 - **Version** : 1.20.0 (1200)
@@ -207,6 +218,7 @@ android/app/src/main/res/
 - **SDK Cible** : Android 14 (API 34)
 
 ### **Permissions Incluses**
+
 ✅ Internet, Network State, WiFi State  
 ✅ Notifications, Vibrate, Wake Lock  
 ✅ Storage (Read/Write), Camera, Audio  
@@ -215,6 +227,7 @@ android/app/src/main/res/
 ✅ Foreground Service, Boot Completed  
 
 ### **Fonctionnalités Capacitor**
+
 ✅ Local Notifications  
 ✅ Preferences (Stockage local)  
 ✅ Share (Partage de fichiers)  
@@ -224,6 +237,7 @@ android/app/src/main/res/
 ## 🐛 Dépannage Courant
 
 ### **Erreur : "SDK not found"**
+
 ```bash
 # Installer Android SDK via Android Studio
 # ou définir ANDROID_HOME
@@ -232,15 +246,18 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 ```
 
 ### **Erreur : "Build failed"**
+
 1. **Clean Project** : Build → Clean Project
 2. **Rebuild** : Build → Rebuild Project
 3. **Sync** : File → Sync Project with Gradle Files
 
 ### **Erreur : "Signing not configured"**
+
 - Utiliser l'APK debug pour les tests
 - Configurer la signature pour la release
 
 ### **Erreur : "Permission denied"**
+
 - Vérifier les permissions dans AndroidManifest.xml
 - Redemarrer l'appareil après installation
 
@@ -249,6 +266,7 @@ export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 ## 📱 Installation et Test
 
 ### **Installer sur l'Appareil**
+
 ```bash
 # Via ADB
 adb install android/app/build/outputs/apk/debug/app-debug.apk
@@ -257,6 +275,7 @@ adb install android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 ### **Vérifier l'Installation**
+
 1. **Ouvrir l'application** KBVFP
 2. **Vérifier l'icône** (KBV LYON PF en bleu)
 3. **Tester les fonctionnalités** principales
@@ -264,11 +283,12 @@ adb install android/app/build/outputs/apk/debug/app-debug.apk
 
 ---
 
-## 🎉 Félicitations !
+## 🎉 Félicitations
 
 Votre application KBVFP v1.20 est maintenant prête pour Android !
 
 ### **Prochaines Étapes**
+
 - [ ] Tester sur différents appareils Android
 - [ ] Publier sur Google Play Store (si souhaité)
 - [ ] Configurer les mises à jour automatiques

@@ -29,6 +29,7 @@ import { PlanningTimelineView } from '@/components/planning/PlanningTimelineView
 import { FinancialDashboard } from '@/components/expenses/FinancialDashboard';
 import { useReactToPrint } from 'react-to-print';
 import { PlanningFilterModal } from '@/components/planning/PlanningFilterModal';
+import { ConflictDetectionModal, CancellationModal, EmergencyReplacementModal } from '@/components/modals';
 
 
 type ViewType = 'cards' | 'list' | 'week' | 'calendar' | 'timeline' | 'workload' | 'finance';
@@ -99,6 +100,9 @@ export const Planning: React.FC = () => {
   const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [selectedAction, setSelectedAction] = useState<'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'>('edit');
+  const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+  const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
+  const [isReplacementModalOpen, setIsReplacementModalOpen] = useState(false);
 
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -370,6 +374,40 @@ export const Planning: React.FC = () => {
         dateRange={dateRange}
         setDateRange={setDateRange}
       />
+
+      {selectedVisit && (
+        <>
+          <ConflictDetectionModal
+            isOpen={isConflictModalOpen}
+            onClose={() => setIsConflictModalOpen(false)}
+            visit={selectedVisit}
+            onResolve={(resolution) => {
+              console.log('Conflict resolved:', resolution);
+              setIsConflictModalOpen(false);
+            }}
+          />
+
+          <CancellationModal
+            isOpen={isCancellationModalOpen}
+            onClose={() => setIsCancellationModalOpen(false)}
+            visit={selectedVisit}
+            onCancel={(data) => {
+              console.log('Visit cancelled:', data);
+              setIsCancellationModalOpen(false);
+            }}
+          />
+
+          <EmergencyReplacementModal
+            isOpen={isReplacementModalOpen}
+            onClose={() => setIsReplacementModalOpen(false)}
+            visit={selectedVisit}
+            onSelectReplacement={(speaker) => {
+              console.log('Replacement selected:', speaker);
+              setIsReplacementModalOpen(false);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };
