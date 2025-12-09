@@ -82,12 +82,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const saved = await idb.get<AppData>('kbv-app-data');
         
         if (saved && saved.speakers && saved.speakers.length > 0) {
-          // Données existantes dans IDB - ajouter les titres manquants
+          // Données existantes dans IDB - ajouter les titres manquants et les hôtes s'ils sont vides
           const visitsWithTitles = saved.visits.map(visit => ({
             ...visit,
             talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
           }));
-          setData({ ...defaultAppData, ...saved, visits: visitsWithTitles });
+          
+          // Injecter les hôtes par défaut s'ils sont manquants (migration)
+          const hosts = (!saved.hosts || saved.hosts.length === 0) ? defaultAppData.hosts : saved.hosts;
+          
+          setData({ ...defaultAppData, ...saved, visits: visitsWithTitles, hosts });
         } else {
           // Première utilisation : charger depuis le fichier JSON
           const response = await fetch('/kbv-backup-2025-12-08.json');

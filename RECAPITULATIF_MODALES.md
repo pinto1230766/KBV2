@@ -18,21 +18,21 @@
 4. ✅ **FeedbackFormModal** - Évaluation détaillée post-visite
 
 #### **Phase 2 - Modales de Gestion (4)**
-5. ✅ **DuplicateDetectionModal** - Détection et fusion de doublons
-6. ✅ **BackupManagerModal** - Sauvegarde et restauration complètes
-7. ✅ **ImportWizardModal** - Assistant d'importation CSV
-8. ✅ **ArchiveManagerModal** - Gestion complète des archives
+1. ✅ **DuplicateDetectionModal** - Détection et fusion de doublons
+2. ✅ **BackupManagerModal** - Sauvegarde et restauration complètes
+3. ✅ **ImportWizardModal** - Assistant d'importation CSV
+4. ✅ **ArchiveManagerModal** - Gestion complète des archives
 
 #### **Phase 3 - Modales de Rapports (1)**
-9. ✅ **ReportGeneratorModal** - Génération de rapports personnalisables
+1. ✅ **ReportGeneratorModal** - Génération de rapports personnalisables
 
 #### **Phase 4 - Modales de Logistique (2)**
-10. ✅ **TravelCoordinationModal** - Coordination des voyages et covoiturage
-11. ✅ **MealPlanningModal** - Planification des repas et restrictions
+1. ✅ **TravelCoordinationModal** - Coordination des voyages et covoiturage
+2. ✅ **MealPlanningModal** - Planification des repas et restrictions
 
 #### **Phase 5 - Modales Spécifiques (2)**
-12. ✅ **AccommodationMatchingModal** - Matching intelligent hôte/orateur
-13. ✅ **QuickActionsModal** - Panneau d'actions rapides
+1. ✅ **AccommodationMatchingModal** - Matching intelligent hôte/orateur
+2. ✅ **QuickActionsModal** - Panneau d'actions rapides
 
 ---
 
