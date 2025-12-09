@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar, MapPin, User, Clock, MoreVertical, Edit2, Trash2, MessageSquare, CheckCircle, Star, CreditCard, Truck } from 'lucide-react';
 import { Visit } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -15,6 +16,18 @@ interface VisitCardProps {
 
 export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }) => {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (showMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right + window.scrollX - 192 // 192px = min-w-48
+      });
+    }
+  }, [showMenu]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -50,7 +63,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
   ];
 
   return (
-    <Card hoverable className="h-full relative" onClick={onClick}>
+    <Card hoverable className="h-full relative overflow-visible" onClick={onClick}>
       <CardBody className="p-4 flex flex-col h-full">
         <div className="flex justify-between items-start mb-3">
           <div className="flex items-center gap-2">
@@ -126,6 +139,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
           
           <div className="relative">
             <button
+              ref={buttonRef}
               aria-label="Options"
               className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={(e) => {
@@ -136,8 +150,14 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
               <MoreVertical className="w-4 h-4" />
             </button>
 
-            {showMenu && (
-              <div className="absolute right-0 top-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-48">
+            {showMenu && createPortal(
+              <div 
+                className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] min-w-48"
+                style={{
+                  top: `${menuPosition.top}px`,
+                  left: `${menuPosition.left}px`
+                }}
+              >
                 {actionOptions.map((option) => (
                   <button
                     key={option.action}
@@ -148,7 +168,8 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
                     {option.label}
                   </button>
                 ))}
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         </div>
@@ -157,7 +178,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
       {/* Overlay to close menu when clicking outside */}
       {showMenu && (
         <div 
-          className="fixed inset-0 z-40" 
+          className="fixed inset-0 z-[9998]" 
           onClick={() => setShowMenu(false)}
         />
       )}

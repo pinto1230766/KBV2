@@ -305,6 +305,9 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                               <>
                                 <div>Congrégation : {item.congregation}</div>
                                 {item.telephone && <div>Tél : {item.telephone}</div>}
+                                {item.email && <div>Email : {item.email}</div>}
+                                <div>Visites : {visits.filter(v => v.id === item.id).length}</div>
+                                <div>Messages : {visits.filter(v => v.id === item.id && v.communicationStatus).length}</div>
                                 {item.createdAt && (
                                   <div className="text-xs">
                                     Créé : {new Date(item.createdAt).toLocaleDateString('fr-FR')}

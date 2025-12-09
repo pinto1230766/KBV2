@@ -33,15 +33,20 @@ export const Messages: React.FC = () => {
   const [generatorVisit, setGeneratorVisit] = useState<Visit | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'pending'>('all');
 
-  // Generate conversations from visits
+  // Generate conversations from visits (sans doublons)
   const conversations = useMemo(() => {
     const convos: { speaker: Speaker; visits: Visit[] }[] = [];
+    const seenSpeakers = new Set<string>();
 
-    // Group visits by speaker
+    // Group visits by speaker (éviter les doublons)
     speakers.forEach(speaker => {
-      const speakerVisits = visits.filter(visit => visit.nom === speaker.nom);
-      if (speakerVisits.length > 0) {
-        convos.push({ speaker, visits: speakerVisits });
+      // Utiliser l'ID comme clé unique
+      if (!seenSpeakers.has(speaker.id)) {
+        seenSpeakers.add(speaker.id);
+        const speakerVisits = visits.filter(visit => visit.id === speaker.id);
+        if (speakerVisits.length > 0) {
+          convos.push({ speaker, visits: speakerVisits });
+        }
       }
     });
 
@@ -55,9 +60,13 @@ export const Messages: React.FC = () => {
         convo.speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         convo.speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesSearch;
+      const matchesFilter = 
+        filter === 'all' || 
+        (filter === 'pending' && convo.visits.some(v => v.status === 'pending'));
+
+      return matchesSearch && matchesFilter;
     });
-  }, [conversations, searchTerm]);
+  }, [conversations, searchTerm, filter]);
 
   const stats = useMemo(() => {
     const total = conversations.length;
