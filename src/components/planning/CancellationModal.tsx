@@ -307,6 +307,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
                 value={suggestedNewDate}
                 onChange={(e) => setSuggestedNewDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
+                aria-label="Nouvelle date proposée"
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>

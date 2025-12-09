@@ -267,6 +267,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                           type="checkbox"
                           checked={selectedGroups.has(index)}
                           onChange={() => toggleGroup(index)}
+                          aria-label={`Sélectionner ce groupe de doublons ${getTypeLabel(group.type)}`}
                           className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                         />
                         <div>

@@ -175,6 +175,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
                   type="date"
                   value={customDateRange.start}
                   onChange={(e) => setCustomDateRange(prev => ({ ...prev, start: e.target.value }))}
+                  aria-label="Date de début"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>
@@ -186,6 +187,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
                   type="date"
                   value={customDateRange.end}
                   onChange={(e) => setCustomDateRange(prev => ({ ...prev, end: e.target.value }))}
+                  aria-label="Date de fin"
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
               </div>

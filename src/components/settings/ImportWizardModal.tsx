@@ -271,6 +271,7 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
                     <select
                       value={mapping[column] || ''}
                       onChange={(e) => handleMappingChange(column, e.target.value)}
+                      aria-label={`Mapper la colonne ${column}`}
                       className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
                       <option value="">-- Ignorer --</option>
