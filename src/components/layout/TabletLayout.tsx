@@ -12,7 +12,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { IOSTabBar } from '@/components/navigation/IOSTabBar';
-import { IOSNavBar } from '@/components/navigation/IOSNavBar';
 import { SPenCursor } from '@/components/spen/SPenCursor';
 import { usePlatformContext } from '@/contexts/PlatformContext';
 import { cn } from '@/utils/cn';
@@ -32,7 +31,6 @@ export const TabletLayout: React.FC = () => {
   const { deviceType, orientation } = usePlatformContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const title = NAV_ITEMS.find(item => item.path === location.pathname)?.label || 'KBV Lyon';
   const isTablet = deviceType === 'tablet';
   const isLandscape = orientation === 'landscape';
 
@@ -60,8 +58,7 @@ export const TabletLayout: React.FC = () => {
     // Fallback vers le layout iOS pour les appareils non-tablette
     return (
       <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
-        <IOSNavBar title={title} largeTitle={true} />
-        <main className="flex-1 overflow-y-auto px-4 pb-[83px]">
+        <main className="flex-1 overflow-y-auto px-4 pb-[83px] pt-4">
           <div className="max-w-7xl mx-auto py-4">
             <Outlet />
           </div>
@@ -168,29 +165,8 @@ export const TabletLayout: React.FC = () => {
 
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Barre de navigation supérieure */}
-          <div className="flex-shrink-0">
-            <IOSNavBar 
-              title={title} 
-              largeTitle={true}
-              showBackButton={!isLandscape}
-              onBack={isLandscape ? undefined : () => navigate(-1)}
-              rightButton={
-                !isLandscape && (
-                  <button
-                    onClick={toggleSidebar}
-                    className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                    title="Menu"
-                  >
-                    <Menu className="w-5 h-5" />
-                  </button>
-                )
-              }
-            />
-          </div>
-
           {/* Contenu principal - Pleine largeur sur tablette */}
-          <main className="flex-1 overflow-hidden" style={{ width: '100%', maxWidth: 'none', margin: 0, padding: 0 }}>
+          <main className="flex-1 overflow-hidden pt-4" style={{ width: '100%', maxWidth: 'none', margin: 0, padding: 0 }}>
             <div className="h-full overflow-y-auto" style={{ width: '100%', maxWidth: 'none', margin: 0, padding: 0 }}>
               <Outlet />
             </div>

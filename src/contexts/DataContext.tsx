@@ -5,6 +5,7 @@ import { defaultAppData } from '@/data/constants';
 import { useToast } from '@/contexts/ToastContext';
 import { useSyncQueue } from '@/hooks/useSyncQueue';
 import { useOfflineMode } from '@/hooks/useOfflineMode';
+import { getTalkTitle } from '@/data/talkTitles';
 
 // Utility functions for Google Sheets sync
 const UNASSIGNED_HOST = 'À définir';
@@ -74,12 +75,47 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // car le chargement de données est déjà géré par useEffect + idb ci-dessous
   const { isOnline } = useOfflineMode('app_state', async () => defaultAppData);
 
-  // Load
+  // Load - Charger depuis IDB ou depuis le fichier JSON initial
   useEffect(() => {
-    idb.get<AppData>('kbv-app-data').then((saved) => {
-      if (saved) setData({ ...defaultAppData, ...saved });
-      setLoaded(true);
-    });
+    const loadInitialData = async () => {
+      try {
+        const saved = await idb.get<AppData>('kbv-app-data');
+        
+        if (saved && saved.speakers && saved.speakers.length > 0) {
+          // Données existantes dans IDB - ajouter les titres manquants
+          const visitsWithTitles = saved.visits.map(visit => ({
+            ...visit,
+            talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+          }));
+          setData({ ...defaultAppData, ...saved, visits: visitsWithTitles });
+        } else {
+          // Première utilisation : charger depuis le fichier JSON
+          const response = await fetch('/kbv-backup-2025-12-08.json');
+          if (response.ok) {
+            const jsonData = await response.json();
+            // Ajouter automatiquement les titres aux visites
+            const visitsWithTitles = jsonData.visits.map((visit: Visit) => ({
+              ...visit,
+              talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+            }));
+            const mergedData = { ...defaultAppData, ...jsonData, visits: visitsWithTitles };
+            setData(mergedData);
+            // Sauvegarder immédiatement dans IDB
+            await idb.set('kbv-app-data', mergedData);
+            addToast('Données initiales chargées avec succès !', 'success');
+          } else {
+            setData(defaultAppData);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        setData(defaultAppData);
+      } finally {
+        setLoaded(true);
+      }
+    };
+    
+    loadInitialData();
   }, []);
 
   // Save
@@ -321,6 +357,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
           const talkNoValue = talkNoIndex > -1 ? (cells[talkNoIndex]?.v !== null ? String(cells[talkNoIndex]?.v) : null) : null;
           const themeValue = themeIndex > -1 ? (cells[themeIndex]?.v !== null ? String(cells[themeIndex]?.v) : null) : null;
+          // Si pas de titre dans le sheet, utiliser le titre par défaut
+          const finalTheme = themeValue || getTalkTitle(talkNoValue);
 
           if (existingVisitIndex > -1) {
             const existingVisit = newVisits[existingVisitIndex];
@@ -342,8 +380,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
               existingVisit.talkNoOrType = talkNoValue;
               updates.push("N° Discours");
             }
-            if (themeIndex > -1 && existingVisit.talkTheme !== themeValue) {
-              existingVisit.talkTheme = themeValue;
+            if (themeIndex > -1 && existingVisit.talkTheme !== finalTheme) {
+              existingVisit.talkTheme = finalTheme;
               updates.push("Thème");
             }
 
@@ -359,7 +397,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               accommodation: '', meals: '', status: 'pending',
               locationType: congregation.toLowerCase().includes('zoom') ? 'zoom' : congregation.toLowerCase().includes('streaming') ? 'streaming' : 'physical',
               talkNoOrType: talkNoValue,
-              talkTheme: themeValue,
+              talkTheme: finalTheme,
               communicationStatus: {},
             };
             newVisits.push(newVisit);
@@ -387,10 +425,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const refreshData = async (): Promise<void> => {
-    // Simuler un délai de rafraîchissement
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Les données sont déjà en mémoire, pas besoin de recharger
-    // Cette fonction peut être étendue pour recharger depuis une API
+    // Mettre à jour tous les titres manquants
+    setData(prev => {
+      const visitsWithTitles = prev.visits.map(visit => ({
+        ...visit,
+        talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+      }));
+      return { ...prev, visits: visitsWithTitles };
+    });
+    await new Promise(resolve => setTimeout(resolve, 500));
   };
 
   const exportData = (): string => {

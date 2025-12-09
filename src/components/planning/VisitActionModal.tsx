@@ -193,21 +193,35 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, visitTime: e.target.value }))}
               />
               <Input
+                label="N° Discours"
+                value={formData.talkNoOrType || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, talkNoOrType: e.target.value }))}
+                placeholder="Ex: 185"
+              />
+              <Input
                 label="Contact d'accueil"
                 value={formData.host || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, host: e.target.value }))}
               />
+            </div>
+            <Input
+              label="Titre du discours"
+              value={formData.talkTheme || ''}
+              onChange={(e) => setFormData(prev => ({ ...prev, talkTheme: e.target.value }))}
+              placeholder="Ex: Nega iluzon di mundu..."
+            />
+            <div className="grid grid-cols-2 gap-4">
               <Input
                 label="Logement"
                 value={formData.accommodation || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, accommodation: e.target.value }))}
               />
+              <Input
+                label="Repas"
+                value={formData.meals || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, meals: e.target.value }))}
+              />
             </div>
-            <Input
-              label="Repas"
-              value={formData.meals || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, meals: e.target.value }))}
-            />
             <Input
               label="Notes"
               value={formData.notes || ''}

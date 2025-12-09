@@ -9,6 +9,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { generateHostRequestMessage } from '@/utils/messageGenerator';
 import { Send, Copy, Check } from 'lucide-react';
 import { formatFullDate } from '@/utils/formatters';
+import { getTalkTitle } from '@/data/talkTitles';
 
 interface HostRequestModalProps {
   isOpen: boolean;
@@ -162,9 +163,9 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     {visit.congregation} • {visit.visitTime}
                   </p>
-                  {visit.talkTheme && (
+                  {(visit.talkTheme || getTalkTitle(visit.talkNoOrType)) && (
                     <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      N°{visit.talkNoOrType} - {visit.talkTheme}
+                      N°{visit.talkNoOrType} - {visit.talkTheme || getTalkTitle(visit.talkNoOrType)}
                     </p>
                   )}
                 </div>

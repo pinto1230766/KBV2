@@ -197,7 +197,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
           {/* Discours */}
           <div className="col-span-2">
             <Select
-              label="Discours"
+              label="Discours (liste)"
               options={[
                 { value: '', label: 'Sélectionner un discours' },
                 ...publicTalks.map(t => ({ value: t.number.toString(), label: `N°${t.number} - ${t.theme}` }))
@@ -206,6 +206,20 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
               onChange={(e) => handleTalkChange(e.target.value)}
             />
           </div>
+          
+          <Input
+            label="N° Discours (manuel)"
+            value={formData.talkNoOrType || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, talkNoOrType: e.target.value }))}
+            placeholder="Ex: 185"
+          />
+          
+          <Input
+            label="Titre du discours (manuel)"
+            value={formData.talkTheme || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, talkTheme: e.target.value }))}
+            placeholder="Ex: Nega iluzon di mundu..."
+          />
 
           {/* Lieu et Hôte */}
           <Select

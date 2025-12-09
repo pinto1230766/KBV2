@@ -18,7 +18,14 @@ import {
 import { Speaker, Visit } from '@/types';
 
 export const Messages: React.FC = () => {
-  const { visits, speakers, updateVisit } = useData();
+  const { visits, speakers, updateVisit, refreshData } = useData();
+  
+  // Mettre à jour les titres manquants au chargement
+  React.useEffect(() => {
+    if (refreshData) {
+      refreshData();
+    }
+  }, []);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);

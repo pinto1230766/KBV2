@@ -148,9 +148,12 @@ export const PlanningWeekView: React.FC<PlanningWeekViewProps> = ({ visits, onVi
                     <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
                       {visit.congregation}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-500 mt-1 line-clamp-1">
-                      N°{visit.talkNoOrType}
-                    </div>
+                    {visit.talkNoOrType && (
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        <div className="font-medium">N°{visit.talkNoOrType}</div>
+                        {visit.talkTheme && <div className="line-clamp-1">{visit.talkTheme}</div>}
+                      </div>
+                    )}
                     {visit.host && (
                       <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                         🏠 {visit.host}

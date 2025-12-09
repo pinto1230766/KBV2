@@ -79,7 +79,14 @@ export const PlanningTimelineView: React.FC<PlanningTimelineViewProps> = ({ visi
                         </div>
                         <div className="flex items-center gap-2">
                            <User className="w-3 h-3" />
-                           {visit.talkNoOrType ? `Discours n°${visit.talkNoOrType}` : 'Pas de discours'}
+                           <div className="flex-1 min-w-0">
+                             {visit.talkNoOrType ? (
+                               <>
+                                 <div className="font-medium">N°{visit.talkNoOrType}</div>
+                                 {visit.talkTheme && <div className="text-xs truncate">{visit.talkTheme}</div>}
+                               </>
+                             ) : 'Pas de discours'}
+                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                            <Clock className="w-3 h-3" />

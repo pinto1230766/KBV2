@@ -3,6 +3,7 @@ import { Speaker, Visit } from '@/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Check, Clock, AlertCircle, Send } from 'lucide-react';
+import { getTalkTitle } from '@/data/talkTitles';
 
 interface ConversationItemProps {
   speaker: Speaker;
@@ -68,7 +69,12 @@ export const ConversationItem: React.FC<ConversationItemProps> = ({
         </p>
         {lastVisit && (
           <p className="text-xs text-gray-400 mt-1 truncate">
-            {lastVisit.talkNoOrType ? `Discours n°${lastVisit.talkNoOrType}` : 'Visite prévue'}
+            {lastVisit.talkNoOrType ? (
+              <>
+                N°{lastVisit.talkNoOrType}
+                {(lastVisit.talkTheme || getTalkTitle(lastVisit.talkNoOrType)) && ` - ${lastVisit.talkTheme || getTalkTitle(lastVisit.talkNoOrType)}`}
+              </>
+            ) : 'Visite prévue'}
           </p>
         )}
       </div>

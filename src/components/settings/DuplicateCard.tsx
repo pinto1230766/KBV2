@@ -77,7 +77,11 @@ export const DuplicateCard: React.FC<DuplicateCardProps> = ({ group, onMerge, on
           <p className="text-gray-500 dark:text-gray-400">
             {new Date(v.visitDate).toLocaleDateString()} à {v.visitTime}
           </p>
-          <p className="text-gray-500 text-xs">{v.talkNoOrType || 'Pas de discours'} - {v.congregation}</p>
+          <p className="text-gray-500 text-xs">
+            {v.talkNoOrType ? `N°${v.talkNoOrType}` : 'Pas de discours'}
+            {v.talkTheme && ` - ${v.talkTheme}`}
+          </p>
+          <p className="text-gray-500 text-xs">{v.congregation}</p>
         </div>
       );
     }

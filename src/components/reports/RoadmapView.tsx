@@ -67,6 +67,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ visit, speaker, host }
                <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="text-sm text-gray-500 uppercase font-semibold">Discours</div>
                   <div className="font-medium">N°{visit.talkNoOrType || 'Non défini'}</div>
+                  {visit.talkTheme && <div className="text-sm text-gray-600 mt-1">{visit.talkTheme}</div>}
                </div>
             </div>
           </section>

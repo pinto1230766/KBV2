@@ -55,8 +55,13 @@ const VisitItem = memo(({
               weekday: 'short',
               day: 'numeric',
               month: 'short'
-            })} à {visit.visitTime} • {visit.talkNoOrType}
+            })} à {visit.visitTime}
           </p>
+          {visit.talkTheme && (
+            <p className="text-xs text-gray-600 dark:text-gray-500 mt-1">
+              N°{visit.talkNoOrType} - {visit.talkTheme}
+            </p>
+          )}
         </div>
       </div>
       {showStatus && getStatusBadge()}

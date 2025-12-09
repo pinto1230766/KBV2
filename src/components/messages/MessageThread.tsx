@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { CommunicationProgress } from '@/components/messages/CommunicationProgress';
 import { Phone, Mail, MessageCircle, Calendar, MapPin, User, Clock } from 'lucide-react';
+import { getTalkTitle } from '@/data/talkTitles';
 
 interface MessageThreadProps {
   speaker: Speaker;
@@ -63,7 +64,7 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, o
                         Discours n°{visit.talkNoOrType}
                       </h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {visit.talkTheme}
+                        {visit.talkTheme || getTalkTitle(visit.talkNoOrType)}
                       </p>
                     </div>
                     <span className={`

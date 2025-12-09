@@ -86,12 +86,22 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
                 )}
               </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs text-gray-500">
-                <span>{speaker.talkHistory.length} visite(s)</span>
-                {speaker.talkHistory.length > 0 && (
-                  <span>Dernière: {speaker.talkHistory[0].date}</span>
-                )}
-              </div>
+              {speaker.talkHistory.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Dernier discours :
+                  </p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="font-medium">N°{speaker.talkHistory[0].talkNo} - {speaker.talkHistory[0].talkTheme}</p>
+                    <p className="text-xs text-gray-500 mt-1">{new Date(speaker.talkHistory[0].date).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
+              )}
+              {speaker.talkHistory.length === 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 text-xs text-gray-500">
+                  Aucune visite enregistrée
+                </div>
+              )}
             </CardBody>
           </Card>
         ))}
