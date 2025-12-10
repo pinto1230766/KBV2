@@ -199,4 +199,4 @@ if (isSamsungTablet) {
 
 ---
 
-**Votre application est maintenant optimisée pour votre Samsung Galaxy Tab S10 Ultra ! 🎉**
+### 🎉 Votre application est maintenant optimisée pour votre Samsung Galaxy Tab S10 Ultra

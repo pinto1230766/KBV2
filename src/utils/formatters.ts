@@ -1,6 +1,6 @@
 import { Language } from '@/types';
 import { format, formatDistanceToNow, parseISO, isValid } from 'date-fns';
-import { fr, enUS, es } from 'date-fns/locale';
+import { fr, enUS, es, pt } from 'date-fns/locale';
 
 // ============================================================================
 // LOCALES DATE-FNS
@@ -10,6 +10,7 @@ const locales = {
   fr: fr,
   en: enUS,
   es: es,
+  pt: pt,
   cv: fr, // Utiliser français pour capverdien (pas de locale CV disponible)
 };
 
@@ -27,7 +28,7 @@ export function formatDate(
     if (!isValid(dateObj)) return '';
 
     return format(dateObj, formatString, {
-      locale: locales[language],
+      locale: locales[language] || enUS, // Fallback to English if locale not found
     });
   } catch {
     return '';
@@ -66,7 +67,7 @@ export function formatRelativeTime(
 
     return formatDistanceToNow(dateObj, {
       addSuffix: true,
-      locale: locales[language],
+      locale: locales[language] || enUS, // Fallback to English if locale not found
     });
   } catch {
     return '';
