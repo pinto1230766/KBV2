@@ -453,15 +453,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const exportData = (): string => {
-    return JSON.stringify(data, null, 2);
+    const dataToExport = {
+      ...data,
+      dataVersion: data.dataVersion || '1.0.0'
+    };
+    return JSON.stringify(dataToExport, null, 2);
   };
 
   const importData = (json: string) => {
     try {
       const parsed = JSON.parse(json);
-      // Basic validation: check for key properties
-      if (!parsed.speakers || !parsed.visits || !parsed.dataVersion) {
-        throw new Error("Format de données invalide ou version manquante");
+      
+      // Validation plus souple
+      if (!parsed.speakers || !parsed.visits) {
+        throw new Error("Format de données invalide : orateurs ou visites manquants");
+      }
+
+      // Si version manquante, on assume 1.0.0
+      if (!parsed.dataVersion) {
+        console.warn("Version de données manquante lors de l'import, ajout de la version par défaut 1.0.0");
+        parsed.dataVersion = '1.0.0';
       }
       
       // Update state and persistence

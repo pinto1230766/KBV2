@@ -9,12 +9,19 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap,
+  FileText
 } from 'lucide-react';
 import { IOSTabBar } from '@/components/navigation/IOSTabBar';
 import { SPenCursor } from '@/components/spen/SPenCursor';
 import { usePlatformContext } from '@/contexts/PlatformContext';
 import { cn } from '@/utils/cn';
+import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
+import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
+import { useToast } from '@/contexts/ToastContext';
+import { useData } from '@/contexts/DataContext';
+import { useSettings } from '@/contexts/SettingsContext';
 
 // Mapping des routes vers les titres et icônes
 const NAV_ITEMS = [
@@ -30,12 +37,83 @@ export const TabletLayout: React.FC = () => {
   const navigate = useNavigate();
   const { deviceType, orientation } = usePlatformContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { visits } = useData();
+  const { addToast } = useToast();
+  const { settings, setTheme } = useSettings();
+  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const isTablet = deviceType === 'tablet';
   const isLandscape = orientation === 'landscape';
+  const isDarkMode = settings.theme === 'dark';
+  const toggleTheme = () => setTheme(settings.theme === 'dark' ? 'light' : 'dark');
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleReportGenerate = (config: any) => {
+    const filteredVisits = visits.filter(v => {
+      if (config.period === 'current-month') {
+        const now = new Date();
+        const visitDate = new Date(v.visitDate);
+        return visitDate.getMonth() === now.getMonth() && visitDate.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+    
+    const fileName = `rapport-kbv-${new Date().toISOString().slice(0, 10)}`;
+    
+    if (config.format === 'csv') {
+      let csvContent = 'Date,Orateur,Congrégation,Discours,Thème,Hôte,Statut\n';
+      filteredVisits.forEach(v => {
+        csvContent += `${v.visitDate},${v.nom},${v.congregation},${v.talkNoOrType || ''},${v.talkTheme || ''},${v.host || ''},${v.status}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport CSV généré !', 'success');
+    } else if (config.format === 'excel') {
+      let htmlContent = `<html><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;}th,td{border:1px solid black;padding:8px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+      filteredVisits.forEach(v => {
+        htmlContent += `<tr><td>${v.visitDate}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+      });
+      htmlContent += '</table></body></html>';
+      const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport Excel généré !', 'success');
+    } else if (config.format === 'pdf') {
+      let htmlContent = `<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#4F46E5;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:12px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><p>Généré le ${new Date().toLocaleDateString('fr-FR')}</p><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+      filteredVisits.forEach(v => {
+        htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+      });
+      htmlContent += '</table><p style="margin-top:30px;color:#666;">Total: ' + filteredVisits.length + ' visite(s)</p></body></html>';
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport HTML généré ! Ouvrez-le et imprimez en PDF', 'success');
+    }
+    
+    setIsReportModalOpen(false);
   };
 
   const currentIndex = NAV_ITEMS.findIndex(item => item.path === location.pathname);
@@ -125,11 +203,66 @@ export const TabletLayout: React.FC = () => {
                 </li>
               ))}
             </ul>
+             {/* Divider */}
+             <div className="my-2 border-t border-gray-100 dark:border-gray-700 mx-2"></div>
+             
+             {/* Action Buttons */}
+             <ul className="space-y-1 px-2">
+               <li>
+                  <button
+                    onClick={() => setIsQuickActionsOpen(true)}
+                    className={cn(
+                      "w-full flex items-center rounded-lg transition-colors duration-200",
+                      isSidebarOpen ? "px-4 py-3" : "px-2 py-3 justify-center",
+                      "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50"
+                    )}
+                    title={!isSidebarOpen ? "Actions rapides" : undefined}
+                  >
+                    <Zap className={cn("w-5 h-5 text-amber-500", isSidebarOpen && "mr-3")} />
+                    {isSidebarOpen && <span className="font-medium">Actions rapides</span>}
+                  </button>
+               </li>
+               <li>
+                  <button
+                    onClick={() => setIsReportModalOpen(true)}
+                    className={cn(
+                      "w-full flex items-center rounded-lg transition-colors duration-200",
+                      isSidebarOpen ? "px-4 py-3" : "px-2 py-3 justify-center",
+                      "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50"
+                    )}
+                    title={!isSidebarOpen ? "Rapports" : undefined}
+                  >
+                    <FileText className={cn("w-5 h-5 text-blue-500", isSidebarOpen && "mr-3")} />
+                    {isSidebarOpen && <span className="font-medium">Rapports</span>}
+                  </button>
+               </li>
+             </ul>
           </nav>
 
-          {/* Navigation rapide */}
+          {/* Footer: Theme & Navigation rapide */}
           {isSidebarOpen && (
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+              {/* Theme Toggle */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Mode sombre</span>
+                <button
+                  onClick={toggleTheme}
+                  title="Changer le thème"
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                    ${isDarkMode ? 'bg-primary-600' : 'bg-gray-200'}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                      ${isDarkMode ? 'translate-x-6' : 'translate-x-1'}
+                    `}
+                  />
+                </button>
+              </div>
+
+              {/* Navigation Arrows */}
               <div className="flex justify-between items-center">
                 <button
                   onClick={goToPrevious}
@@ -177,6 +310,29 @@ export const TabletLayout: React.FC = () => {
           {/* Tab bar iOS - seulement en mode portrait */}
           {!isLandscape && <IOSTabBar />}
         </div>
+        
+        {/* Modals */}
+        <QuickActionsModal
+          isOpen={isQuickActionsOpen}
+          onClose={() => setIsQuickActionsOpen(false)}
+          onAction={(action) => {
+            setIsQuickActionsOpen(false);
+            switch(action) {
+              case 'schedule-visit': navigate('/planning'); break;
+              case 'add-speaker': navigate('/speakers'); break;
+              case 'add-host': navigate('/speakers'); break;
+              case 'send-message': navigate('/messages'); break;
+              case 'generate-report': setIsReportModalOpen(true); break;
+              case 'check-conflicts': navigate('/planning'); break;
+              case 'backup-data': navigate('/settings'); break;
+            }
+          }}
+        />
+        <ReportGeneratorModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          onGenerate={handleReportGenerate}
+        />
       </div>
     </SPenCursor>
   );

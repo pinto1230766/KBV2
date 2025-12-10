@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -8,10 +8,16 @@ import {
   BookOpen, 
   Settings, 
   Menu,
-  X
+  X,
+  Zap,
+  FileText
 } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useToast } from '@/contexts/ToastContext';
 import { SyncStatusIndicator } from '@/components/layout/SyncStatusIndicator';
+import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
+import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
+import { useData } from '@/contexts/DataContext';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -24,15 +30,85 @@ const NAV_ITEMS = [
 
 export const MainLayout: React.FC = () => {
   const { settings, setTheme } = useSettings();
+  const { visits } = useData();
+  const { addToast } = useToast();
+  const navigate = useNavigate();
   const isDarkMode = settings.theme === 'dark';
   const toggleTheme = () => setTheme(settings.theme === 'dark' ? 'light' : 'dark');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const location = useLocation();
 
+  const [isQuickActionsOpen, setIsQuickActionsOpen] = React.useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
+
   // Fermer le menu mobile lors du changement de route
   React.useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  const handleReportGenerate = (config: any) => {
+    const filteredVisits = visits.filter(v => {
+      if (config.period === 'current-month') {
+        const now = new Date();
+        const visitDate = new Date(v.visitDate);
+        return visitDate.getMonth() === now.getMonth() && visitDate.getFullYear() === now.getFullYear();
+      }
+      return true;
+    });
+    
+    const fileName = `rapport-kbv-${new Date().toISOString().slice(0, 10)}`;
+    
+    if (config.format === 'csv') {
+      let csvContent = 'Date,Orateur,Congrégation,Discours,Thème,Hôte,Statut\n';
+      filteredVisits.forEach(v => {
+        csvContent += `${v.visitDate},${v.nom},${v.congregation},${v.talkNoOrType || ''},${v.talkTheme || ''},${v.host || ''},${v.status}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport CSV généré !', 'success');
+    } else if (config.format === 'excel') {
+      let htmlContent = `<html><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;}th,td{border:1px solid black;padding:8px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+      filteredVisits.forEach(v => {
+        htmlContent += `<tr><td>${v.visitDate}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+      });
+      htmlContent += '</table></body></html>';
+      const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.xls`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport Excel généré !', 'success');
+    } else if (config.format === 'pdf') {
+      let htmlContent = `<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#4F46E5;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:12px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><p>Généré le ${new Date().toLocaleDateString('fr-FR')}</p><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+      filteredVisits.forEach(v => {
+        htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+      });
+      htmlContent += '</table><p style="margin-top:30px;color:#666;">Total: ' + filteredVisits.length + ' visite(s)</p></body></html>';
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${fileName}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Rapport HTML généré ! Ouvrez-le et imprimez en PDF', 'success');
+    }
+    
+    setIsReportModalOpen(false);
+  };
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
@@ -69,6 +145,24 @@ export const MainLayout: React.FC = () => {
         </nav>
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+          {/* Quick Actions & Reports Buttons */}
+          <div className="space-y-2 pb-2 border-b border-gray-100 dark:border-gray-700/50">
+            <button
+              onClick={() => setIsQuickActionsOpen(true)}
+              className="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+            >
+              <Zap className="w-4 h-4 mr-3 text-amber-500" />
+              Actions rapides
+            </button>
+            <button
+              onClick={() => setIsReportModalOpen(true)}
+              className="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors"
+            >
+              <FileText className="w-4 h-4 mr-3 text-blue-500" />
+              Rapports
+            </button>
+          </div>
+
           <div className="flex justify-center">
             <SyncStatusIndicator />
           </div>
@@ -138,6 +232,24 @@ export const MainLayout: React.FC = () => {
                     </NavLink>
                   </li>
                 ))}
+                <li className="border-t border-gray-100 dark:border-gray-700 my-2 pt-2">
+                  <button
+                    onClick={() => { setIsQuickActionsOpen(true); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
+                  >
+                    <Zap className="w-5 h-5 mr-3 text-amber-500" />
+                    <span className="font-medium">Actions rapides</span>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => { setIsReportModalOpen(true); setIsMobileMenuOpen(false); }}
+                    className="w-full flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-700"
+                  >
+                    <FileText className="w-5 h-5 mr-3 text-blue-500" />
+                    <span className="font-medium">Rapports</span>
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>
@@ -172,6 +284,30 @@ export const MainLayout: React.FC = () => {
           </div>
         </nav>
       </div>
+
+      {/* Modals */}
+      <QuickActionsModal
+        isOpen={isQuickActionsOpen}
+        onClose={() => setIsQuickActionsOpen(false)}
+        onAction={(action) => {
+          setIsQuickActionsOpen(false);
+          switch(action) {
+            case 'schedule-visit': navigate('/planning'); break;
+            case 'add-speaker': navigate('/speakers'); break;
+            case 'add-host': navigate('/speakers'); break;
+            case 'send-message': navigate('/messages'); break;
+            case 'generate-report': setIsReportModalOpen(true); break;
+            case 'check-conflicts': navigate('/planning'); break;
+            case 'backup-data': navigate('/settings'); break;
+            // Add other cases as needed
+          }
+        }}
+      />
+      <ReportGeneratorModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onGenerate={handleReportGenerate}
+      />
     </div>
   );
 };

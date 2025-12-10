@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
-import { Users, Calendar, AlertCircle, TrendingUp, Clock, Zap, FileText } from 'lucide-react';
+import { Users, Calendar, AlertCircle, TrendingUp, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -16,6 +16,7 @@ import { Visit } from '@/types';
 import { isLowMemoryDevice } from '@/utils/mobileOptimization';
 import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
+import { VisitActionModal } from '@/components/planning/VisitActionModal';
 
 // Memoized components for performance
 const VisitItem = memo(({ 
@@ -80,6 +81,13 @@ export const Dashboard: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
+  const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
+
+  const handleVisitClick = useCallback((visit: Visit) => {
+    setSelectedVisit(visit);
+    setIsVisitActionModalOpen(true);
+  }, []);
 
   const isTablet = deviceType === 'tablet';
   // Détection spécifique Samsung Tab S10 Ultra (ajusté pour le scaling Chrome: 1200px au lieu de 1848px)
@@ -115,17 +123,23 @@ export const Dashboard: React.FC = () => {
   // Memoized calculations
   const dateCalculations = useMemo(() => {
     const today = new Date();
-    const nextWeek = new Date();
-    nextWeek.setDate(today.getDate() + 7);
-    return { today, nextWeek };
+    // Reset hours to compare just dates if needed, but keeping time is fine for "upcoming"
+    today.setHours(0, 0, 0, 0);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+    
+    // Fallback: If end of month is very close (e.g. last few days), maybe show next 30 days?
+    // User asked "prochaines visites du mois", implying current month scope.
+    // I will stick to End of Month as requested. 
+    return { today, endOfMonth };
   }, []);
 
   const upcomingVisits = useMemo(() => {
     return visits.filter((visit: Visit) => {
       const visitDate = new Date(visit.visitDate);
-      // Inclure les visites confirmées ET en attente dans les 7 prochains jours
+      // Visits from today until end of month
       return visitDate >= dateCalculations.today && 
-             visitDate <= dateCalculations.nextWeek && 
+             visitDate <= dateCalculations.endOfMonth && 
              (visit.status === 'confirmed' || visit.status === 'pending');
     }).sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
   }, [visits, dateCalculations]);
@@ -235,26 +249,6 @@ export const Dashboard: React.FC = () => {
       
       {/* Offline Banner */}
       <OfflineBanner isOnline={isOnline} />
-
-      {/* Action Buttons */}
-      <div className="flex gap-3 flex-shrink-0">
-        <Button
-          variant="secondary"
-          size="sm"
-          leftIcon={<Zap className="w-4 h-4" />}
-          onClick={() => setIsQuickActionsOpen(true)}
-        >
-          Actions rapides (Ctrl+K)
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          leftIcon={<FileText className="w-4 h-4" />}
-          onClick={() => setIsReportModalOpen(true)}
-        >
-          Générer un rapport
-        </Button>
-      </div>
 
       {/* Stats Cards - Fixed height on Tablet */}
       <div className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
@@ -397,14 +391,14 @@ export const Dashboard: React.FC = () => {
               {upcomingVisits.length > 0 ? (
                 <div className="space-y-3">
                   {upcomingVisits.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
-                    <VisitItem key={visit.id} visit={visit} onClick={handleNavigateToPlanning} showStatus={true} />
+                    <VisitItem key={visit.id} visit={visit} onClick={() => handleVisitClick(visit)} showStatus={true} />
                   ))}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
                   <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
                   <p className="font-medium">Aucune visite programmée</p>
-                  <p className="text-sm mt-1">dans les 7 prochains jours</p>
+                  <p className="text-sm mt-1">ce mois-ci</p>
                 </div>
               )}
             </CardBody>
@@ -428,7 +422,7 @@ export const Dashboard: React.FC = () => {
                 {visitsNeedingAction.length > 0 ? (
                   visitsNeedingAction.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
                     <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
-                      <div className="flex items-center gap-3 cursor-pointer" onClick={handleNavigateToPlanning}>
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleVisitClick(visit)}>
                         <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
                         <div>
                           <p className="font-medium text-gray-900 dark:text-white">
@@ -441,7 +435,7 @@ export const Dashboard: React.FC = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); navigate('/planning'); }}>
+                      <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); handleVisitClick(visit); }}>
                         Traiter
                       </Button>
                     </div>
@@ -461,6 +455,14 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Modals */}
+      {selectedVisit && (
+        <VisitActionModal
+          isOpen={isVisitActionModalOpen}
+          onClose={() => setIsVisitActionModalOpen(false)}
+          visit={selectedVisit}
+          action="edit"
+        />
+      )}
       <QuickActionsModal
         isOpen={isQuickActionsOpen}
         onClose={() => setIsQuickActionsOpen(false)}
