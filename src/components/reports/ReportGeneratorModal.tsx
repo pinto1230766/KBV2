@@ -86,12 +86,69 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
     onClose();
   };
 
+  const getFilteredVisitsCount = () => {
+    const now = new Date();
+    let start: Date | null = null;
+    let end: Date | null = null;
+
+    switch (selectedPeriod) {
+      case 'current-month':
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        break;
+      case 'last-month':
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        end = new Date(now.getFullYear(), now.getMonth(), 0);
+        break;
+      case 'current-year':
+        start = new Date(now.getFullYear(), 0, 1);
+        end = new Date(now.getFullYear(), 11, 31);
+        break;
+      case 'last-year':
+        start = new Date(now.getFullYear() - 1, 0, 1);
+        end = new Date(now.getFullYear() - 1, 11, 31);
+        break;
+      case 'custom':
+        if (customDateRange.start) start = new Date(customDateRange.start);
+        if (customDateRange.end) end = new Date(customDateRange.end);
+        break;
+    }
+
+    if (!start || !end) return visits.length;
+
+    return visits.filter(v => {
+      const d = new Date(v.visitDate);
+      return d >= start! && d <= end!;
+    }).length;
+  };
+
   const getEstimatedPages = () => {
-    let pages = 1; // Page de garde
+    let pages = 0;
+    
+    // Page de garde (si PDF)
+    if (selectedFormat === 'pdf') pages += 1;
+
+    // Sections
     if (includedSections.includes('summary')) pages += 1;
-    if (includedSections.includes('visits')) pages += Math.ceil(visits.length / 20);
-    if (includedSections.includes('speakers')) pages += Math.ceil(speakers.length / 15);
+    
+    if (includedSections.includes('visits')) {
+      const count = getFilteredVisitsCount();
+      pages += Math.max(1, Math.ceil(count / 20));
+    }
+    
+    if (includedSections.includes('speakers')) {
+      // On estime ~15 orateurs par page
+      pages += Math.max(1, Math.ceil(speakers.length / 15));
+    }
+
+    if (includedSections.includes('talks')) {
+       // Estimation pour les discours (basée sur les visites filtrées)
+       const count = getFilteredVisitsCount();
+       pages += Math.max(1, Math.ceil(count / 25));
+    }
+    
     if (includedSections.includes('charts')) pages += 2;
+    
     return pages;
   };
 

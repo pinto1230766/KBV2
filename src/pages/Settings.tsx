@@ -384,8 +384,7 @@ export const Settings: React.FC = () => {
                     options={[
                       { value: 'fr', label: 'Français' },
                       { value: 'cv', label: 'Capverdien' },
-                      { value: 'en', label: 'English' },
-                      { value: 'es', label: 'Español' }
+                      { value: 'pt', label: 'Português' }
                     ]}
                     className="max-w-xs"
                   />

@@ -249,152 +249,30 @@ Fraternalmenti,
     },
   },
 
-  // ========== ANGLAIS ==========
-  en: {
+  // ========== PORTUGAIS ==========
+  pt: {
     confirmation: {
-      speaker: `Hello Brother *{speakerName}*,{firstTimeIntroduction}
+      speaker: `Olá Irmão *{speakerName}*,{firstTimeIntroduction}
 
-I hope you are doing well. 🙏
+Espero que estejas bem. 🙏
 
-We are looking forward to your visit on *{visitDate} at {visitTime}*.
+Aguardamos com alegria a tua visita no dia *{visitDate} às {visitTime}*.
 
-Could you please confirm your attendance and let me know if you need anything special (accommodation, meals, transportation)?
+Poderias confirmar a tua presença e dizer-me se precisas de algo especial (alojamento, refeições, transporte)?
 
-Thank you very much and see you soon!
-
-Fraternally,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-      
-      host: `Hello Brother *{hostName}*,
-
-I hope you are doing well. 🏠
-
-We have the pleasure of welcoming *{speakerName}* from the *{congregation}* congregation on *{visitDate}*.
-
-Could you take care of his hospitality? Please confirm.
-
-Fraternally,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-    },
-    
-    preparation: {
-      speaker: `Hello Brother *{speakerName}*,
-
-Thank you for your confirmation! 😊
-
-Here are the details for your visit on *{visitDate} at {visitTime}*:
-
-🏠 *Host contact*: {hostName}
-📞 *Phone*: {hostPhone}
-📍 *Address*: {hostAddress}
-
-Feel free to contact brother {hostName} directly if needed.
-
-Looking forward to seeing you!
-
-Fraternally,
-{hospitalityOverseer}`,
-      
-      host: `Hello Brother *{hostName}*,
-
-Thank you for your availability! 🙏
-
-Here are the contact details of our guest speaker for *{visitDate}*:
-
-👤 *Speaker*: {speakerName}
-🏛️ *Congregation*: {congregation}
-📞 *Phone*: {speakerPhone}
-
-Please contact him to coordinate the hospitality.
-
-Fraternally,
-{hospitalityOverseer}`,
-    },
-    
-    'reminder-7': {
-      speaker: `Hello Brother *{speakerName}*,
-
-Friendly reminder: we are joyfully expecting your visit in *7 days*, on *{visitDate} at {visitTime}*! 🎉
-
-📍 Address: {hostAddress}
-📞 Contact: {hostName} - {hostPhone}
-
-Safe travels and see you soon!
-
-Fraternally,
-{hospitalityOverseer}`,
-      
-      host: `Hello Brother *{hostName}*,
-
-Reminder: you will be hosting *{speakerName}* in *7 days*, on *{visitDate}*! 🏠
-
-Thank you for your hospitality!
-
-Fraternally,
-{hospitalityOverseer}`,
-    },
-    
-    'reminder-2': {
-      speaker: `Hello Brother *{speakerName}*,
-
-Final reminder: we are expecting you *the day after tomorrow*, on *{visitDate} at {visitTime}*! 😊
-
-📍 {hostAddress}
-📞 {hostName}: {hostPhone}
-
-Safe travels and see you very soon!
-
-Fraternally,
-{hospitalityOverseer}`,
-    },
-    
-    thanks: {
-      speaker: `Hello Brother *{speakerName}*,
-
-Thank you so much for your visit and your upbuilding talk! 🙏✨
-
-It was a real pleasure to welcome you among us. We hope to see you again very soon!
-
-Fraternally,
-{hospitalityOverseer}`,
-      
-      host: `Hello Brother *{hostName}*,
-
-A big thank you for your hospitality towards our guest speaker, {speakerName}! 🏠❤️
-
-Your warm welcome greatly contributes to the success of these visits.
-
-Fraternally,
-{hospitalityOverseer}`,
-    },
-  },
-
-  // ========== ESPAGNOL ==========
-  es: {
-    confirmation: {
-      speaker: `Hola Hermano *{speakerName}*,{firstTimeIntroduction}
-
-Espero que esté bien. 🙏
-
-Esperamos con alegría su visita el *{visitDate} a las {visitTime}*.
-
-¿Podría confirmarme su asistencia y hacerme saber si necesita algo especial (alojamiento, comidas, transporte)?
-
-¡Muchas gracias y hasta pronto!
+Muito obrigado e até breve!
 
 Fraternalmente,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
       
-      host: `Hola Hermano *{hostName}*,
+      host: `Olá Irmão *{hostName}*,
 
-Espero que esté bien. 🏠
+Espero que estejas bem. 🏠
 
-Tenemos el placer de recibir a *{speakerName}* de la congregación de *{congregation}* el *{visitDate}*.
+Temos o prazer de receber *{speakerName}* da congregação de *{congregation}* no dia *{visitDate}*.
 
-¿Podría encargarse de su hospitalidad? Por favor, confírmeme.
+Poderias encarregar-te do seu acolhimento? Por favor, confirma-me.
 
 Fraternalmente,
 {hospitalityOverseer}
@@ -402,91 +280,91 @@ Fraternalmente,
     },
     
     preparation: {
-      speaker: `Hola Hermano *{speakerName}*,
+      speaker: `Olá Irmão *{speakerName}*,
 
-¡Gracias por su confirmación! 😊
+Obrigado pela tua confirmação! 😊
 
-Aquí están los detalles para su visita del *{visitDate} a las {visitTime}*:
+Aqui estão os detalhes para a tua visita de *{visitDate} às {visitTime}*:
 
-🏠 *Contacto de hospitalidad*: {hostName}
-📞 *Teléfono*: {hostPhone}
-📍 *Dirección*: {hostAddress}
+🏠 *Contacto de acolhimento*: {hostName}
+📞 *Telefone*: {hostPhone}
+📍 *Morada*: {hostAddress}
 
-No dude en contactar directamente con el hermano {hostName} si lo necesita.
+Não hesites em contactar diretamente o nosso irmão {hostName} se precisares.
 
-¡Hasta pronto!
+Até breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
       
-      host: `Hola Hermano *{hostName}*,
+      host: `Olá Irmão *{hostName}*,
 
-¡Gracias por su disponibilidad! 🙏
+Obrigado pela tua disponibilidade! 🙏
 
-Aquí están los datos de contacto de nuestro orador invitado para el *{visitDate}*:
+Aqui estão os contactos do nosso orador convidado para *{visitDate}*:
 
 👤 *Orador*: {speakerName}
-🏛️ *Congregación*: {congregation}
-📞 *Teléfono*: {speakerPhone}
+🏛️ *Congregação*: {congregation}
+📞 *Telefone*: {speakerPhone}
 
-Por favor, póngase en contacto con él para coordinar la hospitalidad.
+Por favor, contacta-o para coordenar o acolhimento.
 
 Fraternalmente,
 {hospitalityOverseer}`,
     },
     
     'reminder-7': {
-      speaker: `Hola Hermano *{speakerName}*,
+      speaker: `Olá Irmão *{speakerName}*,
 
-Recordatorio amistoso: ¡esperamos con alegría su visita en *7 días*, el *{visitDate} a las {visitTime}*! 🎉
+Lembrete amigável: aguardamos a tua visita com alegria daqui a *7 dias*, no dia *{visitDate} às {visitTime}*! 🎉
 
-📍 Dirección: {hostAddress}
+📍 Morada: {hostAddress}
 📞 Contacto: {hostName} - {hostPhone}
 
-¡Buen viaje y hasta pronto!
+Boa viagem e até breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
       
-      host: `Hola Hermano *{hostName}*,
+      host: `Olá Irmão *{hostName}*,
 
-Recordatorio: recibirá a *{speakerName}* en *7 días*, el *{visitDate}*! 🏠
+Lembrete: irás acolher *{speakerName}* daqui a *7 dias*, no dia *{visitDate}*! 🏠
 
-¡Gracias por su hospitalidad!
+Obrigado pela tua hospitalidade!
 
 Fraternalmente,
 {hospitalityOverseer}`,
     },
     
     'reminder-2': {
-      speaker: `Hola Hermano *{speakerName}*,
+      speaker: `Olá Irmão *{speakerName}*,
 
-Último recordatorio: ¡lo esperamos *pasado mañana*, el *{visitDate} a las {visitTime}*! 😊
+Último lembrete: esperamos-te *depois de amanhã*, no dia *{visitDate} às {visitTime}*! 😊
 
 📍 {hostAddress}
 📞 {hostName}: {hostPhone}
 
-¡Buen viaje y hasta muy pronto!
+Boa viagem e até muito breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
     },
     
     thanks: {
-      speaker: `Hola Hermano *{speakerName}*,
+      speaker: `Olá Irmão *{speakerName}*,
 
-¡Muchas gracias por su visita y su discurso edificante! 🙏✨
+Muito obrigado pela tua visita e pelo teu discurso encorajador! 🙏✨
 
-Fue un verdadero placer recibirlo entre nosotros. ¡Esperamos volver a verlo muy pronto!
+Foi um verdadeiro prazer receber-te entre nós. Esperamos ver-te novamente em breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
       
-      host: `Hola Hermano *{hostName}*,
+      host: `Olá Irmão *{hostName}*,
 
-¡Un gran agradecimiento por su hospitalidad hacia nuestro orador invitado, {speakerName}! 🏠❤️
+Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️
 
-Su cálida acogida contribuye enormemente al éxito de estas visitas.
+O teu acolhimento caloroso contribui muito para o sucesso destas visitas.
 
 Fraternalmente,
 {hospitalityOverseer}`,
@@ -527,29 +405,15 @@ Fraternalmenti,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
 
-  en: `Hello everyone! 🏠
+  pt: `Olá a todos! 🏠
 
-We are looking for volunteers to host our visiting speakers on the following dates:
-
-{visitsList}
-
-If you are available to host one or more of these speakers, please contact me.
-
-May Jehovah bless you!
-
-Fraternally,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-
-  es: `¡Hola a todos! 🏠
-
-Estamos buscando voluntarios para recibir a nuestros oradores visitantes en las siguientes fechas:
+Estamos à procura de voluntários para acolher os nossos oradores visitantes nas seguintes datas:
 
 {visitsList}
 
-Si está disponible para recibir a uno o más de estos oradores, por favor contácteme.
+Se estiveres disponível para acolher um ou mais destes oradores, por favor contacta-me.
 
-¡Que Jehová los bendiga!
+Que Jeová vos abençoe!
 
 Fraternalmente,
 {hospitalityOverseer}
@@ -569,39 +433,45 @@ export function adaptMessageGender(
 
   // Adaptation pour orateur féminin
   if (speakerGender === 'female') {
+    // Fr
     adapted = adapted.replace(/Bonjour Frère/g, 'Bonjour Sœur');
     adapted = adapted.replace(/Frère \*{speakerName}\*/g, 'Sœur *{speakerName}*');
     adapted = adapted.replace(/notre orateur invité/g, 'notre oratrice invitée');
-    adapted = adapted.replace(/Hello Brother/g, 'Hello Sister');
-    adapted = adapted.replace(/Brother \*{speakerName}\*/g, 'Sister *{speakerName}*');
-    adapted = adapted.replace(/our guest speaker/g, 'our guest speaker');
-    adapted = adapted.replace(/Hola Hermano/g, 'Hola Hermana');
-    adapted = adapted.replace(/Hermano \*{speakerName}\*/g, 'Hermana *{speakerName}*');
+    // Pt
+    adapted = adapted.replace(/Olá Irmão/g, 'Olá Irmã');
+    adapted = adapted.replace(/Irmão \*{speakerName}\*/g, 'Irmã *{speakerName}*');
+    adapted = adapted.replace(/nosso orador convidado/g, 'nossa oradora convidada');
+    // Cv
     adapted = adapted.replace(/Bon dia Mon/g, 'Bon dia Mana');
     adapted = adapted.replace(/Mon \*{speakerName}\*/g, 'Mana *{speakerName}*');
   }
 
   // Adaptation pour contact d'accueil féminin
   if (hostGender === 'female') {
+    // Fr
     adapted = adapted.replace(/Frère \*{hostName}\*/g, 'Sœur *{hostName}*');
-    adapted = adapted.replace(/Brother \*{hostName}\*/g, 'Sister *{hostName}*');
-    adapted = adapted.replace(/Hermano \*{hostName}\*/g, 'Hermana *{hostName}*');
-    adapted = adapted.replace(/Mon \*{hostName}\*/g, 'Mana *{hostName}*');
     adapted = adapted.replace(/notre frère/g, 'notre sœur');
-    adapted = adapted.replace(/brother {hostName}/g, 'sister {hostName}');
+    // Pt
+    adapted = adapted.replace(/Irmão \*{hostName}\*/g, 'Irmã *{hostName}*');
+    adapted = adapted.replace(/nosso irmão/g, 'nossa irmã');
+    // Cv
+    adapted = adapted.replace(/Mon \*{hostName}\*/g, 'Mana *{hostName}*');
     adapted = adapted.replace(/nu mon {hostName}/g, 'nu mana {hostName}');
   }
 
   // Adaptation pour couple
   if (hostGender === 'couple') {
+    // Fr
     adapted = adapted.replace(/Frère \*{hostName}\*/g, '*{hostName}*');
-    adapted = adapted.replace(/Brother \*{hostName}\*/g, '*{hostName}*');
-    adapted = adapted.replace(/Hermano \*{hostName}\*/g, '*{hostName}*');
-    adapted = adapted.replace(/Mon \*{hostName}\*/g, '*{hostName}*');
     adapted = adapted.replace(/tu vas bien/g, 'vous allez bien');
+    // Pt
+    adapted = adapted.replace(/Irmão \*{hostName}\*/g, '*{hostName}*');
+    adapted = adapted.replace(/estejas bem/g, 'estejam bem');
+    adapted = adapted.replace(/tua disponibilidade/g, 'vossa disponibilidade');
+    adapted = adapted.replace(/teu acolhimento/g, 'vosso acolhimento');
+    // Cv
+    adapted = adapted.replace(/Mon \*{hostName}\*/g, '*{hostName}*');
     adapted = adapted.replace(/bu sta bon/g, 'nhós sta bon');
-    adapted = adapted.replace(/you are doing well/gi, 'you are doing well');
-    adapted = adapted.replace(/esté bien/g, 'estén bien');
   }
 
   return adapted;
