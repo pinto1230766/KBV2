@@ -2,33 +2,13 @@ import { createContext, useState, useEffect, ReactNode, useContext } from 'react
 import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language, SyncAction } from '@/types';
 import * as storage from '@/utils/storage';
 import { defaultAppData } from '@/data/constants';
+import { UNASSIGNED_HOST, NA_HOST } from '@/data/commonConstants';
+import { generateUUID } from '@/utils/uuid';
+import { parseDate } from '@/utils/formatters';
 import { useToast } from '@/contexts/ToastContext';
 import { useSyncQueue } from '@/hooks/useSyncQueue';
 import { useOfflineMode } from '@/hooks/useOfflineMode';
 import { getTalkTitle } from '@/data/talkTitles';
-
-// Utility functions for Google Sheets sync
-const UNASSIGNED_HOST = 'À définir';
-
-const generateUUID = (): string => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
-
-const parseDate = (dateStr: string): Date | null => {
-  // Handle DD/MM/YYYY, DD-MM-YYYY, or other formats
-  const parts = dateStr.split(/[/\-.]/);
-  if (parts.length === 3) {
-    const day = parseInt(parts[0]);
-    const month = parseInt(parts[1]) - 1; // Month is 0-indexed
-    const year = parseInt(parts[2]);
-    return new Date(year, month, day);
-  }
-  return null;
-};
 
 // Types condensés pour le context
 interface DataContextValue extends AppData {
@@ -60,7 +40,7 @@ interface DataContextValue extends AppData {
   syncQueue: SyncAction[];
   isOnline: boolean;
   clearSyncQueue: () => void;
-  mergeDuplicates: (type: 'speaker' | 'host' | 'visit', keepId: string, duplicateIds: string[]) => void;
+  mergeDuplicates: (type: 'speaker' | 'host' | 'visit' | 'message', keepId: string, duplicateIds: string[]) => void;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -140,10 +120,35 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateSpeaker = (speaker: Speaker) => {
-    setData((d) => ({
-      ...d,
-      speakers: d.speakers.map((s) => (s.id === speaker.id ? speaker : s)),
-    }));
+    setData((d) => {
+      const updatedSpeakers = d.speakers.map((s) => (s.id === speaker.id ? speaker : s));
+      
+      // Synchroniser les visites futures avec les nouvelles données de l'orateur
+      const today = new Date();
+      const updatedVisits = d.visits.map((visit) => {
+        if (visit.id !== speaker.id) return visit;
+        
+        const visitDate = new Date(visit.visitDate);
+        // Synchroniser uniquement les visites futures
+        if (visitDate >= today) {
+          return {
+            ...visit,
+            nom: speaker.nom,
+            congregation: speaker.congregation,
+            telephone: speaker.telephone,
+            photoUrl: speaker.photoUrl
+          };
+        }
+        
+        return visit;
+      });
+      
+      return {
+        ...d,
+        speakers: updatedSpeakers,
+        visits: updatedVisits
+      };
+    });
     addToSyncQueue('UPDATE_SPEAKER', speaker);
   };
 
@@ -403,7 +408,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const newVisit: Visit = {
               id: speaker.id, nom: speaker.nom, congregation, telephone: speaker.telephone, photoUrl: speaker.photoUrl,
               visitId: generateUUID(), visitDate: formattedDate, visitTime: prev.congregationProfile.meetingTime || '14:30',
-              host: congregation.toLowerCase().includes('zoom') || congregation.toLowerCase().includes('streaming') ? 'N/A' : UNASSIGNED_HOST,
+              host: congregation.toLowerCase().includes('zoom') || congregation.toLowerCase().includes('streaming') ? NA_HOST : UNASSIGNED_HOST,
               accommodation: '', meals: '', status: 'pending',
               locationType: congregation.toLowerCase().includes('zoom') ? 'zoom' : congregation.toLowerCase().includes('streaming') ? 'streaming' : 'physical',
               talkNoOrType: talkNoValue,
@@ -474,7 +479,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   // Merge Duplicates
-  const mergeDuplicates = (type: 'speaker' | 'host' | 'visit', keepId: string, duplicateIds: string[]) => {
+  const mergeDuplicates = (type: 'speaker' | 'host' | 'visit' | 'message', keepId: string, duplicateIds: string[]) => {
     setData(prev => {
       let newState = { ...prev };
       const updates: string[] = [];
@@ -526,6 +531,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
           v.visitId === keepId || !duplicateIds.includes(v.visitId)
         );
         addToSyncQueue('DELETE_VISIT', { count: duplicateIds.length, visitIds: duplicateIds });
+      }
+      else if (type === 'message') {
+        // keepId est le message id à garder
+        // 1. Supprimer les autres messages
+        newState.speakerMessages = (prev.speakerMessages || []).filter(m => 
+          m.id === keepId || !duplicateIds.includes(m.id)
+        );
+        // addToSyncQueue('DELETE_MESSAGE', { count: duplicateIds.length, messageIds: duplicateIds }); // TODO: Implement DELETE_MESSAGE sync if needed
       }
 
       if (updates.length > 0) {

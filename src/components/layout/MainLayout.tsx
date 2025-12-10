@@ -38,8 +38,12 @@ export const MainLayout: React.FC = () => {
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-center h-16 border-b border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-bold text-primary-600 dark:text-primary-400">KBV Lyon</h1>
+        <div className="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700 py-4">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', letterSpacing: '0.1em', lineHeight: '1' }} className="text-primary-600 dark:text-primary-400">KBV</div>
+            <div style={{ fontSize: '14px', fontWeight: '600', lineHeight: '1' }} className="text-primary-500 dark:text-primary-300">LYON</div>
+            <div style={{ fontSize: '11px', lineHeight: '1', marginTop: '2px' }} className="text-gray-500 dark:text-gray-400">FP</div>
+          </div>
         </div>
         
         <nav className="flex-1 overflow-y-auto py-4">
@@ -93,7 +97,10 @@ export const MainLayout: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0">
-          <h1 className="text-lg font-bold text-primary-600 dark:text-primary-400">KBV Lyon</h1>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-primary-600 dark:text-primary-400 tracking-wide leading-tight">KBV</span>
+            <span className="text-[10px] font-semibold text-primary-500 dark:text-primary-300 -mt-1">LYON <span className="text-gray-500 dark:text-gray-400">FP</span></span>
+          </div>
           <div className="flex items-center gap-2">
             <div className="scale-90">
               <SyncStatusIndicator />
@@ -143,10 +150,10 @@ export const MainLayout: React.FC = () => {
           </div>
         </main>
 
-        {/* Mobile Bottom Nav (Optional - can be removed if Header Menu is preferred) */}
+        {/* Mobile Bottom Navigation - Visible uniquement sur mobile */}
         <nav className="md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pb-safe-bottom">
           <div className="flex justify-around items-center h-16">
-            {NAV_ITEMS.slice(0, 4).map((item) => (
+            {NAV_ITEMS.slice(0, 5).map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
@@ -159,20 +166,9 @@ export const MainLayout: React.FC = () => {
                 `}
               >
                 <item.icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium">{item.label.split(' ')[0]}</span>
               </NavLink>
             ))}
-            <NavLink
-              to="/menu" // Route spéciale pour le menu complet sur mobile si besoin
-              className="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-500 dark:text-gray-400"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(true);
-              }}
-            >
-              <Menu className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Menu</span>
-            </NavLink>
           </div>
         </nav>
       </div>

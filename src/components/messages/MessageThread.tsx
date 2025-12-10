@@ -126,16 +126,6 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, o
                         Confirmer
                       </Button>
                     )}
-                    {visit.status === 'confirmed' && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        leftIcon={<User className="w-4 h-4" />}
-                        onClick={() => onAction('host_request', visit)}
-                      >
-                        Demande d'accueil
-                      </Button>
-                    )}
                   </div>
                 </CardBody>
               </Card>

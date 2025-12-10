@@ -20,7 +20,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
   onClose,
   initialDate
 }) => {
-  const { speakers, hosts, addVisit, publicTalks, visits } = useData();
+  const { speakers, hosts, addVisit, publicTalks, visits, congregationProfile } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [dateError, setDateError] = useState<string>('');
@@ -29,7 +29,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
   // Form state
   const [formData, setFormData] = useState<Partial<Visit>>({
     visitDate: initialDate ? initialDate.toISOString().split('T')[0] : '',
-    visitTime: '13:30',
+    visitTime: congregationProfile.meetingTime || '14:30',
     locationType: 'physical',
     status: 'pending',
     talkNoOrType: '',

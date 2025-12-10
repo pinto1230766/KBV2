@@ -62,6 +62,11 @@ export const Speakers: React.FC = () => {
     setEditingHost(undefined);
   };
 
+  const handleOpenFeedbackModal = (visit: Visit) => {
+    setFeedbackVisit(visit);
+    setIsFeedbackModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -119,6 +124,7 @@ export const Speakers: React.FC = () => {
             speakers={speakers}
             onEdit={handleEditSpeaker}
             onDelete={handleDeleteSpeaker}
+            onFeedback={handleOpenFeedbackModal}
           />
         ) : (
           <HostList 

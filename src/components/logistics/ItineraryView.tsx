@@ -36,7 +36,8 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ itinerary, onUpdat
         ].map(({ mode, icon: Icon, label }) => (
           <button
             key={mode}
-            onClick={() => !readOnly && handleChange('transportMode', mode)}
+            type="button"
+            onClick={() => handleChange('transportMode', mode)}
             className={`flex-1 flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
               itinerary.transportMode === mode
                 ? 'border-primary bg-primary/5 text-primary'
@@ -54,15 +55,15 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ itinerary, onUpdat
         <Input
           label="Distance (km)"
           type="number"
-          value={itinerary.distance || ''}
-          onChange={(e) => handleChange('distance', parseFloat(e.target.value))}
+          value={itinerary.distance?.toString() || ''}
+          onChange={(e) => handleChange('distance', e.target.value ? parseFloat(e.target.value) : undefined)}
           disabled={readOnly}
           leftIcon={<Navigation className="w-4 h-4" />}
         />
         <Input
           label="Durée estimée"
           placeholder="ex: 1h 30m"
-          value={itinerary.duration || ''}
+          value={itinerary.duration?.toString() || ''}
           onChange={(e) => handleChange('duration', e.target.value)}
           disabled={readOnly}
           leftIcon={<Clock className="w-4 h-4" />}
@@ -108,7 +109,7 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({ itinerary, onUpdat
           value={itinerary.notes || ''}
           onChange={(e) => handleChange('notes', e.target.value)}
           disabled={readOnly}
-          className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm focus:ring-primary focus:border-primary p-3 min-h-[100px]"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-primary focus:border-primary p-3 min-h-[100px]"
           placeholder="Informations supplémentaires..."
         />
       </div>

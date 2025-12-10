@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Speaker } from '@/types';
+import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Edit, Trash2, Phone, Mail, Car, Search } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, Car, Search, Star } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useData } from '@/contexts/DataContext';
 import { calculateWorkload } from '@/utils/workload';
@@ -12,9 +12,10 @@ interface SpeakerListProps {
   speakers: Speaker[];
   onEdit: (speaker: Speaker) => void;
   onDelete: (id: string) => void;
+  onFeedback: (visit: Visit) => void;
 }
 
-export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDelete }) => {
+export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDelete, onFeedback }) => {
   const { visits } = useData();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -37,7 +38,11 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSpeakers.map((speaker) => (
+        {filteredSpeakers.map((speaker) => {
+          const lastTalk = speaker.talkHistory[0];
+          const lastVisit = lastTalk ? visits.find(v => v.visitId === lastTalk.visitId) : undefined;
+
+          return (
           <Card key={speaker.id} hoverable>
             <CardBody className="p-4">
               <div className="flex justify-between items-start mb-4">
@@ -86,14 +91,26 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
                 )}
               </div>
 
-              {speaker.talkHistory.length > 0 && (
+              {lastTalk && (
                 <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Dernier discours :
-                  </p>
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                      Dernier discours :
+                    </p>
+                    {lastVisit && new Date(lastVisit.visitDate) < new Date() && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onFeedback(lastVisit)}
+                        leftIcon={<Star className="w-3 h-3" />}
+                      >
+                        Évaluer
+                      </Button>
+                    )}
+                  </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p className="font-medium">N°{speaker.talkHistory[0].talkNo} - {speaker.talkHistory[0].talkTheme}</p>
-                    <p className="text-xs text-gray-500 mt-1">{new Date(speaker.talkHistory[0].date).toLocaleDateString('fr-FR')}</p>
+                    <p className="font-medium">N°{lastTalk.talkNo} - {lastTalk.talkTheme}</p>
+                    <p className="text-xs text-gray-500 mt-1">{new Date(lastTalk.date).toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
               )}
@@ -104,7 +121,8 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
               )}
             </CardBody>
           </Card>
-        ))}
+        );
+      })}
       </div>
 
       {filteredSpeakers.length === 0 && (

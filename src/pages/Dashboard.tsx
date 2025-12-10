@@ -2,6 +2,7 @@ import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
 import { Users, Calendar, AlertCircle, TrendingUp, Clock, Zap, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/contexts/ToastContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -73,6 +74,7 @@ const VisitItem = memo(({
 
 export const Dashboard: React.FC = () => {
   const { speakers, hosts, visits, refreshData } = useData();
+  const { addToast } = useToast();
   const { deviceType, orientation } = usePlatformContext();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -462,15 +464,119 @@ export const Dashboard: React.FC = () => {
       <QuickActionsModal
         isOpen={isQuickActionsOpen}
         onClose={() => setIsQuickActionsOpen(false)}
-        onAction={() => {
+        onAction={(action) => {
           setIsQuickActionsOpen(false);
+          // Rediriger vers la page appropriée selon l'action
+          switch(action) {
+            case 'schedule-visit':
+              navigate('/planning');
+              break;
+            case 'add-speaker':
+              navigate('/speakers');
+              break;
+            case 'add-host':
+              navigate('/speakers');
+              break;
+            case 'send-message':
+              navigate('/messages');
+              break;
+            case 'generate-report':
+              setIsReportModalOpen(true);
+              break;
+            case 'check-conflicts':
+              navigate('/planning');
+              break;
+            case 'backup-data':
+              navigate('/settings');
+              break;
+            case 'import-data':
+              navigate('/settings');
+              break;
+            case 'sync-sheets':
+              navigate('/settings');
+              addToast('Synchronisation Google Sheets lancée...', 'info');
+              break;
+            case 'export-all-data':
+              navigate('/settings');
+              addToast('Exportation de toutes les données lancée...', 'info');
+              break;
+            case 'search-entities':
+              // Assuming a search page or integrating search into an existing page
+              navigate('/planning'); // Redirect to planning for now, as it involves entities
+              addToast('Redirection vers la recherche d\'entités', 'info');
+              break;
+            case 'show-statistics':
+              // Since we are already on the dashboard, a toast for now.
+              // Ideally, this would open a dedicated statistics view or enhance the current one.
+              addToast('Affichage des statistiques...', 'info');
+              break;
+          }
         }}
       />
       <ReportGeneratorModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         onGenerate={(config) => {
-          console.log('Generate report:', config);
+          const filteredVisits = visits.filter(v => {
+            if (config.period === 'current-month') {
+              const now = new Date();
+              const visitDate = new Date(v.visitDate);
+              return visitDate.getMonth() === now.getMonth() && visitDate.getFullYear() === now.getFullYear();
+            }
+            return true;
+          });
+          
+          const fileName = `rapport-kbv-${new Date().toISOString().slice(0, 10)}`;
+          
+          if (config.format === 'csv') {
+            let csvContent = 'Date,Orateur,Congrégation,Discours,Thème,Hôte,Statut\n';
+            filteredVisits.forEach(v => {
+              csvContent += `${v.visitDate},${v.nom},${v.congregation},${v.talkNoOrType || ''},${v.talkTheme || ''},${v.host || ''},${v.status}\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addToast('Rapport CSV généré !', 'success');
+          } else if (config.format === 'excel') {
+            let htmlContent = `<html><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;}th,td{border:1px solid black;padding:8px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+            filteredVisits.forEach(v => {
+              htmlContent += `<tr><td>${v.visitDate}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+            });
+            htmlContent += '</table></body></html>';
+            const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.xls`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addToast('Rapport Excel généré !', 'success');
+          } else if (config.format === 'pdf') {
+            let htmlContent = `<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#4F46E5;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:12px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><p>Généré le ${new Date().toLocaleDateString('fr-FR')}</p><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
+            filteredVisits.forEach(v => {
+              htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+            });
+            htmlContent += '</table><p style="margin-top:30px;color:#666;">Total: ' + filteredVisits.length + ' visite(s)</p></body></html>';
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${fileName}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addToast('Rapport HTML généré ! Ouvrez-le et imprimez en PDF', 'success');
+          }
+          
           setIsReportModalOpen(false);
         }}
       />

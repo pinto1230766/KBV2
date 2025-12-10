@@ -80,8 +80,10 @@ export const TabletLayout: React.FC = () => {
           {/* Header de la sidebar */}
           <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
             <div className={cn("flex items-center gap-3", !isSidebarOpen && "justify-center")}>
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">K</span>
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-[20px] font-bold tracking-widest leading-none text-blue-600 dark:text-blue-400">KBV</div>
+                <div className="text-[10px] font-bold leading-none text-blue-500 dark:text-blue-300">LYON</div>
+                <div className="text-[8px] leading-none mt-[1px] text-gray-500 dark:text-gray-400">FP</div>
               </div>
               {isSidebarOpen && (
                 <div>

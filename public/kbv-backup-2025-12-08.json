@@ -246,7 +246,20 @@
       "gender": "male"
     }
   ],
-  "hosts": [],
+  "hosts": [
+    { "nom": "Jean-Paul Batista", "telephone": "", "gender": "male", "address": "182 Avenue Felix Faure, 69003", "notes": "Logement en centre-ville, idéal pour orateur sans voiture. Pas d'animaux.", "unavailableDates": [], "tags": ["centre-ville", "sans-animaux"] },
+    { "nom": "Suzy", "telephone": "", "gender": "female", "address": "14 bis Montée des Roches, 69009", "unavailableDates": [], "tags": ["calme"] },
+    { "nom": "Alexis", "telephone": "", "gender": "male", "address": "13 Avenue Debrousse, 69005", "unavailableDates": [] },
+    { "nom": "Andréa", "telephone": "", "gender": "female", "address": "25c Rue Georges Courteline, Villeurbanne", "unavailableDates": [] },
+    { "nom": "Dara & Lia", "telephone": "", "gender": "couple", "address": "16 Rue Imbert Colomes, 69001", "unavailableDates": [], "tags": ["proche salle", "escaliers"] },
+    { "nom": "José Freitas", "telephone": "", "gender": "male", "address": "27 Av Maréchal Foch, 69110", "notes": "Possède un chat. Idéal pour un orateur seul.", "unavailableDates": [], "tags": ["animaux", "chat"] },
+    { "nom": "Paulo Martins", "telephone": "", "gender": "male", "address": "18 Rue des Soeurs Bouviers, 69005", "unavailableDates": [], "tags": ["escaliers"] },
+    { "nom": "Fátima", "telephone": "", "gender": "female", "address": "9 Chemin de la Vire, Caluire", "unavailableDates": [] },
+    { "nom": "Sanches", "telephone": "", "gender": "male", "address": "132 Av. L'Aqueduc de Beaunant, 69110 Ste Foy", "unavailableDates": [], "tags": ["sans escaliers"] },
+    { "nom": "Torres", "telephone": "", "gender": "male", "address": "15 Cours Rouget de l'Isle, Rillieux", "notes": "Famille avec jeunes enfants, très accueillants.", "unavailableDates": [], "tags": ["enfants"] },
+    { "nom": "Nathalie", "telephone": "", "gender": "female", "address": "86 Rue Pierre Delore, 69008", "unavailableDates": [] },
+    { "nom": "Francisco Pinto", "telephone": "", "gender": "male", "address": "20 Rue Professeur Patel, 69009", "unavailableDates": [] }
+  ],
   "visits": [
     {
       "id": "cb483bd2-b10b-4026-a844-18390bd3b7fa",

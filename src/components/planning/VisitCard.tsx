@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Calendar, MapPin, User, Clock, MoreVertical, Edit2, Trash2, MessageSquare, CheckCircle, Star, CreditCard, Truck } from 'lucide-react';
 import { Visit } from '@/types';
@@ -16,18 +16,7 @@ interface VisitCardProps {
 
 export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (showMenu && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setMenuPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.right + window.scrollX - 192 // 192px = min-w-48
-      });
-    }
-  }, [showMenu]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -151,24 +140,33 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </button>
 
             {showMenu && createPortal(
-              <div 
-                className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-[9999] min-w-48"
-                style={{
-                  top: `${menuPosition.top}px`,
-                  left: `${menuPosition.left}px`
-                }}
-              >
-                {actionOptions.map((option) => (
-                  <button
-                    key={option.action}
-                    className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex items-center gap-2"
-                    onClick={(e) => handleActionClick(option.action as any, e)}
-                  >
-                    <option.icon className={`w-4 h-4 ${option.color}`} />
-                    {option.label}
-                  </button>
-                ))}
-              </div>,
+              <>
+                <div 
+                  className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(false);
+                  }}
+                />
+                <div 
+                  className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 w-72 overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                >
+                  <div className="p-2">
+                    {actionOptions.map((option) => (
+                      <button
+                        key={option.action}
+                        className="w-full px-4 py-3 text-left text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center gap-3 transition-colors mb-1 last:mb-0"
+                        onClick={(e) => handleActionClick(option.action as any, e)}
+                      >
+                        <div className={`p-2 rounded-full bg-opacity-10 ${option.color.replace('text-', 'bg-')}`}>
+                           <option.icon className={`w-5 h-5 ${option.color}`} />
+                        </div>
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>,
               document.body
             )}
           </div>
@@ -176,12 +174,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
       </CardBody>
 
       {/* Overlay to close menu when clicking outside */}
-      {showMenu && (
-        <div 
-          className="fixed inset-0 z-[9998]" 
-          onClick={() => setShowMenu(false)}
-        />
-      )}
+
     </Card>
   );
 };

@@ -14,8 +14,8 @@ interface DuplicateDetectionModalProps {
 }
 
 interface DuplicateGroup {
-  type: 'speaker' | 'host' | 'visit';
-  items: (Speaker | Host | Visit)[];
+  type: 'speaker' | 'host' | 'visit' | 'message';
+  items: any[];
   similarity: number;
   reason: string[];
 }
@@ -25,7 +25,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
   onClose,
   onMerge
 }) => {
-  const { speakers, hosts, visits } = useData();
+  const { speakers, hosts, visits, speakerMessages } = useData();
   const [selectedGroups, setSelectedGroups] = useState<Set<number>>(new Set());
   const [mergeStrategy, setMergeStrategy] = useState<'keep-first' | 'keep-recent' | 'manual'>('keep-recent');
 
@@ -127,8 +127,36 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       }
     });
 
+    // 4. Détection de messages en double
+    const messageGroups = new Map<string, any[]>();
+    if (speakerMessages && speakerMessages.length > 0) {
+      speakerMessages.forEach(msg => {
+        // Clé combinant l'ID de l'orateur, le contenu et la date de réception
+        const normalizedContent = msg.message?.trim().toLowerCase() || '';
+        const dateKey = msg.receivedAt ? new Date(msg.receivedAt).toISOString() : 'no-date';
+        // On considère un doublon si même orateur, même message, même date (à la seconde près)
+        const key = `${msg.speakerId}-${normalizedContent}-${dateKey}`;
+        
+        if (!messageGroups.has(key)) {
+          messageGroups.set(key, []);
+        }
+        messageGroups.get(key)!.push(msg);
+      });
+    }
+
+    messageGroups.forEach((group) => {
+      if (group.length > 1) {
+        groups.push({
+          type: 'message',
+          items: group,
+          similarity: 100,
+          reason: ['Contenu et date identiques']
+        });
+      }
+    });
+
     return groups;
-  }, [speakers, hosts, visits]);
+  }, [speakers, hosts, visits, speakerMessages]);
 
   const toggleGroup = (index: number) => {
     setSelectedGroups(prev => {
@@ -159,6 +187,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       case 'speaker': return 'Orateur';
       case 'host': return 'Hôte';
       case 'visit': return 'Visite';
+      case 'message': return 'Message';
     }
   };
 
@@ -167,6 +196,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       case 'speaker': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300';
       case 'host': return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300';
       case 'visit': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300';
+      case 'message': return 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300';
     }
   };
 
@@ -179,7 +209,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
     >
       <div className="space-y-6">
         {/* Statistiques */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">
               {duplicateGroups.filter(g => g.type === 'speaker').length}
@@ -197,6 +227,12 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
               {duplicateGroups.filter(g => g.type === 'visit').length}
             </div>
             <div className="text-sm text-purple-800 dark:text-purple-300">Visites</div>
+          </div>
+          <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <div className="text-2xl font-bold text-red-600">
+              {duplicateGroups.filter(g => g.type === 'message').length}
+            </div>
+            <div className="text-sm text-red-800 dark:text-red-300">Messages</div>
           </div>
         </div>
 
@@ -298,7 +334,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                           className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                         >
                           <div className="font-medium text-gray-900 dark:text-white mb-2">
-                            {item.nom || `Visite ${itemIdx + 1}`}
+                            {group.type === 'message' ? (item.subject || 'Message sans sujet') : (item.nom || `Visite ${itemIdx + 1}`)}
                           </div>
                           <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                             {group.type === 'speaker' && (
@@ -331,6 +367,13 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                                 <div>Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}</div>
                                 <div>Heure : {item.visitTime}</div>
                                 <div>Statut : {item.status}</div>
+                              </>
+                            )}
+                            {group.type === 'message' && (
+                              <>
+                                <div>Orateur : {item.speakerName}</div>
+                                <div>Date : {new Date(item.receivedAt).toLocaleDateString('fr-FR')} {new Date(item.receivedAt).toLocaleTimeString('fr-FR')}</div>
+                                <div className="line-clamp-2">Contenu : {item.message}</div>
                               </>
                             )}
                           </div>

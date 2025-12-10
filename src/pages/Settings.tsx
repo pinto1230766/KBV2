@@ -21,7 +21,8 @@ import {
   Monitor,
   RefreshCw,
   Copy,
-  Link
+  Link,
+  Users
 } from 'lucide-react';
 import { CongregationProfile, Language, Theme } from '@/types';
 import { BackupManagerModal } from '@/components/settings/BackupManagerModal';
@@ -43,11 +44,7 @@ interface ColumnMapping {
   [key: string]: string;
 }
 
-interface DuplicateGroup {
-  type: 'speaker' | 'host' | 'visit';
-  items: any[];
-  similarity: number;
-}
+
 
 export const Settings: React.FC = () => {
   const { 
@@ -57,7 +54,11 @@ export const Settings: React.FC = () => {
     exportData, 
     importData, 
     mergeDuplicates,
-    deleteVisit
+    deleteVisit,
+    speakers,
+    hosts,
+    visits,
+    speakerMessages
   } = useData();
   const { settings, updateSettings } = useSettings();
   const { addToast } = useToast();
@@ -182,8 +183,8 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const handleMergeAdapter = (groups: DuplicateGroup[], action: 'merge' | 'delete') => {
-    groups.forEach(group => {
+  const handleMergeAdapter = (groups: any[], action: 'merge' | 'delete') => {
+    groups.forEach((group: any) => {
       if (group.items.length < 2) return;
       
       // On garde le premier élément par défaut
@@ -191,7 +192,7 @@ export const Settings: React.FC = () => {
       const keepItem = group.items[0];
       const keepId = group.type === 'host' ? (keepItem as any).nom : (keepItem as any).id || (keepItem as any).visitId;
       
-      const duplicateIds = group.items.slice(1).map(item => {
+      const duplicateIds = group.items.slice(1).map((item: any) => {
         if (group.type === 'host') return (item as any).nom;
         if (group.type === 'visit') return (item as any).visitId;
         return (item as any).id;
@@ -819,19 +820,111 @@ export const Settings: React.FC = () => {
           {/* Doublons (NOUVELLE VERSION) */}
           {activeTab === 'duplicates' && (
             <Card>
-              <CardBody className="p-8 text-center space-y-4">
-                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center dark:bg-blue-900/30">
-                  <Copy className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              <CardHeader>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Copy className="w-5 h-5" />
+                  Détection de Doublons
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Analysez et fusionnez les doublons dans votre base de données
+                </p>
+              </CardHeader>
+              <CardBody className="space-y-6">
+                {/* Cartes statistiques */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center gap-3">
+                      <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      <div>
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                          {(() => {
+                            const speakerNames = new Map();
+                            speakers.forEach(s => {
+                              const key = s.nom.toLowerCase().trim().replace(/\s+/g, ' ');
+                              speakerNames.set(key, (speakerNames.get(key) || 0) + 1);
+                            });
+                            return Array.from(speakerNames.values()).filter(c => c > 1).length;
+                          })()}
+                        </div>
+                        <div className="text-xs text-blue-700 dark:text-blue-300">Orateurs</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-3">
+                      <Users className="w-6 h-6 text-green-600 dark:text-green-400" />
+                      <div>
+                        <div className="text-2xl font-bold text-green-900 dark:text-green-100">
+                          {(() => {
+                            const hostNames = new Map();
+                            hosts.forEach(h => {
+                              const key = h.nom.toLowerCase().trim().replace(/\s+/g, ' ');
+                              hostNames.set(key, (hostNames.get(key) || 0) + 1);
+                            });
+                            return Array.from(hostNames.values()).filter(c => c > 1).length;
+                          })()}
+                        </div>
+                        <div className="text-xs text-green-700 dark:text-green-300">Hôtes</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center gap-3">
+                      <Copy className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                      <div>
+                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                          {(() => {
+                            const visitKeys = new Map();
+                            visits.forEach(v => {
+                              const key = `${v.id}-${v.visitDate}-${v.visitTime}`;
+                              visitKeys.set(key, (visitKeys.get(key) || 0) + 1);
+                            });
+                            return Array.from(visitKeys.values()).filter(c => c > 1).length;
+                          })()}
+                        </div>
+                        <div className="text-xs text-purple-700 dark:text-purple-300">Visites</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
+                    <div className="flex items-center gap-3">
+                      <Copy className="w-6 h-6 text-red-600 dark:text-red-400" />
+                      <div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">
+                          {(() => {
+                            const msgKeys = new Map();
+                            if (speakerMessages) {
+                              speakerMessages.forEach(m => {
+                                // Même logique que dans la modale
+                                const normalizedContent = m.message?.trim().toLowerCase() || '';
+                                const dateKey = m.receivedAt ? new Date(m.receivedAt).toISOString() : 'no-date';
+                                const key = `${m.speakerId}-${normalizedContent}-${dateKey}`;
+                                msgKeys.set(key, (msgKeys.get(key) || 0) + 1);
+                              });
+                            }
+                            return Array.from(msgKeys.values()).filter(c => c > 1).length;
+                          })()}
+                        </div>
+                        <div className="text-xs text-red-700 dark:text-red-300">Messages</div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Détection de Doublons</h3>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mt-2">
-                    Analysez votre base de données pour trouver et fusionner les orateurs, visites ou hôtes en double.
+
+                {/* Bouton d'action */}
+                <div className="text-center pt-4">
+                  <Button onClick={() => setIsDuplicateModalOpen(true)} size="lg">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Lancer l'analyse complète
+                  </Button>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                    Cliquez pour voir les détails et fusionner les doublons
                   </p>
                 </div>
-                <Button onClick={() => setIsDuplicateModalOpen(true)}>
-                  Lancer l'analyse
-                </Button>
               </CardBody>
             </Card>
           )}

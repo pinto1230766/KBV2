@@ -10,6 +10,7 @@ interface MealPlanningModalProps {
   onClose: () => void;
   visit: Visit;
   onSave: (mealPlan: MealPlan) => void;
+  hosts?: Array<{ nom: string; }>;
 }
 
 export interface MealPlan {
@@ -65,7 +66,8 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
   isOpen,
   onClose,
   visit,
-  onSave
+  onSave,
+  hosts = []
 }) => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
@@ -342,13 +344,16 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
                         <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
                           Hôte / Responsable
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={meal.host || ''}
                           onChange={(e) => updateMeal(meal.id, { host: e.target.value })}
-                          placeholder="Nom de l'hôte"
                           className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                        />
+                        >
+                          <option value="">Sélectionner un hôte...</option>
+                          {hosts.map(host => (
+                            <option key={host.nom} value={host.nom}>{host.nom}</option>
+                          ))}
+                        </select>
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">

@@ -217,3 +217,19 @@ export function normalizeString(text: string): string {
     .replace(/[\u0300-\u036f]/g, '') // Supprimer les accents
     .trim();
 }
+
+// ============================================================================
+// PARSING DE DATES
+// ============================================================================
+
+export function parseDate(dateStr: string): Date | null {
+  // Handle DD/MM/YYYY, DD-MM-YYYY, or other formats
+  const parts = dateStr.split(/[/\-.]/);
+  if (parts.length === 3) {
+    const day = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+    const year = parseInt(parts[2]);
+    return new Date(year, month, day);
+  }
+  return null;
+}

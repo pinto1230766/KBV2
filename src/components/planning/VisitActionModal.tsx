@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit, VisitFeedback } from '@/types';
+import { Visit } from '@/types';
+// import { VisitFeedback } from '@/types'; // TODO: Réactiver quand feedback sera réintégré
 import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star } from 'lucide-react';
-import { FeedbackForm } from '@/components/feedback/FeedbackForm';
+// import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal'; // TODO: Réintégrer si nécessaire
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { Expense } from '@/types';
-import { CreditCard, Truck, Car, Utensils, Home as HomeIcon } from 'lucide-react';
+import { CreditCard, Truck } from 'lucide-react';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
@@ -98,39 +99,34 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     setIsLoading(true);
     try {
       await logCommunication(visit.visitId, type as any, 'speaker');
-      addToast('Message envoyé', 'success');
-      onClose();
+      addToast(`Message ${type === 'confirmation' ? 'de confirmation' : type === 'preparation' ? 'de préparation' : type === 'thanks' ? 'de remerciement' : 'de rappel'} envoyé avec succès`, 'success');
     } catch (error) {
-      addToast('Erreur lors de l\'envoi', 'error');
+      addToast('Erreur lors de l\'envoi du message', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
-    setIsLoading(true);
-    try {
-      const newFeedback: VisitFeedback = {
-        ...feedbackData,
-        id: generateUUID(),
-        visitId: visit.visitId,
-        submittedBy: 'currentUser', // À remplacer par l'ID réel de l'utilisateur
-        submittedAt: new Date().toISOString()
-      };
-      
-      await updateVisit({ 
-        ...visit, 
-        visitFeedback: newFeedback 
-      });
-      
-      addToast('Bilan enregistré avec succès', 'success');
-      onClose();
-    } catch (error) {
-      addToast('Erreur lors de l\'enregistrement du bilan', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // TODO: Réintégrer handleFeedbackSubmit quand FeedbackFormModal sera utilisé
+  // const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const newFeedback: VisitFeedback = {
+  //       ...feedbackData,
+  //       id: generateUUID(),
+  //       visitId: visit.visitId,
+  //       submittedBy: 'currentUser',
+  //       submittedAt: new Date().toISOString()
+  //     };
+  //     await updateVisit({ ...visit, visitFeedback: newFeedback });
+  //     addToast('Bilan enregistré avec succès', 'success');
+  //     onClose();
+  //   } catch (error) {
+  //     addToast('Erreur lors de l\'enregistrement du bilan', 'error');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleSaveExpense = async (expenseData: Omit<Expense, 'id'>) => {
     setIsLoading(true);
@@ -139,16 +135,16 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       let newExpenses: Expense[];
 
       if (editingExpense) {
-        // Update existing
         newExpenses = currentExpenses.map(e => 
           e.id === editingExpense.id ? { ...expenseData, id: editingExpense.id } : e
         );
       } else {
-        // Add new
         newExpenses = [...currentExpenses, { ...expenseData, id: generateUUID() }];
       }
 
-      await updateVisit({ ...visit, expenses: newExpenses });
+      const updatedVisit = { ...visit, expenses: newExpenses };
+      await updateVisit(updatedVisit);
+      setFormData(updatedVisit);
       addToast(editingExpense ? 'Dépense modifiée' : 'Dépense ajoutée', 'success');
       setIsAddingExpense(false);
       setEditingExpense(undefined);
@@ -165,7 +161,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     setIsLoading(true);
     try {
       const newExpenses = (visit.expenses || []).filter(e => e.id !== expenseId);
-      await updateVisit({ ...visit, expenses: newExpenses });
+      const updatedVisit = { ...visit, expenses: newExpenses };
+      await updateVisit(updatedVisit);
+      setFormData(updatedVisit);
       addToast('Dépense supprimée', 'success');
     } catch (error) {
       addToast('Erreur lors de la suppression', 'error');
@@ -202,11 +200,28 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, talkNoOrType: e.target.value }))}
                 placeholder="Ex: 185"
               />
-              <Input
-                label="Contact d'accueil"
-                value={formData.host || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, host: e.target.value }))}
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Contact d'accueil
+                </label>
+                <select
+                  value={formData.host || ''}
+                  onChange={(e) => {
+                    const selectedHost = hosts.find(h => h.nom === e.target.value);
+                    setFormData(prev => ({ 
+                      ...prev, 
+                      host: e.target.value,
+                      accommodation: selectedHost?.address || prev.accommodation
+                    }));
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Sélectionner un hôte...</option>
+                  {hosts.map(host => (
+                    <option key={host.nom} value={host.nom}>{host.nom}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <Input
               label="Titre du discours"
@@ -214,23 +229,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, talkTheme: e.target.value }))}
               placeholder="Ex: Nega iluzon di mundu..."
             />
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="Logement"
-                value={formData.accommodation || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, accommodation: e.target.value }))}
-              />
-              <Input
-                label="Repas"
-                value={formData.meals || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, meals: e.target.value }))}
-              />
-            </div>
             <Input
               label="Notes"
               value={formData.notes || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
             />
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-400">
+              💡 Pour gérer le logement et les repas, utilisez l'onglet "Logistique" du menu
+            </div>
           </div>
         );
 
@@ -357,12 +363,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <Star className="w-5 h-5 text-yellow-500" />
               Bilan de la visite
             </h3>
-            <FeedbackForm 
-              visitId={visit.visitId}
-              initialFeedback={visit.visitFeedback}
-              onSubmit={handleFeedbackSubmit}
-              onCancel={onClose}
-            />
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Utilisez la modale de feedback pour évaluer cette visite.
+            </div>
           </div>
         );
 
@@ -385,7 +388,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               />
             ) : (
               <ExpenseList
-                expenses={visit.expenses || []}
+                expenses={formData.expenses || []}
                 onAdd={() => setIsAddingExpense(true)}
                 onEdit={setEditingExpense}
                 onDelete={handleDeleteExpense}
@@ -403,37 +406,26 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               Logistique
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setIsTravelModalOpen(true)}
-                className="w-full justify-start"
-                leftIcon={<Car className="w-4 h-4" />}
-              >
-                Voyage
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setIsMealModalOpen(true)}
-                className="w-full justify-start"
-                leftIcon={<Utensils className="w-4 h-4" />}
-              >
-                Repas
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setIsAccommodationModalOpen(true)}
-                className="w-full justify-start"
-                leftIcon={<HomeIcon className="w-4 h-4" />}
-              >
-                Hébergement
-              </Button>
-            </div>
-
             <LogisticsManager
-              logistics={visit.logistics}
-              onUpdate={(updatedLogistics) => updateVisit({ ...visit, logistics: updatedLogistics })}
+              logistics={{
+                ...formData.logistics,
+                accommodation: {
+                  type: 'host',
+                  name: formData.host || formData.logistics?.accommodation?.name || '',
+                  address: formData.accommodation || formData.logistics?.accommodation?.address || '',
+                  notes: formData.logistics?.accommodation?.notes || ''
+                }
+              }}
+              onUpdate={(updatedLogistics) => {
+                setFormData(prev => ({
+                  ...prev,
+                  logistics: updatedLogistics,
+                  host: updatedLogistics.accommodation?.name || prev.host,
+                  accommodation: updatedLogistics.accommodation?.address || prev.accommodation
+                }));
+              }}
               readOnly={isLoading}
+              hosts={hosts}
             />
             
             <div className="border-t pt-4 mt-4">
@@ -457,6 +449,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const getFooter = () => {
     switch (action) {
       case 'edit':
+      case 'logistics':
         return (
           <>
             <Button variant="ghost" onClick={onClose} disabled={isLoading}>
@@ -480,7 +473,13 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         );
       case 'feedback':
       case 'expenses':
-        return null; // Le formulaire a ses propres boutons
+        return null;
+      case 'message':
+        return (
+          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+            Fermer
+          </Button>
+        );
       default:
         return (
           <Button variant="ghost" onClick={onClose} disabled={isLoading}>
@@ -495,7 +494,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        size="md"
+        size={action === 'logistics' ? 'xl' : 'md'}
         footer={getFooter()}
       >
         {getModalContent()}
@@ -505,10 +504,25 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         isOpen={isTravelModalOpen}
         onClose={() => setIsTravelModalOpen(false)}
         visit={visit}
-        onSave={(travelData) => {
-          console.log('Travel data saved:', travelData);
-          setIsTravelModalOpen(false);
-          addToast('Informations de voyage enregistrées', 'success');
+        onSave={async (travelData) => {
+          setIsLoading(true);
+          try {
+            const mode = travelData.transportMode === 'car' ? 'Voiture' : 
+                        travelData.transportMode === 'train' ? 'Train' : 
+                        travelData.transportMode === 'plane' ? 'Avion' : 
+                        travelData.transportMode === 'carpool' ? 'Covoiturage' : 'Autre';
+            const travelInfo = `\n🚗 Voyage: ${mode}${travelData.departureLocation ? ` de ${travelData.departureLocation}` : ''}${travelData.arrivalLocation ? ` vers ${travelData.arrivalLocation}` : ''}${travelData.departureTime ? ` à ${travelData.departureTime}` : ''}${travelData.estimatedCost ? ` (${travelData.estimatedCost}€)` : ''}`;
+            await updateVisit({ 
+              ...visit, 
+              notes: (visit.notes || '') + travelInfo
+            });
+            setIsTravelModalOpen(false);
+            addToast('Voyage enregistré', 'success');
+          } catch (error) {
+            addToast('Erreur lors de la sauvegarde', 'error');
+          } finally {
+            setIsLoading(false);
+          }
         }}
       />
 
@@ -516,10 +530,29 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         isOpen={isMealModalOpen}
         onClose={() => setIsMealModalOpen(false)}
         visit={visit}
-        onSave={(mealData) => {
-          console.log('Meal data saved:', mealData);
-          setIsMealModalOpen(false);
-          addToast('Informations de repas enregistrées', 'success');
+        hosts={hosts}
+        onSave={async (mealData) => {
+          setIsLoading(true);
+          try {
+            const mealTypes = mealData.meals.map(m => {
+              const type = m.type === 'breakfast' ? 'Petit-déj' : 
+                          m.type === 'lunch' ? 'Déjeuner' : 
+                          m.type === 'dinner' ? 'Dîner' : 'Collation';
+              return `${type} (${m.time}${m.location ? ` - ${m.location}` : ''})`;
+            }).join(', ');
+            const restrictions = mealData.dietaryRestrictions.length > 0 ? ` | Restrictions: ${mealData.dietaryRestrictions.join(', ')}` : '';
+            const allergies = mealData.allergies.length > 0 ? ` | ⚠️ Allergies: ${mealData.allergies.join(', ')}` : '';
+            await updateVisit({ 
+              ...visit, 
+              meals: mealTypes + restrictions + allergies
+            });
+            setIsMealModalOpen(false);
+            addToast('Repas enregistrés', 'success');
+          } catch (error) {
+            addToast('Erreur lors de la sauvegarde', 'error');
+          } finally {
+            setIsLoading(false);
+          }
         }}
       />
 
@@ -527,9 +560,18 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         isOpen={isAccommodationModalOpen}
         onClose={() => setIsAccommodationModalOpen(false)}
         visit={visit}
-        onSelectHost={() => {
-          setIsAccommodationModalOpen(false);
-          addToast('Hôte sélectionné', 'success');
+        onSelectHost={async (selectedHost) => {
+          setIsLoading(true);
+          try {
+            const hostName = typeof selectedHost === 'string' ? selectedHost : selectedHost.nom;
+            await updateVisit({ ...visit, host: hostName });
+            setIsAccommodationModalOpen(false);
+            addToast('Hôte: ' + hostName, 'success');
+          } catch (error) {
+            addToast('Erreur lors de la sélection', 'error');
+          } finally {
+            setIsLoading(false);
+          }
         }}
       />
     </>

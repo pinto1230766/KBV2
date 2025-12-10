@@ -72,7 +72,19 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ visit, speaker, host }
             </div>
           </section>
 
-          {/* Section 2: Hébergement - Only show if host is assigned */}
+          {/* Section 2: Repas */}
+          {visit.meals && (
+            <section className="space-y-4">
+              <h2 className="text-lg font-bold uppercase border-b border-gray-300 pb-2 flex items-center gap-2 text-primary-700 print:text-black">
+                <Hotel className="w-5 h-5" /> Repas
+              </h2>
+              <div className="bg-gray-50 p-4 rounded-lg print:bg-transparent print:border print:border-gray-200">
+                <div className="text-gray-700">{visit.meals}</div>
+              </div>
+            </section>
+          )}
+
+          {/* Section 3: Hébergement - Only show if host is assigned */}
           {host && (
             <section className="space-y-4">
               <h2 className="text-lg font-bold uppercase border-b border-gray-300 pb-2 flex items-center gap-2 text-primary-700 print:text-black">
@@ -108,7 +120,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ visit, speaker, host }
             </section>
           )}
 
-          {/* Section 3: Itinéraire */}
+          {/* Section 4: Itinéraire */}
           {visit.logistics?.itinerary && (
              <section className="space-y-4">
               <h2 className="text-lg font-bold uppercase border-b border-gray-300 pb-2 flex items-center gap-2 text-primary-700 print:text-black">
@@ -135,7 +147,7 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ visit, speaker, host }
              </section>
           )}
 
-          {/* Section 4: Checklist Importante */}
+          {/* Section 5: Checklist Importante */}
           {visit.logistics?.checklist && visit.logistics.checklist.length > 0 && (
              <section className="space-y-4">
               <h2 className="text-lg font-bold uppercase border-b border-gray-300 pb-2 flex items-center gap-2 text-primary-700 print:text-black">

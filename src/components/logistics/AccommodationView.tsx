@@ -8,9 +8,10 @@ interface AccommodationViewProps {
   accommodation: Accommodation;
   onUpdate: (accommodation: Accommodation) => void;
   readOnly?: boolean;
+  hosts?: Array<{ nom: string; address?: string; }>;
 }
 
-export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodation, onUpdate, readOnly = false }) => {
+export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodation, onUpdate, readOnly = false, hosts = [] }) => {
   const handleChange = (field: keyof Accommodation, value: any) => {
     onUpdate({ ...accommodation, [field]: value });
   };
@@ -45,13 +46,38 @@ export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodat
       </div>
 
       <div className="space-y-4">
-        <Input
-          label={accommodation.type === 'hotel' ? "Nom de l'hôtel" : "Nom de l'hôte"}
-          value={accommodation.name || ''}
-          onChange={(e) => handleChange('name', e.target.value)}
-          disabled={readOnly}
-          placeholder={accommodation.type === 'hotel' ? "Ex: Hôtel de la Gare" : "Ex: Frère Dupont"}
-        />
+        {accommodation.type === 'hotel' ? (
+          <Input
+            label="Nom de l'hôtel"
+            value={accommodation.name || ''}
+            onChange={(e) => handleChange('name', e.target.value)}
+            disabled={readOnly}
+            placeholder="Ex: Hôtel de la Gare"
+          />
+        ) : (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Nom de l'hôte
+            </label>
+            <select
+              value={accommodation.name || ''}
+              onChange={(e) => {
+                const selectedHost = hosts.find(h => h.nom === e.target.value);
+                handleChange('name', e.target.value);
+                if (selectedHost?.address) {
+                  handleChange('address', selectedHost.address);
+                }
+              }}
+              disabled={readOnly}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">Sélectionner un hôte...</option>
+              {hosts.map(host => (
+                <option key={host.nom} value={host.nom}>{host.nom}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex gap-2 items-end">
           <div className="flex-1">
@@ -110,7 +136,7 @@ export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodat
             value={accommodation.notes || ''}
             onChange={(e) => handleChange('notes', e.target.value)}
             disabled={readOnly}
-            className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-sm focus:ring-primary focus:border-primary p-3 min-h-[100px]"
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-primary focus:border-primary p-3 min-h-[100px]"
             placeholder="Codes d'accès, petit-déjeuner, etc."
           />
         </div>

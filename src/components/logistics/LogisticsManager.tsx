@@ -9,11 +9,12 @@ interface LogisticsManagerProps {
   logistics: Logistics | undefined;
   onUpdate: (logistics: Logistics) => void;
   readOnly?: boolean;
+  hosts?: Array<{ nom: string; address?: string; }>;
 }
 
 type Tab = 'itinerary' | 'accommodation' | 'checklist';
 
-export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = {}, onUpdate, readOnly = false }) => {
+export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = {}, onUpdate, readOnly = false, hosts = [] }) => {
   const [activeTab, setActiveTab] = useState<Tab>('itinerary');
 
   const updateItinerary = (itinerary: Itinerary) => {
@@ -67,6 +68,7 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = 
             accommodation={logistics.accommodation || { type: 'host', name: '' }} 
             onUpdate={updateAccommodation}
             readOnly={readOnly}
+            hosts={hosts}
           />
         )}
 

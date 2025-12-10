@@ -2,26 +2,25 @@ import React, { useState, useMemo, memo, useCallback, useRef } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
-import { PlanningWeekView } from '@/components/planning/PlanningWeekView';
 import { PlanningCalendarView } from '@/components/planning/PlanningCalendarView';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import {
   LayoutGrid,
   List,
   Calendar as CalendarIcon,
-  Clock,
   Plus,
   Search,
   Download,
   Filter,
-
+  X,
   Eye,
   BarChart,
-  PieChart
+  PieChart,
+  MoreHorizontal,
+  Clock
 } from 'lucide-react';
 import { LocationType, VisitStatus, Visit } from '@/types';
 import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
@@ -32,7 +31,7 @@ import { PlanningFilterModal } from '@/components/planning/PlanningFilterModal';
 import { ConflictDetectionModal, CancellationModal, EmergencyReplacementModal } from '@/components/modals';
 
 
-type ViewType = 'cards' | 'list' | 'week' | 'calendar' | 'timeline' | 'workload' | 'finance';
+type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance';
 
 // Memoized statistics component for performance
 const StatCard = memo(({ 
@@ -103,6 +102,7 @@ export const Planning: React.FC = () => {
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
   const [isReplacementModalOpen, setIsReplacementModalOpen] = useState(false);
+  const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
 
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -115,10 +115,6 @@ export const Planning: React.FC = () => {
   const handleSetView = useCallback((newView: ViewType) => setView(newView), []);
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => 
     setSearchTerm(e.target.value), []);
-  const handleStatusFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => 
-    setStatusFilter(e.target.value as VisitStatus | 'all'), []);
-  const handleTypeFilterChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => 
-    setTypeFilter(e.target.value as LocationType | 'all'), []);
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
   const handleVisitAction = useCallback((visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => {
@@ -169,14 +165,15 @@ export const Planning: React.FC = () => {
     return { total, confirmed, pending, completed, upcoming };
   }, [filteredVisits]);
 
-  const viewOptions = useMemo(() => [
+  const mainViewOptions = useMemo(() => [
     { id: 'cards', label: 'Cartes', icon: LayoutGrid, description: 'Vue visuelle des visites' },
     { id: 'list', label: 'Liste', icon: List, description: 'Tableau détaillé' },
-    { id: 'week', label: 'Semaine', icon: Clock, description: 'Vue hebdomadaire' },
-    { id: 'calendar', label: 'Calendrier', icon: CalendarIcon, description: 'Calendrier mensuel' },
+    { id: 'calendar', label: 'Calendrier', icon: CalendarIcon, description: 'Vue calendrier' },
+  ], []);
 
+  const specializedViews = useMemo(() => [
     { id: 'timeline', label: 'Chronologie', icon: Eye, description: 'Timeline verticale' },
-    { id: 'workload', label: 'Charge', icon: BarChart, description: 'Disponibilité orateurs' },
+    { id: 'workload', label: 'Disponibilité', icon: BarChart, description: 'Charge des orateurs' },
     { id: 'finance', label: 'Finances', icon: PieChart, description: 'Suivi des coûts' }
   ], []);
 
@@ -231,48 +228,69 @@ export const Planning: React.FC = () => {
 
       {/* Filters & View Toggle - Mobile Responsive */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-3 md:p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full lg:w-auto">
-          <div className="flex-1 min-w-0 md:min-w-64">
-            <Input
-              placeholder="Rechercher une visite..."
-              leftIcon={<Search className="w-4 h-4" />}
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+        <div className="flex flex-col gap-3 w-full lg:w-auto">
+          <div className="flex gap-3">
+            <div className="flex-1 min-w-0 md:min-w-64">
+              <Input
+                placeholder="Rechercher une visite..."
+                leftIcon={<Search className="w-4 h-4" />}
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              leftIcon={<Filter className="w-4 h-4" />} 
+              onClick={() => setIsFilterModalOpen(true)}
+            >
+              Filtres
+            </Button>
           </div>
 
-          <div className="flex gap-2 flex-wrap">
-            <Select
-              value={statusFilter}
-              onChange={handleStatusFilterChange}
-              className="min-w-36"
-              options={[
-                { value: 'all', label: 'Tous statuts' },
-                { value: 'pending', label: 'En attente' },
-                { value: 'confirmed', label: 'Confirmé' },
-                { value: 'completed', label: 'Terminé' },
-                { value: 'cancelled', label: 'Annulé' }
-              ]}
-            />
-
-            <Select
-              value={typeFilter}
-              onChange={handleTypeFilterChange}
-              className="min-w-36"
-              options={[
-                { value: 'all', label: 'Tous types' },
-                { value: 'physical', label: 'Physique' },
-                { value: 'zoom', label: 'Zoom' },
-                { value: 'streaming', label: 'Streaming' }
-              ]}
-            />
-          </div>
+          {/* Active Filters Chips */}
+          {(statusFilter !== 'all' || typeFilter !== 'all') && (
+            <div className="flex gap-2 flex-wrap items-center">
+              {statusFilter !== 'all' && (
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                >
+                  {statusFilter === 'pending' && 'En attente'}
+                  {statusFilter === 'confirmed' && 'Confirmé'}
+                  {statusFilter === 'completed' && 'Terminé'}
+                  {statusFilter === 'cancelled' && 'Annulé'}
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {typeFilter !== 'all' && (
+                <button
+                  onClick={() => setTypeFilter('all')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                >
+                  {typeFilter === 'physical' && 'Physique'}
+                  {typeFilter === 'zoom' && 'Zoom'}
+                  {typeFilter === 'streaming' && 'Streaming'}
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setStatusFilter('all');
+                  setTypeFilter('all');
+                }}
+                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+              >
+                Effacer tout
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
-          {/* View Toggle - Touch Optimized */}
+          {/* View Toggle - 3 vues principales */}
           <div className="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-            {viewOptions.map((viewOption) => (
+            {mainViewOptions.map((viewOption) => (
               <ViewOption
                 key={viewOption.id}
                 viewOption={viewOption}
@@ -280,16 +298,57 @@ export const Planning: React.FC = () => {
                 onViewChange={handleSetView}
               />
             ))}
+            
+            {/* Menu déroulant pour vues spécialisées */}
+            <div className="relative">
+              <button
+                onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
+                className={`p-2 rounded-md transition-all text-xs ${
+                  ['timeline', 'workload', 'finance'].includes(view)
+                    ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                }`}
+                title="Plus de vues"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+              </button>
+              
+              {isViewMenuOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setIsViewMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                    {specializedViews.map((viewOption) => (
+                      <button
+                        key={viewOption.id}
+                        onClick={() => {
+                          handleSetView(viewOption.id as ViewType);
+                          setIsViewMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                          view === viewOption.id
+                            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        <viewOption.icon className="w-4 h-4" />
+                        <div className="text-left">
+                          <div className="font-medium">{viewOption.label}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{viewOption.description}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handlePrint}>
-              Exporter
-            </Button>
-            <Button variant="secondary" size="sm" leftIcon={<Filter className="w-4 h-4" />} onClick={() => setIsFilterModalOpen(true)}>
-              Filtres
-            </Button>
-          </div>
+          <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handlePrint}>
+            Exporter
+          </Button>
         </div>
       </div>
 
@@ -309,10 +368,6 @@ export const Planning: React.FC = () => {
             onVisitAction={handleVisitAction}
             onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
           />
-        )}
-
-        {view === 'week' && (
-          <PlanningWeekView visits={filteredVisits} />
         )}
 
         {view === 'calendar' && (
@@ -373,6 +428,10 @@ export const Planning: React.FC = () => {
         onClose={() => setIsFilterModalOpen(false)}
         dateRange={dateRange}
         setDateRange={setDateRange}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        typeFilter={typeFilter}
+        setTypeFilter={setTypeFilter}
       />
 
       {selectedVisit && (
