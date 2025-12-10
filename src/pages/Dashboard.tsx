@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useCallback, useState, useEffect } from 'react';
-import { Users, Calendar, AlertCircle, TrendingUp, Clock } from 'lucide-react';
+import { Users, Calendar, AlertCircle, TrendingUp, Clock, Zap, CalendarPlus, UserPlus, MessageSquare, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -289,19 +289,15 @@ export const Dashboard: React.FC = () => {
 
       {/* Main Content Area - Optimisé pour Samsung Tab S10 Ultra */}
       <div className={`
-        ${isTablet ? 'flex-1 min-h-0 grid gap-6 overflow-hidden' : 'grid gap-4 sm:gap-6'}
-        ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'grid-cols-12' : 'grid-cols-1'}
+        grid gap-4 sm:gap-6
+        ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'grid-cols-12' : 'grid-cols-1 lg:grid-cols-12'}
       `}>
         
-        {/* Left Column (Charts) - 8/12 on Samsung Tablet Landscape, Full width otherwise */}
+        {/* Row 1 - Left: Evolution Mensuelle (8/12) */}
         <div className={`
-          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-8' : ''}
-          ${isTablet ? 'flex flex-col gap-6' : 'grid gap-4 sm:gap-6'}
-          ${!isTablet && !isMobile ? 'grid-cols-1 lg:grid-cols-3' : (!isTablet ? 'grid-cols-1' : '')} 
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-8' : 'col-span-1 lg:col-span-8'}
         `}>
-          <Card className={`${
-            (isTablet && orientation === 'landscape') || (!isMobile && !isTablet) ? 'lg:col-span-2' : ''
-          }`}>
+          <Card className="h-full">
             <CardHeader>
               <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
@@ -309,7 +305,7 @@ export const Dashboard: React.FC = () => {
               </h3>
             </CardHeader>
             <CardBody>
-              <div className={`${isMobile ? 'h-48' : isTablet ? 'h-56' : 'h-80'} w-full`}>
+              <div className={`${isMobile ? 'h-48' : 'h-64'} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
@@ -322,24 +318,62 @@ export const Dashboard: React.FC = () => {
               </div>
             </CardBody>
           </Card>
+        </div>
 
+        {/* Row 1 - Right: Prochaines Visites (4/12) */}
+        <div className={`
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-4' : 'col-span-1 lg:col-span-4'}
+        `}>
+          <Card className="h-full flex flex-col">
+            <CardHeader className="flex items-center justify-between flex-shrink-0">
+              <h3 className="text-sm md:text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                Prochaines visites
+              </h3>
+              <Button variant="secondary" size="sm" onClick={handleNavigateToPlanning}>
+                Voir tout
+              </Button>
+            </CardHeader>
+            <CardBody className="flex-1 overflow-y-auto min-h-[200px]">
+              {upcomingVisits.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingVisits.slice(0, 5).map((visit: Visit) => (
+                    <VisitItem key={visit.id} visit={visit} onClick={() => handleVisitClick(visit)} showStatus={true} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
+                  <Calendar className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                  <p className="font-medium text-sm">Aucune visite</p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Row 2 - Left: Répartition & Accès Rapide (4/12) */}
+        <div className={`
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-4' : 'col-span-1 lg:col-span-4'}
+          flex flex-col gap-4 sm:gap-6
+        `}>
+          {/* Card 1: Répartition - Compacte */}
           <Card>
-            <CardHeader>
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Calendar className="w-4 h-4 md:w-5 md:h-5" />
+            <CardHeader className="py-3">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
                 Répartition
               </h3>
             </CardHeader>
-            <CardBody>
-              <div className={`${isMobile ? 'h-40' : isTablet ? 'h-48' : 'h-64'} w-full`}>
+            <CardBody className="py-2">
+              <div className="h-32 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={isMobile ? 30 : 50}
-                      outerRadius={isMobile ? 60 : 80}
+                      innerRadius={30}
+                      outerRadius={50}
                       paddingAngle={5}
                       dataKey="value"
                     >
@@ -351,61 +385,84 @@ export const Dashboard: React.FC = () => {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="flex flex-col gap-2 mt-4">
+              <div className="flex justify-center gap-3 mt-1 pb-2">
                 {pieData.map((item) => {
                   const dotClass = item.name === 'Physique' ? 'bg-blue-500' : item.name === 'Zoom' ? 'bg-green-500' : 'bg-amber-500';
                   return (
-                    <div key={item.name} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full ${dotClass}`}></div>
-                        <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
-                      </div>
-                      <span className="text-xs md:text-sm font-medium text-gray-900 dark:text-white">{item.value}</span>
+                    <div key={item.name} className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></div>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">{item.name}</span>
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">{item.value}</span>
                     </div>
                   );
                 })}
               </div>
             </CardBody>
           </Card>
-        </div>
 
-        {/* Right Column (Lists) - 4/12 on Samsung Tablet Landscape, Full width otherwise */}
-        <div className={`
-          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-4 flex flex-col gap-6' : ''}
-          ${isTablet && !(isSamsungTablet && orientation === 'landscape') ? 'flex flex-col gap-6' : ''}
-          ${!isTablet && !isMobile ? 'grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2' : ''}
-          ${!isTablet && isMobile ? 'grid gap-4 grid-cols-1' : ''}
-        `}>
-          {/* Upcoming Visits */}
-          <Card className={isTablet && isSamsungTablet && orientation === 'landscape' ? 'flex flex-col h-[400px]' : isTablet ? 'flex-1 flex flex-col min-h-0' : ''}>
-            <CardHeader className="flex items-center justify-between flex-shrink-0">
-              <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 md:w-5 md:h-5" />
-                Prochaines visites
+          {/* Card 2: Accès Rapide */}
+          <Card className="flex-1">
+            <CardHeader className="py-3">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                Accès Rapide
               </h3>
-              <Button variant="secondary" size="sm" onClick={handleNavigateToPlanning}>
-                Voir tout
-              </Button>
             </CardHeader>
-            <CardBody className={isTablet ? 'flex-1 overflow-y-auto min-h-0' : ''}>
-              {upcomingVisits.length > 0 ? (
-                <div className="space-y-3">
-                  {upcomingVisits.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
-                    <VisitItem key={visit.id} visit={visit} onClick={() => handleVisitClick(visit)} showStatus={true} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400 h-full flex flex-col justify-center">
-                  <Calendar className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                  <p className="font-medium">Aucune visite programmée</p>
-                  <p className="text-sm mt-1">ce mois-ci</p>
-                </div>
-              )}
+            <CardBody>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="secondary" 
+                  className="h-auto py-3 flex flex-col gap-2 items-center justify-center text-center hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 dark:hover:bg-primary-900/20"
+                  onClick={() => setIsVisitActionModalOpen(true)}
+                >
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+                    <CalendarPlus className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-medium">Nouvelle Visite</span>
+                </Button>
+
+                <Button 
+                  variant="secondary" 
+                  className="h-auto py-3 flex flex-col gap-2 items-center justify-center text-center hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 dark:hover:bg-primary-900/20"
+                  onClick={() => navigate('/speakers')}
+                >
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full text-green-600 dark:text-green-400">
+                    <UserPlus className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-medium">Nouvel Orateur</span>
+                </Button>
+
+                <Button 
+                  variant="secondary" 
+                  className="h-auto py-3 flex flex-col gap-2 items-center justify-center text-center hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 dark:hover:bg-primary-900/20"
+                  onClick={() => navigate('/messages')}
+                >
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full text-purple-600 dark:text-purple-400">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-medium">Messages</span>
+                </Button>
+
+                <Button 
+                  variant="secondary" 
+                  className="h-auto py-3 flex flex-col gap-2 items-center justify-center text-center hover:bg-primary-50 hover:text-primary-700 hover:border-primary-200 dark:hover:bg-primary-900/20"
+                  onClick={() => setIsReportModalOpen(true)}
+                >
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-full text-orange-600 dark:text-orange-400">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-medium">Rapports</span>
+                </Button>
+              </div>
             </CardBody>
           </Card>
+        </div>
 
-          {/* Actions Required */}
-          <Card className={isTablet && isSamsungTablet && orientation === 'landscape' ? 'flex flex-col h-[400px]' : isTablet ? 'flex-1 flex flex-col min-h-0' : ''}>
+        {/* Row 2 - Right: Actions Requises (8/12) - AGRANDI */}
+        <div className={`
+          ${isTablet && isSamsungTablet && orientation === 'landscape' ? 'col-span-8' : 'col-span-1 lg:col-span-8'}
+        `}>
+          <Card className="h-full flex flex-col">
             <CardHeader className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
@@ -417,40 +474,44 @@ export const Dashboard: React.FC = () => {
                 </Badge>
               )}
             </CardHeader>
-            <CardBody className={isTablet ? 'flex-1 overflow-y-auto min-h-0' : ''}>
+            <CardBody className="flex-1 overflow-y-auto min-h-[250px]">
               <div className="space-y-3">
                 {visitsNeedingAction.length > 0 ? (
-                  visitsNeedingAction.slice(0, isTablet ? 20 : isMobile ? 3 : 5).map((visit: Visit) => (
-                    <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
-                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleVisitClick(visit)}>
-                        <AlertCircle className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {visit.status === 'pending' ? 'Validation requise' : 'Visite passée'}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {visit.nom} • {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
-                              day: 'numeric', month: 'short'
-                            })}
-                          </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {visitsNeedingAction.slice(0, 10).map((visit: Visit) => (
+                      <div key={visit.id} className="flex items-center justify-between p-3 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/10 rounded-lg">
+                        <div className="flex items-center gap-3 cursor-pointer overflow-hidden" onClick={() => handleVisitClick(visit)}>
+                          <AlertCircle className="w-8 h-8 text-orange-500 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 dark:text-white truncate">
+                              {visit.status === 'pending' ? 'Validation requise' : 'Visite passée'}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                              {visit.nom}
+                            </p>
+                            <p className="text-xs text-orange-600 dark:text-orange-400">
+                              {new Date(visit.visitDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                            </p>
+                          </div>
                         </div>
+                        <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); handleVisitClick(visit); }}>
+                          Traiter
+                        </Button>
                       </div>
-                      <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); handleVisitClick(visit); }}>
-                        Traiter
-                      </Button>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    <AlertCircle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                    <p className="font-medium">Aucune action requise</p>
-                    <p className="text-sm mt-1">Toutes les visites sont à jour</p>
+                  <div className="text-center py-12 text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full">
+                    <AlertCircle className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                    <p className="font-medium text-lg">Aucune action requise</p>
+                    <p className="text-sm mt-1">Tout est à jour !</p>
                   </div>
                 )}
               </div>
             </CardBody>
           </Card>
         </div>
+
       </div>
       </div>
 
