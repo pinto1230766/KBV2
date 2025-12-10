@@ -15,6 +15,8 @@ import { CreditCard, Truck } from 'lucide-react';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
+import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
+import { MessageType, Accommodation } from '@/types';
 import { generateUUID } from '@/utils/uuid';
 
 interface VisitActionModalProps {
@@ -30,7 +32,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   visit,
   action
 }) => {
-  const { updateVisit, deleteVisit, logCommunication, speakers, hosts } = useData();
+  const { updateVisit, deleteVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Visit>>({});
@@ -41,6 +43,12 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const [isTravelModalOpen, setIsTravelModalOpen] = useState(false);
   const [isMealModalOpen, setIsMealModalOpen] = useState(false);
   const [isAccommodationModalOpen, setIsAccommodationModalOpen] = useState(false);
+  
+  // Message Generator Logic
+  const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({ 
+    isOpen: false, 
+    type: 'confirmation' 
+  });
 
   useEffect(() => {
     if (visit) {
@@ -95,17 +103,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     }
   };
 
-  const handleSendMessage = async (type: string) => {
-    setIsLoading(true);
-    try {
-      await logCommunication(visit.visitId, type as any, 'speaker');
-      addToast(`Message ${type === 'confirmation' ? 'de confirmation' : type === 'preparation' ? 'de préparation' : type === 'thanks' ? 'de remerciement' : 'de rappel'} envoyé avec succès`, 'success');
-    } catch (error) {
-      addToast('Erreur lors de l\'envoi du message', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Message Generator Logic
+
 
   // TODO: Réintégrer handleFeedbackSubmit quand FeedbackFormModal sera utilisé
   // const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
@@ -207,16 +206,47 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 <select
                   value={formData.host || ''}
                   onChange={(e) => {
-                    const selectedHost = hosts.find(h => h.nom === e.target.value);
-                    setFormData(prev => ({ 
-                      ...prev, 
-                      host: e.target.value,
-                      accommodation: selectedHost?.address || prev.accommodation
-                    }));
+                    const value = e.target.value;
+                    const selectedHost = hosts.find(h => h.nom === value);
+                    
+                    setFormData(prev => {
+                      const currentLogistics = prev.logistics || {};
+                      const currentAccommodation = currentLogistics.accommodation || {};
+                      
+                      let newAccommodation = { ...currentAccommodation } as Partial<Accommodation>;
+                      let newAddress = prev.accommodation;
+
+                      if (value === 'Hôtel') {
+                        newAccommodation.type = 'hotel';
+                        // Keep existing booking ref etc, but maybe clear name if it was a host's name
+                        if (newAccommodation.type !== 'hotel') { 
+                           // If switching TO hotel, maybe clear name/address?
+                           // Actually, let's just set type. User can fill details in Logistics.
+                        }
+                        newAddress = ''; // Clear main address field as it's likely a host address
+                      } else if (selectedHost) {
+                        newAccommodation.type = 'host';
+                        newAccommodation.name = selectedHost.nom;
+                        newAccommodation.address = selectedHost.address;
+                        newAddress = selectedHost.address || '';
+                      }
+
+                      return { 
+                        ...prev, 
+                        host: value,
+                        accommodation: newAddress,
+                        logistics: {
+                          ...currentLogistics,
+                          accommodation: newAccommodation as Accommodation
+                        }
+                      };
+                    });
                   }}
+                  title="Sélectionner un hôte"
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">Sélectionner un hôte...</option>
+                  <option value="Hôtel">Hôtel</option>
                   {hosts.map(host => (
                     <option key={host.nom} value={host.nom}>{host.nom}</option>
                   ))}
@@ -311,46 +341,53 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <MessageSquare className="w-5 h-5" />
-              Envoyer un message
+              Générer un message
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Envoyer un message à <strong>{visit.nom}</strong> pour cette visite.
+              Choisissez un type de message pour ouvrir l'assistant de rédaction :
             </p>
-            <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2">
               <Button
                 variant="secondary"
-                onClick={() => handleSendMessage('confirmation')}
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'confirmation' })}
                 className="w-full justify-start"
               >
                 Message de confirmation
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => handleSendMessage('preparation')}
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'preparation' })}
                 className="w-full justify-start"
               >
                 Message de préparation
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => handleSendMessage('reminder-7')}
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-7' })}
                 className="w-full justify-start"
               >
                 Rappel J-7
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => handleSendMessage('reminder-2')}
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-2' })}
                 className="w-full justify-start"
               >
                 Rappel J-2
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => handleSendMessage('thanks')}
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'thanks' })}
                 className="w-full justify-start"
               >
                 Message de remerciement
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setGeneratorParams({ isOpen: true, type: 'host_request' })}
+                className="w-full justify-start"
+              >
+                Demande d'accueil
               </Button>
             </div>
           </div>
@@ -398,7 +435,13 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           </div>
         );
 
+
+
       case 'logistics':
+        const activeVisit = { ...visit, ...formData };
+        const acc = (activeVisit.logistics?.accommodation || {}) as Partial<Accommodation>;
+        const isHostType = (acc.type || 'host') === 'host';
+
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -408,20 +451,25 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
             
             <LogisticsManager
               logistics={{
-                ...formData.logistics,
+                ...activeVisit.logistics,
                 accommodation: {
-                  type: 'host',
-                  name: formData.host || formData.logistics?.accommodation?.name || '',
-                  address: formData.accommodation || formData.logistics?.accommodation?.address || '',
-                  notes: formData.logistics?.accommodation?.notes || ''
+                  ...acc,
+                  type: acc.type || 'host',
+                  name: isHostType ? (activeVisit.host || acc.name || '') : (acc.name || ''),
+                  address: isHostType ? (activeVisit.accommodation || acc.address || '') : (acc.address || ''),
                 }
               }}
               onUpdate={(updatedLogistics) => {
                 setFormData(prev => ({
                   ...prev,
                   logistics: updatedLogistics,
-                  host: updatedLogistics.accommodation?.name || prev.host,
-                  accommodation: updatedLogistics.accommodation?.address || prev.accommodation
+                  // Sync back to top-level fields only if we are in host mode
+                  host: (updatedLogistics.accommodation?.type === 'host') 
+                    ? (updatedLogistics.accommodation?.name || prev.host)
+                    : prev.host,
+                  accommodation: (updatedLogistics.accommodation?.type === 'host')
+                    ? (updatedLogistics.accommodation?.address || prev.accommodation)
+                    : prev.accommodation
                 }));
               }}
               readOnly={isLoading}
@@ -432,9 +480,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Documents</h4>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <RoadmapView 
-                   visit={visit} 
-                   speaker={speakers.find(s => s.id === visit.id)}
-                   host={hosts.find(h => h.nom === visit.host)}
+                   visit={activeVisit} 
+                   speaker={speakers.find(s => s.id === activeVisit.id)}
+                   host={hosts.find(h => h.nom === activeVisit.host)}
                 />
               </div>
             </div>
@@ -499,6 +547,16 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       >
         {getModalContent()}
       </Modal>
+
+      {generatorParams.isOpen && (
+        <MessageGeneratorModal
+          isOpen={generatorParams.isOpen}
+          onClose={() => setGeneratorParams(prev => ({ ...prev, isOpen: false }))}
+          speaker={speakers.find(s => s.id === visit.id) || { id: visit.id, nom: visit.nom, congregation: visit.congregation || '', gender: 'male', talkHistory: [] }}
+          visit={visit}
+          initialType={generatorParams.type}
+        />
+      )}
 
       <TravelCoordinationModal
         isOpen={isTravelModalOpen}

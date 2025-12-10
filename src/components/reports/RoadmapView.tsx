@@ -84,35 +84,59 @@ export const RoadmapView: React.FC<RoadmapViewProps> = ({ visit, speaker, host }
             </section>
           )}
 
-          {/* Section 3: Hébergement - Only show if host is assigned */}
-          {host && (
+          {/* Section 3: Hébergement */}
+          {(host || visit.logistics?.accommodation?.name) && (
             <section className="space-y-4">
               <h2 className="text-lg font-bold uppercase border-b border-gray-300 pb-2 flex items-center gap-2 text-primary-700 print:text-black">
                 <Hotel className="w-5 h-5" /> Hébergement
               </h2>
               <div className="bg-gray-50 p-4 rounded-lg print:bg-transparent print:border print:border-gray-200">
-                <div className="font-semibold text-lg mb-1">{host.nom}</div>
-                <div className="flex items-start gap-2 text-gray-600 mb-2">
-                  <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
-                  <span>{host.address}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600 mb-2">
-                  <Phone className="w-4 h-4 flex-shrink-0" />
-                  <span>{host.telephone}</span>
-                </div>
-                <div className="text-sm text-gray-500 mt-2">
-                  {host.notes && <p className="italic">"{host.notes}"</p>}
-                </div>
+                {(host && visit.logistics?.accommodation?.type !== 'hotel') ? (
+                  <>
+                    <div className="font-semibold text-lg mb-1">{host.nom}</div>
+                    <div className="flex items-start gap-2 text-gray-600 mb-2">
+                      <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
+                      <span>{host.address}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-600 mb-2">
+                      <Phone className="w-4 h-4 flex-shrink-0" />
+                      <span>{host.telephone}</span>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-2">
+                      {host.notes && <p className="italic">"{host.notes}"</p>}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="font-semibold text-lg mb-1">{visit.logistics?.accommodation?.name}</div>
+                    <div className="flex items-start gap-2 text-gray-600 mb-2">
+                      <MapPin className="w-4 h-4 mt-1 flex-shrink-0" />
+                      <span>{visit.logistics?.accommodation?.address || 'Adresse non renseignée'}</span>
+                    </div>
+                    {visit.logistics?.accommodation?.bookingReference && (
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>Référence:</strong> {visit.logistics.accommodation.bookingReference}
+                      </div>
+                    )}
+                    <div className="text-sm text-gray-500 mt-2">
+                      {visit.logistics?.accommodation?.notes && <p className="italic">"{visit.logistics.accommodation.notes}"</p>}
+                    </div>
+                  </>
+                )}
                 
                 {visit.logistics?.accommodation && (
                    <div className="mt-4 pt-4 border-t border-gray-200 text-sm grid grid-cols-2 gap-2">
                       <div>
                         <span className="text-gray-500 block">Check-in</span>
-                        <span className="font-medium">{visit.logistics.accommodation.checkIn || '-'}</span>
+                        <span className="font-medium">
+                          {visit.logistics.accommodation.checkIn ? format(parseISO(visit.logistics.accommodation.checkIn), 'dd/MM HH:mm') : '-'}
+                        </span>
                       </div>
                       <div>
                         <span className="text-gray-500 block">Check-out</span>
-                        <span className="font-medium">{visit.logistics.accommodation.checkOut || '-'}</span>
+                        <span className="font-medium">
+                          {visit.logistics.accommodation.checkOut ? format(parseISO(visit.logistics.accommodation.checkOut), 'dd/MM HH:mm') : '-'}
+                        </span>
                       </div>
                    </div>
                 )}

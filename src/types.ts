@@ -3,7 +3,7 @@
 // ============================================================================
 
 export type Language = 'fr' | 'cv' | 'en' | 'es';
-export type MessageType = 'confirmation' | 'preparation' | 'reminder-7' | 'reminder-2' | 'thanks';
+export type MessageType = 'confirmation' | 'preparation' | 'reminder-7' | 'reminder-2' | 'thanks' | 'host_request';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type LocationType = 'physical' | 'zoom' | 'streaming';

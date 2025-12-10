@@ -5,7 +5,7 @@ import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { CommunicationProgress } from '@/components/messages/CommunicationProgress';
-import { Phone, Mail, MessageCircle, Calendar, MapPin, User, Clock } from 'lucide-react';
+import { Phone, Mail, MessageSquare, Calendar, MapPin, User, Clock } from 'lucide-react';
 import { getTalkTitle } from '@/data/talkTitles';
 
 interface MessageThreadProps {
@@ -103,19 +103,11 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, o
                   <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
                     <Button 
                       size="sm" 
-                      variant="outline" 
-                      leftIcon={<MessageCircle className="w-4 h-4" />}
+                      variant="primary" 
+                      leftIcon={<MessageSquare className="w-4 h-4" />}
                       onClick={() => onAction('whatsapp', visit)}
                     >
-                      WhatsApp
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      leftIcon={<Mail className="w-4 h-4" />}
-                      onClick={() => onAction('email', visit)}
-                    >
-                      Email
+                      Générer un message
                     </Button>
                     {visit.status === 'pending' && (
                       <Button 

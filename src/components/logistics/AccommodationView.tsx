@@ -11,6 +11,12 @@ interface AccommodationViewProps {
   hosts?: Array<{ nom: string; address?: string; }>;
 }
 
+// Helper to format ISO date for datetime-local input
+const formatDateForInput = (isoString?: string) => {
+  if (!isoString) return '';
+  return isoString.slice(0, 16); // "YYYY-MM-DDThh:mm"
+};
+
 export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodation, onUpdate, readOnly = false, hosts = [] }) => {
   const handleChange = (field: keyof Accommodation, value: any) => {
     onUpdate({ ...accommodation, [field]: value });
@@ -63,12 +69,14 @@ export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodat
               value={accommodation.name || ''}
               onChange={(e) => {
                 const selectedHost = hosts.find(h => h.nom === e.target.value);
-                handleChange('name', e.target.value);
-                if (selectedHost?.address) {
-                  handleChange('address', selectedHost.address);
-                }
+                onUpdate({
+                  ...accommodation,
+                  name: e.target.value,
+                  address: selectedHost?.address || accommodation.address || ''
+                });
               }}
               disabled={readOnly}
+              title="Sélectionner un hôte"
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">Sélectionner un hôte...</option>
@@ -105,14 +113,14 @@ export const AccommodationView: React.FC<AccommodationViewProps> = ({ accommodat
           <Input
             label="Arrivée (Check-in)"
             type="datetime-local"
-            value={accommodation.checkIn || ''}
+            value={formatDateForInput(accommodation.checkIn)}
             onChange={(e) => handleChange('checkIn', e.target.value)}
             disabled={readOnly}
           />
           <Input
             label="Départ (Check-out)"
             type="datetime-local"
-            value={accommodation.checkOut || ''}
+            value={formatDateForInput(accommodation.checkOut)}
             onChange={(e) => handleChange('checkOut', e.target.value)}
             disabled={readOnly}
           />
