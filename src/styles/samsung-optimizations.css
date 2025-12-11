@@ -38,6 +38,76 @@
     --base-font-size: 16px;
     --spacing-unit: 4px;
   }
+  
+  /* Optimisations spécifiques S25 Ultra */
+  .s25-ultra-optimized {
+    /* Amélioration du rendu sur écran Dynamic AMOLED 2X */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    
+    /* Optimisation des couleurs pour Dynamic AMOLED */
+    color-scheme: light dark;
+    
+    /* Amélioration de la lisibilité sur écran large */
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+  
+  /* Navigation optimisée pour écran large */
+  .s25-nav {
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+  
+  /* Cartes adaptées au format 19.5:9 */
+  .s25-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+  }
+  
+  /* Boutons optimisés pour le touch */
+  .s25-button {
+    min-height: 48px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Zone de touch optimisée */
+  .s25-touch-zone {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Samsung S25 Ultra (Phone Landscape) - 3120x1440 */
+@media (max-width: 767px) and (orientation: landscape) {
+  :root {
+    --base-font-size: 18px;
+    --spacing-unit: 6px;
+  }
+  
+  /* Layout paysage optimisé pour S25 Ultra */
+  .s25-landscape {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  
+  /* Navigation compacte en mode paysage */
+  .s25-landscape-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* Samsung Tab S10 Ultra (Tablet Portrait) - 1848x2960 */

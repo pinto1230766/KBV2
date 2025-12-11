@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { Expense } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Plus, Edit2, Trash2, Tag, Calendar, Euro } from 'lucide-react';
@@ -14,7 +14,7 @@ interface ExpenseListProps {
   readOnly?: boolean;
 }
 
-export const ExpenseList: React.FC<ExpenseListProps> = ({ 
+const ExpenseListInner: React.FC<ExpenseListProps> = ({ 
   expenses = [], 
   onAdd, 
   onEdit, 
@@ -117,3 +117,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
     </div>
   );
 };
+
+// Memoization for performance optimization
+export const ExpenseList = memo(ExpenseListInner);
+ExpenseList.displayName = 'ExpenseList';

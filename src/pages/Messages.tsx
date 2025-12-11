@@ -1,11 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
+import { usePlatformContext } from '@/contexts/PlatformContext';
 import { MessageThread } from '@/components/messages/MessageThread';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { HostRequestModal } from '@/components/messages/HostRequestModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/utils/cn';
 import {
   MessageSquare,
   Search,
@@ -19,6 +21,7 @@ import { Speaker, Visit } from '@/types';
 
 export const Messages: React.FC = () => {
   const { visits, speakers, updateVisit, refreshData } = useData();
+  const { isPhoneS25Ultra } = usePlatformContext();
   
   // Mettre à jour les titres manquants au chargement
   React.useEffect(() => {
@@ -112,9 +115,15 @@ export const Messages: React.FC = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)] flex flex-col">
+    <div className={cn(
+      "min-h-[calc(100vh-12rem)] flex flex-col",
+      isPhoneS25Ultra && "s25-ultra-optimized"
+    )}>
       {/* Header */}
-      <div className="flex justify-end gap-3 mb-6">
+      <div className={cn(
+        "flex justify-end gap-3 mb-6",
+        isPhoneS25Ultra && "flex-col gap-2"
+      )}>
         {/* Bouton demande d'accueil - conditionnel */}
         {stats.needingHost > 0 && (
           <Button
@@ -136,8 +145,14 @@ export const Messages: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className={cn(
+        "grid gap-4 mb-6",
+        isPhoneS25Ultra ? "grid-cols-1" : "grid-cols-3"
+      )}>
+        <div className={cn(
+          "bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800",
+          isPhoneS25Ultra && "s25-card"
+        )}>
           <div className="flex items-center gap-3">
             <MessageSquare className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             <div>
@@ -147,7 +162,10 @@ export const Messages: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+        <div className={cn(
+          "bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800",
+          isPhoneS25Ultra && "s25-card"
+        )}>
           <div className="flex items-center gap-3">
             <Clock className="w-6 h-6 text-orange-600 dark:text-orange-400" />
             <div>
@@ -157,7 +175,10 @@ export const Messages: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+        <div className={cn(
+          "bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800",
+          isPhoneS25Ultra && "s25-card"
+        )}>
           <div className="flex items-center gap-3">
             <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
             <div>
@@ -169,7 +190,10 @@ export const Messages: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
+      <div className={cn(
+        "flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-6",
+        isPhoneS25Ultra && "p-3"
+      )}>
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <Input
             placeholder="Rechercher un orateur..."
@@ -205,9 +229,15 @@ export const Messages: React.FC = () => {
       </div>
 
       {/* Main Content - Split View */}
-      <div className="flex-1 flex gap-6 min-h-0">
+      <div className={cn(
+        "flex-1 flex gap-6 min-h-0",
+        isPhoneS25Ultra && "flex-col gap-4"
+      )}>
         {/* Conversations List */}
-        <div className="w-full lg:w-96 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className={cn(
+          "w-full lg:w-96 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden",
+          isPhoneS25Ultra && "w-full min-h-0 flex-1"
+        )}>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="font-semibold text-gray-900 dark:text-white">Orateurs</h3>
           </div>
@@ -277,7 +307,10 @@ export const Messages: React.FC = () => {
         </div>
 
         {/* Message Thread */}
-        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className={cn(
+          "flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden",
+          isPhoneS25Ultra && "w-full"
+        )}>
           {selectedSpeaker ? (
             <MessageThread 
               speaker={selectedSpeaker}

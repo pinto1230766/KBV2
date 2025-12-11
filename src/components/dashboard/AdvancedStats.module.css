@@ -1,0 +1,181 @@
+/* Progress Bar */
+.progressBar {
+  height: 0.5rem;
+  background-color: rgb(229, 231, 235);
+  border-radius: 9999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.dark .progressBar {
+  background-color: rgb(55, 65, 81);
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease-in-out;
+  width: 0%;
+}
+
+/* Progress width classes for dynamic values */
+.progressBarFillWidth0 { width: 0%; }
+.progressBarFillWidth10 { width: 10%; }
+.progressBarFillWidth20 { width: 20%; }
+.progressBarFillWidth30 { width: 30%; }
+.progressBarFillWidth40 { width: 40%; }
+.progressBarFillWidth50 { width: 50%; }
+.progressBarFillWidth60 { width: 60%; }
+.progressBarFillWidth70 { width: 70%; }
+.progressBarFillWidth80 { width: 80%; }
+.progressBarFillWidth90 { width: 90%; }
+.progressBarFillWidth100 { width: 100%; }
+
+.progressBarFill {
+
+}
+
+.progressBarFill.complete {
+  background-color: #10B981; /* green-500 */
+}
+
+.progressBarFill.high {
+  background-color: #3B82F6; /* blue-500 */
+}
+
+.progressBarFill.medium {
+  background-color: #F59E0B; /* yellow-500 */
+}
+
+.progressBarFill.low {
+  background-color: #EF4444; /* red-500 */
+}
+
+/* Chart Containers */
+.chartContainer {
+  height: 200px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .chartContainer {
+    height: 250px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chartContainer {
+    height: 300px;
+  }
+}
+
+/* Trend Chart */
+.trendChart {
+  height: 100%;
+  width: 100%;
+}
+
+/* Tooltip */
+.tooltipContainer {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+  border: none;
+}
+
+.tooltipLabel {
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark mode styles */
+.dark .tooltipContainer {
+  background-color: #1f2937;
+  color: white;
+}
+
+.dark .tooltipLabel {
+  color: white;
+}
+
+/* Multi Trend Chart */
+.multiTrendChart {
+  height: 100%;
+  width: 100%;
+}
+
+/* Responsive height */
+.responsiveHeight {
+  height: 200px;
+}
+
+@media (min-width: 768px) {
+  .responsiveHeight {
+    height: 250px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsiveHeight {
+    height: 300px;
+  }
+}
+
+.chartContainer {
+  height: 200px;
+}
+
+@media (min-width: 768px) {
+  .chartContainer {
+    height: 250px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chartContainer {
+    height: 300px;
+  }
+}
+
+/* Trend Chart Styles */
+.trendChart {
+  height: 100%;
+  width: 100%;
+}
+
+/* Multi Trend Chart Container */
+.multiTrendChart {
+  height: 100%;
+  width: 100%;
+}
+
+/* Responsive height container */
+.responsiveHeight {
+  height: 200px;
+}
+
+/* Tooltip styles */
+.tooltipContainer {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+}
+
+.tooltipLabel {
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dark mode styles */
+.dark .tooltipContainer {
+  background-color: #1f2937;
+  color: white;
+}
+
+.dark .tooltipLabel {
+  color: white;
+}

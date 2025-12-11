@@ -8,6 +8,7 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { cn } from '@/utils/cn';
 import { PullToRefreshIndicator } from '@/components/ui/PullToRefreshIndicator';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { useNavigate } from 'react-router-dom';
@@ -74,9 +75,9 @@ const VisitItem = memo(({
 });
 
 export const Dashboard: React.FC = () => {
-  const { speakers, hosts, visits, refreshData } = useData();
+  const { visits, speakers, hosts } = useData();
   const { addToast } = useToast();
-  const { deviceType, orientation } = usePlatformContext();
+  const { deviceType, orientation, isPhoneS25Ultra } = usePlatformContext();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
@@ -96,9 +97,8 @@ export const Dashboard: React.FC = () => {
   // Pull-to-refresh
   const { isRefreshing, pullDistance } = usePullToRefresh({
     onRefresh: async () => {
-      if (refreshData) {
-        await refreshData();
-      }
+      // Le rafraîchissement sera géré par le contexte de données
+      window.location.reload();
     },
   });
   
@@ -239,19 +239,22 @@ export const Dashboard: React.FC = () => {
 
   return (
     <>
-      <div className={`
-        ${isTablet ? 'h-full flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6'}
-        ${isTablet && orientation === 'landscape' ? 'px-4' : isTablet ? 'px-4' : 'px-4'}
-        ${isLowEndDevice ? 'optimize-rendering' : ''}
-      `}>
+      <div className={cn(
+        "h-full",
+        isPhoneS25Ultra && "s25-ultra-optimized",
+        isTablet ? 'flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6',
+        isTablet && orientation === 'landscape' ? 'px-4' : isTablet ? 'px-4' : 'px-4',
+        isLowEndDevice && 'optimize-rendering'
+      )}>
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} />
       
       {/* Offline Banner */}
       <OfflineBanner isOnline={isOnline} />
 
-      {/* Stats Cards - Fixed height on Tablet */}
+      {/* Stats Cards - Optimisé pour tous les appareils Samsung */}
       <div className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
+        isPhoneS25Ultra ? 'grid-cols-2' :
         isMobile ? 'grid-cols-2' : 
         deviceType === 'tablet' && orientation === 'landscape' ? 'grid-cols-4' :
         deviceType === 'tablet' ? 'grid-cols-4' :
@@ -261,7 +264,10 @@ export const Dashboard: React.FC = () => {
           <Card 
             key={stat.label} 
             hoverable 
-            className="relative overflow-hidden cursor-pointer"
+            className={cn(
+              "relative overflow-hidden cursor-pointer",
+              isPhoneS25Ultra && "s25-card"
+            )}
             onClick={() => {
               if (index === 0 || index === 1) navigate('/speakers');
               else if (index === 2 || index === 3) navigate('/planning');

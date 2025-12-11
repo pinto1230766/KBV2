@@ -5,9 +5,13 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { PlatformProvider, usePlatformContext } from '@/contexts/PlatformContext';
+import { AccessibilityProvider } from '@/components/ui/Accessibility';
 import { IOSMainLayout } from '@/components/layout/IOSMainLayout';
 import { TabletLayout } from '@/components/layout/TabletLayout';
+import { PhoneLayout } from '@/components/layout/PhoneLayout';
 import { Spinner } from '@/components/ui/Spinner';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/utils/cacheManager';
 import '@/styles/print.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -28,9 +32,19 @@ const PageLoader = () => (
 
 // Composant interne qui peut accéder au contexte Platform
 function AppContent() {
-  const { deviceType } = usePlatformContext();
+  const { deviceType, isPhoneS25Ultra } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
-  const LayoutComponent = isTablet ? TabletLayout : IOSMainLayout;
+  const isPhone = deviceType === 'phone';
+  
+  // Choix du layout en fonction du type d'appareil
+  let LayoutComponent;
+  if (isTablet) {
+    LayoutComponent = TabletLayout;
+  } else if (isPhone && isPhoneS25Ultra) {
+    LayoutComponent = PhoneLayout;
+  } else {
+    LayoutComponent = IOSMainLayout;
+  }
 
   return (
     <ErrorBoundary>
@@ -84,9 +98,13 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <PlatformProvider>
-        <AppContent />
-      </PlatformProvider>
+      <QueryClientProvider client={queryClient}>
+        <AccessibilityProvider>
+          <PlatformProvider>
+            <AppContent />
+          </PlatformProvider>
+        </AccessibilityProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
