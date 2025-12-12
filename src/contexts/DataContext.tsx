@@ -71,15 +71,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
           talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
         }));
 
-        const mergedData = {
-          ...completeData, // BASE = Données complètes intégrées
-          ...saved,        // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
-          visits: visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits,
-          // Préserver les hôtes personnalisés mais ajouter ceux manquants
-          hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter((host, index, arr) =>
-            arr.findIndex(h => h.nom === host.nom) === index
-          )
-        };
+        // FORCE RELOAD: Si les données sauvegardées n'ont pas la nouvelle version ou sont vides,
+        // utiliser uniquement completeData pour forcer le rechargement complet
+        const shouldForceReload = !saved?.dataVersion || saved.dataVersion < '1.2.1' ||
+                                  !saved.speakers || saved.speakers.length < 50;
+
+        let mergedData;
+        if (shouldForceReload) {
+          console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.2.1)');
+          mergedData = {
+            ...completeData,
+            dataVersion: '1.2.1' // Forcer la nouvelle version
+          };
+        } else {
+          mergedData = {
+            ...completeData, // BASE = Données complètes intégrées
+            ...saved,        // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
+            visits: visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits,
+            // Préserver les hôtes personnalisés mais ajouter ceux manquants
+            hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter((host, index, arr) =>
+              arr.findIndex(h => h.nom === host.nom) === index
+            ),
+            dataVersion: '1.2.1' // Mettre à jour la version
+          };
+        }
 
         setData(mergedData);
         // Sauvegarder immédiatement les données complètes
