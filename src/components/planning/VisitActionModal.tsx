@@ -266,6 +266,55 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, talkTheme: e.target.value }))}
               placeholder="Ex: Nega iluzon di mundu..."
             />
+
+            {/* Section Statut */}
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Statut de la visite
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={visit.status === 'pending' ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => handleStatusChange('pending')}
+                  disabled={isLoading}
+                  leftIcon={<XCircle className="w-3 h-3" />}
+                >
+                  En attente
+                </Button>
+                <Button
+                  variant={visit.status === 'confirmed' ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => handleStatusChange('confirmed')}
+                  disabled={isLoading}
+                  leftIcon={<CheckCircle className="w-3 h-3" />}
+                >
+                  Confirmé
+                </Button>
+                <Button
+                  variant={visit.status === 'completed' ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => handleStatusChange('completed')}
+                  disabled={isLoading}
+                  leftIcon={<CheckCircle className="w-3 h-3" />}
+                >
+                  Terminé
+                </Button>
+                <Button
+                  variant={visit.status === 'cancelled' ? 'danger' : 'secondary'}
+                  size="sm"
+                  onClick={() => handleStatusChange('cancelled')}
+                  disabled={isLoading}
+                  leftIcon={<XCircle className="w-3 h-3" />}
+                >
+                  Annulé
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Statut actuel: <span className="font-medium capitalize">{visit.status}</span>
+              </p>
+            </div>
+
             <Input
               label="Notes"
               value={formData.notes || ''}
