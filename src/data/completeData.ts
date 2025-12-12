@@ -1,6 +1,6 @@
 // Données complètes intégrées directement dans le code
 // Remplacement du fichier JSON externe pour éviter les problèmes de chargement
-import { Speaker, Host, Visit, MessageType, MessageRole, Language, AppData } from '@/types';
+import { Speaker, Host, Visit, AppData } from '@/types';
 
 export const completeSpeakers: Speaker[] = [
   {
