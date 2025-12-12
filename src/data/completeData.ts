@@ -120,25 +120,11 @@ export const completeSpeakers: Speaker[] = [
     "gender": "male"
   },
   {
-    "id": "5ad24baa-1687-4377-865d-0e3da9ec60e1",
-    "nom": "Assembleia de Circuito com o Superintendente de Circuito",
-    "congregation": "À définir",
-    "talkHistory": [],
-    "gender": "male"
-  },
-  {
     "id": "6aa0b56f-ac1a-4edb-982e-12fd97a0455c",
     "nom": "Octávio PEREIRA",
     "congregation": "St Denis KBV",
     "talkHistory": [],
     "telephone": "",
-    "gender": "male"
-  },
-  {
-    "id": "4352414f-095d-4155-91fb-b24f5ca49408",
-    "nom": "Asenbleia Ku Reprizentanti di Betel",
-    "congregation": "À définir",
-    "talkHistory": [],
     "gender": "male"
   },
   {
@@ -165,13 +151,6 @@ export const completeSpeakers: Speaker[] = [
     "gender": "male"
   },
   {
-    "id": "event-62",
-    "nom": "Visita do Superintendente de Circuito",
-    "congregation": "À définir",
-    "talkHistory": [],
-    "gender": "male"
-  },
-  {
     "id": "bdea9e8b-a93b-4009-85d5-d6118bdde064",
     "nom": "Thomas FREITAS",
     "congregation": "Lyon KBV",
@@ -185,20 +164,6 @@ export const completeSpeakers: Speaker[] = [
     "congregation": "Steinsel KBV",
     "talkHistory": [],
     "telephone": "352621651610",
-    "gender": "male"
-  },
-  {
-    "id": "45cb2d33-c045-407f-9630-f0c74cb22d99",
-    "nom": "Congresso 2026",
-    "congregation": "À définir",
-    "talkHistory": [],
-    "gender": "male"
-  },
-  {
-    "id": "554b6324-c27e-4e29-a2f8-14cf062443f0",
-    "nom": "Kongrésu 2026",
-    "congregation": "À définir",
-    "talkHistory": [],
     "gender": "male"
   },
   {
@@ -240,13 +205,6 @@ export const completeSpeakers: Speaker[] = [
     "gender": "male"
   },
   {
-    "id": "event-63",
-    "nom": "Assembleia de Circuito com Representante da Filial",
-    "congregation": "À définir",
-    "talkHistory": [],
-    "gender": "male"
-  },
-  {
     "id": "ce4c60b0-0c39-4a1e-82e0-47c7b28fb7e0",
     "nom": "Matthieu DHALENNE",
     "congregation": "Steinsel KBV",
@@ -260,13 +218,6 @@ export const completeSpeakers: Speaker[] = [
     "congregation": "St Denis KBV",
     "talkHistory": [],
     "telephone": "33633891566",
-    "gender": "male"
-  },
-  {
-    "id": "event-64",
-    "nom": "Asenbleia ku enkaregadu di grupu di kongregason",
-    "congregation": "À définir",
-    "talkHistory": [],
     "gender": "male"
   },
   {
