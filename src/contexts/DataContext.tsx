@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language, SyncAction } from '@/types';
 import * as storage from '@/utils/storage';
-import { defaultAppData } from '@/data/constants';
+import { completeData } from '@/data/completeData';
 import { UNASSIGNED_HOST, NA_HOST } from '@/data/commonConstants';
 import { generateUUID } from '@/utils/uuid';
 import { parseDate } from '@/utils/formatters';
@@ -46,14 +46,14 @@ interface DataContextValue extends AppData {
 const DataContext = createContext<DataContextValue | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(defaultAppData);
+  const [data, setData] = useState<AppData>(completeData);
   const [loaded, setLoaded] = useState(false);
   const { addToast } = useToast();
   
   const { queue: syncQueue, addAction: addToSyncQueue, clearQueue: clearSyncQueue } = useSyncQueue();
   // On utilise useOfflineMode simplement pour le statut online ici, 
   // car le chargement de données est déjà géré par useEffect + idb ci-dessous
-  const { isOnline } = useOfflineMode('app_state', async () => defaultAppData);
+  const { isOnline } = useOfflineMode('app_state', async () => completeData);
 
   // Load - Charger depuis le stockage ou depuis le fichier JSON initial
   useEffect(() => {
@@ -72,9 +72,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           }));
           
           // IMPORTANT: Toujours utiliser les hôtes par défaut s'ils sont manquants
-          const hosts = (!saved.hosts || saved.hosts.length === 0) ? defaultAppData.hosts : saved.hosts;
-          
-          const mergedData = { ...defaultAppData, ...saved, visits: visitsWithTitles, hosts };
+          const hosts = (!saved.hosts || saved.hosts.length === 0) ? completeData.hosts : saved.hosts;
+
+          const mergedData = { ...completeData, ...saved, visits: visitsWithTitles, hosts };
           setData(mergedData);
           // Sauvegarder immédiatement pour persister les hôtes
           await storage.set('kbv-app-data', mergedData);
@@ -88,7 +88,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               ...visit,
               talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
             }));
-            const mergedData = { ...defaultAppData, ...jsonData, visits: visitsWithTitles };
+            const mergedData = { ...completeData, ...jsonData, visits: visitsWithTitles };
             setData(mergedData);
             // Sauvegarder immédiatement dans le stockage
             await storage.set('kbv-app-data', mergedData);
@@ -249,7 +249,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
 
   const resetData = () => {
-    setData(defaultAppData);
+    setData(completeData);
     storage.clear();
   };
 
@@ -292,9 +292,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           successfulGids.push(gid);
         }
       } catch (error) {
-        console.warn(`Error fetching or parsing sheet with gid "${gid}":`, error);
+        console.error('Erreur lors du chargement des données:', error);
+        setData(completeData);
       }
-    }
 
     if (allRows.length === 0) {
       setTimeout(() => addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'), 0);
@@ -439,6 +439,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setTimeout(() => addToast(`Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`, 'error'), 0);
     }
   };
+};
 
   const refreshData = async (): Promise<void> => {
     // Mettre à jour tous les titres manquants
