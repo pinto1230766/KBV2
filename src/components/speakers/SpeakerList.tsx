@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Edit, Trash2, Phone, Mail, Car, Search, Star } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Users } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useData } from '@/contexts/DataContext';
 import { calculateWorkload } from '@/utils/workload';
@@ -18,11 +18,25 @@ interface SpeakerListProps {
 export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDelete, onFeedback }) => {
   const { visits } = useData();
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'congregation'>('name');
 
-  const filteredSpeakers = speakers.filter(speaker =>
-    speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAndSortedSpeakers = speakers
+    .filter(speaker =>
+      speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (sortBy === 'congregation') {
+        // Trier d'abord par congrégation, puis par nom
+        const congA = a.congregation.toLowerCase();
+        const congB = b.congregation.toLowerCase();
+        if (congA !== congB) {
+          return congA.localeCompare(congB);
+        }
+      }
+      // Trier par nom (alphabetique)
+      return a.nom.toLowerCase().localeCompare(b.nom.toLowerCase());
+    });
 
   return (
     <div className="space-y-6">
@@ -37,8 +51,28 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
         </div>
       </div>
 
+      {/* Boutons de tri */}
+      <div className="flex gap-2">
+        <Button
+          variant={sortBy === 'name' ? 'primary' : 'secondary'}
+          size="sm"
+          onClick={() => setSortBy('name')}
+          leftIcon={<SortAsc className="w-4 h-4" />}
+        >
+          Trier par nom
+        </Button>
+        <Button
+          variant={sortBy === 'congregation' ? 'primary' : 'secondary'}
+          size="sm"
+          onClick={() => setSortBy('congregation')}
+          leftIcon={<Users className="w-4 h-4" />}
+        >
+          Trier par congrégation
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSpeakers.map((speaker) => {
+        {filteredAndSortedSpeakers.map((speaker) => {
           const lastTalk = speaker.talkHistory[0];
           const lastVisit = lastTalk ? visits.find(v => v.visitId === lastTalk.visitId) : undefined;
 
@@ -125,7 +159,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
       })}
       </div>
 
-      {filteredSpeakers.length === 0 && (
+      {filteredAndSortedSpeakers.length === 0 && (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           Aucun orateur trouvé
         </div>
