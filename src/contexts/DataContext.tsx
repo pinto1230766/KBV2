@@ -64,42 +64,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         
         const saved = await storage.get<AppData>('kbv-app-data');
         
-        if (saved && saved.speakers && saved.speakers.length > 0) {
-          // Données existantes - ajouter les titres manquants et les hôtes s'ils sont vides
-          const visitsWithTitles = saved.visits.map(visit => ({
-            ...visit,
-            talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
-          }));
-          
-          // IMPORTANT: Toujours utiliser les hôtes par défaut s'ils sont manquants
-          const hosts = (!saved.hosts || saved.hosts.length === 0) ? completeData.hosts : saved.hosts;
+        // SOLUTION: Toujours utiliser completeData comme base, puis fusionner avec les sauvegardes
+        // Cela garantit que la tablette aura TOUTES les données complètes
+        const visitsWithTitles = (saved?.visits || []).map(visit => ({
+          ...visit,
+          talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+        }));
 
-          const mergedData = { ...completeData, ...saved, visits: visitsWithTitles, hosts };
-          setData(mergedData);
-          // Sauvegarder immédiatement pour persister les hôtes
-          await storage.set('kbv-app-data', mergedData);
-        } else {
-          // Première utilisation : charger depuis le fichier JSON
-          const response = await fetch('/kbv-backup-2025-12-08.json');
-          if (response.ok) {
-            const jsonData = await response.json();
-            // Ajouter automatiquement les titres aux visites
-            const visitsWithTitles = jsonData.visits.map((visit: Visit) => ({
-              ...visit,
-              talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
-            }));
-            const mergedData = { ...completeData, ...jsonData, visits: visitsWithTitles };
-            setData(mergedData);
-            // Sauvegarder immédiatement dans le stockage
-            await storage.set('kbv-app-data', mergedData);
-            addToast('Données initiales chargées avec succès !', 'success');
-          } else {
-            setData(defaultAppData);
-          }
-        }
+        const mergedData = {
+          ...completeData, // BASE = Données complètes intégrées
+          ...saved,        // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
+          visits: visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits,
+          // Préserver les hôtes personnalisés mais ajouter ceux manquants
+          hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter((host, index, arr) =>
+            arr.findIndex(h => h.nom === host.nom) === index
+          )
+        };
+
+        setData(mergedData);
+        // Sauvegarder immédiatement les données complètes
+        await storage.set('kbv-app-data', mergedData);
+        addToast('Données complètes chargées avec succès !', 'success');
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
-        setData(defaultAppData);
+        setData(completeData);
       } finally {
         setLoaded(true);
       }
@@ -291,10 +279,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
           if (!cols) cols = parsedData.table.cols;
           successfulGids.push(gid);
         }
-      } catch (error) {
-        console.error('Erreur lors du chargement des données:', error);
-        setData(completeData);
-      }
+        } catch (error) {
+          console.error('Erreur lors du chargement des données:', error);
+          setData(completeData);
+        }
 
     if (allRows.length === 0) {
       setTimeout(() => addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'), 0);
