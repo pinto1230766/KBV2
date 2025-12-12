@@ -32,7 +32,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   visit,
   action
 }) => {
-  const { updateVisit, deleteVisit, speakers, hosts } = useData();
+  const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Visit>>({});
@@ -93,8 +93,15 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const handleStatusChange = async (newStatus: string) => {
     setIsLoading(true);
     try {
-      await updateVisit({ ...visit, status: newStatus as any });
-      addToast('Statut mis à jour', 'success');
+      if (newStatus === 'completed') {
+        // Utiliser completeVisit pour marquer comme terminé et archiver
+        await completeVisit(visit);
+        addToast('Visite terminée et archivée', 'success');
+      } else {
+        // Pour les autres statuts, utiliser updateVisit normalement
+        await updateVisit({ ...visit, status: newStatus as any });
+        addToast('Statut mis à jour', 'success');
+      }
       onClose();
     } catch (error) {
       addToast('Erreur lors de la mise à jour', 'error');
