@@ -227,24 +227,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   color = '#4F46E5',
   showArea = false,
   showBrush = false,
-
   target
 }) => {
   const ChartType = showArea ? AreaChart : LineChart;
-  const chartProps = {
-    type: "monotone" as const,
-    dataKey: "value",
-    stroke: color,
-    strokeWidth: 2,
-    ...(showArea ? {
-      fill: color,
-      fillOpacity: 0.2,
-      dot: false
-    } : {
-      dot: { fill: color, strokeWidth: 2, r: 4 },
-      activeDot: { r: 6, strokeWidth: 0 }
-    })
-  };
 
   return (
     <Card>
@@ -352,7 +337,6 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
   data,
   title,
   series,
-
 }) => {
   return (
     <Card>
