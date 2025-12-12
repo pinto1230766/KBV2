@@ -115,10 +115,10 @@ export const MainLayout: React.FC = () => {
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700 py-4">
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', letterSpacing: '0.1em', lineHeight: '1' }} className="text-primary-600 dark:text-primary-400">KBV</div>
-            <div style={{ fontSize: '14px', fontWeight: '600', lineHeight: '1' }} className="text-primary-500 dark:text-primary-300">LYON</div>
-            <div style={{ fontSize: '11px', lineHeight: '1', marginTop: '2px' }} className="text-gray-500 dark:text-gray-400">FP</div>
+          <div className="flex flex-col items-center gap-[2px]">
+            <div className="text-[28px] font-bold tracking-[0.1em] leading-none text-primary-600 dark:text-primary-400">KBV</div>
+            <div className="text-[14px] font-semibold leading-none text-primary-500 dark:text-primary-300">LYON</div>
+            <div className="text-[11px] leading-none mt-[2px] text-gray-500 dark:text-gray-400">FP</div>
           </div>
         </div>
         

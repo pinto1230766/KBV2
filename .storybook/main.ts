@@ -16,10 +16,7 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {}
   },
-  docs: {
-    autodocs: 'tag'
-  },
-  viteFinal: async (config, { configType }) => {
+  viteFinal: async (config: any) => {
     // Merge custom configuration into the default config
     // const { mergeConfig } = await import('vite');
     // 

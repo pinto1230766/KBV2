@@ -3,16 +3,16 @@
  * KBV Lyon - Tests d'intégration Playwright
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect, Page, Route } from '@playwright/test';
 
 test.describe('Dashboard - Page principale', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }: { page: Page }) => {
     // Aller sur la page dashboard
     await page.goto('/');
     await page.waitForLoadState('networkidle');
   });
 
-  test('Devrait charger la page dashboard', async ({ page }) => {
+  test('Devrait charger la page dashboard', async ({ page }: { page: Page }) => {
     // Vérifier que la page se charge
     await expect(page.locator('h1')).toContainText(/Dashboard|Tableau de bord/i);
     
@@ -22,7 +22,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(page.locator('[data-testid="upcoming-visits"]')).toBeVisible();
   });
 
-  test('Devrait afficher les statistiques des orateurs', async ({ page }) => {
+  test('Devrait afficher les statistiques des orateurs', async ({ page }: { page: Page }) => {
     // Vérifier les cartes de statistiques
     const statsCards = page.locator('[data-testid="stat-card"]');
     await expect(statsCards).toHaveCount(4);
@@ -32,7 +32,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(speakersCard).toContainText(/\d+/);
   });
 
-  test('Devrait afficher le graphique d\'évolution mensuelle', async ({ page }) => {
+  test('Devrait afficher le graphique d\'évolution mensuelle', async ({ page }: { page: Page }) => {
     // Vérifier que le graphique Recharts est visible
     await expect(page.locator('.recharts-wrapper')).toBeVisible();
     
@@ -41,7 +41,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(chartBars).toHaveCount.greaterThan(0);
   });
 
-  test('Devrait afficher les prochaines visites', async ({ page }) => {
+  test('Devrait afficher les prochaines visites', async ({ page }: { page: Page }) => {
     // Vérifier la section des prochaines visites
     await expect(page.locator('[data-testid="upcoming-visits"] h3')).toContainText(/Prochaines visites/i);
     
@@ -50,7 +50,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(visitItems).toHaveCount.at.least(0); // Peut être vide
   });
 
-  test('Devrait afficher les actions requises', async ({ page }) => {
+  test('Devrait afficher les actions requises', async ({ page }: { page: Page }) => {
     // Vérifier la section des actions requises
     await expect(page.locator('[data-testid="required-actions"] h3')).toContainText(/Actions requises/i);
     
@@ -59,7 +59,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(actionItems).toHaveCount.at.least(0); // Peut être vide
   });
 
-  test('Devrait avoir une interface responsive', async ({ page }) => {
+  test('Devrait avoir une interface responsive', async ({ page }: { page: Page }) => {
     // Tester différentes tailles d'écran
     await page.setViewportSize({ width: 375, height: 667 }); // Mobile
     await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
@@ -71,7 +71,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
   });
 
-  test('Devrait permettre de naviguer vers les autres pages', async ({ page }) => {
+  test('Devrait permettre de naviguer vers les autres pages', async ({ page }: { page: Page }) => {
     // Tester la navigation vers la page Planning
     await page.click('[href="/planning"]');
     await expect(page).toHaveURL(/\/planning/);
@@ -85,7 +85,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(page).toHaveURL(/\/speakers/);
   });
 
-  test('Devrait gérer les interactions tactiles', async ({ page }) => {
+  test('Devrait gérer les interactions tactiles', async ({ page }: { page: Page }) => {
     // Simulation d'interaction tactile sur mobile
     await page.setViewportSize({ width: 375, height: 667 });
     
@@ -98,7 +98,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(page).toHaveURL(/(\/speakers|\/planning)/);
   });
 
-  test('Devrait afficher les alertes intelligentes', async ({ page }) => {
+  test('Devrait afficher les alertes intelligentes', async ({ page }: { page: Page }) => {
     // Aller sur le dashboard et vérifier les alertes
     await expect(page.locator('[data-testid="smart-alerts"]')).toBeVisible();
     
@@ -107,7 +107,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(alertCard).toHaveCount.at.least(0); // Peut être vide
   });
 
-  test('Devrait gérer les états de chargement', async ({ page }) => {
+  test('Devrait gérer les états de chargement', async ({ page }: { page: Page }) => {
     // Simuler un état de chargement
     await page.evaluate(() => {
       window.dispatchEvent(new Event('kbv:loading-start'));
@@ -125,7 +125,7 @@ test.describe('Dashboard - Page principale', () => {
     await expect(page.locator('[data-testid="loading-spinner"]')).toHaveCount(0);
   });
 
-  test('Devrait être accessible aux lecteurs d\'écran', async ({ page }) => {
+  test('Devrait être accessible aux lecteurs d\'écran', async ({ page }: { page: Page }) => {
     // Vérifier les attributs ARIA
     await expect(page.locator('[data-testid="dashboard"]')).toHaveAttribute('role', /main|application/);
     
@@ -140,12 +140,12 @@ test.describe('Dashboard - Page principale', () => {
 });
 
 test.describe('Dashboard - Graphiques et données', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }: { page: Page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
   });
 
-  test('Devrait afficher les données de graphique correctement', async ({ page }) => {
+  test('Devrait afficher les données de graphique correctement', async ({ page }: { page: Page }) => {
     // Attendre que les données se chargent
     await page.waitForSelector('.recharts-wrapper');
     
@@ -158,7 +158,7 @@ test.describe('Dashboard - Graphiques et données', () => {
     await expect(page.locator('.recharts-tooltip-wrapper')).toBeVisible();
   });
 
-  test('Devrait mettre à jour les KPIs dynamiquement', async ({ page }) => {
+  test('Devrait mettre à jour les KPIs dynamiquement', async ({ page }: { page: Page }) => {
     // Prendre une capture d'écran initiale
     await page.screenshot({ path: 'test-results/dashboard-before.png' });
     
@@ -180,9 +180,9 @@ test.describe('Dashboard - Graphiques et données', () => {
     await expect(kpiValue).toContainText('15');
   });
 
-  test('Devrait gérer les erreurs de chargement', async ({ page }) => {
+  test('Devrait gérer les erreurs de chargement', async ({ page }: { page: Page }) => {
     // Simuler une erreur de chargement
-    await page.route('**/api/visits', route => {
+    await page.route('**/api/visits', (route: Route) => {
       route.fulfill({ status: 500, contentType: 'text/plain', body: 'Internal Server Error' });
     });
     
@@ -196,7 +196,7 @@ test.describe('Dashboard - Graphiques et données', () => {
 });
 
 test.describe('Dashboard - Performance', () => {
-  test('Devrait se charger rapidement', async ({ page }) => {
+  test('Devrait se charger rapidement', async ({ page }: { page: Page }) => {
     const startTime = Date.now();
     
     await page.goto('/');
@@ -208,7 +208,7 @@ test.describe('Dashboard - Performance', () => {
     expect(loadTime).toBeLessThan(3000);
   });
 
-  test('Devrait rester fluide pendant les interactions', async ({ page }) => {
+  test('Devrait rester fluide pendant les interactions', async ({ page }: { page: Page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     

@@ -22,13 +22,15 @@ import {
   RefreshCw,
   Copy,
   Link,
-  Users
+  Users,
+  Phone
 } from 'lucide-react';
 import { CongregationProfile, Language, Theme } from '@/types';
 import { BackupManagerModal } from '@/components/settings/BackupManagerModal';
 import { ImportWizardModal } from '@/components/settings/ImportWizardModal';
 import { ArchiveManagerModal } from '@/components/settings/ArchiveManagerModal';
 import { DuplicateDetectionModal } from '@/components/settings/DuplicateDetectionModal';
+import { PhoneNumberImportModal } from '@/components/settings/PhoneNumberImportModal';
 
 // Interfaces locales pour les types non exportés des modales
 // Note: Idéalement, ces types devraient être dans types.ts
@@ -72,6 +74,7 @@ export const Settings: React.FC = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [isPhoneImportModalOpen, setIsPhoneImportModalOpen] = useState(false);
 
 
   const tabs = [
@@ -647,6 +650,19 @@ export const Settings: React.FC = () => {
                            <div className="text-xs text-gray-500 dark:text-gray-400">Consulter l'historique des visites</div>
                         </div>
                      </button>
+
+                     <button
+                        onClick={() => setIsPhoneImportModalOpen(true)}
+                        className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                     >
+                        <div className="p-3 bg-indigo-100 text-indigo-600 rounded-full dark:bg-indigo-900/30 dark:text-indigo-400">
+                           <Phone className="w-6 h-6" />
+                        </div>
+                        <div>
+                           <div className="font-medium text-gray-900 dark:text-white">Numéros de Téléphone</div>
+                           <div className="text-xs text-gray-500 dark:text-gray-400">Importer les numéros depuis JSON</div>
+                        </div>
+                     </button>
                   </div>
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -968,6 +984,11 @@ export const Settings: React.FC = () => {
         isOpen={isDuplicateModalOpen} 
         onClose={() => setIsDuplicateModalOpen(false)} 
         onMerge={handleMergeAdapter}
+      />
+      
+      <PhoneNumberImportModal 
+        isOpen={isPhoneImportModalOpen} 
+        onClose={() => setIsPhoneImportModalOpen(false)} 
       />
     </div>
   );

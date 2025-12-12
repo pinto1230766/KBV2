@@ -87,6 +87,7 @@ export const PlanningWeekView: React.FC<PlanningWeekViewProps> = ({ visits, onVi
                 variant="ghost"
                 size="sm"
                 onClick={goToPreviousWeek}
+                title="Semaine précédente"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
@@ -94,6 +95,7 @@ export const PlanningWeekView: React.FC<PlanningWeekViewProps> = ({ visits, onVi
                 variant="ghost"
                 size="sm"
                 onClick={goToNextWeek}
+                title="Semaine suivante"
               >
                 <ChevronRight className="w-4 h-4" />
               </Button>
