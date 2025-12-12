@@ -165,13 +165,7 @@ jobs:
       - name: 🔍 Run security audit
         run: npm audit --audit-level moderate
         
-      - name: 🛡️ Run Snyk security scan
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
+
 
   # Job d'analyse de code (SonarCloud)
   code-quality:
@@ -202,12 +196,7 @@ jobs:
         env:
           CI: true
           
-      - name: 📊 SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
   # Job de documentation Storybook
   storybook:
