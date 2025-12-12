@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Users } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Users, Filter } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useData } from '@/contexts/DataContext';
 import { calculateWorkload } from '@/utils/workload';
@@ -19,12 +19,22 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
   const { visits } = useData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'congregation'>('name');
+  const [congregationFilter, setCongregationFilter] = useState<string>('all');
+
+  // Obtenir la liste unique des congrégations pour le filtre
+  const uniqueCongregations = Array.from(new Set(speakers.map(s => s.congregation)))
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
   const filteredAndSortedSpeakers = speakers
-    .filter(speaker =>
-      speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    .filter(speaker => {
+      // Filtre par congrégation spécifique
+      const matchesCongregation = congregationFilter === 'all' || speaker.congregation === congregationFilter;
+      // Filtre par recherche
+      const matchesSearch = speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesCongregation && matchesSearch;
+    })
     .sort((a, b) => {
       if (sortBy === 'congregation') {
         // Trier d'abord par congrégation, puis par nom
@@ -51,24 +61,45 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
         </div>
       </div>
 
-      {/* Boutons de tri */}
-      <div className="flex gap-2">
-        <Button
-          variant={sortBy === 'name' ? 'primary' : 'secondary'}
-          size="sm"
-          onClick={() => setSortBy('name')}
-          leftIcon={<SortAsc className="w-4 h-4" />}
-        >
-          Trier par nom
-        </Button>
-        <Button
-          variant={sortBy === 'congregation' ? 'primary' : 'secondary'}
-          size="sm"
-          onClick={() => setSortBy('congregation')}
-          leftIcon={<Users className="w-4 h-4" />}
-        >
-          Trier par congrégation
-        </Button>
+      {/* Contrôles de tri et filtrage */}
+      <div className="flex flex-wrap gap-4 items-center">
+        {/* Boutons de tri */}
+        <div className="flex gap-2">
+          <Button
+            variant={sortBy === 'name' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setSortBy('name')}
+            leftIcon={<SortAsc className="w-4 h-4" />}
+          >
+            Trier par nom
+          </Button>
+          <Button
+            variant={sortBy === 'congregation' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => setSortBy('congregation')}
+            leftIcon={<Users className="w-4 h-4" />}
+          >
+            Trier par congrégation
+          </Button>
+        </div>
+
+        {/* Filtre par congrégation */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-gray-500" />
+          <select
+            value={congregationFilter}
+            onChange={(e) => setCongregationFilter(e.target.value)}
+            title="Filtrer par congrégation"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="all">Toutes les congrégations</option>
+            {uniqueCongregations.map(congregation => (
+              <option key={congregation} value={congregation}>
+                {congregation}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
