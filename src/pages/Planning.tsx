@@ -375,7 +375,10 @@ export const Planning: React.FC = () => {
         )}
 
         {view === 'calendar' && (
-          <PlanningCalendarView visits={filteredVisits} />
+          <PlanningCalendarView
+            visits={filteredVisits}
+            onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+          />
         )}
 
         {view === 'timeline' && (
