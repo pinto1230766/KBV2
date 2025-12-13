@@ -21,14 +21,43 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
   const [sortBy, setSortBy] = useState<'name' | 'congregation'>('name');
   const [congregationFilter, setCongregationFilter] = useState<string>('all');
 
-  // Obtenir la liste unique des congrégations pour le filtre
-  const uniqueCongregations = Array.from(new Set(speakers.map(s => s.congregation)))
+  // Fonction de normalisation des noms de congrégations
+  const normalizeCongregationName = (name: string): string => {
+    const normalized = name.toLowerCase().trim();
+    // Mapping des congrégations similaires
+    const congregationMap: Record<string, string> = {
+      'lyon': 'Lyon KBV',
+      'lyon kbv': 'Lyon KBV',
+      'creil': 'Creil KBV',
+      'creil kbv': 'Creil KBV',
+      'villiers kbv': 'Villiers-sur-Marne',
+      'villiers-sur-marne': 'Villiers-sur-Marne',
+      'st denis kbv': 'St Denis KBV',
+      'st denis': 'St Denis KBV',
+      'marseille kbv': 'Marseille KBV',
+      'marseille': 'Marseille KBV',
+      'cannes kbv': 'Cannes KBV',
+      'nice kbv': 'Nice KBV',
+      'plaisir kbv': 'Plaisir KBV',
+      'ettelbruck kbv': 'Ettelbruck KBV',
+      'steinsel kbv': 'Steinsel KBV',
+      'porto kbv': 'Porto KBV',
+      'albufeira kbv': 'Albufeira KBV',
+      'rotterdam kbv': 'Rotterdam KBV'
+    };
+
+    return congregationMap[normalized] || name;
+  };
+
+  // Obtenir la liste unique des congrégations normalisées pour le filtre
+  const uniqueCongregations = Array.from(new Set(speakers.map(s => normalizeCongregationName(s.congregation))))
     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
   const filteredAndSortedSpeakers = speakers
     .filter(speaker => {
-      // Filtre par congrégation spécifique
-      const matchesCongregation = congregationFilter === 'all' || speaker.congregation === congregationFilter;
+      // Filtre par congrégation spécifique (utilise la normalisation)
+      const normalizedCongregation = normalizeCongregationName(speaker.congregation);
+      const matchesCongregation = congregationFilter === 'all' || normalizedCongregation === congregationFilter;
       // Filtre par recherche
       const matchesSearch = speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase());
