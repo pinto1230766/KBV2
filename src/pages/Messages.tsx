@@ -57,8 +57,7 @@ export const Messages: React.FC = () => {
   }, [visits, speakers]);
 
   // Filtered conversations
-  const filteredConversations = useMemo(() => {
-    return conversations.filter(convo => {
+  const filteredConversations = useMemo(() => conversations.filter(convo => {
       const matchesSearch =
         convo.speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         convo.speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase());
@@ -68,8 +67,7 @@ export const Messages: React.FC = () => {
         (filter === 'pending' && convo.visits.some(v => v.status === 'pending'));
 
       return matchesSearch && matchesFilter;
-    });
-  }, [conversations, searchTerm, filter]);
+    }), [conversations, searchTerm, filter]);
 
   const stats = useMemo(() => {
     const total = conversations.length;

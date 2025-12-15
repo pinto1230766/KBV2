@@ -16,7 +16,7 @@ export const Talks: React.FC = () => {
 
   // Filter and sort discourses
   const filteredAndSortedDiscourses = useMemo(() => {
-    let filtered = discourses.filter((discours: PublicTalk) => {
+    const filtered = discourses.filter((discours: PublicTalk) => {
       const matchesSearch = discours.theme.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            discours.number.toString().includes(searchTerm);
 

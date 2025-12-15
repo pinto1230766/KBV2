@@ -143,13 +143,9 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
     onClose();
   };
 
-  const getTotalCost = () => {
-    return meals.reduce((sum, meal) => sum + (meal.cost || 0), 0);
-  };
+  const getTotalCost = () => meals.reduce((sum, meal) => sum + (meal.cost || 0), 0);
 
-  const getMealIcon = (type: Meal['type']) => {
-    return MEAL_TYPES.find(m => m.value === type)?.icon || '🍽️';
-  };
+  const getMealIcon = (type: Meal['type']) => MEAL_TYPES.find(m => m.value === type)?.icon || '🍽️';
 
   return (
     <Modal

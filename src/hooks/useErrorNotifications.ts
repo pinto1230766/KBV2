@@ -66,21 +66,13 @@ export function useErrorNotifications(): UseErrorNotificationsReturn {
     return id;
   }, []);
 
-  const showError = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => {
-    return createNotification('error', title, message, options);
-  }, [createNotification]);
+  const showError = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => createNotification('error', title, message, options), [createNotification]);
 
-  const showWarning = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => {
-    return createNotification('warning', title, message, options);
-  }, [createNotification]);
+  const showWarning = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => createNotification('warning', title, message, options), [createNotification]);
 
-  const showInfo = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => {
-    return createNotification('info', title, message, options);
-  }, [createNotification]);
+  const showInfo = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => createNotification('info', title, message, options), [createNotification]);
 
-  const showSuccess = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => {
-    return createNotification('success', title, message, { ...options, duration: 3000 });
-  }, [createNotification]);
+  const showSuccess = useCallback((title: string, message: string, options?: Partial<ErrorNotification>) => createNotification('success', title, message, { ...options, duration: 3000 }), [createNotification]);
 
   const dismissNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
@@ -94,9 +86,7 @@ export function useErrorNotifications(): UseErrorNotificationsReturn {
     setNotifications(prev => prev.filter(notification => notification.type !== 'error'));
   }, []);
 
-  const getErrors = useCallback(() => {
-    return notifications.filter(notification => notification.type === 'error');
-  }, [notifications]);
+  const getErrors = useCallback(() => notifications.filter(notification => notification.type === 'error'), [notifications]);
 
   return {
     notifications,

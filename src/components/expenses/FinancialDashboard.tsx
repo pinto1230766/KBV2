@@ -22,9 +22,7 @@ export const FinancialDashboard: React.FC = () => {
   const [currency] = useState('€');
 
   // Helper to extract all expenses from visits
-  const allExpenses = useMemo(() => {
-    return visits.flatMap((v: Visit) => (v.expenses || []).map((e: Expense) => ({ ...e, visitNom: v.nom, visitDate: v.visitDate })));
-  }, [visits]);
+  const allExpenses = useMemo(() => visits.flatMap((v: Visit) => (v.expenses || []).map((e: Expense) => ({ ...e, visitNom: v.nom, visitDate: v.visitDate }))), [visits]);
 
   // Filter expenses by selected month
   const monthlyStats = useMemo(() => {

@@ -22,9 +22,7 @@ const ExpenseListInner: React.FC<ExpenseListProps> = ({
   currency = '€',
   readOnly = false
 }) => {
-  const totalAmount = useMemo(() => {
-    return expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  }, [expenses]);
+  const totalAmount = useMemo(() => expenses.reduce((sum, expense) => sum + expense.amount, 0), [expenses]);
 
   if (expenses.length === 0 && readOnly) {
     return (

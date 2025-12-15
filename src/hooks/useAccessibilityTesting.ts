@@ -66,8 +66,8 @@ export const accessibilityTestSuite: AccessibilityTestSuite[] = [
         category: 'keyboard',
         run: () => {
           const style = window.getComputedStyle(document.activeElement || document.body);
-          const outline = style.outline;
-          const boxShadow = style.boxShadow;
+          const {outline} = style;
+          const {boxShadow} = style;
           
           if (!outline && !boxShadow) {
             return [{

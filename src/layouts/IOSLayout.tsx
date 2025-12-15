@@ -18,8 +18,7 @@ export const IOSLayout: React.FC<IOSLayoutProps> = ({
   showBackButton = false,
   rightButton,
   onBack,
-}) => {
-  return (
+}) => (
     <div className="flex flex-col h-full bg-ios-system-background dark:bg-ios-system-background">
       {/* Navigation Bar */}
       <IOSNavBar
@@ -39,4 +38,3 @@ export const IOSLayout: React.FC<IOSLayoutProps> = ({
       <IOSTabBar />
     </div>
   );
-};

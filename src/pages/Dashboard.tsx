@@ -134,22 +134,18 @@ export const Dashboard: React.FC = () => {
     return { today, endOfMonth };
   }, []);
 
-  const upcomingVisits = useMemo(() => {
-    return visits.filter((visit: Visit) => {
+  const upcomingVisits = useMemo(() => visits.filter((visit: Visit) => {
       const visitDate = new Date(visit.visitDate);
       // Visits from today until end of month
       return visitDate >= dateCalculations.today && 
              visitDate <= dateCalculations.endOfMonth && 
              (visit.status === 'confirmed' || visit.status === 'pending');
-    }).sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
-  }, [visits, dateCalculations]);
+    }).sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()), [visits, dateCalculations]);
 
-  const visitsNeedingAction = useMemo(() => {
-    return visits.filter((visit: Visit) =>
+  const visitsNeedingAction = useMemo(() => visits.filter((visit: Visit) =>
       visit.status === 'pending' ||
       (visit.status === 'confirmed' && new Date(visit.visitDate) < dateCalculations.today)
-    );
-  }, [visits, dateCalculations]);
+    ), [visits, dateCalculations]);
 
   const currentMonthVisits = useMemo(() => {
     const now = dateCalculations.today;
@@ -633,7 +629,7 @@ export const Dashboard: React.FC = () => {
             filteredVisits.forEach(v => {
               htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
             });
-            htmlContent += '</table><p style="margin-top:30px;color:#666;">Total: ' + filteredVisits.length + ' visite(s)</p></body></html>';
+            htmlContent += `</table><p style="margin-top:30px;color:#666;">Total: ${  filteredVisits.length  } visite(s)</p></body></html>`;
             const blob = new Blob([htmlContent], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');

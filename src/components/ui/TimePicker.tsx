@@ -21,8 +21,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   disabled = false,
   min,
   max
-}) => {
-  return (
+}) => (
     <div className={`relative ${className}`}>
       <div className="relative">
         <input
@@ -42,4 +41,3 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       </div>
     </div>
   );
-};

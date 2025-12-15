@@ -59,8 +59,7 @@ export const TravelCoordinationModal: React.FC<TravelCoordinationModalProps> = (
   const [bookingReference, setBookingReference] = useState('');
 
   // Trouver les orateurs potentiels pour le covoiturage (même date, même région)
-  const potentialCarpoolPartners = useMemo(() => {
-    return visits
+  const potentialCarpoolPartners = useMemo(() => visits
       .filter(v => 
         v.visitDate === visit.visitDate &&
         v.visitId !== visit.visitId &&
@@ -72,8 +71,7 @@ export const TravelCoordinationModal: React.FC<TravelCoordinationModalProps> = (
         speakerName: v.nom,
         congregation: v.congregation,
         time: v.visitTime
-      }));
-  }, [visits, visit]);
+      })), [visits, visit]);
 
   const toggleCarpoolPartner = (visitId: string) => {
     setSelectedCarpoolPartners(prev =>

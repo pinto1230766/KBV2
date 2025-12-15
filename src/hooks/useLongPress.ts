@@ -28,13 +28,11 @@ export const useLongPress = (options: LongPressOptions) => {
     setIsLongPressing(false);
   }, []);
 
-  useEffect(() => {
-    return () => {
+  useEffect(() => () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-    };
-  }, []);
+    }, []);
 
   return {
     onTouchStart: start,

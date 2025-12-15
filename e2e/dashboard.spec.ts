@@ -38,7 +38,8 @@ test.describe('Dashboard - Page principale', () => {
     
     // Vérifier que les données sont chargées
     const chartBars = page.locator('.recharts-bar');
-    await expect(chartBars).toHaveCount.greaterThan(0);
+    const count = await chartBars.count();
+    await expect(count).toBeGreaterThan(0);
   });
 
   test('Devrait afficher les prochaines visites', async ({ page }: { page: Page }) => {
@@ -47,7 +48,8 @@ test.describe('Dashboard - Page principale', () => {
     
     // Vérifier que les visites sont listées
     const visitItems = page.locator('[data-testid="visit-item"]');
-    await expect(visitItems).toHaveCount.at.least(0); // Peut être vide
+    const count = await visitItems.count();
+    await expect(count).toBeGreaterThanOrEqual(0); // Peut être vide
   });
 
   test('Devrait afficher les actions requises', async ({ page }: { page: Page }) => {
@@ -56,7 +58,8 @@ test.describe('Dashboard - Page principale', () => {
     
     // Vérifier les alertes
     const actionItems = page.locator('[data-testid="action-item"]');
-    await expect(actionItems).toHaveCount.at.least(0); // Peut être vide
+    const count = await actionItems.count();
+    await expect(count).toBeGreaterThanOrEqual(0); // Peut être vide
   });
 
   test('Devrait avoir une interface responsive', async ({ page }: { page: Page }) => {
@@ -104,7 +107,8 @@ test.describe('Dashboard - Page principale', () => {
     
     // Vérifier qu'il y a un système d'alertes
     const alertCard = page.locator('[data-testid="alert-card"]');
-    await expect(alertCard).toHaveCount.at.least(0); // Peut être vide
+    const count = await alertCard.count();
+    await expect(count).toBeGreaterThanOrEqual(0); // Peut être vide
   });
 
   test('Devrait gérer les états de chargement', async ({ page }: { page: Page }) => {

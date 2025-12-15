@@ -377,19 +377,13 @@ export const useWebSocket = () => {
     isOnline: store.isConnected,
     
     // Envoyer un message de chat
-    sendChatMessage: (recipientId: string, content: string) => {
-      return store.send('chat:message', { recipientId, content });
-    },
+    sendChatMessage: (recipientId: string, content: string) => store.send('chat:message', { recipientId, content }),
     
     // Notifier une mise à jour
-    notifyUpdate: (entityType: string, entityId: string, action: 'create' | 'update' | 'delete') => {
-      return store.send('entity:update', { entityType, entityId, action });
-    },
+    notifyUpdate: (entityType: string, entityId: string, action: 'create' | 'update' | 'delete') => store.send('entity:update', { entityType, entityId, action }),
     
     // Demander une synchronisation
-    requestSync: () => {
-      return store.send('sync:request', { timestamp: Date.now() });
-    }
+    requestSync: () => store.send('sync:request', { timestamp: Date.now() })
   };
 };
 

@@ -297,7 +297,7 @@ class SessionManager {
   // Obtenir les infos de l'appareil
   private getDeviceInfo(): string {
     const ua = navigator.userAgent;
-    const platform = navigator.platform;
+    const {platform} = navigator;
     return `${platform} - ${ua.substring(0, 100)}`;
   }
 }
@@ -389,10 +389,8 @@ class SecureTokenManager {
   
   // Vérifier si les tokens existent
   hasTokens(): boolean {
-    return !!(
-      localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.ENCRYPTED_TOKENS) ||
-      sessionStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.ENCRYPTED_TOKENS)
-    );
+    return Boolean(localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.ENCRYPTED_TOKENS) ||
+      sessionStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.ENCRYPTED_TOKENS));
   }
 }
 
@@ -471,7 +469,7 @@ class SecureAuthApiClient {
       if (!response.ok) return false;
       
       const tokens = await response.json();
-      const rememberMe = !!localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.REMEMBER_ME);
+      const rememberMe = Boolean(localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.REMEMBER_ME));
       await this.tokenManager.setTokens(tokens, rememberMe);
       
       return true;
@@ -673,7 +671,7 @@ export const useAuthStore = create<AuthState>()(
           if (!response.ok) throw new Error('Refresh failed');
           
           const tokens = await response.json();
-          const rememberMe = !!localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.REMEMBER_ME);
+          const rememberMe = Boolean(localStorage.getItem(SECURITY_CONFIG.STORAGE_KEYS.REMEMBER_ME));
           await tokenManager.setTokens(tokens, rememberMe);
           
           set({ tokens });
@@ -769,7 +767,7 @@ export const useAuthStore = create<AuthState>()(
       },
       
       unlockSession: async (): Promise<boolean> => {
-        const user = get().user;
+        const {user} = get();
         if (!user) return false;
         
         try {
@@ -809,25 +807,15 @@ export const useAuth = () => {
   return {
     ...store,
     
-    hasPermission: (permission: string): boolean => {
-      return store.user?.permissions.includes(permission) || false;
-    },
+    hasPermission: (permission: string): boolean => store.user?.permissions.includes(permission) || false,
     
-    hasRole: (role: string): boolean => {
-      return store.user?.role === role;
-    },
+    hasRole: (role: string): boolean => store.user?.role === role,
     
-    isAdmin: (): boolean => {
-      return store.user?.role === 'admin';
-    },
+    isAdmin: (): boolean => store.user?.role === 'admin',
     
-    isModerator: (): boolean => {
-      return store.user?.role === 'admin' || store.user?.role === 'moderator';
-    },
+    isModerator: (): boolean => store.user?.role === 'admin' || store.user?.role === 'moderator',
     
-    isSessionLocked: (): boolean => {
-      return store.session?.isLocked || false;
-    },
+    isSessionLocked: (): boolean => store.session?.isLocked || false,
     
     getSessionDuration: (): number => {
       if (!store.session) return 0;

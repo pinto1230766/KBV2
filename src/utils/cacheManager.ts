@@ -27,7 +27,7 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Retry 3 times for network errors, but not for 4xx errors
         if (error && typeof error === 'object' && 'status' in error) {
-          const status = (error as any).status;
+          const {status} = (error as any);
           if (status >= 400 && status < 500) {
             return false;
           }
@@ -255,19 +255,19 @@ export function usePreloadData() {
       // Précharger les données les plus utilisées
       await queryClient.prefetchQuery({
         queryKey: ['visits', 'current'],
-        queryFn: () => {
+        queryFn: () => 
           // Logique pour récupérer les visites actuelles
-          return fetch('/api/visits/current').then(r => r.json());
-        },
+           fetch('/api/visits/current').then(r => r.json())
+        ,
         staleTime: 1000 * 60 * 2, // 2 minutes
       });
 
       await queryClient.prefetchQuery({
         queryKey: ['speakers', 'active'],
-        queryFn: () => {
+        queryFn: () => 
           // Logique pour récupérer les orateurs actifs
-          return fetch('/api/speakers/active').then(r => r.json());
-        },
+           fetch('/api/speakers/active').then(r => r.json())
+        ,
         staleTime: 1000 * 60 * 5, // 5 minutes
       });
 

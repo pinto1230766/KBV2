@@ -3,17 +3,11 @@ import { validateSpeaker, validateVisit, validateHost } from '@/utils/validation
 import { Speaker, Visit, Host } from '@/types';
 
 export function useDataValidation() {
-  const validateSpeakerData = useCallback((speaker: Partial<Speaker>) => {
-    return validateSpeaker(speaker);
-  }, []);
+  const validateSpeakerData = useCallback((speaker: Partial<Speaker>) => validateSpeaker(speaker), []);
 
-  const validateVisitData = useCallback((visit: Partial<Visit>) => {
-    return validateVisit(visit);
-  }, []);
+  const validateVisitData = useCallback((visit: Partial<Visit>) => validateVisit(visit), []);
 
-  const validateHostData = useCallback((host: Partial<Host>) => {
-    return validateHost(host);
-  }, []);
+  const validateHostData = useCallback((host: Partial<Host>) => validateHost(host), []);
 
   const validateEmail = useCallback((email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

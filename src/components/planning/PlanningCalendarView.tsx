@@ -40,9 +40,7 @@ export const PlanningCalendarView: React.FC<PlanningCalendarViewProps> = ({ visi
 
   const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-  const getVisitsForDay = (date: Date) => {
-    return visits.filter(visit => isSameDay(new Date(visit.visitDate), date));
-  };
+  const getVisitsForDay = (date: Date) => visits.filter(visit => isSameDay(new Date(visit.visitDate), date));
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">

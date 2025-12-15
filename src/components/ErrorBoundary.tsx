@@ -2,10 +2,19 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/Button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const MAX_RETRY_ATTEMPTS = 3;
+const DEFAULT_RETRY_DELAY = 1000;
+const RETRY_TIMEOUT = 500;
+const EXPONENTIAL_BACKOFF_BASE = 2;
+
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  onError?: (_error: Error, _errorInfo: ErrorInfo) => void;
   enableRetry?: boolean;
   maxRetries?: number;
   retryDelay?: number;
@@ -21,7 +30,7 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  private retryTimeoutId: NodeJS.Timeout | null = null;
+  private retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(props: Props) {
     super(props);
@@ -43,13 +52,14 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { onError, maxRetries = 3, retryDelay = 1000 } = this.props;
+    const { onError, maxRetries = MAX_RETRY_ATTEMPTS, retryDelay = DEFAULT_RETRY_DELAY } = this.props;
     
     this.setState({
       errorInfo
     });
 
     // Log l'erreur
+    // eslint-disable-next-line no-console
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
     // Callback personnalisé pour analytics/debugging
@@ -79,15 +89,16 @@ export class ErrorBoundary extends Component<Props, State> {
     const { retryCount } = this.state;
     const nextRetryCount = retryCount + 1;
     
+    // eslint-disable-next-line no-console
     console.log(`Programmation du retry ${nextRetryCount}/${maxRetries} dans ${delay}ms`);
     
     this.retryTimeoutId = setTimeout(() => {
       this.handleRetry();
-    }, delay * Math.pow(2, retryCount)); // Backoff exponentiel
+    }, delay * Math.pow(EXPONENTIAL_BACKOFF_BASE, retryCount)); // Backoff exponentiel
   };
 
   handleRetry = () => {
-    const { maxRetries = 3 } = this.props;
+    const { maxRetries = MAX_RETRY_ATTEMPTS } = this.props;
     const { retryCount } = this.state;
     
     if (retryCount < maxRetries) {
@@ -102,7 +113,7 @@ export class ErrorBoundary extends Component<Props, State> {
       // Reset isRetrying après un court délai
       setTimeout(() => {
         this.setState({ isRetrying: false });
-      }, 500);
+      }, RETRY_TIMEOUT);
     }
   };
 
@@ -116,7 +127,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
     
     // Recharger la page en cas d'erreur critique
-    if (this.state.retryCount >= (this.props.maxRetries || 3)) {
+    if (this.state.retryCount >= (this.props.maxRetries || MAX_RETRY_ATTEMPTS)) {
       window.location.reload();
     }
   };
@@ -131,7 +142,7 @@ export class ErrorBoundary extends Component<Props, State> {
       children, 
       fallback, 
       enableRetry = true, 
-      maxRetries = 3, 
+      maxRetries = MAX_RETRY_ATTEMPTS, 
       showDetails = false 
     } = this.props;
 
@@ -240,23 +251,23 @@ export function useErrorHandler() {
   return {
     handleError: (error: Error, errorInfo?: ErrorInfo) => {
       // Log l'erreur pour debugging
+      // eslint-disable-next-line no-console
       console.error('Erreur capturée:', error, errorInfo);
       
       // Ici on pourrait envoyer à un service de monitoring comme Sentry
       // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
     },
     
-    createBoundary: (componentName: string) => {
-      return (props: Omit<Props, 'onError'>) => (
+    createBoundary: (componentName: string) => (props: Omit<Props, 'onError'>) => (
         <ErrorBoundary
           {...props}
           onError={(error, errorInfo) => {
+            // eslint-disable-next-line no-console
             console.error(`Erreur dans ${componentName}:`, error, errorInfo);
             // Actions spécifiques par composant
           }}
         />
-      );
-    }
+      )
   };
 }
 

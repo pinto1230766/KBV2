@@ -213,14 +213,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 <select
                   value={formData.host || ''}
                   onChange={(e) => {
-                    const value = e.target.value;
+                    const {value} = e.target;
                     const selectedHost = hosts.find(h => h.nom === value);
                     
                     setFormData(prev => {
                       const currentLogistics = prev.logistics || {};
                       const currentAccommodation = currentLogistics.accommodation || {};
                       
-                      let newAccommodation = { ...currentAccommodation } as Partial<Accommodation>;
+                      const newAccommodation = { ...currentAccommodation } as Partial<Accommodation>;
                       let newAddress = prev.accommodation;
 
                       if (value === 'Hôtel') {
@@ -680,7 +680,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
             const hostName = typeof selectedHost === 'string' ? selectedHost : selectedHost.nom;
             await updateVisit({ ...visit, host: hostName });
             setIsAccommodationModalOpen(false);
-            addToast('Hôte: ' + hostName, 'success');
+            addToast(`Hôte: ${  hostName}`, 'success');
           } catch (error) {
             addToast('Erreur lors de la sélection', 'error');
           } finally {

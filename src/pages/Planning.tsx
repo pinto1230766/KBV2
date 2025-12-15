@@ -131,8 +131,7 @@ export const Planning: React.FC = () => {
   }, []);
 
   // Optimized filtered and sorted visits with proper dependencies
-  const filteredVisits = useMemo(() => {
-    return visits
+  const filteredVisits = useMemo(() => visits
       .filter((visit: Visit) => {
         const matchesSearch =
           visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,8 +149,7 @@ export const Planning: React.FC = () => {
 
         return matchesSearch && matchesStatus && matchesType && matchesDateRange;
       })
-      .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
-  }, [visits, searchTerm, statusFilter, typeFilter, dateRange]);
+      .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()), [visits, searchTerm, statusFilter, typeFilter, dateRange]);
 
   // Optimized statistics calculation
   const stats = useMemo(() => {

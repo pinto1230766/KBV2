@@ -129,8 +129,7 @@ export const Settings: React.FC = () => {
     addToast('Sauvegarde effectuée avec succès', 'success');
   };
 
-  const handleRestoreAdapter = async (file: File) => {
-    return new Promise<void>((resolve, reject) => {
+  const handleRestoreAdapter = async (file: File) => new Promise<void>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         if(e.target?.result) {
@@ -145,7 +144,6 @@ export const Settings: React.FC = () => {
       reader.onerror = reject;
       reader.readAsText(file);
     });
-  };
 
   const handleImportAdapter = async (data: any, _mapping: ColumnMapping) => {
     // On suppose ici que data est déjà un tableau d'objets ou un format compatible

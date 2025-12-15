@@ -97,7 +97,7 @@ export const PhoneLayout: React.FC = () => {
       filteredVisits.forEach(v => {
         htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
       });
-      htmlContent += '</table><p style="margin-top:30px;color:#666;">Total: ' + filteredVisits.length + ' visite(s)</p></body></html>';
+      htmlContent += `</table><p style="margin-top:30px;color:#666;">Total: ${  filteredVisits.length  } visite(s)</p></body></html>`;
       const blob = new Blob([htmlContent], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

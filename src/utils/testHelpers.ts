@@ -47,7 +47,7 @@ export const expect = {
   },
   
   toBeTruthy: (actual: any): TestResult => ({
-    passed: !!actual,
+    passed: Boolean(actual),
     message: actual 
       ? `✅ PASS: ${actual} is truthy`
       : `❌ FAIL: Expected truthy value, got ${actual}`,
@@ -345,8 +345,7 @@ export const testRenderPerformance = async (renderFn: () => void | Promise<void>
 };
 
 // Mock simple pour les APIs externes
-export const createApiMock = (endpoint: string, response: any, delay: number = 0) => {
-  return {
+export const createApiMock = (endpoint: string, response: any, delay: number = 0) => ({
     fetch: async (url: string, _options?: any): Promise<any> => {
       if (url.includes(endpoint)) {
         if (delay > 0) {
@@ -360,8 +359,7 @@ export const createApiMock = (endpoint: string, response: any, delay: number = 0
       }
       throw new Error(`Mock API: Endpoint ${endpoint} not found`);
     }
-  };
-};
+  });
 
 // Utilitaires pour tester les hooks personnalisés
 export const testCustomHook = <T>(hookFn: () => T, initialState?: any): TestResult[] => {

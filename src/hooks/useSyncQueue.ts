@@ -62,9 +62,7 @@ export function useSyncQueue() {
     localStorage.removeItem(QUEUE_STORAGE_KEY);
   }, []);
 
-  const getPendingActions = useCallback(() => {
-    return queue.filter(action => action.status === 'pending' || action.status === 'failed');
-  }, [queue]);
+  const getPendingActions = useCallback(() => queue.filter(action => action.status === 'pending' || action.status === 'failed'), [queue]);
 
   return {
     queue,

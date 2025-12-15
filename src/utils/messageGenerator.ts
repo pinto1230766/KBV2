@@ -17,7 +17,7 @@ export function generateMessage(
   customTemplate?: string
 ): string {
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
-  let template = customTemplate || messageTemplates[language]?.[messageType]?.[role];
+  const template = customTemplate || messageTemplates[language]?.[messageType]?.[role];
 
   if (!template) {
     return `Modèle non trouvé pour: ${language}/${messageType}/${role}`;
@@ -103,7 +103,7 @@ export function generateHostRequestMessage(
   customTemplate?: string
 ): string {
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
-  let template = customTemplate || hostRequestMessageTemplates[language];
+  const template = customTemplate || hostRequestMessageTemplates[language];
 
   if (!template) {
     return `Modèle non trouvé pour la langue: ${language}`;

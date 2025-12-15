@@ -7,10 +7,10 @@ import { fr, enUS, es, pt } from 'date-fns/locale';
 // ============================================================================
 
 const locales = {
-  fr: fr,
+  fr,
   en: enUS,
-  es: es,
-  pt: pt,
+  es,
+  pt,
   cv: fr, // Utiliser français pour capverdien (pas de locale CV disponible)
 };
 
@@ -204,7 +204,7 @@ export function getInitials(name: string): string {
 
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 3) + '...';
+  return `${text.slice(0, maxLength - 3)  }...`;
 }
 
 export function capitalize(text: string): string {

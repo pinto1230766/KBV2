@@ -163,25 +163,21 @@ const performanceTests = {
   tests: [
     {
       name: 'Should handle validation quickly',
-      fn: async () => {
-        return testRenderPerformance(() => {
+      fn: async () => testRenderPerformance(() => {
           const data = Array.from({ length: 100 }, (_, i) => ({ id: i, value: i * 2 }));
           // Simulate processing operations
           data.filter(item => item.value > 50);
           data.map(item => ({ ...item, processed: true }));
-        }, 5);
-      }
+        }, 5)
     },
     {
       name: 'Should handle complex operations quickly',
-      fn: async () => {
-        return testRenderPerformance(() => {
+      fn: async () => testRenderPerformance(() => {
           const data = Array.from({ length: 1000 }, (_, i) => ({ id: i, value: i * 2 }));
           // Simulate complex processing operations
           data.filter(item => item.value > 500);
           data.map(item => ({ ...item, processed: true }));
-        }, 10);
-      }
+        }, 10)
     }
   ]
 };

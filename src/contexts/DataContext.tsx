@@ -262,9 +262,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const range = 'A:E';
     const sheetGidsToTry = ['490509024', '1817293373', '936069614', '1474640023'];
 
-    let allRows: any[] = [];
+    const allRows: any[] = [];
     let cols: any = null;
-    let successfulGids: string[] = [];
+    const successfulGids: string[] = [];
 
     for (const gid of sheetGidsToTry) {
       const url = `https://docs.google.com/spreadsheets/d/${googleSheetId}/gviz/tq?gid=${gid}&range=${encodeURIComponent(range)}&tqx=out:json`;
@@ -441,7 +441,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       console.error("Error syncing with Google Sheet:", error);
       setTimeout(() => addToast(`Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`, 'error'), 0);
     }
-  };
+  }
 };
 
   const refreshData = async (): Promise<void> => {
@@ -496,7 +496,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Merge Duplicates
   const mergeDuplicates = (type: 'speaker' | 'host' | 'visit' | 'message', keepId: string, duplicateIds: string[]) => {
     setData(prev => {
-      let newState = { ...prev };
+      const newState = { ...prev };
       const updates: string[] = [];
 
       if (type === 'speaker') {

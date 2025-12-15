@@ -41,7 +41,7 @@ export const ArchiveManagerModal: React.FC<ArchiveManagerModalProps> = ({
 
   // Filtrer et trier les visites
   const filteredVisits = useMemo(() => {
-    let filtered = archivedVisits.filter(visit => {
+    const filtered = archivedVisits.filter(visit => {
       // Recherche
       if (searchTerm) {
         const search = searchTerm.toLowerCase();

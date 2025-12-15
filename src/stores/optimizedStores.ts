@@ -160,7 +160,7 @@ export const useUserSelector = {
   isLoading: () => useUserStore(state => state.isLoading),
   error: () => useUserStore(state => state.error),
   preferences: () => useUserStore(state => state.user?.preferences),
-  isAuthenticated: () => useUserStore(state => !!state.user)
+  isAuthenticated: () => useUserStore(state => Boolean(state.user))
 };
 
 export const useAppSelector = {

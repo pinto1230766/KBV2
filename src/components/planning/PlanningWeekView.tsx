@@ -18,9 +18,7 @@ export const PlanningWeekView: React.FC<PlanningWeekViewProps> = ({ visits, onVi
   const weekStart = useMemo(() => startOfWeek(currentWeek, { weekStartsOn: 1 }), [currentWeek]);
 
   // Générer les 7 jours de la semaine
-  const weekDays = useMemo(() => {
-    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  }, [weekStart]);
+  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
 
   // Grouper les visites par jour
   const visitsByDay = useMemo(() => {

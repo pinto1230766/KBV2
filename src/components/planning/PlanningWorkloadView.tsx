@@ -10,12 +10,12 @@ export const PlanningWorkloadView: React.FC = () => {
   const { speakers, visits } = useData();
   const [searchTerm, setSearchTerm] = React.useState('');
 
-  const workloadData = React.useMemo(() => {
-    return speakers.map(speaker => ({
+  const workloadData = React.useMemo(() => 
+     speakers.map(speaker => ({
       speaker,
       workload: calculateWorkload(speaker, visits)
-    })).sort((a, b) => b.workload.currentLoad - a.workload.currentLoad); // Tri par charge décroissante
-  }, [speakers, visits]);
+    })).sort((a, b) => b.workload.currentLoad - a.workload.currentLoad) // Tri par charge décroissante
+  , [speakers, visits]);
 
   const filteredData = workloadData.filter(({ speaker }) =>
     speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||

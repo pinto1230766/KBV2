@@ -13,8 +13,7 @@ export const IOSCard: React.FC<IOSCardProps> = ({
   className,
   hoverable = false,
   onClick,
-}) => {
-  return (
+}) => (
     <div
       className={cn(
         'bg-white dark:bg-gray-800',
@@ -31,7 +30,6 @@ export const IOSCard: React.FC<IOSCardProps> = ({
       {children}
     </div>
   );
-};
 
 interface IOSCardHeaderProps {
   children: ReactNode;
@@ -41,8 +39,7 @@ interface IOSCardHeaderProps {
 export const IOSCardHeader: React.FC<IOSCardHeaderProps> = ({
   children,
   className,
-}) => {
-  return (
+}) => (
     <div
       className={cn(
         'px-4 py-3',
@@ -53,7 +50,6 @@ export const IOSCardHeader: React.FC<IOSCardHeaderProps> = ({
       {children}
     </div>
   );
-};
 
 interface IOSCardBodyProps {
   children: ReactNode;
@@ -63,10 +59,8 @@ interface IOSCardBodyProps {
 export const IOSCardBody: React.FC<IOSCardBodyProps> = ({
   children,
   className,
-}) => {
-  return (
+}) => (
     <div className={cn('p-4', className)}>
       {children}
     </div>
   );
-};

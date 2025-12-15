@@ -21,8 +21,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   disabled = false,
   min,
   max
-}) => {
-  return (
+}) => (
     <div className={`relative ${className}`}>
       <div className="relative">
         <input
@@ -42,4 +41,3 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       </div>
     </div>
   );
-};

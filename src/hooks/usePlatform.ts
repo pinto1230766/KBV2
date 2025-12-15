@@ -19,9 +19,7 @@ interface PlatformInfo {
 }
 
 export const usePlatform = (): PlatformInfo => {
-  const [platformInfo, setPlatformInfo] = useState<PlatformInfo>(() => {
-    return detectPlatform();
-  });
+  const [platformInfo, setPlatformInfo] = useState<PlatformInfo>(() => detectPlatform());
 
   useEffect(() => {
     const handleResize = () => {

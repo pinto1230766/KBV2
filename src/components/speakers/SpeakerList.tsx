@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Users, Filter } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Filter } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useData } from '@/contexts/DataContext';
 import { calculateWorkload } from '@/utils/workload';
@@ -92,25 +92,15 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
 
       {/* Contrôles de tri et filtrage */}
       <div className="flex flex-wrap gap-4 items-center">
-        {/* Boutons de tri */}
-        <div className="flex gap-2">
-          <Button
-            variant={sortBy === 'name' ? 'primary' : 'secondary'}
-            size="sm"
-            onClick={() => setSortBy('name')}
-            leftIcon={<SortAsc className="w-4 h-4" />}
-          >
-            Trier par nom
-          </Button>
-          <Button
-            variant={sortBy === 'congregation' ? 'primary' : 'secondary'}
-            size="sm"
-            onClick={() => setSortBy('congregation')}
-            leftIcon={<Users className="w-4 h-4" />}
-          >
-            Trier par congrégation
-          </Button>
-        </div>
+        {/* Bouton de tri */}
+        <Button
+          variant={sortBy === 'name' ? 'primary' : 'secondary'}
+          size="sm"
+          onClick={() => setSortBy(sortBy === 'name' ? 'congregation' : 'name')}
+          leftIcon={<SortAsc className="w-4 h-4" />}
+        >
+          Trier par {sortBy === 'name' ? 'congrégation' : 'nom'}
+        </Button>
 
         {/* Filtre par congrégation */}
         <div className="flex items-center gap-2">

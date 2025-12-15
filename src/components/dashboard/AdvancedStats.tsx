@@ -337,8 +337,7 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
   data,
   title,
   series,
-}) => {
-  return (
+}) => (
     <Card>
       <CardHeader>
         <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -389,7 +388,6 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
       </CardBody>
     </Card>
   );
-};
 
 // ============================================================================
 // COMPOSANT SMART ALERTS
@@ -561,8 +559,7 @@ export const useSmartAlerts = (
   visits: Visit[],
   speakers: Speaker[],
   hosts: Host[]
-): AlertConfig[] => {
-  return useMemo(() => {
+): AlertConfig[] => useMemo(() => {
     const alerts: AlertConfig[] = [];
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -650,7 +647,6 @@ export const useSmartAlerts = (
 
     return alerts;
   }, [visits, speakers, hosts]);
-};
 
 // ============================================================================
 // HOOK POUR CALCULER LES KPIs
@@ -660,8 +656,7 @@ export const useKPIs = (
   visits: Visit[],
   speakers: Speaker[],
   hosts: Host[]
-): KPIConfig[] => {
-  return useMemo(() => {
+): KPIConfig[] => useMemo(() => {
     const now = new Date();
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
@@ -734,14 +729,12 @@ export const useKPIs = (
       }
     ];
   }, [visits, speakers, hosts]);
-};
 
 // ============================================================================
 // HOOK POUR LES DONNÉES DE TENDANCE
 // ============================================================================
 
-export const useTrendData = (visits: Visit[]): TrendData[] => {
-  return useMemo(() => {
+export const useTrendData = (visits: Visit[]): TrendData[] => useMemo(() => {
     const data: TrendData[] = [];
     const now = new Date();
 
@@ -763,7 +756,6 @@ export const useTrendData = (visits: Visit[]): TrendData[] => {
 
     return data;
   }, [visits]);
-};
 
 // ============================================================================
 // EXPORTS

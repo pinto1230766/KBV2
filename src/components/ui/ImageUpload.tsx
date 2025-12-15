@@ -62,8 +62,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
+  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -105,7 +104,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       reader.onerror = () => reject(new Error('Erreur de lecture du fichier'));
       reader.readAsDataURL(file);
     });
-  };
 
   const handleRemove = () => {
     onChange(undefined);

@@ -208,9 +208,7 @@ export function isLowPowerMode(): boolean {
   
   // Check for battery-saving mode (when available)
   if ('getBattery' in navigator) {
-    (navigator as any).getBattery().then((battery: any) => {
-      return battery.level < 0.2 && !battery.charging;
-    }).catch(() => false);
+    (navigator as any).getBattery().then((battery: any) => battery.level < 0.2 && !battery.charging).catch(() => false);
   }
   
   return false;

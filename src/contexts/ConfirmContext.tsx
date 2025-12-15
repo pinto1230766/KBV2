@@ -40,8 +40,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     resolve: null,
   });
 
-  const confirm = useCallback((options: ConfirmOptions | string): Promise<boolean> => {
-    return new Promise((resolve) => {
+  const confirm = useCallback((options: ConfirmOptions | string): Promise<boolean> => new Promise((resolve) => {
       const confirmOptions: ConfirmOptions =
         typeof options === 'string' ? { message: options } : options;
 
@@ -56,8 +55,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
         },
         resolve,
       });
-    });
-  }, []);
+    }), []);
 
   const handleConfirm = useCallback(() => {
     if (state.resolve) {
