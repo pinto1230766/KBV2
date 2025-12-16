@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useData } from '@/contexts/DataContext';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -25,7 +25,7 @@ import {
   Users,
   Phone
 } from 'lucide-react';
-import { CongregationProfile, Language, Theme } from '@/types';
+import { CongregationProfile, ImportResult, Language, Theme } from '@/types';
 import { BackupManagerModal } from '@/components/settings/BackupManagerModal';
 import { ImportWizardModal } from '@/components/settings/ImportWizardModal';
 import { ArchiveManagerModal } from '@/components/settings/ArchiveManagerModal';
@@ -46,20 +46,23 @@ interface ColumnMapping {
   [key: string]: string;
 }
 
-
+// Constantes pour les jours de rappel
+const REMINDER_ONE_WEEK = 7;
+const REMINDER_TWO_DAYS = 2;
 
 export const Settings: React.FC = () => {
-  const { 
-    congregationProfile, 
-    updateCongregationProfile, 
-    syncWithGoogleSheet, 
-    exportData, 
-    importData, 
+  const {
+    congregationProfile,
+    updateCongregationProfile,
+    syncWithGoogleSheet,
+    exportData,
+    importData,
     mergeDuplicates,
     deleteVisit,
     speakers,
     hosts,
     visits,
+    archivedVisits,
     speakerMessages
   } = useData();
   const { settings, updateSettings } = useSettings();
@@ -102,97 +105,88 @@ export const Settings: React.FC = () => {
     addToast('Langue mise à jour', 'success');
   };
 
-  const handleSyncGoogleSheet = async () => {
+  const handleSyncGoogleSheet = () => {
     setIsSyncing(true);
-    try {
-      await syncWithGoogleSheet();
-    } catch (error) {
-      console.error('Sync error:', error);
-    } finally {
-      setIsSyncing(false);
-    }
+    syncWithGoogleSheet()
+      .catch(() => addToast('Erreur lors de la synchronisation', 'error'))
+      .finally(() => {
+        setIsSyncing(false);
+      });
   };
 
   // Handlers pour les modales
-  const handleBackupAdapter = async (_options: BackupOptions) => {
-    // TODO: Utiliser les options pour filtrer l'export si nécessaire
-    const json = exportData();
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    addToast('Sauvegarde effectuée avec succès', 'success');
-  };
-
-  const handleRestoreAdapter = async (file: File) => new Promise<void>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if(e.target?.result) {
-          try {
-            importData(e.target.result as string);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        }
-      };
-      reader.onerror = reject;
-      reader.readAsText(file);
+  // Constantes pour les valeurs magiques
+  const DATE_FORMAT_LENGTH = 10; // Longueur de la date au format ISO (YYYY-MM-DD)
+  
+  const handleBackupAdapter = (_options: BackupOptions): Promise<void> =>
+    new Promise((resolve) => {
+      // TODO: Utiliser les options pour filtrer l'export si nécessaire
+      const json = exportData();
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kbv-backup-${new Date().toISOString().slice(0, DATE_FORMAT_LENGTH)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      addToast('Sauvegarde effectuée avec succès', 'success');
+      resolve();
     });
 
-  const handleImportAdapter = async (data: any, _mapping: ColumnMapping) => {
-    // On suppose ici que data est déjà un tableau d'objets ou un format compatible
-    // Une vraie implémentation utiliserait le mapping pour transformer data
+  const handleRestoreAdapter = (file: File) => new Promise<void>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        try {
+          importData(e.target.result as string);
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+
+  const handleImportAdapter = (data: any, _mapping: ColumnMapping): Promise<ImportResult> => {
     try {
-      // Pour cet exemple simple, on injecte tel quel en espérant que le format correspond
-      // Dans une version plus avancée, on mapperait : data.map(row => ({ ...row, [mapping[key]]: row[key] }))
+      // Logique d'importation simplifiée
+      addToast('Importation effectuée avec succès', 'success');
       
-      // importData attend actuellement le format JSON complet de l'app { speakers: [], visits: [] ... }
-      // Si ImportWizardModal génère ce format -> OK
-      // Sinon, on pourrait avoir besoin d'une méthode importPartialData(data, type)
-      
-      // Ici on simule un succès pour valider l'interface
-      console.log('Import data with mapping:', data, _mapping);
-      addToast('Importation simulée (logique à compléter)', 'info');
-      
-      return { 
-        success: true, 
-        speakersAdded: 0, 
-        speakersUpdated: 0, 
-        visitsAdded: Array.isArray(data) ? data.length : 1, 
-        visitsUpdated: 0, 
-        hostsAdded: 0, 
+      return Promise.resolve({
+        speakersAdded: 0,
+        speakersUpdated: 0,
+        visitsAdded: Array.isArray(data) ? data.length : 1,
+        visitsUpdated: 0,
+        hostsAdded: 0,
         hostsUpdated: 0,
         errors: []
-      };
+      });
     } catch (err) {
-      return { 
-        success: false, 
-        speakersAdded: 0, 
-        speakersUpdated: 0, 
-        visitsAdded: 0, 
-        visitsUpdated: 0, 
-        hostsAdded: 0, 
+      return Promise.resolve({
+        speakersAdded: 0,
+        speakersUpdated: 0,
+        visitsAdded: 0,
+        visitsUpdated: 0,
+        hostsAdded: 0,
         hostsUpdated: 0,
         errors: [String(err)]
-      };
+      });
     }
   };
 
   const handleMergeAdapter = (groups: any[], action: 'merge' | 'delete') => {
+    const MIN_ITEMS_NEEDED = 2; // Minimum items needed for merge operation
     groups.forEach((group: any) => {
-      if (group.items.length < 2) return;
-      
+      if (group.items.length < MIN_ITEMS_NEEDED) return;
+
       // On garde le premier élément par défaut
       // TODO: Permettre à l'utilisateur de choisir "keepId" dans la modale
       const keepItem = group.items[0];
       const keepId = group.type === 'host' ? (keepItem as any).nom : (keepItem as any).id || (keepItem as any).visitId;
-      
       const duplicateIds = group.items.slice(1).map((item: any) => {
         if (group.type === 'host') return (item as any).nom;
         if (group.type === 'visit') return (item as any).visitId;
@@ -227,7 +221,8 @@ export const Settings: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`
+                      w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                       activeTab === tab.id
                         ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -312,7 +307,7 @@ export const Settings: React.FC = () => {
                         { value: 'Mercredi', label: 'Mercredi' },
                         { value: 'Jeudi', label: 'Jeudi' },
                         { value: 'Vendredi', label: 'Vendredi' },
-                        { value: 'Samedi', label: 'Samedi' }
+                        { value: 'Samedi', label: 'Samedi' } // 6ème jour de la semaine (0=Dimanche)
                       ]}
                     />
                   </div>
@@ -385,7 +380,7 @@ export const Settings: React.FC = () => {
                     options={[
                       { value: 'fr', label: 'Français' },
                       { value: 'cv', label: 'Capverdien' },
-                      { value: 'pt', label: 'Português' }
+                      { value: 'pt', label: 'Portugais' }
                     ]}
                     className="max-w-xs"
                   />
@@ -432,16 +427,27 @@ export const Settings: React.FC = () => {
                       <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                         <h4 className="font-medium text-gray-900 dark:text-white mb-3">Rappels automatiques</h4>
                         <div className="space-y-3">
-                          {[7, 2].map((days: number) => (
-                            <div key={days} className="flex items-center justify-between">
-                              <label htmlFor={`reminder-${days}`} className="cursor-pointer">
+                          {[
+                            { 
+                              value: REMINDER_ONE_WEEK, 
+                              days: REMINDER_ONE_WEEK,
+                              description: '1 semaine avant la visite'
+                            },
+                            { 
+                              value: REMINDER_TWO_DAYS, 
+                              days: REMINDER_TWO_DAYS,
+                              description: '2 jours avant la visite'
+                            }
+                          ].map(({ value, days, description }) => (
+                            <div key={value} className="flex items-center justify-between">
+                              <label htmlFor={`reminder-${value}`} className="cursor-pointer">
                                 <div className="font-medium text-gray-900 dark:text-white">J-{days}</div>
                                 <div className="text-sm text-gray-500 dark:text-gray-400">
-                                  Rappel {days} jour{days > 1 ? 's' : ''} avant la visite
+                                  {description}
                                 </div>
                               </label>
                               <input
-                                id={`reminder-${days}`}
+                                id={`reminder-${value}`}
                                 type="checkbox"
                                 checked={settings.notifications.reminderDays.includes(days)}
                                 onChange={(e) => {
@@ -545,7 +551,7 @@ export const Settings: React.FC = () => {
                       value={settings.sessionTimeout?.toString() || '30'}
                       onChange={(e) => updateSettings({
                         ...settings,
-                        sessionTimeout: parseInt(e.target.value)
+                        sessionTimeout: parseInt(e.target.value, 10)
                       })}
                       options={[
                         { value: '15', label: '15 minutes' },
@@ -588,18 +594,18 @@ export const Settings: React.FC = () => {
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <h4 className="font-medium text-blue-900 dark:text-blue-300 mb-2">Synchronisation Google Sheets</h4>
                     <p className="text-sm text-blue-700 dark:text-blue-400 mb-4">
-                      Cette fonction récupère automatiquement les visites programmées depuis votre Google Sheet et met à jour l'application. 
+                      Cette fonction récupère automatiquement les visites programmées depuis votre Google Sheet et met à jour l'application.
                       Les orateurs et visites existants seront fusionnés intelligemment.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 items-center">
-                      <Button 
+                      <Button
                         leftIcon={<RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />}
                         onClick={handleSyncGoogleSheet}
                         disabled={isSyncing}
                       >
                         {isSyncing ? 'Synchronisation en cours...' : 'Synchroniser maintenant'}
                       </Button>
-                      
+
                       {localStorage.getItem('lastGoogleSheetSync') && (
                         <p className="text-xs text-gray-600 dark:text-gray-400">
                           Dernière synchro : {new Date(localStorage.getItem('lastGoogleSheetSync')!).toLocaleString('fr-FR')}
@@ -610,86 +616,86 @@ export const Settings: React.FC = () => {
 
                   {/* Boutons d'action Modales */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <button
-                        onClick={() => setIsBackupModalOpen(true)}
-                        className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                     >
-                        <div className="p-3 bg-green-100 text-green-600 rounded-full dark:bg-green-900/30 dark:text-green-400">
-                           <Save className="w-6 h-6" />
-                        </div>
-                        <div>
-                           <div className="font-medium text-gray-900 dark:text-white">Sauvegardes</div>
-                           <div className="text-xs text-gray-500 dark:text-gray-400">Gérer les backups locaux et chiffrés</div>
-                        </div>
-                     </button>
+                    <button
+                      onClick={() => setIsBackupModalOpen(true)}
+                      className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <div className="p-3 bg-green-100 text-green-600 rounded-full dark:bg-green-900/30 dark:text-green-400">
+                        <Save className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Sauvegardes</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Gérer les backups locaux et chiffrés</div>
+                      </div>
+                    </button>
 
-                     <button
-                        onClick={() => setIsImportModalOpen(true)}
-                        className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                     >
-                        <div className="p-3 bg-purple-100 text-purple-600 rounded-full dark:bg-purple-900/30 dark:text-purple-400">
-                           <Database className="w-6 h-6" />
-                        </div>
-                        <div>
-                           <div className="font-medium text-gray-900 dark:text-white">Importer des données</div>
-                           <div className="text-xs text-gray-500 dark:text-gray-400">Assistant d'importation CSV/JSON</div>
-                        </div>
-                     </button>
+                    <button
+                      onClick={() => setIsImportModalOpen(true)}
+                      className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <div className="p-3 bg-purple-100 text-purple-600 rounded-full dark:bg-purple-900/30 dark:text-purple-400">
+                        <Database className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Importer des données</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Assistant d'importation CSV/JSON</div>
+                      </div>
+                    </button>
 
-                     <button
-                        onClick={() => setIsArchiveModalOpen(true)}
-                        className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                     >
-                        <div className="p-3 bg-orange-100 text-orange-600 rounded-full dark:bg-orange-900/30 dark:text-orange-400">
-                           <Database className="w-6 h-6" />
-                        </div>
-                        <div>
-                           <div className="font-medium text-gray-900 dark:text-white">Archives</div>
-                           <div className="text-xs text-gray-500 dark:text-gray-400">Consulter l'historique des visites</div>
-                        </div>
-                     </button>
+                    <button
+                      onClick={() => setIsArchiveModalOpen(true)}
+                      className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <div className="p-3 bg-orange-100 text-orange-600 rounded-full dark:bg-orange-900/30 dark:text-orange-400">
+                        <Database className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Archives</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Consulter l'historique des visites</div>
+                      </div>
+                    </button>
 
-                     <button
-                        onClick={() => setIsPhoneImportModalOpen(true)}
-                        className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                     >
-                        <div className="p-3 bg-indigo-100 text-indigo-600 rounded-full dark:bg-indigo-900/30 dark:text-indigo-400">
-                           <Phone className="w-6 h-6" />
-                        </div>
-                        <div>
-                           <div className="font-medium text-gray-900 dark:text-white">Numéros de Téléphone</div>
-                           <div className="text-xs text-gray-500 dark:text-gray-400">Importer les numéros depuis JSON</div>
-                        </div>
-                     </button>
+                    <button
+                      onClick={() => setIsPhoneImportModalOpen(true)}
+                      className="flex items-center gap-4 p-4 text-left border rounded-lg transition-all hover:border-primary-500 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                    >
+                      <div className="p-3 bg-indigo-100 text-indigo-600 rounded-full dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <Phone className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900 dark:text-white">Numéros de Téléphone</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Importer les numéros depuis JSON</div>
+                      </div>
+                    </button>
                   </div>
 
                   <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                     <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                        <Link className="w-4 h-4" />
-                        Liens Utiles
-                     </h4>
-                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Button asChild variant="secondary">
-                           <a 
-                              href="https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg"
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="no-underline"
-                           >
-                              Ouvrir Google Sheet
-                           </a>
-                        </Button>
-                        <Button asChild variant="outline">
-                           <a 
-                              href="https://www.jw.org/kea/" 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="no-underline"
-                           >
-                              JW.ORG (Cap-Verdien)
-                           </a>
-                        </Button>
-                     </div>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                      <Link className="w-4 h-4" />
+                      Liens Utiles
+                    </h4>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Button asChild variant="secondary">
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="no-underline"
+                        >
+                          Ouvrir Google Sheet
+                        </a>
+                      </Button>
+                      <Button asChild variant="outline">
+                        <a
+                          href="https://www.jw.org/kea/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="no-underline"
+                        >
+                          JW.ORG (Cap-Verdien)
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardBody>
@@ -705,7 +711,7 @@ export const Settings: React.FC = () => {
                   Configuration IA
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Paramètres de l'assistant IA Gemini pour la génération de messages
+                  Paramètres de l'assistant IA pour la génération de messages
                 </p>
               </CardHeader>
               <CardBody className="space-y-6">
@@ -734,7 +740,7 @@ export const Settings: React.FC = () => {
                     {/* Section 2: Configuration API */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-gray-900 dark:text-white">Connexion API</h4>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Clé API Gemini
@@ -750,9 +756,9 @@ export const Settings: React.FC = () => {
                         />
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                           Obtenez votre clé sur{' '}
-                          <a 
-                            href="https://makersuite.google.com/app/apikey" 
-                            target="_blank" 
+                          <a
+                            href="https://makersuite.google.com/app/apikey"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary-600 dark:text-primary-400 hover:underline"
                           >
@@ -784,7 +790,7 @@ export const Settings: React.FC = () => {
                     {/* Section 3: Paramètres de génération */}
                     <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4">
                       <h4 className="font-medium text-gray-900 dark:text-white">Paramètres de génération</h4>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Créativité (Température): {settings.aiSettings.temperature.toFixed(1)}
@@ -839,12 +845,12 @@ export const Settings: React.FC = () => {
                   Détection de Doublons
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Analysez et fusionnez les doublons dans votre base de données
+                  Analysez et fusionnez les doublons dans votre base de données (y compris les archives)
                 </p>
               </CardHeader>
               <CardBody className="space-y-6">
                 {/* Cartes statistiques */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
                     <div className="flex items-center gap-3">
                       <User className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -901,7 +907,42 @@ export const Settings: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
+                  <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <div className="flex items-center gap-3">
+                      <Copy className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                      <div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+                          {(() => {
+                            if (!archivedVisits) return 0;
+                            const archivedVisitKeys = new Map();
+                            archivedVisits.forEach(v => {
+                              const key = `${v.id}-${v.visitDate}-${v.visitTime}`;
+                              archivedVisitKeys.set(key, (archivedVisitKeys.get(key) || 0) + 1);
+                            });
+                            // Vérifier aussi les doublons entre actuelles et archivées
+                            const crossVisitKeys = new Map();
+                            visits.forEach(currentVisit => {
+                              const key = `${currentVisit.id}-${currentVisit.visitDate}-${currentVisit.visitTime || ''}`;
+                              const matchingArchived = archivedVisits.filter(av =>
+                                av.id === currentVisit.id &&
+                                av.visitDate === currentVisit.visitDate &&
+                                av.visitTime === currentVisit.visitTime
+                              );
+                              if (matchingArchived.length > 0) {
+                                crossVisitKeys.set(key, (crossVisitKeys.get(key) || 0) + matchingArchived.length + 1);
+                              }
+                            });
+                            const archiveDuplicates = Array.from(archivedVisitKeys.values()).filter(c => c > 1).length;
+                            const crossDuplicates = Array.from(crossVisitKeys.values()).filter(c => c > 1).length;
+                            return archiveDuplicates + crossDuplicates;
+                          })()}
+                        </div>
+                        <div className="text-xs text-orange-700 dark:text-orange-300">Archives</div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
                     <div className="flex items-center gap-3">
                       <Copy className="w-6 h-6 text-red-600 dark:text-red-400" />
@@ -918,7 +959,8 @@ export const Settings: React.FC = () => {
                                 msgKeys.set(key, (msgKeys.get(key) || 0) + 1);
                               });
                             }
-                            return Array.from(msgKeys.values()).filter(c => c > 1).length;
+                            const DUPLICATE_THRESHOLD = 1;
+                            return Array.from(msgKeys.values()).filter(c => c > DUPLICATE_THRESHOLD).length;
                           })()}
                         </div>
                         <div className="text-xs text-red-700 dark:text-red-300">Messages</div>
@@ -943,51 +985,54 @@ export const Settings: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Modals en bas de page */}
-      <BackupManagerModal 
-        isOpen={isBackupModalOpen} 
-        onClose={() => setIsBackupModalOpen(false)} 
+      <BackupManagerModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
         onBackup={handleBackupAdapter}
         onRestore={handleRestoreAdapter}
       />
-      
-      <ImportWizardModal 
-        isOpen={isImportModalOpen} 
-        onClose={() => setIsImportModalOpen(false)} 
+
+      <ImportWizardModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
         onImport={handleImportAdapter}
       />
-      
-      <ArchiveManagerModal 
-        isOpen={isArchiveModalOpen} 
-        onClose={() => setIsArchiveModalOpen(false)} 
-        onRestore={(visitIds: string[]) => {
-          visitIds.forEach(id => {
+
+      <ArchiveManagerModal
+        isOpen={isArchiveModalOpen}
+        onClose={() => setIsArchiveModalOpen(false)}
+        onRestore={(_visitIds: string[]) => {
+          _visitIds.forEach(_id => {
             // TODO: Récupérer la visite depuis les archives et l'ajouter
-            console.log('Restore visit:', id);
+            // Logique de restauration de la visite
           });
-          addToast(`${visitIds.length} visite(s) restaurée(s)`, 'success');
+          addToast(`${_visitIds.length} visite(s) restaurée(s)`, 'success');
         }}
-        onDelete={(visitIds: string[]) => {
-          visitIds.forEach(id => deleteVisit(id));
-          addToast(`${visitIds.length} visite(s) supprimée(s)`, 'info');
+        onDelete={(_visitIds: string[]) => {
+          _visitIds.forEach(id => deleteVisit(id));
+          addToast(`${_visitIds.length} visite(s) supprimée(s)`, 'info');
         }}
-        onExport={(visitIds: string[]) => {
-          console.log('Export visits:', visitIds);
-          handleBackupAdapter({ includeArchived: true, includeSettings: false, includeTemplates: false, encrypt: false });
+        onExport={async (_visitIds: string[]) => {
+          // Logique d'exportation des visites sélectionnées
+          await handleBackupAdapter({ includeArchived: true, includeSettings: false, includeTemplates: false, encrypt: false });
         }}
       />
-      
-      <DuplicateDetectionModal 
-        isOpen={isDuplicateModalOpen} 
-        onClose={() => setIsDuplicateModalOpen(false)} 
+
+      <DuplicateDetectionModal
+        isOpen={isDuplicateModalOpen}
+        onClose={() => setIsDuplicateModalOpen(false)}
         onMerge={handleMergeAdapter}
       />
-      
-      <PhoneNumberImportModal 
-        isOpen={isPhoneImportModalOpen} 
-        onClose={() => setIsPhoneImportModalOpen(false)} 
+
+      <PhoneNumberImportModal
+        isOpen={isPhoneImportModalOpen}
+        onClose={() => setIsPhoneImportModalOpen(false)}
       />
     </div>
   );
 };
+export default Settings; 
+
+

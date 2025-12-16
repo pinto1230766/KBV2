@@ -111,33 +111,34 @@ export interface Logistics {
 }
 
 export interface Visit {
-  id: string; // ID de l'orateur
-  visitId: string; // ID unique de la visite
-  nom: string;
-  congregation: string;
-  telephone?: string;
-  photoUrl?: string;
-  visitDate: string; // Format: YYYY-MM-DD
-  visitTime: string; // Format: HH:MM
-  host: string; // Nom du contact d'accueil
-  accommodation: string;
-  meals: string;
-  status: VisitStatus;
-  locationType: LocationType;
-  talkNoOrType: string | null;
-  talkTheme: string | null;
-  communicationStatus?: CommunicationStatus;
-  notes?: string;
-  attachments?: Attachment[];
-  expenses?: Expense[];
-  logistics?: Logistics;
-  visitFeedback?: VisitFeedback; // Nouveau système
-  feedback?: string; // Ancien champ texte simple (legacy)
-  zoomLink?: string;
-  streamingLink?: string;
-  createdAt?: string; // ISO date
-  updatedAt?: string; // ISO date
-}
+   id: string; // ID de l'orateur
+   visitId: string; // ID unique de la visite
+   nom: string;
+   congregation: string;
+   telephone?: string;
+   photoUrl?: string;
+   visitDate: string; // Format: YYYY-MM-DD
+   visitTime: string; // Format: HH:MM
+   host: string; // Nom du contact d'accueil
+   accommodation: string;
+   meals: string;
+   status: VisitStatus;
+   locationType: LocationType;
+   talkNoOrType: string | null;
+   talkTheme: string | null;
+   communicationStatus?: CommunicationStatus;
+   notes?: string;
+   attachments?: Attachment[];
+   expenses?: Expense[];
+   logistics?: Logistics;
+   visitFeedback?: VisitFeedback; // Nouveau système
+   feedback?: string; // Ancien champ texte simple (legacy)
+   zoomLink?: string;
+   streamingLink?: string;
+   accompanyingPersons?: number; // Nombre de personnes accompagnant l'orateur
+   createdAt?: string; // ISO date
+   updatedAt?: string; // ISO date
+ }
 
 // ============================================================================
 // CONTACT D'ACCUEIL (HOST)

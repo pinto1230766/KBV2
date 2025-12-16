@@ -4,19 +4,15 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit } from '@/types';
-// import { VisitFeedback } from '@/types'; // TODO: Réactiver quand feedback sera réintégré
-import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star } from 'lucide-react';
-// import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal'; // TODO: Réintégrer si nécessaire
+import { useConfirm } from '@/contexts/ConfirmContext';
+import { Visit, Expense, MessageType, Accommodation } from '@/types';
+import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star, CreditCard, Truck, Utensils, Home } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
-import { Expense } from '@/types';
-import { CreditCard, Truck } from 'lucide-react';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
-import { MessageType, Accommodation } from '@/types';
 import { generateUUID } from '@/utils/uuid';
 
 interface VisitActionModalProps {
@@ -40,10 +36,13 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Expenses Logic
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
-  const [isTravelModalOpen, setIsTravelModalOpen] = useState(false);
-  const [isMealModalOpen, setIsMealModalOpen] = useState(false);
-  const [isAccommodationModalOpen, setIsAccommodationModalOpen] = useState(false);
-  
+
+  // Logistics Logic
+  const [_activeTab, _setActiveTab] = useState('accommodation');
+  const [_isTravelModalOpen, _setIsTravelModalOpen] = useState(false);
+  const [_isMealModalOpen, _setIsMealModalOpen] = useState(false);
+  const [_isAccommodationModalOpen, _setIsAccommodationModalOpen] = useState(false);
+
   // Message Generator Logic
   const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({ 
     isOpen: false, 
@@ -73,10 +72,18 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     }
   };
 
+  const { confirm } = useConfirm();
+  
   const handleDelete = async () => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette visite ?')) {
-      return;
-    }
+    const userConfirmed = await confirm({
+      title: 'Supprimer la visite',
+      message: 'Êtes-vous sûr de vouloir supprimer cette visite ?',
+      confirmText: 'Supprimer',
+      confirmVariant: 'danger',
+      cancelText: 'Annuler'
+    });
+    
+    if (!userConfirmed) return;
     
     setIsLoading(true);
     try {
@@ -162,7 +169,16 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   };
 
   const handleDeleteExpense = async (expenseId: string) => {
-    if (!window.confirm('Supprimer cette dépense ?')) return;
+    const { confirm: confirmDelete } = useConfirm();
+    const userConfirmed = await confirmDelete({
+      title: 'Supprimer la dépense',
+      message: 'Voulez-vous vraiment supprimer cette dépense ?',
+      confirmText: 'Supprimer',
+      confirmVariant: 'danger',
+      cancelText: 'Annuler'
+    });
+    
+    if (!userConfirmed) return;
 
     setIsLoading(true);
     try {
@@ -215,20 +231,20 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   onChange={(e) => {
                     const {value} = e.target;
                     const selectedHost = hosts.find(h => h.nom === value);
-                    
+
                     setFormData(prev => {
                       const currentLogistics = prev.logistics || {};
                       const currentAccommodation = currentLogistics.accommodation || {};
-                      
+
                       const newAccommodation = { ...currentAccommodation } as Partial<Accommodation>;
                       let newAddress = prev.accommodation;
 
                       if (value === 'Hôtel') {
                         newAccommodation.type = 'hotel';
                         // Keep existing booking ref etc, but maybe clear name if it was a host's name
-                        if (newAccommodation.type !== 'hotel') { 
-                           // If switching TO hotel, maybe clear name/address?
-                           // Actually, let's just set type. User can fill details in Logistics.
+                        if (newAccommodation.type !== 'hotel') {
+                          // If switching TO hotel, maybe clear name/address?
+                          // Actually, let's just set type. User can fill details in Logistics.
                         }
                         newAddress = ''; // Clear main address field as it's likely a host address
                       } else if (selectedHost) {
@@ -236,10 +252,16 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                         newAccommodation.name = selectedHost.nom;
                         newAccommodation.address = selectedHost.address;
                         newAddress = selectedHost.address || '';
+                      } else if (value === 'Pas besoin') {
+                        // Reset accommodation when no host is needed
+                        newAccommodation.type = 'other';
+                        newAccommodation.name = '';
+                        newAccommodation.address = '';
+                        newAddress = '';
                       }
 
-                      return { 
-                        ...prev, 
+                      return {
+                        ...prev,
                         host: value,
                         accommodation: newAddress,
                         logistics: {
@@ -253,12 +275,23 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 >
                   <option value="">Sélectionner un hôte...</option>
+                  <option value="Pas besoin">Pas besoin</option>
                   <option value="Hôtel">Hôtel</option>
                   {hosts.map(host => (
                     <option key={host.nom} value={host.nom}>{host.nom}</option>
                   ))}
                 </select>
               </div>
+
+              <Input
+                label="Nombre d'accompagnateurs"
+                type="number"
+                min={0}
+                max={10}
+                value={formData.accompanyingPersons || 0}
+                onChange={(e) => setFormData(prev => ({ ...prev, accompanyingPersons: parseInt(e.target.value, 10) || 0 }))}
+                placeholder="0"
+              />
             </div>
             <Input
               label="Titre du discours"
@@ -493,7 +526,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
 
 
-      case 'logistics':
+      case 'logistics': {
         const activeVisit = { ...visit, ...formData };
         const acc = (activeVisit.logistics?.accommodation || {}) as Partial<Accommodation>;
         const isHostType = (acc.type || 'host') === 'host';
@@ -542,8 +575,32 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                onClick={() => _setIsTravelModalOpen(true)}
+                leftIcon={<Truck className="w-4 h-4" />}
+              >
+                Organiser le transport
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => _setIsMealModalOpen(true)}
+                leftIcon={<Utensils className="w-4 h-4" />}
+              >
+                Planifier les repas
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => _setIsAccommodationModalOpen(true)}
+                leftIcon={<Home className="w-4 h-4" />}
+              >
+                Gérer l'hébergement
+              </Button>
+            </div>
           </div>
         );
+      }
 
       default:
         return null;
@@ -604,6 +661,33 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         {getModalContent()}
       </Modal>
 
+      {_isTravelModalOpen && (
+        <TravelCoordinationModal
+          isOpen={_isTravelModalOpen}
+          onClose={() => _setIsTravelModalOpen(false)}
+          visit={visit}
+          onSave={() => {}}
+        />
+      )}
+
+      {_isMealModalOpen && (
+        <MealPlanningModal
+          isOpen={_isMealModalOpen}
+          onClose={() => _setIsMealModalOpen(false)}
+          visit={visit}
+          onSave={() => {}}
+        />
+      )}
+
+      {_isAccommodationModalOpen && (
+        <AccommodationMatchingModal
+          isOpen={_isAccommodationModalOpen}
+          onClose={() => _setIsAccommodationModalOpen(false)}
+          visit={visit}
+          onSelectHost={() => {}}
+        />
+      )}
+
       {generatorParams.isOpen && (
         <MessageGeneratorModal
           isOpen={generatorParams.isOpen}
@@ -613,81 +697,6 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           initialType={generatorParams.type}
         />
       )}
-
-      <TravelCoordinationModal
-        isOpen={isTravelModalOpen}
-        onClose={() => setIsTravelModalOpen(false)}
-        visit={visit}
-        onSave={async (travelData) => {
-          setIsLoading(true);
-          try {
-            const mode = travelData.transportMode === 'car' ? 'Voiture' : 
-                        travelData.transportMode === 'train' ? 'Train' : 
-                        travelData.transportMode === 'plane' ? 'Avion' : 
-                        travelData.transportMode === 'carpool' ? 'Covoiturage' : 'Autre';
-            const travelInfo = `\n🚗 Voyage: ${mode}${travelData.departureLocation ? ` de ${travelData.departureLocation}` : ''}${travelData.arrivalLocation ? ` vers ${travelData.arrivalLocation}` : ''}${travelData.departureTime ? ` à ${travelData.departureTime}` : ''}${travelData.estimatedCost ? ` (${travelData.estimatedCost}€)` : ''}`;
-            await updateVisit({ 
-              ...visit, 
-              notes: (visit.notes || '') + travelInfo
-            });
-            setIsTravelModalOpen(false);
-            addToast('Voyage enregistré', 'success');
-          } catch (error) {
-            addToast('Erreur lors de la sauvegarde', 'error');
-          } finally {
-            setIsLoading(false);
-          }
-        }}
-      />
-
-      <MealPlanningModal
-        isOpen={isMealModalOpen}
-        onClose={() => setIsMealModalOpen(false)}
-        visit={visit}
-        hosts={hosts}
-        onSave={async (mealData) => {
-          setIsLoading(true);
-          try {
-            const mealTypes = mealData.meals.map(m => {
-              const type = m.type === 'breakfast' ? 'Petit-déj' : 
-                          m.type === 'lunch' ? 'Déjeuner' : 
-                          m.type === 'dinner' ? 'Dîner' : 'Collation';
-              return `${type} (${m.time}${m.location ? ` - ${m.location}` : ''})`;
-            }).join(', ');
-            const restrictions = mealData.dietaryRestrictions.length > 0 ? ` | Restrictions: ${mealData.dietaryRestrictions.join(', ')}` : '';
-            const allergies = mealData.allergies.length > 0 ? ` | ⚠️ Allergies: ${mealData.allergies.join(', ')}` : '';
-            await updateVisit({ 
-              ...visit, 
-              meals: mealTypes + restrictions + allergies
-            });
-            setIsMealModalOpen(false);
-            addToast('Repas enregistrés', 'success');
-          } catch (error) {
-            addToast('Erreur lors de la sauvegarde', 'error');
-          } finally {
-            setIsLoading(false);
-          }
-        }}
-      />
-
-      <AccommodationMatchingModal
-        isOpen={isAccommodationModalOpen}
-        onClose={() => setIsAccommodationModalOpen(false)}
-        visit={visit}
-        onSelectHost={async (selectedHost) => {
-          setIsLoading(true);
-          try {
-            const hostName = typeof selectedHost === 'string' ? selectedHost : selectedHost.nom;
-            await updateVisit({ ...visit, host: hostName });
-            setIsAccommodationModalOpen(false);
-            addToast(`Hôte: ${  hostName}`, 'success');
-          } catch (error) {
-            addToast('Erreur lors de la sélection', 'error');
-          } finally {
-            setIsLoading(false);
-          }
-        }}
-      />
     </>
   );
 };

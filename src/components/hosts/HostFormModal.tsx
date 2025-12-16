@@ -23,6 +23,8 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
+  const DEFAULT_CAPACITY = 2;
+
   const [formData, setFormData] = useState<Partial<Host>>({
     nom: '',
     address: '',
@@ -30,7 +32,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
     email: '',
     gender: 'couple',
     notes: '',
-    capacity: 2,
+    capacity: DEFAULT_CAPACITY,
     hasPets: false,
     isSmoker: false,
   });
@@ -46,14 +48,14 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
         email: '',
         gender: 'couple',
         notes: '',
-        capacity: 2,
+        capacity: DEFAULT_CAPACITY,
         hasPets: false,
         isSmoker: false,
       });
     }
   }, [host, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -162,7 +164,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
             type="number"
             min={1}
             value={formData.capacity}
-            onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value) }))}
+            onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value, 10) }))}
           />
 
           <div className="flex items-center space-x-4 pt-8 col-span-2">
@@ -176,19 +178,6 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
               />
               <label htmlFor="hasPets" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Animaux de compagnie
-              </label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="isSmoker"
-                checked={formData.isSmoker}
-                onChange={(e) => setFormData(prev => ({ ...prev, isSmoker: e.target.checked }))}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <label htmlFor="isSmoker" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Fumeur
               </label>
             </div>
           </div>

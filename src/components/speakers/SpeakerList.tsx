@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Edit, Trash2, Phone, Mail, Car, Search, Star, SortAsc, Filter } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Avatar } from '@/components/ui/Avatar';
 import { useData } from '@/contexts/DataContext';
 import { calculateWorkload } from '@/utils/workload';
 import { WorkloadIndicator } from '@/components/workload/WorkloadIndicator';
 
 interface SpeakerListProps {
   speakers: Speaker[];
-  onEdit: (speaker: Speaker) => void;
-  onDelete: (id: string) => void;
-  onFeedback: (visit: Visit) => void;
+  onEdit: (_speaker: Speaker) => void;
+  onDelete: (_id: string) => void;
+  onFeedback: (_visit: Visit) => void;
 }
 
 export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDelete, onFeedback }) => {
@@ -77,6 +78,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
       return a.nom.toLowerCase().localeCompare(b.nom.toLowerCase());
     });
 
+
   return (
     <div className="space-y-6">
       <div className="flex gap-4">
@@ -131,9 +133,12 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({ speakers, onEdit, onDe
             <CardBody className="p-4">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold">
-                    {speaker.nom.charAt(0)}
-                  </div>
+                  <Avatar
+                    src={speaker.photoUrl}
+                    name={speaker.nom}
+                    size="md"
+                    fallbackClassName="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300"
+                  />
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white">{speaker.nom}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{speaker.congregation}</p>

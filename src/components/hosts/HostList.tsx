@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Edit, Trash2, Phone, Mail, MapPin, Search, Info } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Avatar } from '@/components/ui/Avatar';
 
 interface HostListProps {
   hosts: Host[];
-  onEdit: (host: Host) => void;
-  onDelete: (name: string) => void;
+  onEdit: (_host: Host) => void;
+  onDelete: (_name: string) => void;
 }
 
 export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) => {
@@ -38,9 +39,12 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
             <CardBody className="p-4">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-700 dark:text-green-300 font-bold">
-                    {host.nom.charAt(0)}
-                  </div>
+                  <Avatar
+                    src={host.photoUrl}
+                    name={host.nom}
+                    size="md"
+                    fallbackClassName="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300"
+                  />
                   <div>
                     <h3 className="font-semibold text-gray-900 dark:text-white">{host.nom}</h3>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -87,11 +91,6 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
                 {host.hasPets && (
                   <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
                     Animaux
-                  </span>
-                )}
-                {host.isSmoker && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
-                    Fumeur
                   </span>
                 )}
                 {host.notes && (

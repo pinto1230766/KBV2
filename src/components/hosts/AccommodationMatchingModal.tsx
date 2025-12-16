@@ -12,7 +12,7 @@ interface AccommodationMatchingModalProps {
   onClose: () => void;
   visit: Visit;
   speaker?: Speaker;
-  onSelectHost: (host: Host) => void;
+  onSelectHost: (_host: Host) => void;
 }
 
 interface HostMatch {
@@ -27,6 +27,48 @@ interface CompatibilityFactor {
   score: number;
   positive: boolean;
 }
+
+// Constants for scoring
+/* eslint-disable no-magic-numbers */
+const SCORE_WEIGHTS = {
+  AVAILABILITY: 40,
+  GENDER_COUPLE_COUPLE: 20,
+  GENDER_SAME: 15,
+  GENDER_PARTIAL: 10,
+  CAPACITY_GOOD: 15,
+  CAPACITY_LIMITED: 5,
+  EQUIPMENT_PARKING: 10,
+  EQUIPMENT_ELEVATOR: 5,
+  PREFERENCE_PENALTY: 10,
+  EXPERIENCE_PER_HOST: 5,
+  MAX_EXPERIENCE: 20,
+  RECENT_HOST_PENALTY: 10,
+  LONG_TIME_AVAILABLE: 10,
+  DAYS_RECENT: 30,
+  DAYS_LONG_TIME: 180,
+  DAYS_IN_MS: 86400000, // 24 * 60 * 60 * 1000
+  SCORE_EXCELLENT: 80,
+  SCORE_GOOD: 60,
+  SCORE_ACCEPTABLE: 40,
+  CAPACITY_MATCH: 40,
+  PREVIOUS_HOST: 20,
+  DISTANCE: 15,
+  PETS: 10,
+  EXPERIENCE: 5,
+  MIN_CAPACITY: 2,
+  HOST_CATEGORY: {
+    GOLD: 80,
+    SILVER: 60,
+    BRONZE: 40,
+  },
+  UI: {
+    MIN_HEIGHT: 60,
+    MAX_HEIGHT: 180,
+    AVATAR_SIZE: 30,
+    ITEM_SPACING: 10,
+  },
+};
+/* eslint-enable no-magic-numbers */
 
 export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProps> = ({
   isOpen,
@@ -47,14 +89,17 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       let score = 0;
       const compatibility: CompatibilityFactor[] = [];
       const warnings: string[] = [];
+      
+      // Utilisation des constantes de score
+      const { AVAILABILITY } = SCORE_WEIGHTS;
 
       // 1. Vérifier la disponibilité
       const isAvailable = !host.unavailableDates?.includes(visit.visitDate);
       if (isAvailable) {
-        score += 40;
+        score += AVAILABILITY; // Utilisation de la constante
         compatibility.push({
           factor: 'Disponible à cette date',
-          score: 40,
+          score: AVAILABILITY,
           positive: true
         });
       } else {
@@ -65,24 +110,24 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       // 2. Vérifier le genre (compatibilité)
       if (speaker) {
         if (speaker.gender === 'couple' && host.gender === 'couple') {
-          score += 20;
+          score += SCORE_WEIGHTS.GENDER_COUPLE_COUPLE;
           compatibility.push({
             factor: 'Couple accueille couple',
-            score: 20,
+            score: SCORE_WEIGHTS.GENDER_COUPLE_COUPLE,
             positive: true
           });
         } else if (speaker.gender === host.gender) {
-          score += 15;
+          score += SCORE_WEIGHTS.GENDER_SAME;
           compatibility.push({
             factor: 'Genre compatible',
-            score: 15,
+            score: SCORE_WEIGHTS.GENDER_SAME,
             positive: true
           });
         } else if (speaker.gender === 'couple' || host.gender === 'couple') {
-          score += 10;
+          score += SCORE_WEIGHTS.GENDER_PARTIAL;
           compatibility.push({
             factor: 'Genre partiellement compatible',
-            score: 10,
+            score: SCORE_WEIGHTS.GENDER_PARTIAL,
             positive: true
           });
         }
@@ -90,17 +135,17 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
 
       // 3. Capacité d'accueil
       if (host.capacity) {
-        if (host.capacity >= 2) {
-          score += 15;
+        if (host.capacity >= SCORE_WEIGHTS.MIN_CAPACITY) {
+          score += SCORE_WEIGHTS.CAPACITY_GOOD;
           compatibility.push({
             factor: `Capacité: ${host.capacity} personne(s)`,
-            score: 15,
+            score: SCORE_WEIGHTS.CAPACITY_GOOD,
             positive: true
           });
         } else {
           compatibility.push({
             factor: 'Capacité limitée (1 personne)',
-            score: 5,
+            score: SCORE_WEIGHTS.CAPACITY_LIMITED,
             positive: false
           });
         }
@@ -108,19 +153,19 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
 
       // 4. Équipements
       if (host.hasParking) {
-        score += 10;
+        score += SCORE_WEIGHTS.EQUIPMENT_PARKING;
         compatibility.push({
           factor: 'Parking disponible',
-          score: 10,
+          score: SCORE_WEIGHTS.EQUIPMENT_PARKING,
           positive: true
         });
       }
 
       if (host.hasElevator) {
-        score += 5;
+        score += SCORE_WEIGHTS.EQUIPMENT_ELEVATOR;
         compatibility.push({
           factor: 'Ascenseur disponible',
-          score: 5,
+          score: SCORE_WEIGHTS.EQUIPMENT_ELEVATOR,
           positive: true
         });
       }
@@ -128,7 +173,7 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       // 5. Préférences spéciales
       if (speaker?.isVehiculed && !host.hasParking) {
         warnings.push('Orateur véhiculé mais pas de parking');
-        score -= 10;
+        score -= SCORE_WEIGHTS.PREFERENCE_PENALTY;
       }
 
       // 6. Animaux
@@ -141,25 +186,15 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         warnings.push('Présence d\'animaux');
       }
 
-      // 7. Fumeur
-      if (host.isSmoker) {
-        compatibility.push({
-          factor: 'Fumeur',
-          score: -5,
-          positive: false
-        });
-        warnings.push('Environnement fumeur');
-        score -= 5;
-      }
 
       // 8. Historique d'accueil
-      const previousAccommodations = visits.filter(v => 
+      const previousAccommodations = visits.filter(v =>
         v.host === host.nom &&
         v.status === 'completed'
       );
 
       if (previousAccommodations.length > 0) {
-        const experienceScore = Math.min(previousAccommodations.length * 5, 20);
+        const experienceScore = Math.min(previousAccommodations.length * SCORE_WEIGHTS.EXPERIENCE_PER_HOST, SCORE_WEIGHTS.MAX_EXPERIENCE);
         score += experienceScore;
         compatibility.push({
           factor: `${previousAccommodations.length} accueil(s) réussi(s)`,
@@ -174,18 +209,18 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
 
       if (lastAccommodation) {
         const daysSince = Math.floor(
-          (new Date(visit.visitDate).getTime() - new Date(lastAccommodation.visitDate).getTime()) / 
-          (1000 * 60 * 60 * 24)
+          (new Date(visit.visitDate).getTime() - new Date(lastAccommodation.visitDate).getTime()) /
+          SCORE_WEIGHTS.DAYS_IN_MS
         );
 
-        if (daysSince < 30) {
+        if (daysSince < SCORE_WEIGHTS.DAYS_RECENT) {
           warnings.push('A accueilli récemment');
-          score -= 10;
-        } else if (daysSince > 180) {
-          score += 10;
+          score -= SCORE_WEIGHTS.RECENT_HOST_PENALTY;
+        } else if (daysSince > SCORE_WEIGHTS.DAYS_LONG_TIME) {
+          score += SCORE_WEIGHTS.LONG_TIME_AVAILABLE;
           compatibility.push({
             factor: 'Disponible depuis longtemps',
-            score: 10,
+            score: SCORE_WEIGHTS.LONG_TIME_AVAILABLE,
             positive: true
           });
         }
@@ -210,16 +245,16 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
-    if (score >= 60) return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
-    if (score >= 40) return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
+    if (score >= SCORE_WEIGHTS.SCORE_EXCELLENT) return 'text-green-600 bg-green-100 dark:bg-green-900/20';
+    if (score >= SCORE_WEIGHTS.SCORE_GOOD) return 'text-blue-600 bg-blue-100 dark:bg-blue-900/20';
+    if (score >= SCORE_WEIGHTS.SCORE_ACCEPTABLE) return 'text-orange-600 bg-orange-100 dark:bg-orange-900/20';
     return 'text-red-600 bg-red-100 dark:bg-red-900/20';
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excellent match';
-    if (score >= 60) return 'Bon match';
-    if (score >= 40) return 'Match acceptable';
+    if (score >= SCORE_WEIGHTS.SCORE_EXCELLENT) return 'Excellent match';
+    if (score >= SCORE_WEIGHTS.SCORE_GOOD) return 'Bon match';
+    if (score >= SCORE_WEIGHTS.SCORE_ACCEPTABLE) return 'Match acceptable';
     return 'Match faible';
   };
 

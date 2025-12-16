@@ -10,11 +10,11 @@ import { useData } from '@/contexts/DataContext';
 interface DuplicateDetectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onMerge: (duplicates: DuplicateGroup[], action: 'merge' | 'delete') => void;
+  onMerge: (_duplicates: DuplicateGroup[], _action: 'merge' | 'delete') => void;
 }
 
 interface DuplicateGroup {
-  type: 'speaker' | 'host' | 'visit' | 'message';
+  type: 'speaker' | 'host' | 'visit' | 'message' | 'archivedVisit';
   items: any[];
   similarity: number;
   reason: string[];
@@ -22,12 +22,17 @@ interface DuplicateGroup {
 
 export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = ({
   isOpen,
-  onClose,
-  onMerge
+  onClose: _onClose,
+  onMerge: _onMerge
 }) => {
-  const { speakers, hosts, visits, speakerMessages } = useData();
+  const { speakers, hosts, visits, speakerMessages, archivedVisits } = useData();
   const [selectedGroups, setSelectedGroups] = useState<Set<number>>(new Set());
   const [mergeStrategy, setMergeStrategy] = useState<'keep-first' | 'keep-recent' | 'manual'>('keep-recent');
+  const [includeArchives, setIncludeArchives] = useState(false);
+  
+  // Seuils de similarité pour la détection des doublons
+  const SIMILARITY_THRESHOLD_HIGH = 95;
+  const SIMILARITY_THRESHOLD_MEDIUM = 90;
 
   // Algorithme de détection de doublons
   const duplicateGroups = useMemo(() => {
@@ -61,10 +66,11 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
           reasons.push('Même congrégation');
         }
 
+        const similarity = SIMILARITY_THRESHOLD_HIGH;
         groups.push({
           type: 'speaker',
           items: group,
-          similarity: 95,
+          similarity,
           reason: reasons
         });
       }
@@ -96,10 +102,11 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
           reasons.push('Adresse identique');
         }
 
+        const similarity = SIMILARITY_THRESHOLD_HIGH;
         groups.push({
           type: 'host',
           items: group,
-          similarity: 95,
+          similarity,
           reason: reasons
         });
       }
@@ -127,7 +134,65 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       }
     });
 
-    // 4. Détection de messages en double
+    // 4. Détection de doublons dans les archives (si activé)
+    if (includeArchives && archivedVisits) {
+      // Vérifier les doublons entre archives uniquement
+      const archivedVisitGroups = new Map<string, any[]>();
+      archivedVisits.forEach(visit => {
+        const key = `${visit.id}-${visit.visitDate}-${visit.visitTime}`;
+        
+        if (!archivedVisitGroups.has(key)) {
+          archivedVisitGroups.set(key, []);
+        }
+        archivedVisitGroups.get(key)!.push(visit);
+      });
+
+      archivedVisitGroups.forEach((group) => {
+        if (group.length > 1) {
+          groups.push({
+            type: 'archivedVisit',
+            items: group,
+            similarity: 100,
+            reason: ['Doublon dans les archives - Même orateur, date et heure']
+          });
+        }
+      });
+
+      // Vérifier les doublons entre visites actuelles et archives
+      const crossVisitGroups = new Map<string, any[]>();
+      visits.forEach(currentVisit => {
+        const key = `${currentVisit.id}-${currentVisit.visitDate}-${currentVisit.visitTime}`;
+        
+        if (!crossVisitGroups.has(key)) {
+          crossVisitGroups.set(key, []);
+        }
+        crossVisitGroups.get(key)!.push({ ...currentVisit, _source: 'current' });
+        
+        // Ajouter les visites archivées correspondantes
+        const matchingArchived = archivedVisits.filter(av =>
+          av.id === currentVisit.id &&
+          av.visitDate === currentVisit.visitDate &&
+          av.visitTime === currentVisit.visitTime
+        );
+        
+        matchingArchived.forEach(archived => {
+          crossVisitGroups.get(key)!.push({ ...archived, _source: 'archived' });
+        });
+      });
+
+      crossVisitGroups.forEach((group) => {
+        if (group.length > 1) {
+          groups.push({
+            type: 'archivedVisit',
+            items: group,
+            similarity: 100,
+            reason: ['Doublon entre visites actuelles et archivées']
+          });
+        }
+      });
+    }
+
+    // 5. Détection de messages en double
     const messageGroups = new Map<string, any[]>();
     if (speakerMessages && speakerMessages.length > 0) {
       speakerMessages.forEach(msg => {
@@ -156,7 +221,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
     });
 
     return groups;
-  }, [speakers, hosts, visits, speakerMessages]);
+  }, [speakers, hosts, visits, speakerMessages, archivedVisits, includeArchives]);
 
   const toggleGroup = (index: number) => {
     setSelectedGroups(prev => {
@@ -172,14 +237,14 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
 
   const handleMerge = () => {
     const selectedDuplicates = Array.from(selectedGroups).map(idx => duplicateGroups[idx]);
-    onMerge(selectedDuplicates, 'merge');
-    onClose();
+    _onMerge(selectedDuplicates, 'merge');
+    _onClose();
   };
 
   const handleDelete = () => {
     const selectedDuplicates = Array.from(selectedGroups).map(idx => duplicateGroups[idx]);
-    onMerge(selectedDuplicates, 'delete');
-    onClose();
+    _onMerge(selectedDuplicates, 'delete');
+    _onClose();
   };
 
   const getTypeLabel = (type: DuplicateGroup['type']) => {
@@ -187,7 +252,9 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       case 'speaker': return 'Orateur';
       case 'host': return 'Hôte';
       case 'visit': return 'Visite';
+      case 'archivedVisit': return 'Visite archivée';
       case 'message': return 'Message';
+      default: return 'Inconnu';
     }
   };
 
@@ -196,20 +263,22 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
       case 'speaker': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300';
       case 'host': return 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300';
       case 'visit': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300';
+      case 'archivedVisit': return 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300';
       case 'message': return 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300';
+      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-300';
     }
   };
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={_onClose}
       title="Détection de doublons"
       size="xl"
     >
       <div className="space-y-6">
         {/* Statistiques */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">
               {duplicateGroups.filter(g => g.type === 'speaker').length}
@@ -228,12 +297,37 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
             </div>
             <div className="text-sm text-purple-800 dark:text-purple-300">Visites</div>
           </div>
+          <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+            <div className="text-2xl font-bold text-orange-600">
+              {duplicateGroups.filter(g => g.type === 'archivedVisit').length}
+            </div>
+            <div className="text-sm text-orange-800 dark:text-orange-300">Archives</div>
+          </div>
           <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
             <div className="text-2xl font-bold text-red-600">
               {duplicateGroups.filter(g => g.type === 'message').length}
             </div>
             <div className="text-sm text-red-800 dark:text-red-300">Messages</div>
           </div>
+        </div>
+
+        {/* Option pour inclure les archives */}
+        <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <input
+            type="checkbox"
+            id="include-archives"
+            checked={includeArchives}
+            onChange={(e) => setIncludeArchives(e.target.checked)}
+            className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+          />
+          <label htmlFor="include-archives" className="cursor-pointer">
+            <div className="font-medium text-gray-900 dark:text-white">
+              Inclure les archives dans l'analyse
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Détecte les doublons dans les visites archivées et entre visites actuelles/archivées
+            </div>
+          </label>
         </div>
 
         {/* Stratégie de fusion */}
@@ -288,7 +382,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
               <Card
                 key={index}
                 className={`${
-                  group.similarity >= 90 ? 'border-l-4 border-l-red-600' : 'border-l-4 border-l-orange-500'
+                  group.similarity >= SIMILARITY_THRESHOLD_MEDIUM ? 'border-l-4 border-l-red-600' : 'border-l-4 border-l-orange-500'
                 } ${
                   selectedGroups.has(index) ? 'ring-2 ring-primary-500' : ''
                 }`}
@@ -399,7 +493,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
 
         {/* Actions */}
         <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={_onClose}>
             Fermer
           </Button>
           {selectedGroups.size > 0 && (
