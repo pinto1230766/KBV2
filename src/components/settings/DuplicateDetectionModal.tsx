@@ -10,7 +10,7 @@ import { useData } from '@/contexts/DataContext';
 interface DuplicateDetectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onMerge: (_duplicates: DuplicateGroup[], _action: 'merge' | 'delete') => void;
+  onMerge: (_duplicates: DuplicateGroup[], _action: 'merge' | 'delete', _strategy?: 'keep-first' | 'keep-recent' | 'manual') => void;
 }
 
 interface DuplicateGroup {
@@ -237,14 +237,16 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
 
   const handleMerge = () => {
     const selectedDuplicates = Array.from(selectedGroups).map(idx => duplicateGroups[idx]);
-    _onMerge(selectedDuplicates, 'merge');
-    _onClose();
+    _onMerge(selectedDuplicates, 'merge', mergeStrategy);
+    setSelectedGroups(new Set());
   };
 
   const handleDelete = () => {
+    // Supprimer les doublons (keep one?) No, modal says "Delete Duplicates" which usually calls onMerge(..., delete).
+    // The previous implementation used _onMerge with 'delete'.
     const selectedDuplicates = Array.from(selectedGroups).map(idx => duplicateGroups[idx]);
-    _onMerge(selectedDuplicates, 'delete');
-    _onClose();
+    _onMerge(selectedDuplicates, 'delete', mergeStrategy);
+    setSelectedGroups(new Set());
   };
 
   const getTypeLabel = (type: DuplicateGroup['type']) => {
@@ -378,9 +380,33 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
               </p>
             </div>
           ) : (
-            duplicateGroups.map((group, index) => (
-              <Card
-                key={index}
+            <>
+              <div className="flex items-center gap-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2 sticky top-0 z-10">
+                <input
+                  type="checkbox"
+                  aria-label="Tout sélectionner"
+                  checked={duplicateGroups.length > 0 && selectedGroups.size === duplicateGroups.length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedGroups(new Set(duplicateGroups.map((_, i) => i)));
+                    } else {
+                      setSelectedGroups(new Set());
+                    }
+                  }}
+                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                />
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  Tout sélectionner ({duplicateGroups.length})
+                </span>
+                {selectedGroups.size > 0 && (
+                  <span className="text-sm text-gray-500 ml-auto">
+                    {selectedGroups.size} sélectionné(s)
+                  </span>
+                )}
+              </div>
+              {duplicateGroups.map((group, index) => (
+                <Card
+                  key={index}
                 className={`${
                   group.similarity >= SIMILARITY_THRESHOLD_MEDIUM ? 'border-l-4 border-l-red-600' : 'border-l-4 border-l-orange-500'
                 } ${
@@ -477,7 +503,8 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                   </div>
                 </CardBody>
               </Card>
-            ))
+            ))}
+            </>
           )}
         </div>
 

@@ -37,7 +37,7 @@ KBV Lyon est une application web complète développée pour gérer efficacement
 
 ### 🏛️ Architecture
 
-```
+```text
 src/
 ├── components/          # Composants React réutilisables
 │   ├── ui/          # Composants UI de base (Button, Card, Modal)
@@ -247,7 +247,7 @@ VITE_VAPID_PUBLIC_KEY=your-vapid-key
 
 ### Structure des Commits
 
-```
+```text
 feat: nouvelle fonctionnalité
 fix: correction de bug
 docs: documentation

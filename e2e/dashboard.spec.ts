@@ -5,6 +5,21 @@
 
 import { test, expect, Page, Route } from '@playwright/test';
 
+// Constants for responsive design breakpoints
+const MOBILE_WIDTH = 375;
+const MOBILE_HEIGHT = 667;
+const TABLET_WIDTH = 768;
+const TABLET_HEIGHT = 1024;
+const DESKTOP_WIDTH = 1920;
+const DESKTOP_HEIGHT = 1080;
+
+// Constants for test expectations
+const EXPECTED_STATS_CARDS_COUNT = 4;
+const TEST_DATA_UPDATE_VALUE = 15;
+const ERROR_RESPONSE_STATUS = 500;
+const ERROR_WAIT_TIMEOUT = 2000;
+const MAX_LOAD_TIME = 3000;
+
 test.describe('Dashboard - Page principale', () => {
   test.beforeEach(async ({ page }: { page: Page }) => {
     // Aller sur la page dashboard
@@ -25,7 +40,7 @@ test.describe('Dashboard - Page principale', () => {
   test('Devrait afficher les statistiques des orateurs', async ({ page }: { page: Page }) => {
     // Vérifier les cartes de statistiques
     const statsCards = page.locator('[data-testid="stat-card"]');
-    await expect(statsCards).toHaveCount(4);
+    await expect(statsCards).toHaveCount(EXPECTED_STATS_CARDS_COUNT);
     
     // Vérifier que les valeurs sont affichées
     const speakersCard = statsCards.filter({ hasText: /orateurs/i });
@@ -64,13 +79,13 @@ test.describe('Dashboard - Page principale', () => {
 
   test('Devrait avoir une interface responsive', async ({ page }: { page: Page }) => {
     // Tester différentes tailles d'écran
-    await page.setViewportSize({ width: 375, height: 667 }); // Mobile
+    await page.setViewportSize({ width: MOBILE_WIDTH, height: MOBILE_HEIGHT }); // Mobile
     await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
     
-    await page.setViewportSize({ width: 768, height: 1024 }); // Tablet
+    await page.setViewportSize({ width: TABLET_WIDTH, height: TABLET_HEIGHT }); // Tablet
     await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
     
-    await page.setViewportSize({ width: 1920, height: 1080 }); // Desktop
+    await page.setViewportSize({ width: DESKTOP_WIDTH, height: DESKTOP_HEIGHT }); // Desktop
     await expect(page.locator('[data-testid="dashboard"]')).toBeVisible();
   });
 
@@ -90,7 +105,7 @@ test.describe('Dashboard - Page principale', () => {
 
   test('Devrait gérer les interactions tactiles', async ({ page }: { page: Page }) => {
     // Simulation d'interaction tactile sur mobile
-    await page.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: MOBILE_WIDTH, height: MOBILE_HEIGHT });
     
     // Tester le swipe sur les cartes de statistiques
     const firstCard = page.locator('[data-testid="stat-card"]').first();
@@ -98,7 +113,7 @@ test.describe('Dashboard - Page principale', () => {
     await firstCard.click();
     
     // Vérifier que l'action est prise en compte
-    await expect(page).toHaveURL(/(\/speakers|\/planning)/);
+    await expect(page).toHaveURL(/(?:\/speakers|\/planning)/);
   });
 
   test('Devrait afficher les alertes intelligentes', async ({ page }: { page: Page }) => {
@@ -169,7 +184,7 @@ test.describe('Dashboard - Graphiques et données', () => {
     // Simuler une mise à jour de données
     await page.evaluate(() => {
       window.dispatchEvent(new CustomEvent('kbv:data-update', {
-        detail: { type: 'visits', value: 15 }
+        detail: { type: 'visits', value: TEST_DATA_UPDATE_VALUE }
       }));
     });
     
@@ -181,18 +196,18 @@ test.describe('Dashboard - Graphiques et données', () => {
     
     // Vérifier que les valeurs ont changé
     const kpiValue = page.locator('[data-testid="kpi-visits"] .value');
-    await expect(kpiValue).toContainText('15');
+    await expect(kpiValue).toContainText(String(TEST_DATA_UPDATE_VALUE));
   });
 
   test('Devrait gérer les erreurs de chargement', async ({ page }: { page: Page }) => {
     // Simuler une erreur de chargement
     await page.route('**/api/visits', (route: Route) => {
-      route.fulfill({ status: 500, contentType: 'text/plain', body: 'Internal Server Error' });
+      route.fulfill({ status: ERROR_RESPONSE_STATUS, contentType: 'text/plain', body: 'Internal Server Error' });
     });
     
     // Recharger la page pour déclencher l'erreur
     await page.reload();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(ERROR_WAIT_TIMEOUT);
     
     // Vérifier qu'une erreur s'affiche
     await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
@@ -209,7 +224,7 @@ test.describe('Dashboard - Performance', () => {
     const loadTime = Date.now() - startTime;
     
     // Le dashboard doit se charger en moins de 3 secondes
-    expect(loadTime).toBeLessThan(3000);
+    expect(loadTime).toBeLessThan(MAX_LOAD_TIME);
   });
 
   test('Devrait rester fluide pendant les interactions', async ({ page }: { page: Page }) => {

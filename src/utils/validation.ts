@@ -39,7 +39,7 @@ export const SpeakerSchema = z.object({
     .max(100, 'L\'email ne peut pas dépasser 100 caractères')
     .trim(),
   phone: z.string()
-    .regex(/^[\+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
+    .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
   company: z.string()
@@ -76,7 +76,7 @@ export const HostSchema = z.object({
     .max(100, 'L\'email ne peut pas dépasser 100 caractères')
     .trim(),
   phone: z.string()
-    .regex(/^[\+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
+    .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
   address: z.object({
@@ -224,8 +224,8 @@ export function validateForm(formData: Record<string, any>, rules: Record<string
     }
 
     if (fieldName === 'phone' && value) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+      if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
         if (!errors[fieldName]) errors[fieldName] = [];
         errors[fieldName].push('Format de téléphone invalide');
       }
@@ -310,9 +310,9 @@ export const isValidEmail = (email: string): boolean => {
 };
 
 export const isValidPhone = (phone: string): boolean => {
-  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
+  const cleanPhone = phone.replace(/[\s\-()]/g, '');
   // Must start with + or digit, and be at least 7 digits long (excluding +)
-  const phoneRegex = /^[\+]?[0-9][\d]{6,14}$/;
+  const phoneRegex = /^[+]?[0-9][\d]{6,14}$/;
   return phoneRegex.test(cleanPhone) && cleanPhone.length >= 7;
 };
 

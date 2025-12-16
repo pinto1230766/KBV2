@@ -254,7 +254,7 @@ export function validateSecureUrl(url: string, allowedDomains: string[] = []): b
     }
     
     // Vérifier les caractères dangereux dans l'URL
-    const dangerousChars = /[<>"'{}|\\^`\[\]]/;
+    const dangerousChars = /[<>"'{}|\\^`[\]]/;
     if (dangerousChars.test(url)) {
       return false;
     }

@@ -59,6 +59,8 @@ export const Settings: React.FC = () => {
     importData,
     mergeDuplicates,
     deleteVisit,
+    deleteSpeaker,
+    deleteHost,
     speakers,
     hosts,
     visits,
@@ -178,16 +180,33 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const handleMergeAdapter = (groups: any[], action: 'merge' | 'delete') => {
-    const MIN_ITEMS_NEEDED = 2; // Minimum items needed for merge operation
-    groups.forEach((group: any) => {
-      if (group.items.length < MIN_ITEMS_NEEDED) return;
+  const handleMergeAdapter = (groups: any[], action: 'merge' | 'delete', strategy: 'keep-first' | 'keep-recent' | 'manual' = 'keep-recent') => {
+    const MIN_ITEMS_NEEDED = 2;
+    let successCount = 0;
 
-      // On garde le premier élément par défaut
-      // TODO: Permettre à l'utilisateur de choisir "keepId" dans la modale
-      const keepItem = group.items[0];
+    groups.forEach((group: any) => {
+      if (!group.items || group.items.length < MIN_ITEMS_NEEDED) return;
+
+      // 1. Determine Master and Duplicates based on strategy
+      const sortedItems = [...group.items];
+      
+      if (strategy === 'keep-recent') {
+        // Sort by creation/update date descending (Newest first)
+        sortedItems.sort((a, b) => {
+          const dateA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const dateB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+      } else {
+        // keep-first: Assume the order in the group reflects detection order (usually original first or first found)
+        // If detection order is arbitrary, we might need better logic, but sticking to existing 'first index' behavior.
+      }
+
+      const keepItem = sortedItems[0];
+      const duplicates = sortedItems.slice(1);
+
       const keepId = group.type === 'host' ? (keepItem as any).nom : (keepItem as any).id || (keepItem as any).visitId;
-      const duplicateIds = group.items.slice(1).map((item: any) => {
+      const duplicateIds = duplicates.map((item: any) => {
         if (group.type === 'host') return (item as any).nom;
         if (group.type === 'visit') return (item as any).visitId;
         return (item as any).id;
@@ -195,10 +214,35 @@ export const Settings: React.FC = () => {
 
       if (action === 'merge') {
         mergeDuplicates(group.type, keepId, duplicateIds);
+        successCount++;
+      } else if (action === 'delete') {
+        // "Delete Duplicates" implies removing the COPIES, keeping the MASTER.
+        // We do NOT reassign visits. We just delete the extra entities.
+        if (group.type === 'speaker') {
+           // For delete action, use batch or loop
+           // Currently deleteSpeaker takes one ID. To be safe, use loop or context batch if available (queue handles it).
+           // mergeDuplicates actually handles deletion of duplicates too.
+           // The difference is solely whether we reassign relations.
+           // Since `mergeDuplicates` logic is: "Reassign visits... THEN delete speakers",
+           // If we want ONLY delete, we manually delete.
+           duplicateIds.forEach((id: string) => deleteSpeaker(id)); // Assuming deleteSpeaker is available in scope
+        } else if (group.type === 'host') {
+           duplicateIds.forEach((name: string) => deleteHost(name));
+        } else if (group.type === 'visit') {
+           duplicateIds.forEach((id: string) => deleteVisit(id));
+        }
+        successCount++;
       }
-      // Delete logic if needed
     });
-    addToast(action === 'merge' ? 'Fusion effectuée' : 'Suppression effectuée', 'success');
+
+    if (successCount > 0) {
+      addToast(
+        action === 'merge' 
+          ? `${successCount} groupe(s) fusionné(s) avec succès` 
+          : `${successCount} groupe(s) nettoyé(s) (doublons supprimés)`, 
+        'success'
+      );
+    }
   };
 
   return (

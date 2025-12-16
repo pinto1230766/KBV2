@@ -22,6 +22,47 @@ import styles from './AdvancedStats.module.css';
 import { Visit, Speaker, Host } from '@/types';
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+// Trend calculation thresholds
+const TREND_UP_THRESHOLD = 5;
+const TREND_DOWN_THRESHOLD = -5;
+
+// Time formatting
+const MINUTES_IN_HOUR = 60;
+
+// Chart dimensions
+const CHART_TICK_SIZE_SMALL = 11;
+const CHART_TICK_SIZE_MEDIUM = 12;
+const CHART_AXIS_WIDTH = 40;
+const CHART_BRUSH_HEIGHT = 20;
+const CHART_DOT_RADIUS_SMALL = 3;
+const CHART_DOT_RADIUS_MEDIUM = 4;
+const CHART_DOT_RADIUS_LARGE = 6;
+const CHART_STROKE_WIDTH = 2;
+
+// Font weights
+const FONT_WEIGHT_SEMI_BOLD = 600;
+
+// Progress bar thresholds
+const PROGRESS_HIGH_THRESHOLD = 75;
+const PROGRESS_MEDIUM_THRESHOLD = 50;
+const PROGRESS_STEP = 10;
+
+// KPI targets
+const VISITS_TARGET = 8;
+const PENDING_VISITS_THRESHOLD = 3;
+const GOOD_MONTH_THRESHOLD = 4;
+
+// Alert thresholds
+const MAX_VISIBLE_ALERTS = 5;
+const DAYS_IN_WEEK = 7;
+
+// Time constants
+const MONTHS_IN_YEAR = 12;
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -70,8 +111,8 @@ export const calculateTrend = (current: number, previous: number): {
   const diff = current - previous;
   const percentage = Math.round((diff / previous) * 100);
   
-  if (percentage > 5) return { direction: 'up', percentage };
-  if (percentage < -5) return { direction: 'down', percentage: Math.abs(percentage) };
+  if (percentage > TREND_UP_THRESHOLD) return { direction: 'up', percentage };
+  if (percentage < TREND_DOWN_THRESHOLD) return { direction: 'down', percentage: Math.abs(percentage) };
   return { direction: 'stable', percentage: Math.abs(percentage) };
 };
 
@@ -81,10 +122,11 @@ export const formatKPIValue = (value: number, format: KPIConfig['format'] = 'num
       return `${value.toFixed(1)}%`;
     case 'currency':
       return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
-    case 'time':
-      const hours = Math.floor(value / 60);
-      const minutes = value % 60;
+    case 'time': {
+      const hours = Math.floor(value / MINUTES_IN_HOUR);
+      const minutes = value % MINUTES_IN_HOUR;
       return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    }
     default:
       return new Intl.NumberFormat('fr-FR').format(value);
   }
@@ -96,7 +138,7 @@ export const formatKPIValue = (value: number, format: KPIConfig['format'] = 'num
 
 interface KPICardProps {
   kpi: KPIConfig;
-  onToggleVisibility?: (id: string) => void;
+  onToggleVisibility?: (_id: string) => void;
   compact?: boolean;
 }
 
@@ -190,10 +232,10 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onToggleVisibility, compa
                     <div 
                       className={cn(
                         styles.progressBarFill,
-                        `progressBarFillWidth${Math.round(Math.min(100, progress) / 10) * 10}`,
+                        `progressBarFillWidth${Math.round(Math.min(100, progress) / PROGRESS_STEP) * PROGRESS_STEP}`,
                         progress >= 100 ? styles.complete : 
-                        progress >= 75 ? styles.high : 
-                        progress >= 50 ? styles.medium : styles.low
+                        progress >= PROGRESS_HIGH_THRESHOLD ? styles.high : 
+                        progress >= PROGRESS_MEDIUM_THRESHOLD ? styles.medium : styles.low
                       )}
                     />
                   </div>
@@ -252,23 +294,23 @@ export const TrendChart: React.FC<TrendChartProps> = ({
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
               <XAxis 
                 dataKey="date" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: CHART_TICK_SIZE_MEDIUM }}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: CHART_TICK_SIZE_MEDIUM }}
                 tickLine={false}
                 axisLine={false}
-                width={40}
+                width={CHART_AXIS_WIDTH}
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{
-                  borderRadius: '8px', 
+                  borderRadius: '8px',
                   border: 'none',
                   boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                 }}
-                labelStyle={{ fontWeight: 600 }}
+                labelStyle={{ fontWeight: FONT_WEIGHT_SEMI_BOLD }}
               />
               {showArea ? (
                 <Area 
@@ -284,9 +326,9 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                   type="monotone" 
                   dataKey="value" 
                   stroke={color}
-                  strokeWidth={2}
-                  dot={{ fill: color, strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  strokeWidth={CHART_STROKE_WIDTH}
+                  dot={{ fill: color, strokeWidth: CHART_STROKE_WIDTH, r: CHART_DOT_RADIUS_MEDIUM }}
+                  activeDot={{ r: CHART_DOT_RADIUS_LARGE, strokeWidth: 0 }}
                 />
               )}
               {target && (
@@ -298,13 +340,13 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                     value: 'Objectif',
                     position: 'right',
                     style: { 
-                      fontSize: 11,
+                      fontSize: CHART_TICK_SIZE_SMALL,
                       fill: '#EF4444'
                     }
                   }}
                 />
               )}
-              {showBrush && <Brush dataKey="date" height={20} stroke={color} />}
+              {showBrush && <Brush dataKey="date" height={CHART_BRUSH_HEIGHT} stroke={color} />}
             </ChartType>
           </ResponsiveContainer>
         </div>
@@ -353,13 +395,13 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
               <XAxis 
                 dataKey="date" 
                 stroke="#6B7280" 
-                fontSize={11}
+                fontSize={CHART_TICK_SIZE_SMALL}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis 
                 stroke="#6B7280" 
-                fontSize={11}
+                fontSize={CHART_TICK_SIZE_SMALL}
                 tickLine={false}
                 axisLine={false}
               />
@@ -378,8 +420,8 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
                   dataKey={s.key}
                   name={s.name}
                   stroke={s.color}
-                  strokeWidth={2}
-                  dot={{ fill: s.color, r: 3 }}
+                  strokeWidth={CHART_STROKE_WIDTH}
+                  dot={{ fill: s.color, r: CHART_DOT_RADIUS_SMALL }}
                 />
               ))}
             </ComposedChart>
@@ -395,8 +437,8 @@ export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
 
 interface SmartAlertsProps {
   alerts: AlertConfig[];
-  onDismiss?: (id: string) => void;
-  onMarkAsRead?: (id: string) => void;
+  onDismiss?: (_id: string) => void;
+  onMarkAsRead?: (_id: string) => void;
   maxVisible?: number;
 }
 
@@ -404,7 +446,7 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({
   alerts,
   onDismiss,
   onMarkAsRead,
-  maxVisible = 5
+  maxVisible = MAX_VISIBLE_ALERTS
 }) => {
   const [showAll, setShowAll] = useState(false);
   
@@ -566,7 +608,7 @@ export const useSmartAlerts = (
 
     // Alertes pour les visites en attente
     const pendingVisits = visits.filter(v => v.status === 'pending');
-    if (pendingVisits.length > 3) {
+    if (pendingVisits.length > PENDING_VISITS_THRESHOLD) {
       alerts.push({
         id: 'pending-visits',
         type: 'warning',
@@ -575,14 +617,16 @@ export const useSmartAlerts = (
         timestamp: now,
         action: {
           label: 'Voir les visites',
-          onClick: () => window.location.href = '/planning'
+          onClick: () => {
+            window.location.href = '/planning';
+          }
         }
       });
     }
 
     // Alertes pour les visites cette semaine sans hôte
     const weekFromNow = new Date(today);
-    weekFromNow.setDate(weekFromNow.getDate() + 7);
+    weekFromNow.setDate(weekFromNow.getDate() + DAYS_IN_WEEK);
     
     const upcomingWithoutHost = visits.filter(v => {
       const visitDate = new Date(v.visitDate);
@@ -601,7 +645,9 @@ export const useSmartAlerts = (
         timestamp: now,
         action: {
           label: 'Assigner des hôtes',
-          onClick: () => window.location.href = '/planning'
+          onClick: () => {
+            window.location.href = '/planning';
+          }
         }
       });
     }
@@ -621,7 +667,9 @@ export const useSmartAlerts = (
         timestamp: now,
         action: {
           label: 'Mettre à jour',
-          onClick: () => window.location.href = '/planning'
+          onClick: () => {
+            window.location.href = '/planning';
+          }
         }
       });
     }
@@ -634,7 +682,7 @@ export const useSmartAlerts = (
              v.status === 'completed';
     });
 
-    if (thisMonthVisits.length >= 4) {
+    if (thisMonthVisits.length >= GOOD_MONTH_THRESHOLD) {
       alerts.push({
         id: 'good-month',
         type: 'success',
@@ -692,7 +740,7 @@ export const useKPIs = (
         label: 'Visites ce mois',
         value: thisMonthVisits.length,
         previousValue: lastMonthVisits.length,
-        target: 8,
+        target: VISITS_TARGET,
         icon: Calendar,
         color: 'text-blue-600'
       },
@@ -739,7 +787,7 @@ export const useTrendData = (visits: Visit[]): TrendData[] => useMemo(() => {
     const now = new Date();
 
     // 12 derniers mois
-    for (let i = 11; i >= 0; i--) {
+    for (let i = MONTHS_IN_YEAR - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthVisits = visits.filter(v => {
         const visitDate = new Date(v.visitDate);

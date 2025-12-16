@@ -4,7 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { MapPin, Phone, User, Calendar, Truck, Hotel, CheckSquare, Printer } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-// @ts-ignore
+
 import { useReactToPrint } from 'react-to-print';
 
 interface RoadmapViewProps {

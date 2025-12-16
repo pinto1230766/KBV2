@@ -297,7 +297,7 @@ export const testAccessibilityBasics = (element: HTMLElement): TestResult[] => {
 };
 
 // Utilitaires pour les tests d'état (Zustand stores)
-export const testStoreState = (store: any, initialState: any, actions: Array<{name: string; action: Function; expectedState: any}>): TestResult[] => {
+export const testStoreState = (store: any, initialState: any, actions: Array<{name: string; action: () => void; expectedState: any}>): TestResult[] => {
   const results: TestResult[] = [];
   
   // Test de l'état initial
