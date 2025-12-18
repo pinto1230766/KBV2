@@ -164,7 +164,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 { value: 'pt', label: 'Português' },
               ]}
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={(e) => setLanguage(e.target.value as 'fr' | 'cv' | 'pt')}
             />
           </div>
 
