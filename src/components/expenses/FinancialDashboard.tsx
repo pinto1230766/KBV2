@@ -4,12 +4,12 @@ import { Visit, Expense } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
-import { 
-  Euro, 
-  TrendingUp, 
-  PieChart, 
-  Calendar, 
-  ArrowUpRight, 
+import {
+  Euro,
+  TrendingUp,
+  PieChart,
+  Calendar,
+  ArrowUpRight,
   ArrowDownRight,
   Download
 } from 'lucide-react';
@@ -35,11 +35,11 @@ export const FinancialDashboard: React.FC = () => {
     // Define the type for the flattened expense object
     type DashboardExpense = Expense & { visitNom: string; visitDate: string };
 
-    const currentMonthExpenses = allExpenses.filter((e: DashboardExpense) => 
+    const currentMonthExpenses = allExpenses.filter((e: DashboardExpense) =>
       isWithinInterval(new Date(e.date), { start, end })
     );
 
-    const previousMonthExpenses = allExpenses.filter((e: DashboardExpense) => 
+    const previousMonthExpenses = allExpenses.filter((e: DashboardExpense) =>
       isWithinInterval(new Date(e.date), { start: previousStart, end: previousEnd })
     );
 
@@ -67,7 +67,7 @@ export const FinancialDashboard: React.FC = () => {
 
   // Overall stats (Year to date could be added here)
   const totalVisitsWithExpenses = visits.filter((v: Visit) => (v.expenses?.length || 0) > 0).length;
-  const averageCostPerVisit = totalVisitsWithExpenses === 0 ? 0 : 
+  const averageCostPerVisit = totalVisitsWithExpenses === 0 ? 0 :
     allExpenses.reduce((sum: number, e: Expense & { visitNom: string; visitDate: string }) => sum + e.amount, 0) / totalVisitsWithExpenses;
 
   const exportData = () => {
@@ -87,7 +87,9 @@ export const FinancialDashboard: React.FC = () => {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `depenses_${selectedMonth}.csv`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => {
@@ -194,7 +196,7 @@ export const FinancialDashboard: React.FC = () => {
                           <span className="font-medium text-gray-900 dark:text-white">{amount.toFixed(2)} {currency} ({percentage.toFixed(0)}%)</span>
                         </div>
                         <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                          <div 
+                          <div
                             className={`bg-purple-600 h-2 rounded-full transition-all duration-500 w-[${percentage}%]`}
                           />
                         </div>
@@ -209,30 +211,30 @@ export const FinancialDashboard: React.FC = () => {
         {/* Recent Expenses List */}
         <Card className="h-full">
           <CardBody className="p-0">
-             <div className="p-5 border-b border-gray-100 dark:border-gray-700">
-               <h3 className="font-semibold text-gray-900 dark:text-white">Dernières dépenses</h3>
-             </div>
-             <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[300px] overflow-y-auto">
-               {monthlyStats.expenses.length === 0 ? (
-                 <p className="text-center text-gray-500 py-8">Aucune dépense ce mois-ci</p>
-               ) : (
-                 monthlyStats.expenses.map((expense: Expense & { visitNom: string; visitDate: string }) => (
-                   <div key={expense.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                     <div className="flex justify-between items-start">
-                       <div>
-                         <p className="font-medium text-gray-900 dark:text-white text-sm">{expense.description}</p>
-                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                           {format(new Date(expense.date), 'dd MMM', { locale: fr })} • {expense.visitNom}
-                         </p>
-                       </div>
-                       <span className="font-semibold text-gray-900 dark:text-white text-sm">
-                         {expense.amount.toFixed(2)} {currency}
-                       </span>
-                     </div>
-                   </div>
-                 ))
-               )}
-             </div>
+            <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+              <h3 className="font-semibold text-gray-900 dark:text-white">Dernières dépenses</h3>
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[300px] overflow-y-auto">
+              {monthlyStats.expenses.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">Aucune dépense ce mois-ci</p>
+              ) : (
+                monthlyStats.expenses.map((expense: Expense & { visitNom: string; visitDate: string }) => (
+                  <div key={expense.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white text-sm">{expense.description}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {format(new Date(expense.date), 'dd MMM', { locale: fr })} • {expense.visitNom}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm">
+                        {expense.amount.toFixed(2)} {currency}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </CardBody>
         </Card>
       </div>

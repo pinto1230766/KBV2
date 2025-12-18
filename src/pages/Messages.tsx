@@ -349,7 +349,11 @@ export const Messages: React.FC = () => {
             setGeneratorVisit(null);
           }}
           speaker={selectedSpeaker || speakers[0]}
-          visit={visits[0]}
+          visit={
+            selectedSpeaker 
+              ? (visits.find(v => v.id === selectedSpeaker.id && (v.status === 'pending' || v.status === 'confirmed')) || visits.find(v => v.id === selectedSpeaker.id) || visits[0])
+              : visits[0]
+          }
         />
       )}
 

@@ -37,13 +37,13 @@ import { ConflictDetectionModal, CancellationModal, EmergencyReplacementModal } 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
 // Memoized statistics component for performance
-const StatCard = memo(({ 
-  icon: Icon, 
-  value, 
-  label, 
-  bgColor, 
-  textColor, 
-  iconBg 
+const StatCard = memo(({
+  icon: Icon,
+  value,
+  label,
+  bgColor,
+  textColor,
+  iconBg
 }: {
   icon: any;
   value: number;
@@ -68,10 +68,10 @@ const StatCard = memo(({
 ));
 
 // Memoized view option component
-const ViewOption = memo(({ 
-  viewOption, 
-  currentView, 
-  onViewChange 
+const ViewOption = memo(({
+  viewOption,
+  currentView,
+  onViewChange
 }: {
   viewOption: any;
   currentView: ViewType;
@@ -79,11 +79,10 @@ const ViewOption = memo(({
 }) => (
   <button
     onClick={() => onViewChange(viewOption.id as ViewType)}
-    className={`p-2 rounded-md transition-all text-xs ${
-      currentView === viewOption.id
-        ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
-        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
-    }`}
+    className={`p-2 rounded-md transition-all text-xs ${currentView === viewOption.id
+      ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
+      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+      }`}
     title={viewOption.description}
   >
     <viewOption.icon className="w-4 h-4" />
@@ -113,10 +112,41 @@ export const Planning: React.FC = () => {
     documentTitle: `Planning-visites-${new Date().toLocaleDateString()}`,
   });
 
+  const handleExport = () => {
+    if (view === 'archives') {
+      const headers = ['Date', 'Heure', 'Orateur', 'Congrégation', 'Discours', 'Thème', 'Hôte'];
+      const csvContent = [
+        headers.join(','),
+        ...archivedVisits.map(visit => [
+          visit.visitDate,
+          visit.visitTime,
+          `"${visit.nom}"`,
+          `"${visit.congregation}"`,
+          visit.talkNoOrType || '',
+          `"${visit.talkTheme || ''}"`,
+          `"${visit.host || ''}"`
+        ].join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `visites_archivees_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (view === 'finance') {
+      // Le composant FinancialDashboard gère son propre export, mais on peut ajouter un toast ou une logique ici si nécessaire
+      // Pour l'instant on laisse le bouton interne du dashboard
+    } else {
+      handlePrint();
+    }
+  };
+
 
   // Memoized event handlers to prevent unnecessary re-renders
   const handleSetView = useCallback((newView: ViewType) => setView(newView), []);
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => 
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchTerm(e.target.value), []);
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
@@ -132,24 +162,24 @@ export const Planning: React.FC = () => {
 
   // Optimized filtered and sorted visits with proper dependencies
   const filteredVisits = useMemo(() => visits
-      .filter((visit: Visit) => {
-        const matchesSearch =
-          visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          visit.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          visit.talkNoOrType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          visit.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+    .filter((visit: Visit) => {
+      const matchesSearch =
+        visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        visit.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        visit.talkNoOrType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        visit.notes?.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = statusFilter === 'all' || visit.status === statusFilter;
-        const matchesType = typeFilter === 'all' || visit.locationType === typeFilter;
-        
-        const visitDate = new Date(visit.visitDate);
-        const matchesDateRange = 
-            (!dateRange.start || visitDate >= dateRange.start) &&
-            (!dateRange.end || visitDate <= dateRange.end);
+      const matchesStatus = statusFilter === 'all' || visit.status === statusFilter;
+      const matchesType = typeFilter === 'all' || visit.locationType === typeFilter;
 
-        return matchesSearch && matchesStatus && matchesType && matchesDateRange;
-      })
-      .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()), [visits, searchTerm, statusFilter, typeFilter, dateRange]);
+      const visitDate = new Date(visit.visitDate);
+      const matchesDateRange =
+        (!dateRange.start || visitDate >= dateRange.start) &&
+        (!dateRange.end || visitDate <= dateRange.end);
+
+      return matchesSearch && matchesStatus && matchesType && matchesDateRange;
+    })
+    .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()), [visits, searchTerm, statusFilter, typeFilter, dateRange]);
 
   // Optimized statistics calculation
   const stats = useMemo(() => {
@@ -240,10 +270,10 @@ export const Planning: React.FC = () => {
                 onChange={handleSearchChange}
               />
             </div>
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              leftIcon={<Filter className="w-4 h-4" />} 
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<Filter className="w-4 h-4" />}
               onClick={() => setIsFilterModalOpen(true)}
             >
               Filtres
@@ -300,25 +330,24 @@ export const Planning: React.FC = () => {
                 onViewChange={handleSetView}
               />
             ))}
-            
+
             {/* Menu déroulant pour vues spécialisées */}
             <div className="relative">
               <button
                 onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
-                className={`p-2 rounded-md transition-all text-xs ${
-                  ['timeline', 'workload', 'finance'].includes(view)
-                    ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
-                }`}
+                className={`p-2 rounded-md transition-all text-xs ${['timeline', 'workload', 'finance'].includes(view)
+                  ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                  }`}
                 title="Plus de vues"
               >
                 <MoreHorizontal className="w-4 h-4" />
               </button>
-              
+
               {isViewMenuOpen && (
                 <>
-                  <div 
-                    className="fixed inset-0 z-10" 
+                  <div
+                    className="fixed inset-0 z-10"
                     onClick={() => setIsViewMenuOpen(false)}
                   />
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
@@ -329,11 +358,10 @@ export const Planning: React.FC = () => {
                           handleSetView(viewOption.id as ViewType);
                           setIsViewMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
-                          view === viewOption.id
-                            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${view === viewOption.id
+                          ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
                       >
                         <viewOption.icon className="w-4 h-4" />
                         <div className="text-left">
@@ -348,7 +376,7 @@ export const Planning: React.FC = () => {
             </div>
           </div>
 
-          <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handlePrint}>
+          <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handleExport}>
             Exporter
           </Button>
         </div>
@@ -357,16 +385,16 @@ export const Planning: React.FC = () => {
       {/* Content */}
       <div className="min-h-[400px] md:min-h-[600px]" ref={componentRef}>
         {view === 'cards' && (
-          <PlanningCardsView 
-            visits={filteredVisits} 
-            onVisitAction={handleVisitAction} 
+          <PlanningCardsView
+            visits={filteredVisits}
+            onVisitAction={handleVisitAction}
             onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
           />
         )}
 
         {view === 'list' && (
-          <PlanningListView 
-            visits={filteredVisits} 
+          <PlanningListView
+            visits={filteredVisits}
             onVisitAction={handleVisitAction}
             onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
           />
@@ -522,7 +550,7 @@ export const Planning: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
-      
+
       <VisitActionModal
         isOpen={isActionModalOpen}
         onClose={handleCloseActionModal}

@@ -13,6 +13,7 @@ import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
+import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
 import { generateUUID } from '@/utils/uuid';
 
 interface VisitActionModalProps {
@@ -44,9 +45,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const [_isAccommodationModalOpen, _setIsAccommodationModalOpen] = useState(false);
 
   // Message Generator Logic
-  const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({ 
-    isOpen: false, 
-    type: 'confirmation' 
+  const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({
+    isOpen: false,
+    type: 'confirmation'
   });
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
   const handleSave = async () => {
     if (!formData) return;
-    
+
     setIsLoading(true);
     try {
       await updateVisit({ ...visit, ...formData });
@@ -73,7 +74,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   };
 
   const { confirm } = useConfirm();
-  
+
   const handleDelete = async () => {
     const userConfirmed = await confirm({
       title: 'Supprimer la visite',
@@ -82,9 +83,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       confirmVariant: 'danger',
       cancelText: 'Annuler'
     });
-    
+
     if (!userConfirmed) return;
-    
+
     setIsLoading(true);
     try {
       await deleteVisit(visit.visitId);
@@ -120,26 +121,25 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Message Generator Logic
 
 
-  // TODO: Réintégrer handleFeedbackSubmit quand FeedbackFormModal sera utilisé
-  // const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
-  //   setIsLoading(true);
-  //   try {
-  //     const newFeedback: VisitFeedback = {
-  //       ...feedbackData,
-  //       id: generateUUID(),
-  //       visitId: visit.visitId,
-  //       submittedBy: 'currentUser',
-  //       submittedAt: new Date().toISOString()
-  //     };
-  //     await updateVisit({ ...visit, visitFeedback: newFeedback });
-  //     addToast('Bilan enregistré avec succès', 'success');
-  //     onClose();
-  //   } catch (error) {
-  //     addToast('Erreur lors de l\'enregistrement du bilan', 'error');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  const handleFeedbackSubmit = async (feedbackData: any) => {
+    setIsLoading(true);
+    try {
+      const newFeedback = {
+        ...feedbackData,
+        id: generateUUID(),
+        visitId: visit.visitId,
+        submittedBy: 'currentUser',
+        submittedAt: new Date().toISOString()
+      };
+      await updateVisit({ ...visit, visitFeedback: newFeedback });
+      addToast('Bilan enregistré avec succès', 'success');
+      onClose();
+    } catch (error) {
+      addToast('Erreur lors de l\'enregistrement du bilan', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSaveExpense = async (expenseData: Omit<Expense, 'id'>) => {
     setIsLoading(true);
@@ -148,7 +148,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       let newExpenses: Expense[];
 
       if (editingExpense) {
-        newExpenses = currentExpenses.map(e => 
+        newExpenses = currentExpenses.map(e =>
           e.id === editingExpense.id ? { ...expenseData, id: editingExpense.id } : e
         );
       } else {
@@ -177,7 +177,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       confirmVariant: 'danger',
       cancelText: 'Annuler'
     });
-    
+
     if (!userConfirmed) return;
 
     setIsLoading(true);
@@ -229,7 +229,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 <select
                   value={formData.host || ''}
                   onChange={(e) => {
-                    const {value} = e.target;
+                    const { value } = e.target;
                     const selectedHost = hosts.find(h => h.nom === value);
 
                     setFormData(prev => {
@@ -367,7 +367,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               Supprimer la visite
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Êtes-vous sûr de vouloir supprimer la visite de <strong>{visit.nom}</strong> 
+              Êtes-vous sûr de vouloir supprimer la visite de <strong>{visit.nom}</strong>
               du {new Date(visit.visitDate).toLocaleDateString('fr-FR')} ?
             </p>
             <p className="text-sm text-red-600 dark:text-red-400">
@@ -502,7 +502,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <CreditCard className="w-5 h-5 text-green-600" />
               Gestion des coûts
             </h3>
-            
+
             {isAddingExpense || editingExpense ? (
               <ExpenseForm
                 initialData={editingExpense}
@@ -537,7 +537,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <Truck className="w-5 h-5 text-blue-600" />
               Logistique
             </h3>
-            
+
             <LogisticsManager
               logistics={{
                 ...activeVisit.logistics,
@@ -553,7 +553,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   ...prev,
                   logistics: updatedLogistics,
                   // Sync back to top-level fields only if we are in host mode
-                  host: (updatedLogistics.accommodation?.type === 'host') 
+                  host: (updatedLogistics.accommodation?.type === 'host')
                     ? (updatedLogistics.accommodation?.name || prev.host)
                     : prev.host,
                   accommodation: (updatedLogistics.accommodation?.type === 'host')
@@ -564,14 +564,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               readOnly={isLoading}
               hosts={hosts}
             />
-            
+
             <div className="border-t pt-4 mt-4">
               <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Documents</h4>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                <RoadmapView 
-                   visit={activeVisit} 
-                   speaker={speakers.find(s => s.id === activeVisit.id)}
-                   host={hosts.find(h => h.nom === activeVisit.host)}
+                <RoadmapView
+                  visit={activeVisit}
+                  speaker={speakers.find(s => s.id === activeVisit.id)}
+                  host={hosts.find(h => h.nom === activeVisit.host)}
                 />
               </div>
             </div>
@@ -642,13 +642,22 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           </Button>
         );
       default:
-        return (
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
-            Fermer
-          </Button>
-        );
+        // Pour les autres actions, on rend le Modal normal
+        break;
     }
   };
+
+  // Si l'action est 'feedback', on retourne directement le FeedbackFormModal
+  if (action === 'feedback' && visit) {
+    return (
+      <FeedbackFormModal
+        isOpen={isOpen}
+        onClose={onClose}
+        visit={visit}
+        onSubmit={handleFeedbackSubmit}
+      />
+    );
+  }
 
   return (
     <>
@@ -666,7 +675,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isTravelModalOpen}
           onClose={() => _setIsTravelModalOpen(false)}
           visit={visit}
-          onSave={() => {}}
+          onSave={() => { }}
         />
       )}
 
@@ -675,7 +684,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isMealModalOpen}
           onClose={() => _setIsMealModalOpen(false)}
           visit={visit}
-          onSave={() => {}}
+          onSave={() => { }}
         />
       )}
 
@@ -684,7 +693,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isAccommodationModalOpen}
           onClose={() => _setIsAccommodationModalOpen(false)}
           visit={visit}
-          onSelectHost={() => {}}
+          onSelectHost={() => { }}
         />
       )}
 
