@@ -17,13 +17,9 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey>
   const passwordBuffer = encoder.encode(password);
 
   // Importer le mot de passe comme clé PBKDF2
-  const baseKey = await crypto.subtle.importKey(
-    'raw',
-    passwordBuffer,
-    'PBKDF2',
-    false,
-    ['deriveKey']
-  );
+  const baseKey = await crypto.subtle.importKey('raw', passwordBuffer, 'PBKDF2', false, [
+    'deriveKey',
+  ]);
 
   // Dériver la clé AES
   return crypto.subtle.deriveKey(
@@ -109,13 +105,9 @@ export async function decrypt(
 ): Promise<any> {
   try {
     // Convertir depuis base64
-    const encryptedArray = Uint8Array.from(atob(encryptedData.data), (c) =>
-      c.charCodeAt(0)
-    );
+    const encryptedArray = Uint8Array.from(atob(encryptedData.data), (c) => c.charCodeAt(0));
     const iv = Uint8Array.from(atob(encryptedData.iv), (c) => c.charCodeAt(0));
-    const salt = Uint8Array.from(atob(encryptedData.salt), (c) =>
-      c.charCodeAt(0)
-    );
+    const salt = Uint8Array.from(atob(encryptedData.salt), (c) => c.charCodeAt(0));
 
     // Dériver la clé depuis le mot de passe
     const key = await deriveKey(password, salt);

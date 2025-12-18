@@ -7,46 +7,49 @@ interface CacheOptions {
 
 const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
 
-export function useDataCache<T>(
-  fetcher: () => Promise<T> | T,
-  options: CacheOptions = {}
-) {
+export function useDataCache<T>(fetcher: () => Promise<T> | T, options: CacheOptions = {}) {
   const { ttl = DEFAULT_TTL, key } = options;
   const [data, setData] = useState<T | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [lastUpdated, setLastUpdated] = useState<number>(0);
 
-  const fetchData = useCallback(async (force = false) => {
-    const now = Date.now();
-    
-    // Si on a des données en cache valides et qu'on ne force pas le rechargement
-    if (!force && data && now - lastUpdated < ttl) {
-      return;
-    }
+  const fetchData = useCallback(
+    async (force = false) => {
+      const now = Date.now();
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await fetcher();
-      setData(result);
-      setLastUpdated(now);
-      
-      // Sauvegarder dans le cache local si une clé est fournie
-      if (key) {
-        localStorage.setItem(`cache_${key}`, JSON.stringify({
-          data: result,
-          timestamp: now
-        }));
+      // Si on a des données en cache valides et qu'on ne force pas le rechargement
+      if (!force && data && now - lastUpdated < ttl) {
+        return;
       }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erreur de chargement'));
-      console.error('Cache fetch error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetcher, ttl, key, data, lastUpdated]);
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const result = await fetcher();
+        setData(result);
+        setLastUpdated(now);
+
+        // Sauvegarder dans le cache local si une clé est fournie
+        if (key) {
+          localStorage.setItem(
+            `cache_${key}`,
+            JSON.stringify({
+              data: result,
+              timestamp: now,
+            })
+          );
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Erreur de chargement'));
+        console.error('Cache fetch error:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [fetcher, ttl, key, data, lastUpdated]
+  );
 
   // Initialisation depuis le localStorage si disponible
   useEffect(() => {
@@ -66,7 +69,7 @@ export function useDataCache<T>(
         }
       }
     }
-    
+
     fetchData();
   }, [key, ttl, fetchData]);
 
@@ -75,6 +78,6 @@ export function useDataCache<T>(
     isLoading,
     error,
     refresh: () => fetchData(true),
-    lastUpdated
+    lastUpdated,
   };
 }

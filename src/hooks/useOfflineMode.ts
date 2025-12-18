@@ -5,7 +5,7 @@ interface OfflineData<T> {
   timestamp: number;
 }
 
-export const useOfflineMode = <T,>(key: string, fetchData: () => Promise<T>) => {
+export const useOfflineMode = <T>(key: string, fetchData: () => Promise<T>) => {
   const [data, setData] = useState<T | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,49 +26,55 @@ export const useOfflineMode = <T,>(key: string, fetchData: () => Promise<T>) => 
   }, [key]);
 
   // Sauvegarder dans le cache
-  const saveToCache = useCallback((data: T) => {
-    try {
-      const offlineData: OfflineData<T> = {
-        data,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem(`offline_${key}`, JSON.stringify(offlineData));
-    } catch (err) {
-      console.error('Error saving to cache:', err);
-    }
-  }, [key]);
+  const saveToCache = useCallback(
+    (data: T) => {
+      try {
+        const offlineData: OfflineData<T> = {
+          data,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(`offline_${key}`, JSON.stringify(offlineData));
+      } catch (err) {
+        console.error('Error saving to cache:', err);
+      }
+    },
+    [key]
+  );
 
   // Charger les données
-  const loadData = useCallback(async (forceRefresh = false) => {
-    setIsLoading(true);
-    setError(null);
+  const loadData = useCallback(
+    async (forceRefresh = false) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      if (isOnline || forceRefresh) {
-        // Essayer de charger depuis le réseau
-        const freshData = await fetchData();
-        setData(freshData);
-        saveToCache(freshData);
-      } else {
-        // Charger depuis le cache si hors ligne
+      try {
+        if (isOnline || forceRefresh) {
+          // Essayer de charger depuis le réseau
+          const freshData = await fetchData();
+          setData(freshData);
+          saveToCache(freshData);
+        } else {
+          // Charger depuis le cache si hors ligne
+          const cachedData = loadFromCache();
+          if (cachedData) {
+            setData(cachedData);
+          } else {
+            throw new Error('No cached data available');
+          }
+        }
+      } catch (err) {
+        setError(err as Error);
+        // Essayer de charger depuis le cache en cas d'erreur
         const cachedData = loadFromCache();
         if (cachedData) {
           setData(cachedData);
-        } else {
-          throw new Error('No cached data available');
         }
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      setError(err as Error);
-      // Essayer de charger depuis le cache en cas d'erreur
-      const cachedData = loadFromCache();
-      if (cachedData) {
-        setData(cachedData);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isOnline, fetchData, loadFromCache, saveToCache]);
+    },
+    [isOnline, fetchData, loadFromCache, saveToCache]
+  );
 
   // Écouter les changements de connexion
   useEffect(() => {

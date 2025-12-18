@@ -27,7 +27,7 @@ export function extractPhoneNumbersFromJson(jsonData: any) {
         speakersWithPhones.push({
           nom: speaker.nom,
           telephone: speaker.telephone,
-          congregation: speaker.congregation
+          congregation: speaker.congregation,
         });
       }
     });
@@ -40,7 +40,7 @@ export function extractPhoneNumbersFromJson(jsonData: any) {
         speakersWithPhones.push({
           nom: visit.nom,
           telephone: visit.telephone,
-          congregation: visit.congregation
+          congregation: visit.congregation,
         });
       }
     });
@@ -52,7 +52,7 @@ export function extractPhoneNumbersFromJson(jsonData: any) {
       if (host.telephone && host.telephone.trim()) {
         hostsWithPhones.push({
           nom: host.nom,
-          telephone: host.telephone
+          telephone: host.telephone,
         });
       }
     });
@@ -69,27 +69,27 @@ export function updateSpeakersWithPhones(
   speakersWithPhones: PersonWithPhone[]
 ): Speaker[] {
   const phoneMap = new Map<string, string>();
-  
+
   // Créer une map nom -> téléphone (en normalisant les noms)
-  speakersWithPhones.forEach(person => {
+  speakersWithPhones.forEach((person) => {
     const normalizedName = person.nom.toLowerCase().replace(/\s+/g, ' ').trim();
     phoneMap.set(normalizedName, person.telephone!);
   });
 
   // Mettre à jour les orateurs existants
-  return existingSpeakers.map(speaker => {
+  return existingSpeakers.map((speaker) => {
     const normalizedName = speaker.nom.toLowerCase().replace(/\s+/g, ' ').trim();
     const phoneFromJson = phoneMap.get(normalizedName);
-    
+
     // Si on trouve un numéro et que l'orateur n'en a pas, on le met à jour
     if (phoneFromJson && !speaker.telephone) {
       return {
         ...speaker,
         telephone: phoneFromJson,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
     }
-    
+
     return speaker;
   });
 }
@@ -102,27 +102,27 @@ export function updateHostsWithPhones(
   hostsWithPhones: PersonWithPhone[]
 ): Host[] {
   const phoneMap = new Map<string, string>();
-  
+
   // Créer une map nom -> téléphone
-  hostsWithPhones.forEach(host => {
+  hostsWithPhones.forEach((host) => {
     const normalizedName = host.nom.toLowerCase().replace(/\s+/g, ' ').trim();
     phoneMap.set(normalizedName, host.telephone!);
   });
 
   // Mettre à jour les hôtes existants
-  return existingHosts.map(host => {
+  return existingHosts.map((host) => {
     const normalizedName = host.nom.toLowerCase().replace(/\s+/g, ' ').trim();
     const phoneFromJson = phoneMap.get(normalizedName);
-    
+
     // Si on trouve un numéro et que l'hôte n'en a pas, on le met à jour
     if (phoneFromJson && !host.telephone) {
       return {
         ...host,
         telephone: phoneFromJson,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
     }
-    
+
     return host;
   });
 }
@@ -143,7 +143,7 @@ export function generateUpdateReport(
 } {
   const speakerDetails: string[] = [];
   const hostDetails: string[] = [];
-  
+
   let speakersUpdated = 0;
   let hostsUpdated = 0;
 
@@ -169,7 +169,7 @@ export function generateUpdateReport(
     speakersUpdated,
     hostsUpdated,
     speakerDetails,
-    hostDetails
+    hostDetails,
   };
 }
 
@@ -189,19 +189,24 @@ export function processPhoneNumberUpdate(
 } {
   // Extraire les numéros du JSON
   const { speakersWithPhones, hostsWithPhones } = extractPhoneNumbersFromJson(jsonData);
-  
+
   // Mettre à jour les orateurs
   const updatedSpeakers = updateSpeakersWithPhones(currentData.speakers, speakersWithPhones);
-  
+
   // Mettre à jour les hôtes
   const updatedHosts = updateHostsWithPhones(currentData.hosts, hostsWithPhones);
-  
+
   // Générer le rapport
-  const report = generateUpdateReport(currentData.speakers, updatedSpeakers, currentData.hosts, updatedHosts);
-  
+  const report = generateUpdateReport(
+    currentData.speakers,
+    updatedSpeakers,
+    currentData.hosts,
+    updatedHosts
+  );
+
   return {
     updatedSpeakers,
     updatedHosts,
-    report
+    report,
   };
 }

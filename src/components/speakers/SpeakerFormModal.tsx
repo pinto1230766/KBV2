@@ -15,11 +15,7 @@ interface SpeakerFormModalProps {
   speaker?: Speaker; // Si présent, mode édition
 }
 
-export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
-  isOpen,
-  onClose,
-  speaker
-}) => {
+export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onClose, speaker }) => {
   const { addSpeaker, updateSpeaker, speakers } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -60,12 +56,12 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
       }
 
       // Vérification doublon (seulement en création)
-      if (!speaker && speakers.some(s => s.nom.toLowerCase() === formData.nom?.toLowerCase())) {
+      if (!speaker && speakers.some((s) => s.nom.toLowerCase() === formData.nom?.toLowerCase())) {
         throw new Error('Un orateur avec ce nom existe déjà');
       }
 
       const speakerData: Speaker = {
-        ...formData as Speaker,
+        ...(formData as Speaker),
         id: speaker ? speaker.id : uuidv4(),
         talkHistory: speaker ? speaker.talkHistory : [],
         updatedAt: new Date().toISOString(),
@@ -91,11 +87,11 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={speaker ? "Modifier l'orateur" : "Ajouter un orateur"}
-      size="lg"
+      title={speaker ? "Modifier l'orateur" : 'Ajouter un orateur'}
+      size='lg'
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+          <Button variant='ghost' onClick={onClose} disabled={isLoading}>
             Annuler
           </Button>
           <Button onClick={handleSubmit} isLoading={isLoading}>
@@ -104,84 +100,87 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className='space-y-4'>
         {/* Photo de profil */}
-        <div className="flex justify-center mb-4">
+        <div className='flex justify-center mb-4'>
           <ImageUpload
             value={formData.photoUrl}
-            onChange={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
+            onChange={(url) => setFormData((prev) => ({ ...prev, photoUrl: url }))}
             label="Photo de l'orateur"
-            size="lg"
+            size='lg'
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Input
-            label="Nom complet"
+            label='Nom complet'
             value={formData.nom}
-            onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, nom: e.target.value }))}
             required
-            placeholder="Ex: Jean Dupont"
+            placeholder='Ex: Jean Dupont'
           />
-          
+
           <Input
-            label="Congrégation"
+            label='Congrégation'
             value={formData.congregation}
-            onChange={(e) => setFormData(prev => ({ ...prev, congregation: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, congregation: e.target.value }))}
             required
-            placeholder="Ex: Lyon Centre"
+            placeholder='Ex: Lyon Centre'
           />
 
           <Input
-            label="Téléphone"
+            label='Téléphone'
             value={formData.telephone}
-            onChange={(e) => setFormData(prev => ({ ...prev, telephone: e.target.value }))}
-            placeholder="Ex: 06 12 34 56 78"
+            onChange={(e) => setFormData((prev) => ({ ...prev, telephone: e.target.value }))}
+            placeholder='Ex: 06 12 34 56 78'
           />
 
           <Input
-            label="Email"
-            type="email"
+            label='Email'
+            type='email'
             value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            placeholder="Ex: jean.dupont@email.com"
+            onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+            placeholder='Ex: jean.dupont@email.com'
           />
 
           <Select
-            label="Genre"
+            label='Genre'
             options={[
               { value: 'male', label: 'Frère' },
               { value: 'female', label: 'Sœur' }, // Peu probable pour un orateur public, mais possible pour d'autres rôles
               { value: 'couple', label: 'Couple' },
             ]}
             value={formData.gender}
-            onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as Gender }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, gender: e.target.value as Gender }))}
           />
 
-          <div className="flex items-center space-x-2 pt-8">
+          <div className='flex items-center space-x-2 pt-8'>
             <input
-              type="checkbox"
-              id="isVehiculed"
+              type='checkbox'
+              id='isVehiculed'
               checked={formData.isVehiculed}
-              onChange={(e) => setFormData(prev => ({ ...prev, isVehiculed: e.target.checked }))}
-              className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              onChange={(e) => setFormData((prev) => ({ ...prev, isVehiculed: e.target.checked }))}
+              className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
             />
-            <label htmlFor="isVehiculed" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor='isVehiculed'
+              className='text-sm font-medium text-gray-700 dark:text-gray-300'
+            >
               Est véhiculé
             </label>
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className='space-y-1'>
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
             Notes
           </label>
           <textarea
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className='w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             rows={3}
             value={formData.notes}
-            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            placeholder="Notes particulières..."
+            onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+            placeholder='Notes particulières...'
           />
         </div>
       </form>

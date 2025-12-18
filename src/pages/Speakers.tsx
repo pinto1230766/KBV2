@@ -16,7 +16,7 @@ export const Speakers: React.FC = () => {
   const { speakers, deleteSpeaker, hosts, deleteHost } = useData();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('speakers');
-  
+
   // Modal states
   const [isSpeakerModalOpen, setIsSpeakerModalOpen] = useState(false);
   const [editingSpeaker, setEditingSpeaker] = useState<Speaker | undefined>(undefined);
@@ -68,11 +68,11 @@ export const Speakers: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Header */}
-      <div className="flex justify-end">
-        <Button 
-          leftIcon={<Plus className="w-4 h-4" />}
+      <div className='flex justify-end'>
+        <Button
+          leftIcon={<Plus className='w-4 h-4' />}
           onClick={() => {
             if (activeTab === 'speakers') {
               setEditingSpeaker(undefined);
@@ -88,50 +88,50 @@ export const Speakers: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+      <div className='border-b border-gray-200 dark:border-gray-700'>
+        <nav className='-mb-px flex space-x-8'>
           <button
             onClick={() => setActiveTab('speakers')}
             className={`
               whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
-              ${activeTab === 'speakers'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'}
+              ${
+                activeTab === 'speakers'
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }
             `}
           >
-            <Users className="w-4 h-4" />
+            <Users className='w-4 h-4' />
             Orateurs
           </button>
           <button
             onClick={() => setActiveTab('hosts')}
             className={`
               whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
-              ${activeTab === 'hosts'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'}
+              ${
+                activeTab === 'hosts'
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }
             `}
           >
-            <Home className="w-4 h-4" />
+            <Home className='w-4 h-4' />
             Contacts d'accueil
           </button>
         </nav>
       </div>
 
       {/* Content */}
-      <div className="min-h-[400px]">
+      <div className='min-h-[400px]'>
         {activeTab === 'speakers' ? (
-          <SpeakerList 
+          <SpeakerList
             speakers={speakers}
             onEdit={handleEditSpeaker}
             onDelete={handleDeleteSpeaker}
             onFeedback={handleOpenFeedbackModal}
           />
         ) : (
-          <HostList 
-            hosts={hosts}
-            onEdit={handleEditHost}
-            onDelete={handleDeleteHost}
-          />
+          <HostList hosts={hosts} onEdit={handleEditHost} onDelete={handleDeleteHost} />
         )}
       </div>
 
@@ -141,12 +141,8 @@ export const Speakers: React.FC = () => {
         onClose={handleCloseSpeakerModal}
         speaker={editingSpeaker}
       />
-      
-      <HostFormModal
-        isOpen={isHostModalOpen}
-        onClose={handleCloseHostModal}
-        host={editingHost}
-      />
+
+      <HostFormModal isOpen={isHostModalOpen} onClose={handleCloseHostModal} host={editingHost} />
 
       {feedbackVisit && (
         <FeedbackFormModal

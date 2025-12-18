@@ -6,7 +6,7 @@ const preview: Preview = {
   parameters: {
     // Layout par défaut
     layout: 'centered',
-    
+
     // Configuration des contrôles
     controls: {
       matchers: {
@@ -14,20 +14,20 @@ const preview: Preview = {
         date: /Date$/i,
       },
     },
-    
+
     // Configuration de la documentation
     docs: {
       theme: {
         base: 'light',
         brandTitle: 'KBV Lyon - Documentation des composants',
         brandUrl: 'https://github.com/pinto1230766/KBV2',
-        brandImage: '/logo.svg'
-      }
+        brandImage: '/logo.svg',
+      },
     },
-    
+
     // Actions configurées
     actions: { argTypesRegex: '^on[A-Z].*' },
-    
+
     // Backgrounds pour les stories
     backgrounds: {
       default: 'light',
@@ -46,7 +46,7 @@ const preview: Preview = {
         },
       ],
     },
-    
+
     // Configuration de la viewport
     viewport: {
       viewports: {
@@ -74,12 +74,12 @@ const preview: Preview = {
       },
     },
   },
-  
+
   // Décorateurs globaux pour appliquer le style Tailwind
   decorators: [
     (Story) => (
-      <div className="min-h-screen bg-gray-50 p-4">
-        <div className="max-w-4xl mx-auto">
+      <div className='min-h-screen bg-gray-50 p-4'>
+        <div className='max-w-4xl mx-auto'>
           <Story />
         </div>
       </div>

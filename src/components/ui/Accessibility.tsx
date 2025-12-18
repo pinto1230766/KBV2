@@ -80,7 +80,7 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
     if (announceElement) {
       announceElement.setAttribute('aria-live', priority);
       announceElement.textContent = message;
-      
+
       // Nettoyer le message après un délai
       setTimeout(() => {
         if (announceElement) {
@@ -93,13 +93,11 @@ export function AccessibilityProvider({ children }: AccessibilityProviderProps) 
   const contextValue: AccessibilityContextType = {
     announceMessage,
     isKeyboardNavigation,
-    reducedMotion
+    reducedMotion,
   };
 
   return (
-    <AccessibilityContext.Provider value={contextValue}>
-      {children}
-    </AccessibilityContext.Provider>
+    <AccessibilityContext.Provider value={contextValue}>{children}</AccessibilityContext.Provider>
   );
 }
 
@@ -111,22 +109,21 @@ interface AccessibleIconProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function AccessibleIcon({ icon: Icon, label, className = '', size = 'md' }: AccessibleIconProps) {
+export function AccessibleIcon({
+  icon: Icon,
+  label,
+  className = '',
+  size = 'md',
+}: AccessibleIconProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-5 h-5',
-    lg: 'w-6 h-6'
+    lg: 'w-6 h-6',
   };
 
   return (
-    <span 
-      className="inline-flex items-center justify-center"
-      aria-label={label}
-      role="img"
-    >
-      <Icon 
-        className={`${sizeClasses[size]} ${className}`}
-      />
+    <span className='inline-flex items-center justify-center' aria-label={label} role='img'>
+      <Icon className={`${sizeClasses[size]} ${className}`} />
     </span>
   );
 }
@@ -137,7 +134,7 @@ export function useKeyboardShortcuts(shortcuts: Record<string, () => void>) {
     const handleKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       const ctrlOrMeta = e.ctrlKey || e.metaKey;
-      
+
       // Raccourcis globaux
       if (ctrlOrMeta && key === 'k') {
         e.preventDefault();
@@ -163,11 +160,7 @@ interface FocusRingProps {
 }
 
 export function FocusRing({ children, className = '' }: FocusRingProps) {
-  return (
-    <div className={`focus-ring ${className}`}>
-      {children}
-    </div>
-  );
+  return <div className={`focus-ring ${className}`}>{children}</div>;
 }
 
 // Utilitaire pour ajouter tabIndex automatiquement
@@ -182,7 +175,7 @@ export function AutoFocusable({
   children,
   autoFocus = false,
   tabIndex = 0,
-  className = ''
+  className = '',
 }: AutoFocusableProps) {
   return (
     <div tabIndex={autoFocus ? -1 : tabIndex} className={className}>
@@ -198,7 +191,7 @@ const AccessibilityComponents = {
   AccessibleIcon,
   useKeyboardShortcuts,
   FocusRing,
-  AutoFocusable
+  AutoFocusable,
 };
 
 export default AccessibilityComponents;

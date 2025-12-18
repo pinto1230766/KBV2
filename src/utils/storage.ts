@@ -30,7 +30,7 @@ export async function set(key: string, value: any): Promise<void> {
       // Mobile : utiliser Capacitor Preferences
       await Preferences.set({
         key,
-        value: JSON.stringify(value)
+        value: JSON.stringify(value),
       });
     } else {
       // Web : utiliser IndexedDB
@@ -75,7 +75,7 @@ export async function keys(): Promise<string[]> {
       return keys;
     } else {
       const idbKeys = await idb.keys();
-      return idbKeys.map(k => String(k));
+      return idbKeys.map((k) => String(k));
     }
   } catch (error) {
     console.error('Error getting keys from storage:', error);
@@ -92,7 +92,7 @@ export async function migrateToCapacitor(): Promise<void> {
 
   try {
     console.log('🔄 Migration vers Capacitor Preferences...');
-    
+
     // Vérifier si déjà migré
     const { value: migrated } = await Preferences.get({ key: 'migration-completed' });
     if (migrated === 'true') {
@@ -102,12 +102,12 @@ export async function migrateToCapacitor(): Promise<void> {
 
     // Tenter de récupérer les données depuis IndexedDB
     const appData = await idb.get('kbv-app-data');
-    
+
     if (appData) {
       console.log('📦 Données trouvées dans IndexedDB, migration...');
       await Preferences.set({
         key: 'kbv-app-data',
-        value: JSON.stringify(appData)
+        value: JSON.stringify(appData),
       });
       console.log('✅ Données migrées vers Capacitor Preferences');
     }
@@ -157,7 +157,7 @@ export async function importAll(data: Record<string, any>): Promise<void> {
       for (const [key, value] of Object.entries(data)) {
         await Preferences.set({
           key,
-          value: typeof value === 'string' ? value : JSON.stringify(value)
+          value: typeof value === 'string' ? value : JSON.stringify(value),
         });
       }
     } else {

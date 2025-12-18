@@ -14,11 +14,7 @@ interface HostFormModalProps {
   host?: Host; // Si présent, mode édition
 }
 
-export const HostFormModal: React.FC<HostFormModalProps> = ({
-  isOpen,
-  onClose,
-  host
-}) => {
+export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, host }) => {
   const { addHost, updateHost, hosts } = useData();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,12 +61,12 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
       }
 
       // Vérification doublon (seulement en création)
-      if (!host && hosts.some(h => h.nom.toLowerCase() === formData.nom?.toLowerCase())) {
+      if (!host && hosts.some((h) => h.nom.toLowerCase() === formData.nom?.toLowerCase())) {
         throw new Error('Un contact avec ce nom existe déjà');
       }
 
       const hostData: Host = {
-        ...formData as Host,
+        ...(formData as Host),
         unavailableDates: host ? host.unavailableDates : [],
       };
 
@@ -93,11 +89,11 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={host ? "Modifier le contact" : "Ajouter un contact"}
-      size="lg"
+      title={host ? 'Modifier le contact' : 'Ajouter un contact'}
+      size='lg'
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+          <Button variant='ghost' onClick={onClose} disabled={isLoading}>
             Annuler
           </Button>
           <Button onClick={handleSubmit} isLoading={isLoading}>
@@ -106,93 +102,98 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className='space-y-4'>
         {/* Photo de profil */}
-        <div className="flex justify-center mb-4">
+        <div className='flex justify-center mb-4'>
           <ImageUpload
             value={formData.photoUrl}
-            onChange={(url) => setFormData(prev => ({ ...prev, photoUrl: url }))}
-            label="Photo du contact"
-            size="lg"
+            onChange={(url) => setFormData((prev) => ({ ...prev, photoUrl: url }))}
+            label='Photo du contact'
+            size='lg'
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Input
-            label="Nom complet"
+            label='Nom complet'
             value={formData.nom}
-            onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, nom: e.target.value }))}
             required
-            placeholder="Ex: Famille Martin"
+            placeholder='Ex: Famille Martin'
           />
-          
+
           <Input
-            label="Adresse"
+            label='Adresse'
             value={formData.address}
-            onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-            placeholder="Ex: 12 rue de la Paix, Lyon"
+            onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
+            placeholder='Ex: 12 rue de la Paix, Lyon'
           />
 
           <Input
-            label="Téléphone"
+            label='Téléphone'
             value={formData.telephone}
-            onChange={(e) => setFormData(prev => ({ ...prev, telephone: e.target.value }))}
-            placeholder="Ex: 06 12 34 56 78"
+            onChange={(e) => setFormData((prev) => ({ ...prev, telephone: e.target.value }))}
+            placeholder='Ex: 06 12 34 56 78'
           />
 
           <Input
-            label="Email"
-            type="email"
+            label='Email'
+            type='email'
             value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            placeholder="Ex: famille.martin@email.com"
+            onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+            placeholder='Ex: famille.martin@email.com'
           />
 
           <Select
-            label="Type de foyer"
+            label='Type de foyer'
             options={[
               { value: 'couple', label: 'Couple' },
               { value: 'male', label: 'Frère seul' },
               { value: 'female', label: 'Sœur seule' },
             ]}
             value={formData.gender}
-            onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as Gender }))}
+            onChange={(e) => setFormData((prev) => ({ ...prev, gender: e.target.value as Gender }))}
           />
 
           <Input
             label="Capacité d'accueil (personnes)"
-            type="number"
+            type='number'
             min={1}
             value={formData.capacity}
-            onChange={(e) => setFormData(prev => ({ ...prev, capacity: parseInt(e.target.value, 10) }))}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, capacity: parseInt(e.target.value, 10) }))
+            }
           />
 
-          <div className="flex items-center space-x-4 pt-8 col-span-2">
-            <div className="flex items-center space-x-2">
+          <div className='flex items-center space-x-4 pt-8 col-span-2'>
+            <div className='flex items-center space-x-2'>
               <input
-                type="checkbox"
-                id="hasPets"
+                type='checkbox'
+                id='hasPets'
                 checked={formData.hasPets}
-                onChange={(e) => setFormData(prev => ({ ...prev, hasPets: e.target.checked }))}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                onChange={(e) => setFormData((prev) => ({ ...prev, hasPets: e.target.checked }))}
+                className='rounded border-gray-300 text-primary-600 focus:ring-primary-500'
               />
-              <label htmlFor="hasPets" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor='hasPets'
+                className='text-sm font-medium text-gray-700 dark:text-gray-300'
+              >
                 Animaux de compagnie
               </label>
             </div>
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className='space-y-1'>
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
             Notes / Contraintes
           </label>
           <textarea
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className='w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             rows={3}
             value={formData.notes}
-            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            placeholder="Allergies, régime alimentaire, escaliers..."
+            onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+            placeholder='Allergies, régime alimentaire, escaliers...'
           />
         </div>
       </form>

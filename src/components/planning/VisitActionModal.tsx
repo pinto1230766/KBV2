@@ -6,11 +6,26 @@ import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { Visit, Expense, MessageType, Accommodation, VisitFeedback } from '@/types';
-import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star, CreditCard, Truck, Utensils, Home } from 'lucide-react';
+import {
+  Edit2,
+  Trash2,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  Star,
+  CreditCard,
+  Truck,
+  Utensils,
+  Home,
+} from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
-import { TravelCoordinationModal, MealPlanningModal, AccommodationMatchingModal } from '@/components/modals';
+import {
+  TravelCoordinationModal,
+  MealPlanningModal,
+  AccommodationMatchingModal,
+} from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
@@ -27,7 +42,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   isOpen,
   onClose,
   visit,
-  action
+  action,
 }) => {
   const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
@@ -47,7 +62,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Message Generator Logic
   const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({
     isOpen: false,
-    type: 'confirmation'
+    type: 'confirmation',
   });
 
   useEffect(() => {
@@ -81,7 +96,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       message: 'Êtes-vous sûr de vouloir supprimer cette visite ?',
       confirmText: 'Supprimer',
       confirmVariant: 'danger',
-      cancelText: 'Annuler'
+      cancelText: 'Annuler',
     });
 
     if (!userConfirmed) return;
@@ -120,8 +135,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
   // Message Generator Logic
 
-
-  const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
+  const handleFeedbackSubmit = async (
+    feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>
+  ) => {
     setIsLoading(true);
     try {
       const newFeedback: VisitFeedback = {
@@ -129,13 +145,13 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         id: generateUUID(),
         visitId: visit.visitId,
         submittedBy: 'currentUser',
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
       };
       await updateVisit({ ...visit, visitFeedback: newFeedback });
       addToast('Bilan enregistré avec succès', 'success');
       onClose();
     } catch (error) {
-      addToast('Erreur lors de l\'enregistrement du bilan', 'error');
+      addToast("Erreur lors de l'enregistrement du bilan", 'error');
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +164,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       let newExpenses: Expense[];
 
       if (editingExpense) {
-        newExpenses = currentExpenses.map(e =>
+        newExpenses = currentExpenses.map((e) =>
           e.id === editingExpense.id ? { ...expenseData, id: editingExpense.id } : e
         );
       } else {
@@ -175,14 +191,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       message: 'Voulez-vous vraiment supprimer cette dépense ?',
       confirmText: 'Supprimer',
       confirmVariant: 'danger',
-      cancelText: 'Annuler'
+      cancelText: 'Annuler',
     });
 
     if (!userConfirmed) return;
 
     setIsLoading(true);
     try {
-      const newExpenses = (visit.expenses || []).filter(e => e.id !== expenseId);
+      const newExpenses = (visit.expenses || []).filter((e) => e.id !== expenseId);
       const updatedVisit = { ...visit, expenses: newExpenses };
       await updateVisit(updatedVisit);
       setFormData(updatedVisit);
@@ -198,45 +214,47 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     switch (action) {
       case 'edit':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Edit2 className="w-5 h-5" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <Edit2 className='w-5 h-5' />
               Modifier la visite
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               <Input
-                label="Date"
-                type="date"
+                label='Date'
+                type='date'
                 value={formData.visitDate || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, visitDate: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, visitDate: e.target.value }))}
               />
               <Input
-                label="Heure"
-                type="time"
+                label='Heure'
+                type='time'
                 value={formData.visitTime || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, visitTime: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, visitTime: e.target.value }))}
               />
               <Input
-                label="N° Discours"
+                label='N° Discours'
                 value={formData.talkNoOrType || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, talkNoOrType: e.target.value }))}
-                placeholder="Ex: 185"
+                onChange={(e) => setFormData((prev) => ({ ...prev, talkNoOrType: e.target.value }))}
+                placeholder='Ex: 185'
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Contact d'accueil
                 </label>
                 <select
                   value={formData.host || ''}
                   onChange={(e) => {
                     const { value } = e.target;
-                    const selectedHost = hosts.find(h => h.nom === value);
+                    const selectedHost = hosts.find((h) => h.nom === value);
 
-                    setFormData(prev => {
+                    setFormData((prev) => {
                       const currentLogistics = prev.logistics || {};
                       const currentAccommodation = currentLogistics.accommodation || {};
 
-                      const newAccommodation = { ...currentAccommodation } as Partial<Accommodation>;
+                      const newAccommodation = {
+                        ...currentAccommodation,
+                      } as Partial<Accommodation>;
                       let newAddress = prev.accommodation;
 
                       if (value === 'Hôtel') {
@@ -266,94 +284,101 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                         accommodation: newAddress,
                         logistics: {
                           ...currentLogistics,
-                          accommodation: newAccommodation as Accommodation
-                        }
+                          accommodation: newAccommodation as Accommodation,
+                        },
                       };
                     });
                   }}
-                  title="Sélectionner un hôte"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  title='Sélectionner un hôte'
+                  className='w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
                 >
-                  <option value="">Sélectionner un hôte...</option>
-                  <option value="Pas besoin">Pas besoin</option>
-                  <option value="Hôtel">Hôtel</option>
-                  {hosts.map(host => (
-                    <option key={host.nom} value={host.nom}>{host.nom}</option>
+                  <option value=''>Sélectionner un hôte...</option>
+                  <option value='Pas besoin'>Pas besoin</option>
+                  <option value='Hôtel'>Hôtel</option>
+                  {hosts.map((host) => (
+                    <option key={host.nom} value={host.nom}>
+                      {host.nom}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <Input
                 label="Nombre d'accompagnateurs"
-                type="number"
+                type='number'
                 min={0}
                 max={10}
                 value={formData.accompanyingPersons || 0}
-                onChange={(e) => setFormData(prev => ({ ...prev, accompanyingPersons: parseInt(e.target.value, 10) || 0 }))}
-                placeholder="0"
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    accompanyingPersons: parseInt(e.target.value, 10) || 0,
+                  }))
+                }
+                placeholder='0'
               />
             </div>
             <Input
-              label="Titre du discours"
+              label='Titre du discours'
               value={formData.talkTheme || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, talkTheme: e.target.value }))}
-              placeholder="Ex: Nega iluzon di mundu..."
+              onChange={(e) => setFormData((prev) => ({ ...prev, talkTheme: e.target.value }))}
+              placeholder='Ex: Nega iluzon di mundu...'
             />
 
             {/* Section Statut */}
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <div className='border-t border-gray-200 dark:border-gray-700 pt-4'>
+              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
                 Statut de la visite
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className='grid grid-cols-2 gap-2'>
                 <Button
                   variant={visit.status === 'pending' ? 'primary' : 'secondary'}
-                  size="sm"
+                  size='sm'
                   onClick={() => handleStatusChange('pending')}
                   disabled={isLoading}
-                  leftIcon={<XCircle className="w-3 h-3" />}
+                  leftIcon={<XCircle className='w-3 h-3' />}
                 >
                   En attente
                 </Button>
                 <Button
                   variant={visit.status === 'confirmed' ? 'primary' : 'secondary'}
-                  size="sm"
+                  size='sm'
                   onClick={() => handleStatusChange('confirmed')}
                   disabled={isLoading}
-                  leftIcon={<CheckCircle className="w-3 h-3" />}
+                  leftIcon={<CheckCircle className='w-3 h-3' />}
                 >
                   Confirmé
                 </Button>
                 <Button
                   variant={visit.status === 'completed' ? 'primary' : 'secondary'}
-                  size="sm"
+                  size='sm'
                   onClick={() => handleStatusChange('completed')}
                   disabled={isLoading}
-                  leftIcon={<CheckCircle className="w-3 h-3" />}
+                  leftIcon={<CheckCircle className='w-3 h-3' />}
                 >
                   Terminé
                 </Button>
                 <Button
                   variant={visit.status === 'cancelled' ? 'danger' : 'secondary'}
-                  size="sm"
+                  size='sm'
                   onClick={() => handleStatusChange('cancelled')}
                   disabled={isLoading}
-                  leftIcon={<XCircle className="w-3 h-3" />}
+                  leftIcon={<XCircle className='w-3 h-3' />}
                 >
                   Annulé
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Statut actuel: <span className="font-medium capitalize">{visit.status}</span>
+              <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>
+                Statut actuel: <span className='font-medium capitalize'>{visit.status}</span>
               </p>
             </div>
 
             <Input
-              label="Notes"
+              label='Notes'
               value={formData.notes || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
             />
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-400">
+            <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-400'>
               💡 Pour gérer le logement et les repas, utilisez l'onglet "Logistique" du menu
             </div>
           </div>
@@ -361,62 +386,60 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
       case 'delete':
         return (
-          <div className="text-center py-6">
-            <Trash2 className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <div className='text-center py-6'>
+            <Trash2 className='w-16 h-16 text-red-500 mx-auto mb-4' />
+            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
               Supprimer la visite
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className='text-gray-600 dark:text-gray-400 mb-6'>
               Êtes-vous sûr de vouloir supprimer la visite de <strong>{visit.nom}</strong>
               du {new Date(visit.visitDate).toLocaleDateString('fr-FR')} ?
             </p>
-            <p className="text-sm text-red-600 dark:text-red-400">
-              Cette action est irréversible.
-            </p>
+            <p className='text-sm text-red-600 dark:text-red-400'>Cette action est irréversible.</p>
           </div>
         );
 
       case 'status':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <CheckCircle className='w-5 h-5' />
               Changer le statut
             </h3>
-            <div className="space-y-3">
-              <p className="text-gray-600 dark:text-gray-400">
-                Statut actuel: <span className="font-medium">{visit.status}</span>
+            <div className='space-y-3'>
+              <p className='text-gray-600 dark:text-gray-400'>
+                Statut actuel: <span className='font-medium'>{visit.status}</span>
               </p>
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <Button
-                  variant="secondary"
+                  variant='secondary'
                   onClick={() => handleStatusChange('pending')}
-                  className="w-full justify-start"
-                  leftIcon={<XCircle className="w-4 h-4" />}
+                  className='w-full justify-start'
+                  leftIcon={<XCircle className='w-4 h-4' />}
                 >
                   Marquer en attente
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant='secondary'
                   onClick={() => handleStatusChange('confirmed')}
-                  className="w-full justify-start"
-                  leftIcon={<CheckCircle className="w-4 h-4" />}
+                  className='w-full justify-start'
+                  leftIcon={<CheckCircle className='w-4 h-4' />}
                 >
                   Confirmer
                 </Button>
                 <Button
-                  variant="secondary"
+                  variant='secondary'
                   onClick={() => handleStatusChange('completed')}
-                  className="w-full justify-start"
-                  leftIcon={<CheckCircle className="w-4 h-4" />}
+                  className='w-full justify-start'
+                  leftIcon={<CheckCircle className='w-4 h-4' />}
                 >
                   Marquer comme terminé
                 </Button>
                 <Button
-                  variant="danger"
+                  variant='danger'
                   onClick={() => handleStatusChange('cancelled')}
-                  className="w-full justify-start"
-                  leftIcon={<XCircle className="w-4 h-4" />}
+                  className='w-full justify-start'
+                  leftIcon={<XCircle className='w-4 h-4' />}
                 >
                   Annuler
                 </Button>
@@ -427,54 +450,54 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
       case 'message':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <MessageSquare className="w-5 h-5" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <MessageSquare className='w-5 h-5' />
               Générer un message
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className='text-gray-600 dark:text-gray-400'>
               Choisissez un type de message pour ouvrir l'assistant de rédaction :
             </p>
-            <div className="grid grid-cols-1 gap-2">
+            <div className='grid grid-cols-1 gap-2'>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'confirmation' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Message de confirmation
               </Button>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'preparation' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Message de préparation
               </Button>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-7' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Rappel J-7
               </Button>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-2' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Rappel J-2
               </Button>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'thanks' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Message de remerciement
               </Button>
               <Button
-                variant="secondary"
+                variant='secondary'
                 onClick={() => setGeneratorParams({ isOpen: true, type: 'host_request' })}
-                className="w-full justify-start"
+                className='w-full justify-start'
               >
                 Demande d'accueil
               </Button>
@@ -484,12 +507,12 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
       case 'feedback':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <Star className='w-5 h-5 text-yellow-500' />
               Bilan de la visite
             </h3>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className='text-sm text-gray-600 dark:text-gray-400'>
               Utilisez la modale de feedback pour évaluer cette visite.
             </div>
           </div>
@@ -497,9 +520,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
       case 'expenses':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-green-600" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <CreditCard className='w-5 h-5 text-green-600' />
               Gestion des coûts
             </h3>
 
@@ -524,17 +547,15 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           </div>
         );
 
-
-
       case 'logistics': {
         const activeVisit = { ...visit, ...formData };
         const acc = (activeVisit.logistics?.accommodation || {}) as Partial<Accommodation>;
         const isHostType = (acc.type || 'host') === 'host';
 
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Truck className="w-5 h-5 text-blue-600" />
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold flex items-center gap-2'>
+              <Truck className='w-5 h-5 text-blue-600' />
               Logistique
             </h3>
 
@@ -544,56 +565,62 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                 accommodation: {
                   ...acc,
                   type: acc.type || 'host',
-                  name: isHostType ? (activeVisit.host || acc.name || '') : (acc.name || ''),
-                  address: isHostType ? (activeVisit.accommodation || acc.address || '') : (acc.address || ''),
-                }
+                  name: isHostType ? activeVisit.host || acc.name || '' : acc.name || '',
+                  address: isHostType
+                    ? activeVisit.accommodation || acc.address || ''
+                    : acc.address || '',
+                },
               }}
               onUpdate={(updatedLogistics) => {
-                setFormData(prev => ({
+                setFormData((prev) => ({
                   ...prev,
                   logistics: updatedLogistics,
                   // Sync back to top-level fields only if we are in host mode
-                  host: (updatedLogistics.accommodation?.type === 'host')
-                    ? (updatedLogistics.accommodation?.name || prev.host)
-                    : prev.host,
-                  accommodation: (updatedLogistics.accommodation?.type === 'host')
-                    ? (updatedLogistics.accommodation?.address || prev.accommodation)
-                    : prev.accommodation
+                  host:
+                    updatedLogistics.accommodation?.type === 'host'
+                      ? updatedLogistics.accommodation?.name || prev.host
+                      : prev.host,
+                  accommodation:
+                    updatedLogistics.accommodation?.type === 'host'
+                      ? updatedLogistics.accommodation?.address || prev.accommodation
+                      : prev.accommodation,
                 }));
               }}
               readOnly={isLoading}
               hosts={hosts}
             />
 
-            <div className="border-t pt-4 mt-4">
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Documents</h4>
-              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <div className='border-t pt-4 mt-4'>
+              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+                Documents
+              </h4>
+              <div className='bg-gray-50 dark:bg-gray-800 p-4 rounded-lg'>
                 <RoadmapView
                   visit={activeVisit}
-                  speaker={speakers.find(s => s.id === activeVisit.id)}
-                  host={hosts.find(h => h.nom === activeVisit.host)}
+                  speaker={speakers.find((s) => s.id === activeVisit.id)}
+                  host={hosts.find((h) => h.nom === activeVisit.host)}
                 />
               </div>
             </div>
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => _setIsTravelModalOpen(true)}
-                leftIcon={<Truck className="w-4 h-4" />}
+                leftIcon={<Truck className='w-4 h-4' />}
               >
                 Organiser le transport
               </Button>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => _setIsMealModalOpen(true)}
-                leftIcon={<Utensils className="w-4 h-4" />}
+                leftIcon={<Utensils className='w-4 h-4' />}
               >
                 Planifier les repas
               </Button>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => _setIsAccommodationModalOpen(true)}
-                leftIcon={<Home className="w-4 h-4" />}
+                leftIcon={<Home className='w-4 h-4' />}
               >
                 Gérer l'hébergement
               </Button>
@@ -613,7 +640,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       case 'logistics':
         return (
           <>
-            <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
               Annuler
             </Button>
             <Button onClick={handleSave} isLoading={isLoading}>
@@ -624,10 +651,10 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       case 'delete':
         return (
           <>
-            <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
               Annuler
             </Button>
-            <Button variant="danger" onClick={handleDelete} isLoading={isLoading}>
+            <Button variant='danger' onClick={handleDelete} isLoading={isLoading}>
               Supprimer
             </Button>
           </>
@@ -637,7 +664,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         return null;
       case 'message':
         return (
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+          <Button variant='ghost' onClick={onClose} disabled={isLoading}>
             Fermer
           </Button>
         );
@@ -675,7 +702,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isTravelModalOpen}
           onClose={() => _setIsTravelModalOpen(false)}
           visit={visit}
-          onSave={() => { }}
+          onSave={() => {}}
         />
       )}
 
@@ -684,7 +711,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isMealModalOpen}
           onClose={() => _setIsMealModalOpen(false)}
           visit={visit}
-          onSave={() => { }}
+          onSave={() => {}}
         />
       )}
 
@@ -693,15 +720,23 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           isOpen={_isAccommodationModalOpen}
           onClose={() => _setIsAccommodationModalOpen(false)}
           visit={visit}
-          onSelectHost={() => { }}
+          onSelectHost={() => {}}
         />
       )}
 
       {generatorParams.isOpen && (
         <MessageGeneratorModal
           isOpen={generatorParams.isOpen}
-          onClose={() => setGeneratorParams(prev => ({ ...prev, isOpen: false }))}
-          speaker={speakers.find(s => s.id === visit.id) || { id: visit.id, nom: visit.nom, congregation: visit.congregation || '', gender: 'male', talkHistory: [] }}
+          onClose={() => setGeneratorParams((prev) => ({ ...prev, isOpen: false }))}
+          speaker={
+            speakers.find((s) => s.id === visit.id) || {
+              id: visit.id,
+              nom: visit.nom,
+              congregation: visit.congregation || '',
+              gender: 'male',
+              talkHistory: [],
+            }
+          }
           visit={visit}
           initialType={generatorParams.type}
         />

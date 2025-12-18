@@ -9,26 +9,26 @@ interface StatusBadgeProps {
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = '' }) => {
   const config = {
-    confirmed: { 
-      variant: 'success' as const, 
-      label: 'Confirmé'
+    confirmed: {
+      variant: 'success' as const,
+      label: 'Confirmé',
     },
-    pending: { 
-      variant: 'warning' as const, 
-      label: 'En attente'
+    pending: {
+      variant: 'warning' as const,
+      label: 'En attente',
     },
-    completed: { 
-      variant: 'default' as const, 
-      label: 'Terminé'
+    completed: {
+      variant: 'default' as const,
+      label: 'Terminé',
     },
-    cancelled: { 
-      variant: 'danger' as const, 
-      label: 'Annulé'
-    }
+    cancelled: {
+      variant: 'danger' as const,
+      label: 'Annulé',
+    },
   };
-  
+
   const { variant, label } = config[status];
-  
+
   return (
     <Badge variant={variant} className={className}>
       {label}

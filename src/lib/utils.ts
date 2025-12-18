@@ -18,7 +18,7 @@ export function cn(...inputs: ClassValue[]) {
 export function createStyle(styles: Record<string, string | number>): React.CSSProperties {
   // Add any necessary vendor prefixes here
   const prefixedStyles: Record<string, string | number> = {};
-  
+
   Object.entries(styles).forEach(([key, value]) => {
     // Handle specific properties that need prefixes
     switch (key) {
@@ -36,7 +36,7 @@ export function createStyle(styles: Record<string, string | number>): React.CSSP
         prefixedStyles[key] = value;
     }
   });
-  
+
   return prefixedStyles as React.CSSProperties;
 }
 

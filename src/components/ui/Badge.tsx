@@ -9,11 +9,11 @@ interface BadgeProps {
   size?: 'sm' | 'md';
 }
 
-export const Badge: React.FC<BadgeProps> = ({ 
-  children, 
-  variant = 'default', 
+export const Badge: React.FC<BadgeProps> = ({
+  children,
+  variant = 'default',
   className = '',
-  size = 'md'
+  size = 'md',
 }) => {
   const variants = {
     default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
@@ -30,7 +30,9 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   return (
-    <span className={`inline-flex items-center rounded-full font-medium ${variants[variant]} ${sizes[size]} ${className}`}>
+    <span
+      className={`inline-flex items-center rounded-full font-medium ${variants[variant]} ${sizes[size]} ${className}`}
+    >
       {children}
     </span>
   );

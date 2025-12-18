@@ -5,139 +5,170 @@ import { z } from 'zod';
 // Validation des dépenses
 export const ExpenseSchema = z.object({
   id: z.string().uuid().optional(),
-  description: z.string()
+  description: z
+    .string()
     .min(1, 'La description est requise')
     .max(255, 'La description ne peut pas dépasser 255 caractères')
     .trim(),
-  amount: z.number()
+  amount: z
+    .number()
     .positive('Le montant doit être positif')
     .max(999999.99, 'Le montant ne peut pas dépasser 999 999,99'),
-  category: z.string()
+  category: z
+    .string()
     .max(50, 'La catégorie ne peut pas dépasser 50 caractères')
     .optional()
     .or(z.literal('')),
-  date: z.string()
-    .refine((date) => !isNaN(Date.parse(date)), 'Date invalide'),
+  date: z.string().refine((date) => !isNaN(Date.parse(date)), 'Date invalide'),
   receiptUrl: z.string().url('URL de reçu invalide').optional().or(z.literal('')),
   createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  updatedAt: z.date().optional(),
 });
 
 // Validation des orateurs
 export const SpeakerSchema = z.object({
   id: z.string().uuid().optional(),
-  firstName: z.string()
+  firstName: z
+    .string()
     .min(1, 'Le prénom est requis')
     .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
     .trim(),
-  lastName: z.string()
+  lastName: z
+    .string()
     .min(1, 'Le nom est requis')
     .max(50, 'Le nom ne peut pas dépasser 50 caractères')
     .trim(),
-  email: z.string()
+  email: z
+    .string()
     .email('Email invalide')
-    .max(100, 'L\'email ne peut pas dépasser 100 caractères')
+    .max(100, "L'email ne peut pas dépasser 100 caractères")
     .trim(),
-  phone: z.string()
+  phone: z
+    .string()
     .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
-  company: z.string()
-    .max(100, 'L\'entreprise ne peut pas dépasser 100 caractères')
+  company: z
+    .string()
+    .max(100, "L'entreprise ne peut pas dépasser 100 caractères")
     .optional()
     .or(z.literal('')),
-  bio: z.string()
+  bio: z
+    .string()
     .max(500, 'La biographie ne peut pas dépasser 500 caractères')
     .optional()
     .or(z.literal('')),
   tags: z.array(z.string()).optional(),
-  socialLinks: z.object({
-    linkedin: z.string().url('URL LinkedIn invalide').optional().or(z.literal('')),
-    twitter: z.string().url('URL Twitter invalide').optional().or(z.literal('')),
-    website: z.string().url('URL site web invalide').optional().or(z.literal(''))
-  }).optional(),
+  socialLinks: z
+    .object({
+      linkedin: z.string().url('URL LinkedIn invalide').optional().or(z.literal('')),
+      twitter: z.string().url('URL Twitter invalide').optional().or(z.literal('')),
+      website: z.string().url('URL site web invalide').optional().or(z.literal('')),
+    })
+    .optional(),
   createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  updatedAt: z.date().optional(),
 });
 
 // Validation des hôtes
 export const HostSchema = z.object({
   id: z.string().uuid().optional(),
-  firstName: z.string()
+  firstName: z
+    .string()
     .min(1, 'Le prénom est requis')
     .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
     .trim(),
-  lastName: z.string()
+  lastName: z
+    .string()
     .min(1, 'Le nom est requis')
     .max(50, 'Le nom ne peut pas dépasser 50 caractères')
     .trim(),
-  email: z.string()
+  email: z
+    .string()
     .email('Email invalide')
-    .max(100, 'L\'email ne peut pas dépasser 100 caractères')
+    .max(100, "L'email ne peut pas dépasser 100 caractères")
     .trim(),
-  phone: z.string()
+  phone: z
+    .string()
     .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
   address: z.object({
-    street: z.string().min(1, 'La rue est requise').max(200, 'La rue ne peut pas dépasser 200 caractères'),
-    city: z.string().min(1, 'La ville est requise').max(100, 'La ville ne peut pas dépasser 100 caractères'),
+    street: z
+      .string()
+      .min(1, 'La rue est requise')
+      .max(200, 'La rue ne peut pas dépasser 200 caractères'),
+    city: z
+      .string()
+      .min(1, 'La ville est requise')
+      .max(100, 'La ville ne peut pas dépasser 100 caractères'),
     postalCode: z.string().regex(/^\d{5}$/, 'Code postal invalide'),
-    country: z.string().min(1, 'Le pays est requis').max(50, 'Le pays ne peut pas dépasser 50 caractères')
+    country: z
+      .string()
+      .min(1, 'Le pays est requis')
+      .max(50, 'Le pays ne peut pas dépasser 50 caractères'),
   }),
-  capacity: z.number()
+  capacity: z
+    .number()
     .positive('La capacité doit être positive')
     .max(1000, 'La capacité ne peut pas dépasser 1000'),
   amenities: z.array(z.string()).optional(),
-  notes: z.string()
+  notes: z
+    .string()
     .max(500, 'Les notes ne peuvent pas dépasser 500 caractères')
     .optional()
     .or(z.literal('')),
   createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  updatedAt: z.date().optional(),
 });
 
 // Validation des visites
 export const VisitSchema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string()
+  title: z
+    .string()
     .min(1, 'Le titre est requis')
     .max(200, 'Le titre ne peut pas dépasser 200 caractères')
     .trim(),
-  description: z.string()
+  description: z
+    .string()
     .max(1000, 'La description ne peut pas dépasser 1000 caractères')
     .optional()
     .or(z.literal('')),
-  date: z.string()
-    .refine((date) => !isNaN(Date.parse(date)), 'Date de visite invalide'),
-  startTime: z.string()
+  date: z.string().refine((date) => !isNaN(Date.parse(date)), 'Date de visite invalide'),
+  startTime: z
+    .string()
     .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Heure de début invalide (format HH:MM)'),
-  endTime: z.string()
+  endTime: z
+    .string()
     .regex(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Heure de fin invalide (format HH:MM)'),
-  speakerId: z.string().uuid('ID d\'orateur invalide'),
-  hostId: z.string().uuid('ID d\'hôte invalide'),
+  speakerId: z.string().uuid("ID d'orateur invalide"),
+  hostId: z.string().uuid("ID d'hôte invalide"),
   status: z.enum(['scheduled', 'confirmed', 'completed', 'cancelled']),
-  notes: z.string()
+  notes: z
+    .string()
     .max(500, 'Les notes ne peuvent pas dépasser 500 caractères')
     .optional()
     .or(z.literal('')),
   createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  updatedAt: z.date().optional(),
 });
 
 // Fonctions de validation exportées
 export const validateSpeaker = (data: unknown) => validateData(SpeakerSchema, data);
 export const validateHost = (data: unknown) => validateData(HostSchema, data);
 export const validateVisit = (data: unknown) => validateData(VisitSchema, data);
-    // Validation des messages
+// Validation des messages
 export const MessageSchema = z.object({
   id: z.string().uuid().optional(),
   recipientId: z.string().uuid('ID de destinataire invalide'),
-  subject: z.string()
+  subject: z
+    .string()
     .min(1, 'Le sujet est requis')
     .max(200, 'Le sujet ne peut pas dépasser 200 caractères')
     .trim(),
-  content: z.string()
+  content: z
+    .string()
     .min(1, 'Le contenu est requis')
     .max(5000, 'Le contenu ne peut pas dépasser 5000 caractères')
     .trim(),
@@ -147,14 +178,14 @@ export const MessageSchema = z.object({
   scheduledAt: z.string().datetime('Date de programmation invalide').optional(),
   sentAt: z.date().optional(),
   createdAt: z.date().optional(),
-  updatedAt: z.date().optional()
+  updatedAt: z.date().optional(),
 });
 
 // Validation générique pour les formulaires
 export const FormValidationSchema = z.object({
   isValid: z.boolean(),
   errors: z.record(z.string(), z.array(z.string())),
-  warnings: z.record(z.string(), z.array(z.string())).optional()
+  warnings: z.record(z.string(), z.array(z.string())).optional(),
 });
 
 // Fonctions utilitaires de validation
@@ -162,16 +193,20 @@ export const FormValidationSchema = z.object({
 /**
  * Valide des données selon un schéma Zod
  */
-export function validateData<T>(schema: z.ZodSchema<T>, data: unknown, _options?: any): { 
-  success: boolean; 
-  data?: T; 
-  errors?: Record<string, string[]>; 
+export function validateData<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown,
+  _options?: any
+): {
+  success: boolean;
+  data?: T;
+  errors?: Record<string, string[]>;
 } {
   try {
     const validatedData = schema.parse(data);
     return {
       success: true,
-      data: validatedData
+      data: validatedData,
     };
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -185,12 +220,12 @@ export function validateData<T>(schema: z.ZodSchema<T>, data: unknown, _options?
       });
       return {
         success: false,
-        errors
+        errors,
       };
     }
     return {
       success: false,
-      errors: { general: ['Erreur de validation inconnue'] }
+      errors: { general: ['Erreur de validation inconnue'] },
     };
   }
 }
@@ -198,7 +233,10 @@ export function validateData<T>(schema: z.ZodSchema<T>, data: unknown, _options?
 /**
  * Valide un formulaire avec des règles spécifiques
  */
-export function validateForm(formData: Record<string, any>, rules: Record<string, z.ZodSchema<any>>): {
+export function validateForm(
+  formData: Record<string, any>,
+  rules: Record<string, z.ZodSchema<any>>
+): {
   isValid: boolean;
   errors: Record<string, string[]>;
   warnings: Record<string, string[]>;
@@ -209,7 +247,7 @@ export function validateForm(formData: Record<string, any>, rules: Record<string
   for (const [fieldName, rule] of Object.entries(rules)) {
     const value = formData[fieldName];
     const fieldResult = validateData(rule, value, {});
-    
+
     if (!fieldResult.success && fieldResult.errors) {
       errors[fieldName] = Object.values(fieldResult.errors).flat();
     }
@@ -219,7 +257,7 @@ export function validateForm(formData: Record<string, any>, rules: Record<string
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
         if (!errors[fieldName]) errors[fieldName] = [];
-        errors[fieldName].push('Format d\'email invalide');
+        errors[fieldName].push("Format d'email invalide");
       }
     }
 
@@ -255,7 +293,7 @@ export function validateForm(formData: Record<string, any>, rules: Record<string
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
-    warnings: Object.keys(warnings).length > 0 ? warnings : {}
+    warnings: Object.keys(warnings).length > 0 ? warnings : {},
   };
 }
 
@@ -285,7 +323,7 @@ export function sanitizeFormData(formData: Record<string, any>): Record<string, 
       sanitized[key] = sanitizeFormData(value);
     } else if (Array.isArray(value)) {
       // Handle arrays of objects
-      sanitized[key] = value.map(item =>
+      sanitized[key] = value.map((item) =>
         typeof item === 'object' && item !== null ? sanitizeFormData(item) : item
       );
     } else {
@@ -323,7 +361,11 @@ export const isValidDate = (date: string): boolean => {
 
   // Check if the date components match what was parsed
   const [year, month, day] = date.split('T')[0].split('-').map(Number);
-  if (dateObj.getFullYear() !== year || dateObj.getMonth() + 1 !== month || dateObj.getDate() !== day) {
+  if (
+    dateObj.getFullYear() !== year ||
+    dateObj.getMonth() + 1 !== month ||
+    dateObj.getDate() !== day
+  ) {
     return false;
   }
 
@@ -342,5 +384,5 @@ export default {
   sanitizeFormData,
   isValidEmail,
   isValidPhone,
-  isValidDate
+  isValidDate,
 };

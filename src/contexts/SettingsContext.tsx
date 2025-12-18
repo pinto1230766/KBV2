@@ -135,8 +135,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   if (!isLoaded) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className='h-screen flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600' />
       </div>
     );
   }

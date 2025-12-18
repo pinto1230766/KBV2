@@ -23,7 +23,7 @@ import {
   Clock,
   Archive,
   MessageSquare,
-  Star
+  Star,
 } from 'lucide-react';
 import { LocationType, VisitStatus, Visit } from '@/types';
 import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
@@ -31,63 +31,73 @@ import { PlanningTimelineView } from '@/components/planning/PlanningTimelineView
 import { FinancialDashboard } from '@/components/expenses/FinancialDashboard';
 import { useReactToPrint } from 'react-to-print';
 import { PlanningFilterModal } from '@/components/planning/PlanningFilterModal';
-import { ConflictDetectionModal, CancellationModal, EmergencyReplacementModal } from '@/components/modals';
-
+import {
+  ConflictDetectionModal,
+  CancellationModal,
+  EmergencyReplacementModal,
+} from '@/components/modals';
 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
 // Memoized statistics component for performance
-const StatCard = memo(({
-  icon: Icon,
-  value,
-  label,
-  bgColor,
-  textColor,
-  iconBg
-}: {
-  icon: any;
-  value: number;
-  label: string;
-  bgColor: string;
-  textColor: string;
-  iconBg: string;
-}) => (
-  <div className={`${bgColor} p-4 rounded-lg border`}>
-    <div className="flex items-center gap-2">
-      <div className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center`}>
-        <Icon className={`w-4 h-4 ${textColor}`} />
-      </div>
-      <div>
-        <div className={`text-lg font-semibold ${textColor.replace('text-', 'text-').replace('blue-600', 'blue-900').replace('dark:text-blue-400', 'dark:text-blue-100')}`}>
-          {value}
+const StatCard = memo(
+  ({
+    icon: Icon,
+    value,
+    label,
+    bgColor,
+    textColor,
+    iconBg,
+  }: {
+    icon: any;
+    value: number;
+    label: string;
+    bgColor: string;
+    textColor: string;
+    iconBg: string;
+  }) => (
+    <div className={`${bgColor} p-4 rounded-lg border`}>
+      <div className='flex items-center gap-2'>
+        <div className={`w-8 h-8 rounded-full ${iconBg} flex items-center justify-center`}>
+          <Icon className={`w-4 h-4 ${textColor}`} />
         </div>
-        <div className="text-xs text-blue-700 dark:text-blue-300">{label}</div>
+        <div>
+          <div
+            className={`text-lg font-semibold ${textColor.replace('text-', 'text-').replace('blue-600', 'blue-900').replace('dark:text-blue-400', 'dark:text-blue-100')}`}
+          >
+            {value}
+          </div>
+          <div className='text-xs text-blue-700 dark:text-blue-300'>{label}</div>
+        </div>
       </div>
     </div>
-  </div>
-));
+  )
+);
 
 // Memoized view option component
-const ViewOption = memo(({
-  viewOption,
-  currentView,
-  onViewChange
-}: {
-  viewOption: any;
-  currentView: ViewType;
-  onViewChange: (view: ViewType) => void;
-}) => (
-  <button
-    onClick={() => onViewChange(viewOption.id as ViewType)}
-    className={`p-2 rounded-md transition-all text-xs ${currentView === viewOption.id
-      ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
-      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+const ViewOption = memo(
+  ({
+    viewOption,
+    currentView,
+    onViewChange,
+  }: {
+    viewOption: any;
+    currentView: ViewType;
+    onViewChange: (view: ViewType) => void;
+  }) => (
+    <button
+      onClick={() => onViewChange(viewOption.id as ViewType)}
+      className={`p-2 rounded-md transition-all text-xs ${
+        currentView === viewOption.id
+          ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
+          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
       }`}
-    title={viewOption.description}
-  >
-    <viewOption.icon className="w-4 h-4" />
-  </button>
-));
+      title={viewOption.description}
+    >
+      <viewOption.icon className='w-4 h-4' />
+    </button>
+  )
+);
 
 export const Planning: React.FC = () => {
   const { visits, archivedVisits } = useData();
@@ -98,9 +108,14 @@ export const Planning: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<{ start: Date | null, end: Date | null }>({ start: null, end: null });
+  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
+    start: null,
+    end: null,
+  });
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
-  const [selectedAction, setSelectedAction] = useState<'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'>('edit');
+  const [selectedAction, setSelectedAction] = useState<
+    'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+  >('edit');
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
   const [isReplacementModalOpen, setIsReplacementModalOpen] = useState(false);
@@ -117,15 +132,17 @@ export const Planning: React.FC = () => {
       const headers = ['Date', 'Heure', 'Orateur', 'Congrégation', 'Discours', 'Thème', 'Hôte'];
       const csvContent = [
         headers.join(','),
-        ...archivedVisits.map(visit => [
-          visit.visitDate,
-          visit.visitTime,
-          `"${visit.nom}"`,
-          `"${visit.congregation}"`,
-          visit.talkNoOrType || '',
-          `"${visit.talkTheme || ''}"`,
-          `"${visit.host || ''}"`
-        ].join(','))
+        ...archivedVisits.map((visit) =>
+          [
+            visit.visitDate,
+            visit.visitTime,
+            `"${visit.nom}"`,
+            `"${visit.congregation}"`,
+            visit.talkNoOrType || '',
+            `"${visit.talkTheme || ''}"`,
+            `"${visit.host || ''}"`,
+          ].join(',')
+        ),
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -143,43 +160,56 @@ export const Planning: React.FC = () => {
     }
   };
 
-
   // Memoized event handlers to prevent unnecessary re-renders
   const handleSetView = useCallback((newView: ViewType) => setView(newView), []);
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) =>
-    setSearchTerm(e.target.value), []);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value),
+    []
+  );
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
-  const handleVisitAction = useCallback((visit: Visit, action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics') => {
-    setSelectedVisit(visit);
-    setSelectedAction(action);
-    setIsActionModalOpen(true);
-  }, []);
+  const handleVisitAction = useCallback(
+    (
+      visit: Visit,
+      action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+    ) => {
+      setSelectedVisit(visit);
+      setSelectedAction(action);
+      setIsActionModalOpen(true);
+    },
+    []
+  );
   const handleCloseActionModal = useCallback(() => {
     setIsActionModalOpen(false);
     setSelectedVisit(null);
   }, []);
 
   // Optimized filtered and sorted visits with proper dependencies
-  const filteredVisits = useMemo(() => visits
-    .filter((visit: Visit) => {
-      const matchesSearch =
-        visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        visit.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        visit.talkNoOrType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        visit.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredVisits = useMemo(
+    () =>
+      visits
+        .filter((visit: Visit) => {
+          const matchesSearch =
+            visit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            visit.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            visit.talkNoOrType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            visit.notes?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesStatus = statusFilter === 'all' || visit.status === statusFilter;
-      const matchesType = typeFilter === 'all' || visit.locationType === typeFilter;
+          const matchesStatus = statusFilter === 'all' || visit.status === statusFilter;
+          const matchesType = typeFilter === 'all' || visit.locationType === typeFilter;
 
-      const visitDate = new Date(visit.visitDate);
-      const matchesDateRange =
-        (!dateRange.start || visitDate >= dateRange.start) &&
-        (!dateRange.end || visitDate <= dateRange.end);
+          const visitDate = new Date(visit.visitDate);
+          const matchesDateRange =
+            (!dateRange.start || visitDate >= dateRange.start) &&
+            (!dateRange.end || visitDate <= dateRange.end);
 
-      return matchesSearch && matchesStatus && matchesType && matchesDateRange;
-    })
-    .sort((a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()), [visits, searchTerm, statusFilter, typeFilter, dateRange]);
+          return matchesSearch && matchesStatus && matchesType && matchesDateRange;
+        })
+        .sort(
+          (a: Visit, b: Visit) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
+        ),
+    [visits, searchTerm, statusFilter, typeFilter, dateRange]
+  );
 
   // Optimized statistics calculation
   const stats = useMemo(() => {
@@ -196,84 +226,91 @@ export const Planning: React.FC = () => {
     return { total, confirmed, pending, completed, upcoming };
   }, [filteredVisits]);
 
-  const mainViewOptions = useMemo(() => [
-    { id: 'cards', label: 'Cartes', icon: LayoutGrid, description: 'Vue visuelle des visites' },
-    { id: 'list', label: 'Liste', icon: List, description: 'Tableau détaillé' },
-    { id: 'calendar', label: 'Calendrier', icon: CalendarIcon, description: 'Vue calendrier' },
-  ], []);
+  const mainViewOptions = useMemo(
+    () => [
+      { id: 'cards', label: 'Cartes', icon: LayoutGrid, description: 'Vue visuelle des visites' },
+      { id: 'list', label: 'Liste', icon: List, description: 'Tableau détaillé' },
+      { id: 'calendar', label: 'Calendrier', icon: CalendarIcon, description: 'Vue calendrier' },
+    ],
+    []
+  );
 
-  const specializedViews = useMemo(() => [
-    { id: 'archives', label: 'Archives', icon: Archive, description: 'Visites terminées' },
-    { id: 'timeline', label: 'Chronologie', icon: Eye, description: 'Timeline verticale' },
-    { id: 'workload', label: 'Disponibilité', icon: BarChart, description: 'Charge des orateurs' },
-    { id: 'finance', label: 'Finances', icon: PieChart, description: 'Suivi des coûts' }
-  ], []);
+  const specializedViews = useMemo(
+    () => [
+      { id: 'archives', label: 'Archives', icon: Archive, description: 'Visites terminées' },
+      { id: 'timeline', label: 'Chronologie', icon: Eye, description: 'Timeline verticale' },
+      {
+        id: 'workload',
+        label: 'Disponibilité',
+        icon: BarChart,
+        description: 'Charge des orateurs',
+      },
+      { id: 'finance', label: 'Finances', icon: PieChart, description: 'Suivi des coûts' },
+    ],
+    []
+  );
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className='space-y-4 md:space-y-6'>
       {/* Header & Stats */}
-      <div className="flex justify-end">
-        <Button
-          leftIcon={<Plus className="w-4 h-4" />}
-          onClick={handleOpenModal}
-          size="lg"
-        >
+      <div className='flex justify-end'>
+        <Button leftIcon={<Plus className='w-4 h-4' />} onClick={handleOpenModal} size='lg'>
           Programmer une visite
         </Button>
       </div>
 
       {/* Statistics Cards - Mobile Optimized */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4'>
         <StatCard
           icon={CalendarIcon}
           value={stats.total}
-          label="Total"
-          bgColor="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800"
-          textColor="text-blue-600 dark:text-blue-400"
-          iconBg="bg-blue-100 dark:bg-blue-900"
+          label='Total'
+          bgColor='bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800'
+          textColor='text-blue-600 dark:text-blue-400'
+          iconBg='bg-blue-100 dark:bg-blue-900'
         />
         <StatCard
-          icon={() => <div className="w-2 h-2 rounded-full bg-green-500" />}
+          icon={() => <div className='w-2 h-2 rounded-full bg-green-500' />}
           value={stats.confirmed}
-          label="Confirmées"
-          bgColor="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800"
-          textColor="text-green-600 dark:text-green-400"
-          iconBg="bg-green-100 dark:bg-green-900"
+          label='Confirmées'
+          bgColor='bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800'
+          textColor='text-green-600 dark:text-green-400'
+          iconBg='bg-green-100 dark:bg-green-900'
         />
         <StatCard
           icon={Clock}
           value={stats.pending}
-          label="En attente"
-          bgColor="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800"
-          textColor="text-orange-600 dark:text-orange-400"
-          iconBg="bg-orange-100 dark:bg-orange-900"
+          label='En attente'
+          bgColor='bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800'
+          textColor='text-orange-600 dark:text-orange-400'
+          iconBg='bg-orange-100 dark:bg-orange-900'
         />
         <StatCard
-          icon={() => <div className="w-2 h-2 rounded-full bg-purple-500" />}
+          icon={() => <div className='w-2 h-2 rounded-full bg-purple-500' />}
           value={stats.upcoming}
-          label="À venir"
-          bgColor="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800"
-          textColor="text-purple-600 dark:text-purple-400"
-          iconBg="bg-purple-100 dark:bg-purple-900"
+          label='À venir'
+          bgColor='bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800'
+          textColor='text-purple-600 dark:text-purple-400'
+          iconBg='bg-purple-100 dark:bg-purple-900'
         />
       </div>
 
       {/* Filters & View Toggle - Mobile Responsive */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-3 md:p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col gap-3 w-full lg:w-auto">
-          <div className="flex gap-3">
-            <div className="flex-1 min-w-0 md:min-w-64">
+      <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-white dark:bg-gray-800 p-3 md:p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700'>
+        <div className='flex flex-col gap-3 w-full lg:w-auto'>
+          <div className='flex gap-3'>
+            <div className='flex-1 min-w-0 md:min-w-64'>
               <Input
-                placeholder="Rechercher une visite..."
-                leftIcon={<Search className="w-4 h-4" />}
+                placeholder='Rechercher une visite...'
+                leftIcon={<Search className='w-4 h-4' />}
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
             </div>
             <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<Filter className="w-4 h-4" />}
+              variant='secondary'
+              size='sm'
+              leftIcon={<Filter className='w-4 h-4' />}
               onClick={() => setIsFilterModalOpen(true)}
             >
               Filtres
@@ -282,28 +319,28 @@ export const Planning: React.FC = () => {
 
           {/* Active Filters Chips */}
           {(statusFilter !== 'all' || typeFilter !== 'all') && (
-            <div className="flex gap-2 flex-wrap items-center">
+            <div className='flex gap-2 flex-wrap items-center'>
               {statusFilter !== 'all' && (
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  className='inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors'
                 >
                   {statusFilter === 'pending' && 'En attente'}
                   {statusFilter === 'confirmed' && 'Confirmé'}
                   {statusFilter === 'completed' && 'Terminé'}
                   {statusFilter === 'cancelled' && 'Annulé'}
-                  <X className="w-3 h-3" />
+                  <X className='w-3 h-3' />
                 </button>
               )}
               {typeFilter !== 'all' && (
                 <button
                   onClick={() => setTypeFilter('all')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                  className='inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors'
                 >
                   {typeFilter === 'physical' && 'Physique'}
                   {typeFilter === 'zoom' && 'Zoom'}
                   {typeFilter === 'streaming' && 'Streaming'}
-                  <X className="w-3 h-3" />
+                  <X className='w-3 h-3' />
                 </button>
               )}
               <button
@@ -311,7 +348,7 @@ export const Planning: React.FC = () => {
                   setStatusFilter('all');
                   setTypeFilter('all');
                 }}
-                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline"
+                className='text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 underline'
               >
                 Effacer tout
               </button>
@@ -319,9 +356,9 @@ export const Planning: React.FC = () => {
           )}
         </div>
 
-        <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end">
+        <div className='flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end'>
           {/* View Toggle - 3 vues principales */}
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+          <div className='flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-lg'>
             {mainViewOptions.map((viewOption) => (
               <ViewOption
                 key={viewOption.id}
@@ -332,25 +369,23 @@ export const Planning: React.FC = () => {
             ))}
 
             {/* Menu déroulant pour vues spécialisées */}
-            <div className="relative">
+            <div className='relative'>
               <button
                 onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
-                className={`p-2 rounded-md transition-all text-xs ${['timeline', 'workload', 'finance'].includes(view)
-                  ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
-                  }`}
-                title="Plus de vues"
+                className={`p-2 rounded-md transition-all text-xs ${
+                  ['timeline', 'workload', 'finance'].includes(view)
+                    ? 'bg-white dark:bg-gray-600 shadow-sm text-primary-600 dark:text-primary-400'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
+                }`}
+                title='Plus de vues'
               >
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreHorizontal className='w-4 h-4' />
               </button>
 
               {isViewMenuOpen && (
                 <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setIsViewMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
+                  <div className='fixed inset-0 z-10' onClick={() => setIsViewMenuOpen(false)} />
+                  <div className='absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20'>
                     {specializedViews.map((viewOption) => (
                       <button
                         key={viewOption.id}
@@ -358,15 +393,18 @@ export const Planning: React.FC = () => {
                           handleSetView(viewOption.id as ViewType);
                           setIsViewMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${view === viewOption.id
-                          ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-                          }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                          view === viewOption.id
+                            ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
                       >
-                        <viewOption.icon className="w-4 h-4" />
-                        <div className="text-left">
-                          <div className="font-medium">{viewOption.label}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{viewOption.description}</div>
+                        <viewOption.icon className='w-4 h-4' />
+                        <div className='text-left'>
+                          <div className='font-medium'>{viewOption.label}</div>
+                          <div className='text-xs text-gray-500 dark:text-gray-400'>
+                            {viewOption.description}
+                          </div>
                         </div>
                       </button>
                     ))}
@@ -376,14 +414,19 @@ export const Planning: React.FC = () => {
             </div>
           </div>
 
-          <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={handleExport}>
+          <Button
+            variant='secondary'
+            size='sm'
+            leftIcon={<Download className='w-4 h-4' />}
+            onClick={handleExport}
+          >
             Exporter
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="min-h-[400px] md:min-h-[600px]" ref={componentRef}>
+      <div className='min-h-[400px] md:min-h-[600px]' ref={componentRef}>
         {view === 'cards' && (
           <PlanningCardsView
             visits={filteredVisits}
@@ -407,109 +450,103 @@ export const Planning: React.FC = () => {
           />
         )}
 
-        {view === 'timeline' && (
-          <PlanningTimelineView visits={filteredVisits} />
-        )}
+        {view === 'timeline' && <PlanningTimelineView visits={filteredVisits} />}
 
-        {view === 'workload' && (
-          <PlanningWorkloadView />
-        )}
+        {view === 'workload' && <PlanningWorkloadView />}
 
-        {view === 'finance' && (
-          <FinancialDashboard />
-        )}
+        {view === 'finance' && <FinancialDashboard />}
 
         {view === 'archives' && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 mb-4">
-              <Archive className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className='space-y-4'>
+            <div className='flex items-center gap-3 mb-4'>
+              <Archive className='w-6 h-6 text-gray-600 dark:text-gray-400' />
+              <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
                 Visites archivées ({archivedVisits.length})
               </h2>
             </div>
 
             {archivedVisits.length === 0 ? (
-              <div className="text-center py-12">
-                <Archive className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <div className='text-center py-12'>
+                <Archive className='w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4' />
+                <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
                   Aucune visite archivée
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className='text-gray-500 dark:text-gray-400'>
                   Les visites terminées apparaîtront ici automatiquement.
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {archivedVisits
                   .sort((a, b) => new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime())
                   .map((visit) => (
                     <div
                       key={visit.visitId}
-                      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-shadow"
+                      className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow-md transition-shadow'
                     >
-                      <div className="flex items-start justify-between mb-3">
+                      <div className='flex items-start justify-between mb-3'>
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">
+                          <h3 className='font-semibold text-gray-900 dark:text-white'>
                             {visit.nom}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className='text-sm text-gray-600 dark:text-gray-400'>
                             {visit.congregation}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                        <div className='flex items-center gap-2'>
+                          <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'>
                             Terminée
                           </span>
                         </div>
                       </div>
 
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Date:</span>
-                          <span className="font-medium">
+                      <div className='space-y-2 text-sm'>
+                        <div className='flex justify-between'>
+                          <span className='text-gray-600 dark:text-gray-400'>Date:</span>
+                          <span className='font-medium'>
                             {new Date(visit.visitDate).toLocaleDateString('fr-FR')}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600 dark:text-gray-400">Heure:</span>
+                        <div className='flex justify-between'>
+                          <span className='text-gray-600 dark:text-gray-400'>Heure:</span>
                           <span>{visit.visitTime}</span>
                         </div>
                         {visit.talkNoOrType && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">Discours:</span>
+                          <div className='flex justify-between'>
+                            <span className='text-gray-600 dark:text-gray-400'>Discours:</span>
                             <span>{visit.talkNoOrType}</span>
                           </div>
                         )}
                         {visit.host && (
-                          <div className="flex justify-between">
-                            <span className="text-gray-600 dark:text-gray-400">Hôte:</span>
+                          <div className='flex justify-between'>
+                            <span className='text-gray-600 dark:text-gray-400'>Hôte:</span>
                             <span>{visit.host}</span>
                           </div>
                         )}
                       </div>
 
                       {visit.talkTheme && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                          <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                        <div className='mt-3 pt-3 border-t border-gray-200 dark:border-gray-700'>
+                          <p className='text-sm text-gray-700 dark:text-gray-300 italic'>
                             "{visit.talkTheme}"
                           </p>
                         </div>
                       )}
 
-                      <div className="mt-4 flex gap-2">
+                      <div className='mt-4 flex gap-2'>
                         <Button
-                          variant="secondary"
-                          size="sm"
+                          variant='secondary'
+                          size='sm'
                           onClick={() => handleVisitAction(visit, 'message')}
-                          leftIcon={<MessageSquare className="w-3 h-3" />}
+                          leftIcon={<MessageSquare className='w-3 h-3' />}
                         >
                           Message
                         </Button>
                         <Button
-                          variant="secondary"
-                          size="sm"
+                          variant='secondary'
+                          size='sm'
                           onClick={() => handleVisitAction(visit, 'feedback')}
-                          leftIcon={<Star className="w-3 h-3" />}
+                          leftIcon={<Star className='w-3 h-3' />}
                         >
                           Bilan
                         </Button>
@@ -523,33 +560,36 @@ export const Planning: React.FC = () => {
       </div>
 
       {/* Past Visits Alert */}
-      {visits.filter((v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length > 0 && (
-        <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center">
-                <Clock className="w-4 h-4 md:w-5 md:h-5 text-orange-600 dark:text-orange-400" />
+      {visits.filter((v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date())
+        .length > 0 && (
+        <div className='bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-900/50 rounded-lg p-4'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 md:w-10 md:h-10 rounded-full bg-orange-100 dark:bg-orange-900 flex items-center justify-center'>
+                <Clock className='w-4 h-4 md:w-5 md:h-5 text-orange-600 dark:text-orange-400' />
               </div>
               <div>
-                <h4 className="font-medium text-orange-900 dark:text-orange-100">
+                <h4 className='font-medium text-orange-900 dark:text-orange-100'>
                   Visites passées à archiver
                 </h4>
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  {visits.filter((v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date()).length} visite(s) passée(s) nécessite(nt) une action
+                <p className='text-sm text-orange-700 dark:text-orange-300'>
+                  {
+                    visits.filter(
+                      (v: Visit) => v.status === 'confirmed' && new Date(v.visitDate) < new Date()
+                    ).length
+                  }{' '}
+                  visite(s) passée(s) nécessite(nt) une action
                 </p>
               </div>
             </div>
-            <Button variant="secondary" size="sm">
+            <Button variant='secondary' size='sm'>
               Voir tout
             </Button>
           </div>
         </div>
       )}
 
-      <ScheduleVisitModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <ScheduleVisitModal isOpen={isModalOpen} onClose={handleCloseModal} />
 
       <VisitActionModal
         isOpen={isActionModalOpen}

@@ -23,12 +23,12 @@ export const SPenCursor: React.FC<SPenCursorProps> = ({ children }) => {
     <>
       {children}
       {/* Curseur personnalisé S Pen */}
-      <div className="spen-cursor spen-cursor-positioned pointer-events-none z-[9999] transition-opacity duration-100">
-        <div className="relative">
+      <div className='spen-cursor spen-cursor-positioned pointer-events-none z-[9999] transition-opacity duration-100'>
+        <div className='relative'>
           {/* Point central */}
-          <div className="w-2 h-2 bg-ios-blue rounded-full" />
+          <div className='w-2 h-2 bg-ios-blue rounded-full' />
           {/* Cercle extérieur */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border-2 border-ios-blue rounded-full opacity-50" />
+          <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border-2 border-ios-blue rounded-full opacity-50' />
         </div>
       </div>
     </>

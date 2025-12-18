@@ -4,12 +4,12 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { 
-  sanitizeInput, 
+import {
+  sanitizeInput,
   sanitizeFormData,
   isValidEmail,
   isValidPhone,
-  isValidDate
+  isValidDate,
 } from '@/utils/validation';
 
 describe('Validation Utils', () => {
@@ -49,9 +49,9 @@ describe('Validation Utils', () => {
         name: '<b>John</b>',
         email: 'john@example.com',
         age: 25,
-        active: true
+        active: true,
       };
-      
+
       const result = sanitizeFormData(data);
       expect(result.name).not.toContain('<b>');
       expect(result.email).toBe('john@example.com');
@@ -63,10 +63,10 @@ describe('Validation Utils', () => {
       const data = {
         user: {
           name: '<script>bad</script>Test',
-          email: 'test@test.com'
-        }
+          email: 'test@test.com',
+        },
       };
-      
+
       const result = sanitizeFormData(data);
       expect(result.user.name).not.toContain('<script>');
     });

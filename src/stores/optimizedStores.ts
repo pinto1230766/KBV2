@@ -17,7 +17,7 @@ interface UserStore {
   } | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   setUser: (user: any) => void;
   updatePreferences: (preferences: Partial<any>) => void;
@@ -40,7 +40,7 @@ interface AppStore {
     message: string;
     timestamp: number;
   }>;
-  
+
   // Actions
   initialize: () => void;
   setCurrentPage: (page: string) => void;
@@ -69,35 +69,40 @@ export const useUserStore = create<UserStore>()(
         user: null,
         isLoading: false,
         error: null,
-        
+
         // Actions avec Immer pour l'immutabilité
-        setUser: (user) => _set((state) => {
-          state.user = user;
-          state.error = null;
-        }),
-        
-        updatePreferences: (preferences) => _set((state) => {
-          if (state.user) {
-            state.user.preferences = { ...state.user.preferences, ...preferences };
-          }
-        }),
-        
-        clearUser: () => _set((state) => {
-          state.user = null;
-          state.error = null;
-        }),
-        
-        setLoading: (loading) => _set((state) => {
-          state.isLoading = loading;
-        }),
-        
-        setError: (error) => _set((state) => {
-          state.error = error;
-        })
+        setUser: (user) =>
+          _set((state) => {
+            state.user = user;
+            state.error = null;
+          }),
+
+        updatePreferences: (preferences) =>
+          _set((state) => {
+            if (state.user) {
+              state.user.preferences = { ...state.user.preferences, ...preferences };
+            }
+          }),
+
+        clearUser: () =>
+          _set((state) => {
+            state.user = null;
+            state.error = null;
+          }),
+
+        setLoading: (loading) =>
+          _set((state) => {
+            state.isLoading = loading;
+          }),
+
+        setError: (error) =>
+          _set((state) => {
+            state.error = error;
+          }),
       })),
       {
         name: 'kbv-user-store',
-        partialize: (state) => ({ user: state.user })
+        partialize: (state) => ({ user: state.user }),
       }
     )
   )
@@ -113,74 +118,83 @@ export const useAppStore = create<AppStore>()(
       sidebarOpen: true,
       modals: {},
       notifications: [],
-      
+
       // Actions avec Immer
-      initialize: () => _set((state) => {
-        state.isInitialized = true;
-      }),
-      
-      setCurrentPage: (page) => _set((state) => {
-        state.currentPage = page;
-      }),
-      
-      toggleSidebar: () => _set((state) => {
-        state.sidebarOpen = !state.sidebarOpen;
-      }),
-      
-      openModal: (modalId) => _set((state) => {
-        state.modals[modalId] = true;
-      }),
-      
-      closeModal: (modalId) => _set((state) => {
-        state.modals[modalId] = false;
-      }),
-      
-      addNotification: (notification) => _set((state) => {
-        state.notifications.push({
-          ...notification,
-          id: `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          timestamp: Date.now()
-        });
-      }),
-      
-      removeNotification: (id) => _set((state) => {
-        state.notifications = state.notifications.filter((n: any) => n.id !== id);
-      }),
-      
-      clearNotifications: () => _set((state) => {
-        state.notifications = [];
-      })
+      initialize: () =>
+        _set((state) => {
+          state.isInitialized = true;
+        }),
+
+      setCurrentPage: (page) =>
+        _set((state) => {
+          state.currentPage = page;
+        }),
+
+      toggleSidebar: () =>
+        _set((state) => {
+          state.sidebarOpen = !state.sidebarOpen;
+        }),
+
+      openModal: (modalId) =>
+        _set((state) => {
+          state.modals[modalId] = true;
+        }),
+
+      closeModal: (modalId) =>
+        _set((state) => {
+          state.modals[modalId] = false;
+        }),
+
+      addNotification: (notification) =>
+        _set((state) => {
+          state.notifications.push({
+            ...notification,
+            id: `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            timestamp: Date.now(),
+          });
+        }),
+
+      removeNotification: (id) =>
+        _set((state) => {
+          state.notifications = state.notifications.filter((n: any) => n.id !== id);
+        }),
+
+      clearNotifications: () =>
+        _set((state) => {
+          state.notifications = [];
+        }),
     }))
   )
 );
 
 // Sélecteurs optimisés pour éviter les re-rendus inutiles
 export const useUserSelector = {
-  user: () => useUserStore(state => state.user),
-  isLoading: () => useUserStore(state => state.isLoading),
-  error: () => useUserStore(state => state.error),
-  preferences: () => useUserStore(state => state.user?.preferences),
-  isAuthenticated: () => useUserStore(state => Boolean(state.user))
+  user: () => useUserStore((state) => state.user),
+  isLoading: () => useUserStore((state) => state.isLoading),
+  error: () => useUserStore((state) => state.error),
+  preferences: () => useUserStore((state) => state.user?.preferences),
+  isAuthenticated: () => useUserStore((state) => Boolean(state.user)),
 };
 
 export const useAppSelector = {
-  isInitialized: () => useAppStore(state => state.isInitialized),
-  currentPage: () => useAppStore(state => state.currentPage),
-  sidebarOpen: () => useAppStore(state => state.sidebarOpen),
-  modals: () => useAppStore(state => state.modals),
-  notifications: () => useAppStore(state => state.notifications),
-  unreadNotifications: () => useAppStore(state => 
-    state.notifications.filter((n: any) => 
-      Date.now() - n.timestamp < 5000 // 5 secondes
-    )
-  )
+  isInitialized: () => useAppStore((state) => state.isInitialized),
+  currentPage: () => useAppStore((state) => state.currentPage),
+  sidebarOpen: () => useAppStore((state) => state.sidebarOpen),
+  modals: () => useAppStore((state) => state.modals),
+  notifications: () => useAppStore((state) => state.notifications),
+  unreadNotifications: () =>
+    useAppStore((state) =>
+      state.notifications.filter(
+        (n: any) => Date.now() - n.timestamp < 5000 // 5 secondes
+      )
+    ),
 };
 
 // Hook composite pour les actions courantes
 export const useStoreActions = () => {
   const userStore = useUserStore();
   const appStore = useAppStore();
-  
+
   return {
     // Actions utilisateur
     setUser: userStore.setUser,
@@ -188,7 +202,7 @@ export const useStoreActions = () => {
     clearUser: userStore.clearUser,
     setLoading: userStore.setLoading,
     setError: userStore.setError,
-    
+
     // Actions application
     initialize: appStore.initialize,
     setCurrentPage: appStore.setCurrentPage,
@@ -198,26 +212,26 @@ export const useStoreActions = () => {
     addNotification: appStore.addNotification,
     removeNotification: appStore.removeNotification,
     clearNotifications: appStore.clearNotifications,
-    
+
     // Actions combinées
     logout: () => {
       userStore.clearUser();
       appStore.clearNotifications();
     },
-    
+
     showSuccess: (message: string) => {
       appStore.addNotification({
         type: 'success',
-        message
+        message,
       });
     },
-    
+
     showError: (message: string) => {
       appStore.addNotification({
         type: 'error',
-        message
+        message,
       });
-    }
+    },
   };
 };
 
@@ -227,29 +241,31 @@ export const useDevStore = create<DevStore>()(
     immer((_set) => ({
       devMode: false,
       debugEnabled: false,
-      
-      toggleDevMode: () => _set((state: any) => {
-        state.devMode = !state.devMode;
-      }),
-      
-      setDebugEnabled: (enabled) => _set((state: any) => {
-        state.debugEnabled = enabled;
-      }),
-      
+
+      toggleDevMode: () =>
+        _set((state: any) => {
+          state.devMode = !state.devMode;
+        }),
+
+      setDebugEnabled: (enabled) =>
+        _set((state: any) => {
+          state.debugEnabled = enabled;
+        }),
+
       logAction: (action: string, data?: any) => {
         const state = useDevStore.getState();
         if (state.debugEnabled) {
           console.log(`🎯 [DevStore] ${action}`, data);
         }
-      }
+      },
     }))
   )
 );
 
 // Selectors pour le debugging
 export const useDevSelectors = {
-  devMode: () => useDevStore(state => state.devMode),
-  debugEnabled: () => useDevStore(state => state.debugEnabled)
+  devMode: () => useDevStore((state) => state.devMode),
+  debugEnabled: () => useDevStore((state) => state.debugEnabled),
 };
 
 export default {
@@ -259,5 +275,5 @@ export default {
   useAppSelector,
   useStoreActions,
   useDevStore,
-  useDevSelectors
+  useDevSelectors,
 };

@@ -21,23 +21,26 @@ export const usePullToRefresh = (options: PullToRefreshOptions) => {
     }
   }, []);
 
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isPulling.current || isRefreshing) return;
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isPulling.current || isRefreshing) return;
 
-    const currentY = e.touches[0].clientY;
-    const distance = currentY - startY.current;
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - startY.current;
 
-    if (distance > 0) {
-      // Appliquer une résistance pour un effet plus naturel
-      const adjustedDistance = distance / resistance;
-      setPullDistance(Math.min(adjustedDistance, threshold * 1.5));
-      
-      // Empêcher le scroll par défaut si on tire vers le bas
-      if (distance > 10) {
-        e.preventDefault();
+      if (distance > 0) {
+        // Appliquer une résistance pour un effet plus naturel
+        const adjustedDistance = distance / resistance;
+        setPullDistance(Math.min(adjustedDistance, threshold * 1.5));
+
+        // Empêcher le scroll par défaut si on tire vers le bas
+        if (distance > 10) {
+          e.preventDefault();
+        }
       }
-    }
-  }, [isRefreshing, threshold, resistance]);
+    },
+    [isRefreshing, threshold, resistance]
+  );
 
   const handleTouchEnd = useCallback(async () => {
     if (!isPulling.current) return;

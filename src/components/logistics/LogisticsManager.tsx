@@ -9,12 +9,17 @@ interface LogisticsManagerProps {
   logistics: Logistics | undefined;
   onUpdate: (logistics: Logistics) => void;
   readOnly?: boolean;
-  hosts?: Array<{ nom: string; address?: string; }>;
+  hosts?: Array<{ nom: string; address?: string }>;
 }
 
 type Tab = 'itinerary' | 'accommodation' | 'checklist';
 
-export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = {}, onUpdate, readOnly = false, hosts = [] }) => {
+export const LogisticsManager: React.FC<LogisticsManagerProps> = ({
+  logistics = {},
+  onUpdate,
+  readOnly = false,
+  hosts = [],
+}) => {
   const [activeTab, setActiveTab] = useState<Tab>('itinerary');
 
   const updateItinerary = (itinerary: Itinerary) => {
@@ -36,8 +41,8 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = 
   ];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
+    <div className='flex flex-col h-full'>
+      <div className='flex border-b border-gray-200 dark:border-gray-700 mb-6'>
         {tabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -48,24 +53,24 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = 
                 : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
             }`}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className='w-4 h-4' />
             {label}
           </button>
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-[400px]">
+      <div className='flex-1 overflow-y-auto min-h-[400px]'>
         {activeTab === 'itinerary' && (
-          <ItineraryView 
-            itinerary={logistics.itinerary || { transportMode: 'car' }} 
+          <ItineraryView
+            itinerary={logistics.itinerary || { transportMode: 'car' }}
             onUpdate={updateItinerary}
             readOnly={readOnly}
           />
         )}
 
         {activeTab === 'accommodation' && (
-          <AccommodationView 
-            accommodation={logistics.accommodation || { type: 'host', name: '' }} 
+          <AccommodationView
+            accommodation={logistics.accommodation || { type: 'host', name: '' }}
             onUpdate={updateAccommodation}
             readOnly={readOnly}
             hosts={hosts}
@@ -73,10 +78,7 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({ logistics = 
         )}
 
         {activeTab === 'checklist' && (
-          <Checklist 
-            items={logistics.checklist || []} 
-            onUpdate={updateChecklist}
-          />
+          <Checklist items={logistics.checklist || []} onUpdate={updateChecklist} />
         )}
       </div>
     </div>

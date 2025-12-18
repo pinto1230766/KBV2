@@ -60,8 +60,11 @@ Object.defineProperty(navigator, 'vibrate', {
 class MockNotification {
   static permission: NotificationPermission = 'granted';
   static requestPermission = async () => 'granted' as NotificationPermission;
-  
-  constructor(public title: string, public options?: NotificationOptions) {}
+
+  constructor(
+    public title: string,
+    public options?: NotificationOptions
+  ) {}
 }
 
 Object.defineProperty(window, 'Notification', {
@@ -74,8 +77,8 @@ const mockCrypto = {
   subtle: {
     encrypt: async () => new ArrayBuffer(16),
     decrypt: async () => new TextEncoder().encode('{}'),
-    importKey: async () => ({} as CryptoKey),
-    deriveKey: async () => ({} as CryptoKey),
+    importKey: async () => ({}) as CryptoKey,
+    deriveKey: async () => ({}) as CryptoKey,
     digest: async () => new ArrayBuffer(32),
   },
   getRandomValues: <T extends ArrayBufferView>(array: T): T => {

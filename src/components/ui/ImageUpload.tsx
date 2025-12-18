@@ -14,7 +14,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   onChange,
   label = 'Photo',
   size = 'md',
-  className = ''
+  className = '',
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,13 +23,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const sizeClasses = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24',
-    lg: 'w-32 h-32'
+    lg: 'w-32 h-32',
   };
 
   const iconSizes = {
     sm: 'w-6 h-6',
     md: 'w-8 h-8',
-    lg: 'w-10 h-10'
+    lg: 'w-10 h-10',
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +44,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     // Vérifier la taille (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('L\'image ne doit pas dépasser 5 Mo');
+      alert("L'image ne doit pas dépasser 5 Mo");
       return;
     }
 
@@ -55,14 +55,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       const resizedImage = await resizeImage(file, 300, 300);
       onChange(resizedImage);
     } catch (error) {
-      console.error('Erreur lors du traitement de l\'image:', error);
-      alert('Erreur lors du traitement de l\'image');
+      console.error("Erreur lors du traitement de l'image:", error);
+      alert("Erreur lors du traitement de l'image");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> => new Promise((resolve, reject) => {
+  const resizeImage = (file: File, maxWidth: number, maxHeight: number): Promise<string> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
@@ -98,7 +99,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
           resolve(dataUrl);
         };
-        img.onerror = () => reject(new Error('Erreur de chargement de l\'image'));
+        img.onerror = () => reject(new Error("Erreur de chargement de l'image"));
         img.src = e.target?.result as string;
       };
       reader.onerror = () => reject(new Error('Erreur de lecture du fichier'));
@@ -119,13 +120,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor={id} className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
           {label}
         </label>
       )}
-      
-      <div className="flex items-center gap-4">
-        <div className="relative">
+
+      <div className='flex items-center gap-4'>
+        <div className='relative'>
           <div
             onClick={handleClick}
             className={`
@@ -139,50 +140,46 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             `}
           >
             {value ? (
-              <img
-                src={value}
-                alt="Photo"
-                className="w-full h-full object-cover"
-              />
+              <img src={value} alt='Photo' className='w-full h-full object-cover' />
             ) : (
               <User className={`${iconSizes[size]} text-gray-400 dark:text-gray-500`} />
             )}
           </div>
-          
+
           {/* Badge caméra */}
           <button
-            type="button"
+            type='button'
             onClick={handleClick}
-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center shadow-lg transition-colors"
-            title="Changer la photo"
+            className='absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center shadow-lg transition-colors'
+            title='Changer la photo'
           >
-            <Camera className="w-4 h-4" />
+            <Camera className='w-4 h-4' />
           </button>
         </div>
 
         {value && (
           <button
-            type="button"
+            type='button'
             onClick={handleRemove}
-            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-            title="Supprimer la photo"
+            className='p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors'
+            title='Supprimer la photo'
           >
-            <Trash2 className="w-5 h-5" />
+            <Trash2 className='w-5 h-5' />
           </button>
         )}
 
         <input
           id={id}
           ref={fileInputRef}
-          type="file"
-          accept="image/*"
+          type='file'
+          accept='image/*'
           onChange={handleFileChange}
-          className="hidden"
+          className='hidden'
           aria-label={label}
         />
       </div>
 
-      <p className="text-xs text-gray-500 dark:text-gray-400">
+      <p className='text-xs text-gray-500 dark:text-gray-400'>
         Formats acceptés : JPG, PNG, GIF. Max 5 Mo.
       </p>
     </div>

@@ -11,14 +11,14 @@ export const VISIT_STATUS = {
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
   COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+  CANCELLED: 'cancelled',
 } as const;
 
 // Types de localisation
 export const LOCATION_TYPES = {
   PHYSICAL: 'physical',
   ZOOM: 'zoom',
-  STREAMING: 'streaming'
+  STREAMING: 'streaming',
 } as const;
 
 // Messages

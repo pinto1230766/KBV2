@@ -24,7 +24,7 @@ export function SwipeableRow({
   actions,
   className,
   disabled = false,
-  threshold = 100
+  threshold = 100,
 }: SwipeableRowProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -53,24 +53,17 @@ export function SwipeableRow({
   );
 
   return (
-    <div
-      className={cn("relative overflow-hidden", className)}
-      {...bind()}
-    >
+    <div className={cn('relative overflow-hidden', className)} {...bind()}>
       {/* Background Actions */}
-      <div className="absolute inset-y-0 right-0 flex">
+      <div className='absolute inset-y-0 right-0 flex'>
         {actions.map((action, index) => (
           <button
             key={action.id}
             onClick={action.action}
-            type="button"
-            className={cn(
-              "swipeable-action",
-              action.color,
-              `swipeable-action-width-${index + 1}`
-            )}
+            type='button'
+            className={cn('swipeable-action', action.color, `swipeable-action-width-${index + 1}`)}
           >
-            <action.icon className="w-5 h-5 mr-2" />
+            <action.icon className='w-5 h-5 mr-2' />
             {action.label}
           </button>
         ))}
@@ -79,8 +72,8 @@ export function SwipeableRow({
       {/* Main Content */}
       <div
         className={cn(
-          "relative bg-white dark:bg-gray-800 transition-transform duration-200 ease-out",
-          isOpen ? "transform -translate-x-20" : ""
+          'relative bg-white dark:bg-gray-800 transition-transform duration-200 ease-out',
+          isOpen ? 'transform -translate-x-20' : ''
         )}
       >
         {children}
@@ -97,36 +90,33 @@ interface PinchZoomProps {
   className?: string;
 }
 
-export function PinchZoom({
-  children,
-  minScale = 0.5,
-  maxScale = 3,
-  className
-}: PinchZoomProps) {
+export function PinchZoom({ children, minScale = 0.5, maxScale = 3, className }: PinchZoomProps) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  const bind = useGesture({
-    onPinch: ({ offset: [scale] }) => {
-      const clampedScale = Math.max(minScale, Math.min(maxScale, scale));
-      setScale(clampedScale);
+  const bind = useGesture(
+    {
+      onPinch: ({ offset: [scale] }) => {
+        const clampedScale = Math.max(minScale, Math.min(maxScale, scale));
+        setScale(clampedScale);
+      },
+      onDrag: ({ offset: [x, y] }) => {
+        setPosition({ x, y });
+      },
     },
-    onDrag: ({ offset: [x, y] }) => {
-      setPosition({ x, y });
-    },
-  }, {
-    pinch: { scaleBounds: { min: minScale, max: maxScale } },
-    drag: { filterTaps: true },
-  });
+    {
+      pinch: { scaleBounds: { min: minScale, max: maxScale } },
+      drag: { filterTaps: true },
+    }
+  );
 
   return (
-    <div
-      {...bind()}
-      className={cn("pinch-zoom-container", className)}
-    >
+    <div {...bind()} className={cn('pinch-zoom-container', className)}>
       <div
-        className={cn("pinch-zoom-content", scale !== 1 ? "zoomed" : "")}
-        style={{ transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)` }}
+        className={cn('pinch-zoom-content', scale !== 1 ? 'zoomed' : '')}
+        style={{
+          transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+        }}
       >
         {children}
       </div>
@@ -152,7 +142,7 @@ export function TouchZone({
   onLongPress,
   className,
   disabled = false,
-  longPressDelay = 500
+  longPressDelay = 500,
 }: TouchZoneProps) {
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
@@ -196,10 +186,7 @@ export function TouchZone({
   });
 
   return (
-    <div
-      {...bind()}
-      className={cn("touch-zone", disabled ? "disabled" : "", className)}
-    >
+    <div {...bind()} className={cn('touch-zone', disabled ? 'disabled' : '', className)}>
       {children}
     </div>
   );
@@ -215,7 +202,7 @@ interface PullToRefreshOptions {
 export function usePullToRefresh({
   onRefresh,
   threshold = 80,
-  disabled = false
+  disabled = false,
 }: PullToRefreshOptions) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
@@ -289,46 +276,48 @@ export function PullToRefresh({
   children,
   threshold = 80,
   disabled = false,
-  className
+  className,
 }: PullToRefreshProps) {
   const { bind, isRefreshing, pullDistance } = usePullToRefresh({
     onRefresh,
     threshold,
-    disabled
+    disabled,
   });
 
   return (
-    <div
-      {...bind()}
-      className={cn("relative overflow-hidden", className)}
-    >
+    <div {...bind()} className={cn('relative overflow-hidden', className)}>
       {/* Indicateur de pull-to-refresh */}
       <div
         className={cn(
-          "pull-to-refresh-indicator",
-          pullDistance > 0 ? "opacity-100" : "opacity-0",
-          pullDistance > 0 ? "active" : ""
+          'pull-to-refresh-indicator',
+          pullDistance > 0 ? 'opacity-100' : 'opacity-0',
+          pullDistance > 0 ? 'active' : ''
         )}
-        style={{ height: Math.min(pullDistance, threshold + 20), transform: `translateY(${pullDistance > 0 ? -Math.min(pullDistance, threshold + 20) + 20 : 0}px)` }}
+        style={{
+          height: Math.min(pullDistance, threshold + 20),
+          transform: `translateY(${pullDistance > 0 ? -Math.min(pullDistance, threshold + 20) + 20 : 0}px)`,
+        }}
       >
-        <div className="flex items-center space-x-2">
-          <div className={cn(
-            "pull-to-refresh-spinner",
-            pullDistance > threshold ? "animate" : "",
-            isRefreshing ? "animate" : ""
-          )} />
-          <span className="pull-to-refresh-text">
-            {isRefreshing ? 'Actualisation...' : pullDistance > threshold ? 'Relâchez pour actualiser' : 'Tirez pour actualiser'}
+        <div className='flex items-center space-x-2'>
+          <div
+            className={cn(
+              'pull-to-refresh-spinner',
+              pullDistance > threshold ? 'animate' : '',
+              isRefreshing ? 'animate' : ''
+            )}
+          />
+          <span className='pull-to-refresh-text'>
+            {isRefreshing
+              ? 'Actualisation...'
+              : pullDistance > threshold
+                ? 'Relâchez pour actualiser'
+                : 'Tirez pour actualiser'}
           </span>
         </div>
       </div>
 
       {/* Contenu */}
-      <div
-        className={cn("pull-to-refresh-content", className)}
-      >
-        {children}
-      </div>
+      <div className={cn('pull-to-refresh-content', className)}>{children}</div>
     </div>
   );
 }
@@ -338,5 +327,5 @@ export default {
   PinchZoom,
   TouchZone,
   PullToRefresh,
-  usePullToRefresh
+  usePullToRefresh,
 };

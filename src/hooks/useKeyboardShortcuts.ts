@@ -19,8 +19,10 @@ export function useKeyboardShortcuts(shortcuts: Record<KeyCombo, Handler>) {
         event.ctrlKey ? 'Ctrl' : '',
         event.altKey ? 'Alt' : '',
         event.shiftKey ? 'Shift' : '',
-        event.key
-      ].filter(Boolean).join('+');
+        event.key,
+      ]
+        .filter(Boolean)
+        .join('+');
 
       // Vérifier la correspondance exacte
       if (shortcuts[combo]) {

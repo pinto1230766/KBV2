@@ -5,14 +5,37 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-  LineChart, Line, AreaChart, Area, ComposedChart,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, ReferenceLine, Brush
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  ComposedChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  ReferenceLine,
+  Brush,
 } from 'recharts';
-import { 
-  TrendingUp, TrendingDown, Minus, ArrowUpRight, ArrowDownRight,
-  Bell, AlertTriangle, CheckCircle, Info, Eye, EyeOff,
-  Calendar, Users, MapPin, Clock, Activity
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ArrowUpRight,
+  ArrowDownRight,
+  Bell,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Eye,
+  EyeOff,
+  Calendar,
+  Users,
+  MapPin,
+  Clock,
+  Activity,
 } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -101,7 +124,10 @@ export interface AlertConfig {
 // UTILITAIRES DE CALCUL
 // ============================================================================
 
-export const calculateTrend = (current: number, previous: number): {
+export const calculateTrend = (
+  current: number,
+  previous: number
+): {
   direction: 'up' | 'down' | 'stable';
   percentage: number;
 } => {
@@ -110,9 +136,10 @@ export const calculateTrend = (current: number, previous: number): {
   }
   const diff = current - previous;
   const percentage = Math.round((diff / previous) * 100);
-  
+
   if (percentage > TREND_UP_THRESHOLD) return { direction: 'up', percentage };
-  if (percentage < TREND_DOWN_THRESHOLD) return { direction: 'down', percentage: Math.abs(percentage) };
+  if (percentage < TREND_DOWN_THRESHOLD)
+    return { direction: 'down', percentage: Math.abs(percentage) };
   return { direction: 'stable', percentage: Math.abs(percentage) };
 };
 
@@ -159,25 +186,30 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onToggleVisibility, compa
 
   if (compact) {
     return (
-      <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-        <div className={cn("p-2 rounded-lg", bgClass, "dark:bg-opacity-20")}>
-          <Icon className={cn("w-4 h-4", colorClass)} />
+      <div className='flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg'>
+        <div className={cn('p-2 rounded-lg', bgClass, 'dark:bg-opacity-20')}>
+          <Icon className={cn('w-4 h-4', colorClass)} />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{kpi.label}</p>
-          <p className="font-bold text-gray-900 dark:text-white">
+        <div className='flex-1 min-w-0'>
+          <p className='text-xs text-gray-500 dark:text-gray-400 truncate'>{kpi.label}</p>
+          <p className='font-bold text-gray-900 dark:text-white'>
             {formatKPIValue(kpi.value, kpi.format)}
           </p>
         </div>
         {trend && (
-          <div className={cn(
-            "flex items-center gap-1 text-xs font-medium",
-            trend.direction === 'up' ? 'text-green-600' : 
-            trend.direction === 'down' ? 'text-red-600' : 'text-gray-500'
-          )}>
-            {trend.direction === 'up' && <ArrowUpRight className="w-3 h-3" />}
-            {trend.direction === 'down' && <ArrowDownRight className="w-3 h-3" />}
-            {trend.direction === 'stable' && <Minus className="w-3 h-3" />}
+          <div
+            className={cn(
+              'flex items-center gap-1 text-xs font-medium',
+              trend.direction === 'up'
+                ? 'text-green-600'
+                : trend.direction === 'down'
+                  ? 'text-red-600'
+                  : 'text-gray-500'
+            )}
+          >
+            {trend.direction === 'up' && <ArrowUpRight className='w-3 h-3' />}
+            {trend.direction === 'down' && <ArrowDownRight className='w-3 h-3' />}
+            {trend.direction === 'stable' && <Minus className='w-3 h-3' />}
             {trend.percentage}%
           </div>
         )}
@@ -186,56 +218,63 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onToggleVisibility, compa
   }
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className='relative overflow-hidden'>
       {onToggleVisibility && (
         <button
           onClick={() => onToggleVisibility(kpi.id)}
-          className="absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          className='absolute top-2 right-2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
         >
-          {kpi.visible !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          {kpi.visible !== false ? <Eye className='w-4 h-4' /> : <EyeOff className='w-4 h-4' />}
         </button>
       )}
-      <CardBody className="p-4">
-        <div className="flex items-start gap-4">
-          <div className={cn("p-3 rounded-xl", bgClass, "dark:bg-opacity-20")}>
-            <Icon className={cn("w-6 h-6", colorClass)} />
+      <CardBody className='p-4'>
+        <div className='flex items-start gap-4'>
+          <div className={cn('p-3 rounded-xl', bgClass, 'dark:bg-opacity-20')}>
+            <Icon className={cn('w-6 h-6', colorClass)} />
           </div>
           <div className={styles.chartContainer}>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              {kpi.label}
-            </p>
-            <div className="flex items-end gap-2 mt-1">
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+            <p className='text-sm font-medium text-gray-500 dark:text-gray-400'>{kpi.label}</p>
+            <div className='flex items-end gap-2 mt-1'>
+              <span className='text-2xl font-bold text-gray-900 dark:text-white'>
                 {formatKPIValue(kpi.value, kpi.format)}
               </span>
               {trend && (
-                <span className={cn(
-                  "flex items-center gap-0.5 text-sm font-medium pb-0.5",
-                  trend.direction === 'up' ? 'text-green-600' : 
-                  trend.direction === 'down' ? 'text-red-600' : 'text-gray-500'
-                )}>
-                  {trend.direction === 'up' && <TrendingUp className="w-4 h-4" />}
-                  {trend.direction === 'down' && <TrendingDown className="w-4 h-4" />}
-                  {trend.direction === 'stable' && <Minus className="w-4 h-4" />}
+                <span
+                  className={cn(
+                    'flex items-center gap-0.5 text-sm font-medium pb-0.5',
+                    trend.direction === 'up'
+                      ? 'text-green-600'
+                      : trend.direction === 'down'
+                        ? 'text-red-600'
+                        : 'text-gray-500'
+                  )}
+                >
+                  {trend.direction === 'up' && <TrendingUp className='w-4 h-4' />}
+                  {trend.direction === 'down' && <TrendingDown className='w-4 h-4' />}
+                  {trend.direction === 'stable' && <Minus className='w-4 h-4' />}
                   {trend.percentage}%
                 </span>
               )}
             </div>
             {progress !== null && (
-              <div className="mt-3">
-                <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+              <div className='mt-3'>
+                <div className='flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1'>
                   <span>Objectif: {formatKPIValue(kpi.target!, kpi.format)}</span>
                   <span>{progress.toFixed(0)}%</span>
                 </div>
-                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className='h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden'>
                   <div className={styles.progressBar}>
-                    <div 
+                    <div
                       className={cn(
                         styles.progressBarFill,
                         `progressBarFillWidth${Math.round(Math.min(100, progress) / PROGRESS_STEP) * PROGRESS_STEP}`,
-                        progress >= 100 ? styles.complete : 
-                        progress >= PROGRESS_HIGH_THRESHOLD ? styles.high : 
-                        progress >= PROGRESS_MEDIUM_THRESHOLD ? styles.medium : styles.low
+                        progress >= 100
+                          ? styles.complete
+                          : progress >= PROGRESS_HIGH_THRESHOLD
+                            ? styles.high
+                            : progress >= PROGRESS_MEDIUM_THRESHOLD
+                              ? styles.medium
+                              : styles.low
                       )}
                     />
                   </div>
@@ -269,36 +308,40 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   color = '#4F46E5',
   showArea = false,
   showBrush = false,
-  target
+  target,
 }) => {
   const ChartType = showArea ? AreaChart : LineChart;
 
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" />
+        <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
+          <TrendingUp className='w-4 h-4' />
           {title}
         </h3>
       </CardHeader>
       <CardBody>
         <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width='100%' height='100%'>
             <ChartType data={data} className={styles.trendChart}>
               <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                <linearGradient id='colorValue' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='5%' stopColor={color} stopOpacity={0.8} />
+                  <stop offset='95%' stopColor={color} stopOpacity={0.1} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
-              <XAxis 
-                dataKey="date" 
+              <CartesianGrid
+                strokeDasharray='3 3'
+                stroke='#E5E7EB'
+                className='dark:stroke-gray-700'
+              />
+              <XAxis
+                dataKey='date'
                 tick={{ fontSize: CHART_TICK_SIZE_MEDIUM }}
                 tickLine={false}
                 axisLine={false}
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: CHART_TICK_SIZE_MEDIUM }}
                 tickLine={false}
                 axisLine={false}
@@ -308,23 +351,23 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                 contentStyle={{
                   borderRadius: '8px',
                   border: 'none',
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
                 }}
                 labelStyle={{ fontWeight: FONT_WEIGHT_SEMI_BOLD }}
               />
               {showArea ? (
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
+                <Area
+                  type='monotone'
+                  dataKey='value'
                   stroke={color}
-                  fillOpacity={1} 
-                  fill="url(#colorValue)"
+                  fillOpacity={1}
+                  fill='url(#colorValue)'
                   dot={false}
                 />
               ) : (
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
+                <Line
+                  type='monotone'
+                  dataKey='value'
                   stroke={color}
                   strokeWidth={CHART_STROKE_WIDTH}
                   dot={{ fill: color, strokeWidth: CHART_STROKE_WIDTH, r: CHART_DOT_RADIUS_MEDIUM }}
@@ -332,21 +375,21 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                 />
               )}
               {target && (
-                <ReferenceLine 
-                  y={target} 
-                  stroke="#EF4444" 
-                  strokeDasharray="5 5"
+                <ReferenceLine
+                  y={target}
+                  stroke='#EF4444'
+                  strokeDasharray='5 5'
                   label={{
                     value: 'Objectif',
                     position: 'right',
-                    style: { 
+                    style: {
                       fontSize: CHART_TICK_SIZE_SMALL,
-                      fill: '#EF4444'
-                    }
+                      fill: '#EF4444',
+                    },
                   }}
                 />
               )}
-              {showBrush && <Brush dataKey="date" height={CHART_BRUSH_HEIGHT} stroke={color} />}
+              {showBrush && <Brush dataKey='date' height={CHART_BRUSH_HEIGHT} stroke={color} />}
             </ChartType>
           </ResponsiveContainer>
         </div>
@@ -375,61 +418,61 @@ interface MultiTrendChartProps {
   height?: number;
 }
 
-export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({
-  data,
-  title,
-  series,
-}) => (
-    <Card>
-      <CardHeader>
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Activity className="w-4 h-4" />
-          {title}
-        </h3>
-      </CardHeader>
-      <CardBody>
-        <div className={styles.responsiveHeight}>
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={data} className={styles.multiTrendChart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" className="dark:stroke-gray-700" />
-              <XAxis 
-                dataKey="date" 
-                stroke="#6B7280" 
-                fontSize={CHART_TICK_SIZE_SMALL}
-                tickLine={false}
-                axisLine={false}
+export const MultiTrendChart: React.FC<MultiTrendChartProps> = ({ data, title, series }) => (
+  <Card>
+    <CardHeader>
+      <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
+        <Activity className='w-4 h-4' />
+        {title}
+      </h3>
+    </CardHeader>
+    <CardBody>
+      <div className={styles.responsiveHeight}>
+        <ResponsiveContainer width='100%' height='100%'>
+          <ComposedChart data={data} className={styles.multiTrendChart}>
+            <CartesianGrid
+              strokeDasharray='3 3'
+              stroke='#E5E7EB'
+              className='dark:stroke-gray-700'
+            />
+            <XAxis
+              dataKey='date'
+              stroke='#6B7280'
+              fontSize={CHART_TICK_SIZE_SMALL}
+              tickLine={false}
+              axisLine={false}
+            />
+            <YAxis
+              stroke='#6B7280'
+              fontSize={CHART_TICK_SIZE_SMALL}
+              tickLine={false}
+              axisLine={false}
+            />
+            <Tooltip
+              contentStyle={{
+                borderRadius: '8px',
+                border: 'none',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+              }}
+            />
+            <Legend />
+            {series.map((s) => (
+              <Line
+                key={s.key}
+                type='monotone'
+                dataKey={s.key}
+                name={s.name}
+                stroke={s.color}
+                strokeWidth={CHART_STROKE_WIDTH}
+                dot={{ fill: s.color, r: CHART_DOT_RADIUS_SMALL }}
               />
-              <YAxis 
-                stroke="#6B7280" 
-                fontSize={CHART_TICK_SIZE_SMALL}
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  borderRadius: '8px', 
-                  border: 'none',
-                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
-                }}
-              />
-              <Legend />
-              {series.map((s) => (
-                <Line
-                  key={s.key}
-                  type="monotone"
-                  dataKey={s.key}
-                  name={s.name}
-                  stroke={s.color}
-                  strokeWidth={CHART_STROKE_WIDTH}
-                  dot={{ fill: s.color, r: CHART_DOT_RADIUS_SMALL }}
-                />
-              ))}
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
-      </CardBody>
-    </Card>
-  );
+            ))}
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    </CardBody>
+  </Card>
+);
 
 // ============================================================================
 // COMPOSANT SMART ALERTS
@@ -446,54 +489,66 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({
   alerts,
   onDismiss,
   onMarkAsRead,
-  maxVisible = MAX_VISIBLE_ALERTS
+  maxVisible = MAX_VISIBLE_ALERTS,
 }) => {
   const [showAll, setShowAll] = useState(false);
-  
+
   const visibleAlerts = showAll ? alerts : alerts.slice(0, maxVisible);
-  const unreadCount = alerts.filter(a => !a.read).length;
+  const unreadCount = alerts.filter((a) => !a.read).length;
 
   const getAlertIcon = (type: AlertConfig['type']) => {
     switch (type) {
-      case 'warning': return AlertTriangle;
-      case 'danger': return AlertTriangle;
-      case 'success': return CheckCircle;
-      default: return Info;
+      case 'warning':
+        return AlertTriangle;
+      case 'danger':
+        return AlertTriangle;
+      case 'success':
+        return CheckCircle;
+      default:
+        return Info;
     }
   };
 
   const getAlertColors = (type: AlertConfig['type']) => {
     switch (type) {
-      case 'warning': return 'border-yellow-200 bg-yellow-50 dark:border-yellow-900/50 dark:bg-yellow-900/10';
-      case 'danger': return 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/10';
-      case 'success': return 'border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-900/10';
-      default: return 'border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-900/10';
+      case 'warning':
+        return 'border-yellow-200 bg-yellow-50 dark:border-yellow-900/50 dark:bg-yellow-900/10';
+      case 'danger':
+        return 'border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-900/10';
+      case 'success':
+        return 'border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-900/10';
+      default:
+        return 'border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-900/10';
     }
   };
 
   const getIconColors = (type: AlertConfig['type']) => {
     switch (type) {
-      case 'warning': return 'text-yellow-500';
-      case 'danger': return 'text-red-500';
-      case 'success': return 'text-green-500';
-      default: return 'text-blue-500';
+      case 'warning':
+        return 'text-yellow-500';
+      case 'danger':
+        return 'text-red-500';
+      case 'success':
+        return 'text-green-500';
+      default:
+        return 'text-blue-500';
     }
   };
 
   if (alerts.length === 0) {
     return (
       <Card>
-        <CardHeader className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-            <Bell className="w-4 h-4" />
+        <CardHeader className='flex items-center justify-between'>
+          <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
+            <Bell className='w-4 h-4' />
             Alertes intelligentes
           </h3>
         </CardHeader>
         <CardBody>
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            <CheckCircle className="w-12 h-12 mx-auto mb-2 opacity-20" />
-            <p className="font-medium">Aucune alerte</p>
-            <p className="text-sm">Tout fonctionne parfaitement !</p>
+          <div className='text-center py-8 text-gray-500 dark:text-gray-400'>
+            <CheckCircle className='w-12 h-12 mx-auto mb-2 opacity-20' />
+            <p className='font-medium'>Aucune alerte</p>
+            <p className='text-sm'>Tout fonctionne parfaitement !</p>
           </div>
         </CardBody>
       </Card>
@@ -502,56 +557,56 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({
 
   return (
     <Card>
-      <CardHeader className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Bell className="w-4 h-4" />
+      <CardHeader className='flex items-center justify-between'>
+        <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
+          <Bell className='w-4 h-4' />
           Alertes intelligentes
           {unreadCount > 0 && (
-            <Badge variant="danger" className="text-xs ml-2">
+            <Badge variant='danger' className='text-xs ml-2'>
               {unreadCount} nouvelle{unreadCount > 1 ? 's' : ''}
             </Badge>
           )}
         </h3>
       </CardHeader>
-      <CardBody className="p-0">
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <CardBody className='p-0'>
+        <div className='divide-y divide-gray-200 dark:divide-gray-700'>
           {visibleAlerts.map((alert) => {
             const Icon = getAlertIcon(alert.type);
             return (
               <div
                 key={alert.id}
                 className={cn(
-                  "p-4 border-l-4 transition-colors",
+                  'p-4 border-l-4 transition-colors',
                   getAlertColors(alert.type),
-                  !alert.read && "bg-opacity-100"
+                  !alert.read && 'bg-opacity-100'
                 )}
                 onClick={() => onMarkAsRead?.(alert.id)}
               >
-                <div className="flex items-start gap-3">
-                  <Icon className={cn("w-5 h-5 flex-shrink-0 mt-0.5", getIconColors(alert.type))} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={cn(
-                        "font-medium text-gray-900 dark:text-white",
-                        !alert.read && "font-semibold"
-                      )}>
+                <div className='flex items-start gap-3'>
+                  <Icon className={cn('w-5 h-5 flex-shrink-0 mt-0.5', getIconColors(alert.type))} />
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex items-center justify-between gap-2'>
+                      <p
+                        className={cn(
+                          'font-medium text-gray-900 dark:text-white',
+                          !alert.read && 'font-semibold'
+                        )}
+                      >
                         {alert.title}
                       </p>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      <span className='text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap'>
                         {new Date(alert.timestamp).toLocaleDateString('fr-FR', {
                           hour: '2-digit',
-                          minute: '2-digit'
+                          minute: '2-digit',
                         })}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      {alert.message}
-                    </p>
+                    <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>{alert.message}</p>
                     {alert.action && (
                       <Button
-                        variant="secondary"
-                        size="sm"
-                        className="mt-2"
+                        variant='secondary'
+                        size='sm'
+                        className='mt-2'
                         onClick={(e) => {
                           e.stopPropagation();
                           alert.action!.onClick();
@@ -567,7 +622,7 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({
                         e.stopPropagation();
                         onDismiss(alert.id);
                       }}
-                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                     >
                       ×
                     </button>
@@ -578,12 +633,8 @@ export const SmartAlerts: React.FC<SmartAlertsProps> = ({
           })}
         </div>
         {alerts.length > maxVisible && (
-          <div className="p-3 text-center border-t border-gray-200 dark:border-gray-700">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAll(!showAll)}
-            >
+          <div className='p-3 text-center border-t border-gray-200 dark:border-gray-700'>
+            <Button variant='ghost' size='sm' onClick={() => setShowAll(!showAll)}>
               {showAll ? 'Voir moins' : `Voir ${alerts.length - maxVisible} de plus`}
             </Button>
           </div>
@@ -601,13 +652,14 @@ export const useSmartAlerts = (
   visits: Visit[],
   speakers: Speaker[],
   hosts: Host[]
-): AlertConfig[] => useMemo(() => {
+): AlertConfig[] =>
+  useMemo(() => {
     const alerts: AlertConfig[] = [];
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Alertes pour les visites en attente
-    const pendingVisits = visits.filter(v => v.status === 'pending');
+    const pendingVisits = visits.filter((v) => v.status === 'pending');
     if (pendingVisits.length > PENDING_VISITS_THRESHOLD) {
       alerts.push({
         id: 'pending-visits',
@@ -619,21 +671,18 @@ export const useSmartAlerts = (
           label: 'Voir les visites',
           onClick: () => {
             window.location.href = '/planning';
-          }
-        }
+          },
+        },
       });
     }
 
     // Alertes pour les visites cette semaine sans hôte
     const weekFromNow = new Date(today);
     weekFromNow.setDate(weekFromNow.getDate() + DAYS_IN_WEEK);
-    
-    const upcomingWithoutHost = visits.filter(v => {
+
+    const upcomingWithoutHost = visits.filter((v) => {
       const visitDate = new Date(v.visitDate);
-      return visitDate >= today && 
-             visitDate <= weekFromNow && 
-             v.status === 'confirmed' &&
-             !v.host;
+      return visitDate >= today && visitDate <= weekFromNow && v.status === 'confirmed' && !v.host;
     });
 
     if (upcomingWithoutHost.length > 0) {
@@ -647,13 +696,13 @@ export const useSmartAlerts = (
           label: 'Assigner des hôtes',
           onClick: () => {
             window.location.href = '/planning';
-          }
-        }
+          },
+        },
       });
     }
 
     // Alertes pour les visites passées non marquées comme terminées
-    const overdueVisits = visits.filter(v => {
+    const overdueVisits = visits.filter((v) => {
       const visitDate = new Date(v.visitDate);
       return visitDate < today && v.status === 'confirmed';
     });
@@ -669,17 +718,19 @@ export const useSmartAlerts = (
           label: 'Mettre à jour',
           onClick: () => {
             window.location.href = '/planning';
-          }
-        }
+          },
+        },
       });
     }
 
     // Info sur les statistiques positives
-    const thisMonthVisits = visits.filter(v => {
+    const thisMonthVisits = visits.filter((v) => {
       const visitDate = new Date(v.visitDate);
-      return visitDate.getMonth() === now.getMonth() && 
-             visitDate.getFullYear() === now.getFullYear() &&
-             v.status === 'completed';
+      return (
+        visitDate.getMonth() === now.getMonth() &&
+        visitDate.getFullYear() === now.getFullYear() &&
+        v.status === 'completed'
+      );
     });
 
     if (thisMonthVisits.length >= GOOD_MONTH_THRESHOLD) {
@@ -689,7 +740,7 @@ export const useSmartAlerts = (
         title: 'Excellent mois !',
         message: `${thisMonthVisits.length} visites complétées ce mois. Continuez ainsi !`,
         timestamp: now,
-        read: true
+        read: true,
       });
     }
 
@@ -700,11 +751,8 @@ export const useSmartAlerts = (
 // HOOK POUR CALCULER LES KPIs
 // ============================================================================
 
-export const useKPIs = (
-  visits: Visit[],
-  speakers: Speaker[],
-  hosts: Host[]
-): KPIConfig[] => useMemo(() => {
+export const useKPIs = (visits: Visit[], speakers: Speaker[], hosts: Host[]): KPIConfig[] =>
+  useMemo(() => {
     const now = new Date();
     const thisMonth = now.getMonth();
     const thisYear = now.getFullYear();
@@ -712,27 +760,29 @@ export const useKPIs = (
     const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
 
     // Visites ce mois
-    const thisMonthVisits = visits.filter(v => {
+    const thisMonthVisits = visits.filter((v) => {
       const d = new Date(v.visitDate);
       return d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     });
 
     // Visites mois dernier
-    const lastMonthVisits = visits.filter(v => {
+    const lastMonthVisits = visits.filter((v) => {
       const d = new Date(v.visitDate);
       return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
     });
 
     // Taux de confirmation
-    const confirmedVisits = thisMonthVisits.filter(v => v.status === 'confirmed' || v.status === 'completed');
-    const confirmationRate = thisMonthVisits.length > 0 
-      ? (confirmedVisits.length / thisMonthVisits.length) * 100 
-      : 0;
+    const confirmedVisits = thisMonthVisits.filter(
+      (v) => v.status === 'confirmed' || v.status === 'completed'
+    );
+    const confirmationRate =
+      thisMonthVisits.length > 0 ? (confirmedVisits.length / thisMonthVisits.length) * 100 : 0;
 
-    const lastMonthConfirmed = lastMonthVisits.filter(v => v.status === 'confirmed' || v.status === 'completed');
-    const lastMonthConfirmationRate = lastMonthVisits.length > 0
-      ? (lastMonthConfirmed.length / lastMonthVisits.length) * 100
-      : 0;
+    const lastMonthConfirmed = lastMonthVisits.filter(
+      (v) => v.status === 'confirmed' || v.status === 'completed'
+    );
+    const lastMonthConfirmationRate =
+      lastMonthVisits.length > 0 ? (lastMonthConfirmed.length / lastMonthVisits.length) * 100 : 0;
 
     return [
       {
@@ -742,7 +792,7 @@ export const useKPIs = (
         previousValue: lastMonthVisits.length,
         target: VISITS_TARGET,
         icon: Calendar,
-        color: 'text-blue-600'
+        color: 'text-blue-600',
       },
       {
         id: 'confirmation-rate',
@@ -751,30 +801,30 @@ export const useKPIs = (
         previousValue: lastMonthConfirmationRate,
         format: 'percentage',
         icon: CheckCircle,
-        color: 'text-green-600'
+        color: 'text-green-600',
       },
       {
         id: 'active-speakers',
         label: 'Orateurs actifs',
         value: speakers.length,
         icon: Users,
-        color: 'text-purple-600'
+        color: 'text-purple-600',
       },
       {
         id: 'active-hosts',
         label: 'Hôtes disponibles',
         value: hosts.length,
         icon: MapPin,
-        color: 'text-orange-600'
+        color: 'text-orange-600',
       },
       {
         id: 'pending-actions',
         label: 'Actions en attente',
-        value: visits.filter(v => v.status === 'pending').length,
+        value: visits.filter((v) => v.status === 'pending').length,
         target: 0,
         icon: Clock,
-        color: 'text-red-600'
-      }
+        color: 'text-red-600',
+      },
     ];
   }, [visits, speakers, hosts]);
 
@@ -782,23 +832,25 @@ export const useKPIs = (
 // HOOK POUR LES DONNÉES DE TENDANCE
 // ============================================================================
 
-export const useTrendData = (visits: Visit[]): TrendData[] => useMemo(() => {
+export const useTrendData = (visits: Visit[]): TrendData[] =>
+  useMemo(() => {
     const data: TrendData[] = [];
     const now = new Date();
 
     // 12 derniers mois
     for (let i = MONTHS_IN_YEAR - 1; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthVisits = visits.filter(v => {
+      const monthVisits = visits.filter((v) => {
         const visitDate = new Date(v.visitDate);
-        return visitDate.getMonth() === date.getMonth() && 
-               visitDate.getFullYear() === date.getFullYear();
+        return (
+          visitDate.getMonth() === date.getMonth() && visitDate.getFullYear() === date.getFullYear()
+        );
       });
 
       data.push({
         date: date.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }),
         value: monthVisits.length,
-        label: date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+        label: date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
       });
     }
 
@@ -818,5 +870,5 @@ export default {
   useKPIs,
   useTrendData,
   calculateTrend,
-  formatKPIValue
+  formatKPIValue,
 };

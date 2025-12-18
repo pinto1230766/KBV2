@@ -10,15 +10,18 @@ export const useLongPress = (options: LongPressOptions) => {
   const [isLongPressing, setIsLongPressing] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const start = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    setIsLongPressing(true);
-    
-    timerRef.current = setTimeout(() => {
-      onLongPress();
-      setIsLongPressing(false);
-    }, delay);
-  }, [onLongPress, delay]);
+  const start = useCallback(
+    (e: React.TouchEvent | React.MouseEvent) => {
+      e.preventDefault();
+      setIsLongPressing(true);
+
+      timerRef.current = setTimeout(() => {
+        onLongPress();
+        setIsLongPressing(false);
+      }, delay);
+    },
+    [onLongPress, delay]
+  );
 
   const cancel = useCallback(() => {
     if (timerRef.current) {
@@ -28,11 +31,14 @@ export const useLongPress = (options: LongPressOptions) => {
     setIsLongPressing(false);
   }, []);
 
-  useEffect(() => () => {
+  useEffect(
+    () => () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
       }
-    }, []);
+    },
+    []
+  );
 
   return {
     onTouchStart: start,

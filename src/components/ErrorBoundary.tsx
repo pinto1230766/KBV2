@@ -34,34 +34,38 @@ export class ErrorBoundary extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    
+
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
       retryCount: 0,
-      isRetrying: false
+      isRetrying: false,
     };
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
     return {
       hasError: true,
-      error
+      error,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { onError, maxRetries = MAX_RETRY_ATTEMPTS, retryDelay = DEFAULT_RETRY_DELAY } = this.props;
-    
+    const {
+      onError,
+      maxRetries = MAX_RETRY_ATTEMPTS,
+      retryDelay = DEFAULT_RETRY_DELAY,
+    } = this.props;
+
     this.setState({
-      errorInfo
+      errorInfo,
     });
 
     // Log l'erreur
     // eslint-disable-next-line no-console
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+
     // Callback personnalisé pour analytics/debugging
     if (onError) {
       onError(error, errorInfo);
@@ -81,35 +85,38 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   private scheduleRetry = (
-    _error: Error, 
-    _errorInfo: ErrorInfo, 
-    maxRetries: number, 
+    _error: Error,
+    _errorInfo: ErrorInfo,
+    maxRetries: number,
     delay: number
   ) => {
     const { retryCount } = this.state;
     const nextRetryCount = retryCount + 1;
-    
+
     // eslint-disable-next-line no-console
     console.log(`Programmation du retry ${nextRetryCount}/${maxRetries} dans ${delay}ms`);
-    
-    this.retryTimeoutId = setTimeout(() => {
-      this.handleRetry();
-    }, delay * Math.pow(EXPONENTIAL_BACKOFF_BASE, retryCount)); // Backoff exponentiel
+
+    this.retryTimeoutId = setTimeout(
+      () => {
+        this.handleRetry();
+      },
+      delay * Math.pow(EXPONENTIAL_BACKOFF_BASE, retryCount)
+    ); // Backoff exponentiel
   };
 
   handleRetry = () => {
     const { maxRetries = MAX_RETRY_ATTEMPTS } = this.props;
     const { retryCount } = this.state;
-    
+
     if (retryCount < maxRetries) {
-      this.setState(prevState => ({
+      this.setState((prevState) => ({
         hasError: false,
         error: null,
         errorInfo: null,
         retryCount: prevState.retryCount + 1,
-        isRetrying: true
+        isRetrying: true,
       }));
-      
+
       // Reset isRetrying après un court délai
       setTimeout(() => {
         this.setState({ isRetrying: false });
@@ -123,9 +130,9 @@ export class ErrorBoundary extends Component<Props, State> {
       error: null,
       errorInfo: null,
       retryCount: 0,
-      isRetrying: false
+      isRetrying: false,
     });
-    
+
     // Recharger la page en cas d'erreur critique
     if (this.state.retryCount >= (this.props.maxRetries || MAX_RETRY_ATTEMPTS)) {
       window.location.reload();
@@ -138,12 +145,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     const { hasError, error, errorInfo, retryCount, isRetrying } = this.state;
-    const { 
-      children, 
-      fallback, 
-      enableRetry = true, 
-      maxRetries = MAX_RETRY_ATTEMPTS, 
-      showDetails = false 
+    const {
+      children,
+      fallback,
+      enableRetry = true,
+      maxRetries = MAX_RETRY_ATTEMPTS,
+      showDetails = false,
     } = this.props;
 
     if (hasError) {
@@ -156,57 +163,62 @@ export class ErrorBoundary extends Component<Props, State> {
       const shouldReload = retryCount >= maxRetries;
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+        <div className='min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4'>
+          <div className='max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center'>
             {/* Icône d'erreur */}
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4">
-              <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+            <div className='mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/20 mb-4'>
+              <AlertTriangle className='h-8 w-8 text-red-600 dark:text-red-400' />
             </div>
 
             {/* Message d'erreur */}
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h1 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>
               Oups ! Une erreur s'est produite
             </h1>
-            
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {shouldReload 
+
+            <p className='text-gray-600 dark:text-gray-400 mb-6'>
+              {shouldReload
                 ? 'Trop de tentatives ont échoué. La page va être rechargée.'
-                : canRetry 
+                : canRetry
                   ? `Nous avons rencontré un problème. Tentative ${retryCount}/${maxRetries}.`
-                  : 'Nous avons rencontré un problème inattendu.'
-              }
+                  : 'Nous avons rencontré un problème inattendu.'}
             </p>
 
             {/* Actions */}
-            <div className="space-y-3">
+            <div className='space-y-3'>
               {canRetry && (
                 <Button
                   onClick={this.handleRetry}
                   disabled={isRetrying}
-                  variant="primary"
-                  leftIcon={isRetrying ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                  className="w-full"
+                  variant='primary'
+                  leftIcon={
+                    isRetrying ? (
+                      <RefreshCw className='w-4 h-4 animate-spin' />
+                    ) : (
+                      <RefreshCw className='w-4 h-4' />
+                    )
+                  }
+                  className='w-full'
                 >
                   {isRetrying ? 'Nouvelle tentative...' : `Réessayer (${retryCount}/${maxRetries})`}
                 </Button>
               )}
-              
+
               {shouldReload && (
                 <Button
                   onClick={this.handleReset}
-                  variant="primary"
-                  leftIcon={<RefreshCw className="w-4 h-4" />}
-                  className="w-full"
+                  variant='primary'
+                  leftIcon={<RefreshCw className='w-4 h-4' />}
+                  className='w-full'
                 >
                   Recharger la page
                 </Button>
               )}
-              
+
               <Button
                 onClick={this.handleGoHome}
-                variant="ghost"
-                leftIcon={<Home className="w-4 h-4" />}
-                className="w-full"
+                variant='ghost'
+                leftIcon={<Home className='w-4 h-4' />}
+                className='w-full'
               >
                 Retour à l'accueil
               </Button>
@@ -214,24 +226,24 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {/* Détails de l'erreur (mode debug) */}
             {showDetails && error && (
-              <details className="mt-6 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+              <details className='mt-6 text-left'>
+                <summary className='cursor-pointer text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'>
                   Détails techniques
                 </summary>
-                <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40">
-                  <div className="mb-2">
+                <div className='mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40'>
+                  <div className='mb-2'>
                     <strong>Erreur:</strong> {error.message}
                   </div>
                   {error.stack && (
                     <div>
                       <strong>Stack:</strong>
-                      <pre className="whitespace-pre-wrap">{error.stack}</pre>
+                      <pre className='whitespace-pre-wrap'>{error.stack}</pre>
                     </div>
                   )}
                   {errorInfo && (
-                    <div className="mt-2">
+                    <div className='mt-2'>
                       <strong>Component Stack:</strong>
-                      <pre className="whitespace-pre-wrap">{errorInfo.componentStack}</pre>
+                      <pre className='whitespace-pre-wrap'>{errorInfo.componentStack}</pre>
                     </div>
                   )}
                 </div>
@@ -253,21 +265,21 @@ export function useErrorHandler() {
       // Log l'erreur pour debugging
       // eslint-disable-next-line no-console
       console.error('Erreur capturée:', error, errorInfo);
-      
+
       // Ici on pourrait envoyer à un service de monitoring comme Sentry
       // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
     },
-    
+
     createBoundary: (componentName: string) => (props: Omit<Props, 'onError'>) => (
-        <ErrorBoundary
-          {...props}
-          onError={(error, errorInfo) => {
-            // eslint-disable-next-line no-console
-            console.error(`Erreur dans ${componentName}:`, error, errorInfo);
-            // Actions spécifiques par composant
-          }}
-        />
-      )
+      <ErrorBoundary
+        {...props}
+        onError={(error, errorInfo) => {
+          // eslint-disable-next-line no-console
+          console.error(`Erreur dans ${componentName}:`, error, errorInfo);
+          // Actions spécifiques par composant
+        }}
+      />
+    ),
   };
 }
 
@@ -281,9 +293,9 @@ export const withErrorBoundary = <P extends object>(
       <Component {...props} />
     </ErrorBoundary>
   );
-  
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };
 

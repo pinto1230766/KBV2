@@ -57,10 +57,7 @@ export function formatDateTime(
   return `${dateStr} à ${time}`;
 }
 
-export function formatRelativeTime(
-  date: string | Date,
-  language: Language = 'fr'
-): string {
+export function formatRelativeTime(date: string | Date, language: Language = 'fr'): string {
   try {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     if (!isValid(dateObj)) return '';
@@ -169,10 +166,7 @@ export function isThisMonth(date: string | Date): boolean {
   const dateObj = typeof date === 'string' ? parseISO(date) : date;
   const today = new Date();
 
-  return (
-    dateObj.getMonth() === today.getMonth() &&
-    dateObj.getFullYear() === today.getFullYear()
-  );
+  return dateObj.getMonth() === today.getMonth() && dateObj.getFullYear() === today.getFullYear();
 }
 
 // ============================================================================
@@ -204,7 +198,7 @@ export function getInitials(name: string): string {
 
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength - 3)  }...`;
+  return `${text.slice(0, maxLength - 3)}...`;
 }
 
 export function capitalize(text: string): string {

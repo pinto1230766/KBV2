@@ -3,12 +3,24 @@
 // ============================================================================
 
 export type Language = 'fr' | 'cv' | 'pt';
-export type MessageType = 'confirmation' | 'preparation' | 'reminder-7' | 'reminder-2' | 'thanks' | 'host_request';
+export type MessageType =
+  | 'confirmation'
+  | 'preparation'
+  | 'reminder-7'
+  | 'reminder-2'
+  | 'thanks'
+  | 'host_request';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type LocationType = 'physical' | 'zoom' | 'streaming';
 export type Gender = 'male' | 'female' | 'couple';
-export type SpecialDateType = 'co_visit' | 'assembly' | 'special_talk' | 'memorial' | 'convention' | 'other';
+export type SpecialDateType =
+  | 'co_visit'
+  | 'assembly'
+  | 'special_talk'
+  | 'memorial'
+  | 'convention'
+  | 'other';
 export type Theme = 'light' | 'dark' | 'auto';
 export type CommunicationChannel = 'whatsapp' | 'sms' | 'email';
 
@@ -82,8 +94,6 @@ export interface Feedback {
   category?: string;
 }
 
-
-
 export interface Itinerary {
   transportMode: 'car' | 'train' | 'plane' | 'other';
   distance?: number; // km
@@ -111,34 +121,34 @@ export interface Logistics {
 }
 
 export interface Visit {
-   id: string; // ID de l'orateur
-   visitId: string; // ID unique de la visite
-   nom: string;
-   congregation: string;
-   telephone?: string;
-   photoUrl?: string;
-   visitDate: string; // Format: YYYY-MM-DD
-   visitTime: string; // Format: HH:MM
-   host: string; // Nom du contact d'accueil
-   accommodation: string;
-   meals: string;
-   status: VisitStatus;
-   locationType: LocationType;
-   talkNoOrType: string | null;
-   talkTheme: string | null;
-   communicationStatus?: CommunicationStatus;
-   notes?: string;
-   attachments?: Attachment[];
-   expenses?: Expense[];
-   logistics?: Logistics;
-   visitFeedback?: VisitFeedback; // Nouveau système
-   feedback?: string; // Ancien champ texte simple (legacy)
-   zoomLink?: string;
-   streamingLink?: string;
-   accompanyingPersons?: number; // Nombre de personnes accompagnant l'orateur
-   createdAt?: string; // ISO date
-   updatedAt?: string; // ISO date
- }
+  id: string; // ID de l'orateur
+  visitId: string; // ID unique de la visite
+  nom: string;
+  congregation: string;
+  telephone?: string;
+  photoUrl?: string;
+  visitDate: string; // Format: YYYY-MM-DD
+  visitTime: string; // Format: HH:MM
+  host: string; // Nom du contact d'accueil
+  accommodation: string;
+  meals: string;
+  status: VisitStatus;
+  locationType: LocationType;
+  talkNoOrType: string | null;
+  talkTheme: string | null;
+  communicationStatus?: CommunicationStatus;
+  notes?: string;
+  attachments?: Attachment[];
+  expenses?: Expense[];
+  logistics?: Logistics;
+  visitFeedback?: VisitFeedback; // Nouveau système
+  feedback?: string; // Ancien champ texte simple (legacy)
+  zoomLink?: string;
+  streamingLink?: string;
+  accompanyingPersons?: number; // Nombre de personnes accompagnant l'orateur
+  createdAt?: string; // ISO date
+  updatedAt?: string; // ISO date
+}
 
 // ============================================================================
 // CONTACT D'ACCUEIL (HOST)
@@ -463,10 +473,17 @@ export interface CachedData {
 // SYNCHRONISATION
 // ============================================================================
 
-export type SyncActionType = 
-  | 'ADD_SPEAKER' | 'UPDATE_SPEAKER' | 'DELETE_SPEAKER'
-  | 'ADD_VISIT' | 'UPDATE_VISIT' | 'DELETE_VISIT' | 'COMPLETE_VISIT'
-  | 'ADD_HOST' | 'UPDATE_HOST' | 'DELETE_HOST';
+export type SyncActionType =
+  | 'ADD_SPEAKER'
+  | 'UPDATE_SPEAKER'
+  | 'DELETE_SPEAKER'
+  | 'ADD_VISIT'
+  | 'UPDATE_VISIT'
+  | 'DELETE_VISIT'
+  | 'COMPLETE_VISIT'
+  | 'ADD_HOST'
+  | 'UPDATE_HOST'
+  | 'DELETE_HOST';
 
 export interface SyncAction {
   id: string; // UUID unique de l'action

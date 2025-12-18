@@ -10,16 +10,16 @@ import path from 'path';
 export default defineConfig(({ mode }) => ({
   plugins: [
     react({
-      jsxRuntime: 'automatic'
-    })
+      jsxRuntime: 'automatic',
+    }),
   ],
-  
+
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
-    }
+      '@': path.resolve(__dirname, './src'),
+    },
   },
-  
+
   build: {
     rollupOptions: {
       output: {
@@ -29,19 +29,19 @@ export default defineConfig(({ mode }) => ({
           'data-vendor': ['zustand', 'immer', '@tanstack/react-query', 'swr'],
           'charts-vendor': ['recharts'],
           'utils-vendor': ['zod', 'uuid', 'idb'],
-          'mobile-vendor': ['@capacitor/core', '@capacitor/android', '@capacitor/ios']
-        }
-      }
+          'mobile-vendor': ['@capacitor/core', '@capacitor/android', '@capacitor/ios'],
+        },
+      },
     },
-    
+
     assetsInlineLimit: 4096,
     sourcemap: mode !== 'production',
     minify: mode === 'production',
     chunkSizeWarningLimit: 1000,
     cssCodeSplit: true,
-    cssMinify: mode === 'production'
+    cssMinify: mode === 'production',
   },
-  
+
   optimizeDeps: {
     include: [
       'react',
@@ -53,13 +53,13 @@ export default defineConfig(({ mode }) => ({
       'lucide-react',
       'clsx',
       'tailwind-merge',
-      'date-fns'
-    ]
+      'date-fns',
+    ],
   },
-  
+
   define: {
     __DEV__: mode === 'development',
     __PROD__: mode === 'production',
-    __VERSION__: JSON.stringify(process.env.npm_package_version)
-  }
+    __VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
 }));

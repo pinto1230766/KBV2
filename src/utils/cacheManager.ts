@@ -27,7 +27,7 @@ export const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Retry 3 times for network errors, but not for 4xx errors
         if (error && typeof error === 'object' && 'status' in error) {
-          const {status} = (error as any);
+          const { status } = error as any;
           if (status >= 400 && status < 500) {
             return false;
           }
@@ -86,7 +86,7 @@ export class OfflineCacheManager {
     try {
       const timestamp = Date.now();
       const size = JSON.stringify(data).length;
-      
+
       // Stocker les données
       await this.db.put('data', { key, data, timestamp });
 
@@ -186,16 +186,20 @@ export class OfflineCacheManager {
   async getCacheStats() {
     const metadata = await this.getAllMetadata();
     const totalSize = metadata.reduce((sum: number, item: CacheMetadata) => sum + item.size, 0);
-    
+
     return {
       totalEntries: metadata.length,
       totalSize,
-      oldestEntry: metadata.reduce((oldest: CacheMetadata, item: CacheMetadata) => 
-        item.timestamp < oldest.timestamp ? item : oldest
-      , metadata[0]),
-      mostAccessed: metadata.reduce((most: CacheMetadata, item: CacheMetadata) => 
-        item.accessCount > most.accessCount ? item : most
-      , metadata[0]),
+      oldestEntry: metadata.reduce(
+        (oldest: CacheMetadata, item: CacheMetadata) =>
+          item.timestamp < oldest.timestamp ? item : oldest,
+        metadata[0]
+      ),
+      mostAccessed: metadata.reduce(
+        (most: CacheMetadata, item: CacheMetadata) =>
+          item.accessCount > most.accessCount ? item : most,
+        metadata[0]
+      ),
       recentlyAccessed: metadata
         .sort((a: CacheMetadata, b: CacheMetadata) => b.lastAccessed - a.lastAccessed)
         .slice(0, 10),
@@ -203,19 +207,22 @@ export class OfflineCacheManager {
   }
 
   // Stratégie LRU (Least Recently Used) pour nettoyer le cache
-  async cleanup(maxAge = 1000 * 60 * 60 * 24 * 7, // 7 jours
-                maxSize = 50 * 1024 * 1024) { // 50MB
+  async cleanup(
+    maxAge = 1000 * 60 * 60 * 24 * 7, // 7 jours
+    maxSize = 50 * 1024 * 1024
+  ) {
+    // 50MB
     if (!this.db) await this.init();
 
     try {
       const metadata = await this.getAllMetadata();
       const now = Date.now();
-      
+
       // Supprimer les entrées trop anciennes
       const expiredKeys = metadata
         .filter((item: CacheMetadata) => now - item.timestamp > maxAge)
         .map((item: CacheMetadata) => item.key);
-      
+
       for (const key of expiredKeys) {
         await this.delete(key);
       }
@@ -224,21 +231,26 @@ export class OfflineCacheManager {
       const sortedMetadata = metadata
         .filter((item: CacheMetadata) => !expiredKeys.includes(item.key))
         .sort((a: CacheMetadata, b: CacheMetadata) => a.lastAccessed - b.lastAccessed);
-      
-      let currentSize = sortedMetadata.reduce((sum: number, item: CacheMetadata) => sum + item.size, 0);
+
+      let currentSize = sortedMetadata.reduce(
+        (sum: number, item: CacheMetadata) => sum + item.size,
+        0
+      );
       const keysToRemove: string[] = [];
-      
+
       for (const item of sortedMetadata) {
         if (currentSize <= maxSize) break;
         keysToRemove.push(item.key);
         currentSize -= item.size;
       }
-      
+
       for (const key of keysToRemove) {
         await this.delete(key);
       }
 
-      console.log(`Cache cleanup: removed ${expiredKeys.length} expired entries and ${keysToRemove.length} LRU entries`);
+      console.log(
+        `Cache cleanup: removed ${expiredKeys.length} expired entries and ${keysToRemove.length} LRU entries`
+      );
     } catch (error) {
       console.error('Failed to cleanup cache:', error);
     }
@@ -255,19 +267,17 @@ export function usePreloadData() {
       // Précharger les données les plus utilisées
       await queryClient.prefetchQuery({
         queryKey: ['visits', 'current'],
-        queryFn: () => 
+        queryFn: () =>
           // Logique pour récupérer les visites actuelles
-           fetch('/api/visits/current').then(r => r.json())
-        ,
+          fetch('/api/visits/current').then((r) => r.json()),
         staleTime: 1000 * 60 * 2, // 2 minutes
       });
 
       await queryClient.prefetchQuery({
         queryKey: ['speakers', 'active'],
-        queryFn: () => 
+        queryFn: () =>
           // Logique pour récupérer les orateurs actifs
-           fetch('/api/speakers/active').then(r => r.json())
-        ,
+          fetch('/api/speakers/active').then((r) => r.json()),
         staleTime: 1000 * 60 * 5, // 5 minutes
       });
 

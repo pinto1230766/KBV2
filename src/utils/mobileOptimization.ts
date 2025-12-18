@@ -40,7 +40,7 @@ export function createIntersectionObserver(
   return new IntersectionObserver(callback, {
     rootMargin: '50px',
     threshold: 0.1,
-    ...options
+    ...options,
   });
 }
 
@@ -67,18 +67,18 @@ export function calculateVirtualItems(
     {
       index: Math.max(startIndex - overscan, 0),
       start: Math.max(startIndex - overscan, 0) * itemHeight,
-      end: startIndex * itemHeight
+      end: startIndex * itemHeight,
     },
     ...Array.from({ length: endIndex - startIndex }, (_, i) => ({
       index: startIndex + i,
       start: (startIndex + i) * itemHeight,
-      end: (startIndex + i + 1) * itemHeight
+      end: (startIndex + i + 1) * itemHeight,
     })),
     {
       index: endIndex,
       start: endIndex * itemHeight,
-      end: endIndex * itemHeight + containerHeight
-    }
+      end: endIndex * itemHeight + containerHeight,
+    },
   ];
 }
 
@@ -88,12 +88,12 @@ export function isLowMemoryDevice(): boolean {
   if ('deviceMemory' in navigator) {
     return (navigator as any).deviceMemory <= 2;
   }
-  
+
   // Fallback based on hardwareConcurrency
   if ('hardwareConcurrency' in navigator) {
     return (navigator as any).hardwareConcurrency <= 2;
   }
-  
+
   return false;
 }
 
@@ -128,7 +128,7 @@ export const AnimationFrame = {
     }
     // Fallback for older browsers
     return setTimeout(() => callback(performance.now()), 16) as any;
-  }
+  },
 };
 
 // Touch gesture detection for mobile
@@ -181,7 +181,7 @@ export const SafeStorage = {
       console.warn('SafeStorage.remove failed:', error);
       return false;
     }
-  }
+  },
 };
 
 // Network status detection
@@ -205,11 +205,14 @@ export function isLowPowerMode(): boolean {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     return true;
   }
-  
+
   // Check for battery-saving mode (when available)
   if ('getBattery' in navigator) {
-    (navigator as any).getBattery().then((battery: any) => battery.level < 0.2 && !battery.charging).catch(() => false);
+    (navigator as any)
+      .getBattery()
+      .then((battery: any) => battery.level < 0.2 && !battery.charging)
+      .catch(() => false);
   }
-  
+
   return false;
 }

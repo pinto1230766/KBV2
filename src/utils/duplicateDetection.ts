@@ -13,8 +13,8 @@ export interface DuplicateGroup {
 const SIMILARITY_THRESHOLD = 0.85;
 
 export function detectDuplicates(
-  speakers: Speaker[], 
-  hosts: Host[], 
+  speakers: Speaker[],
+  hosts: Host[],
   visits: Visit[]
 ): DuplicateGroup[] {
   const duplicates: DuplicateGroup[] = [];
@@ -53,9 +53,11 @@ function findSpeakerDuplicates(items: Speaker[]): DuplicateGroup[] {
       // Critères de doublon :
       // - Nom très similaire
       // - OU (Même téléphone ET nom un peu similaire)
-      const samePhone = current.telephone && compare.telephone && 
-                        current.telephone.replace(/\s/g, '') === compare.telephone.replace(/\s/g, '');
-      
+      const samePhone =
+        current.telephone &&
+        compare.telephone &&
+        current.telephone.replace(/\s/g, '') === compare.telephone.replace(/\s/g, '');
+
       if (similarity >= SIMILARITY_THRESHOLD || (samePhone && similarity > 0.6)) {
         group.push(compare);
         processed.add(compare.id);
@@ -69,7 +71,7 @@ function findSpeakerDuplicates(items: Speaker[]): DuplicateGroup[] {
         type: 'speaker',
         items: group,
         similarity: calculateSimilarity(group[0].nom, group[1].nom),
-        reason: 'Noms similaires ou téléphone identique'
+        reason: 'Noms similaires ou téléphone identique',
       });
     }
   }
@@ -93,9 +95,11 @@ function findHostDuplicates(items: Host[]): DuplicateGroup[] {
       if (processed.has(compare.nom)) continue;
 
       const similarity = calculateSimilarity(current.nom, compare.nom);
-      
-      const samePhone = current.telephone && compare.telephone && 
-                        current.telephone.replace(/\s/g, '') === compare.telephone.replace(/\s/g, '');
+
+      const samePhone =
+        current.telephone &&
+        compare.telephone &&
+        current.telephone.replace(/\s/g, '') === compare.telephone.replace(/\s/g, '');
 
       if (similarity >= SIMILARITY_THRESHOLD || samePhone) {
         group.push(compare);
@@ -110,7 +114,7 @@ function findHostDuplicates(items: Host[]): DuplicateGroup[] {
         type: 'host',
         items: group,
         similarity: calculateSimilarity(group[0].nom, group[1].nom),
-        reason: 'Noms similaires ou téléphone identique'
+        reason: 'Noms similaires ou téléphone identique',
       });
     }
   }
@@ -123,7 +127,7 @@ function findVisitDuplicates(items: Visit[]): DuplicateGroup[] {
   // Regrouper par date
   const byDate = new Map<string, Visit[]>();
 
-  items.forEach(visit => {
+  items.forEach((visit) => {
     const key = visit.visitDate; // YYYY-MM-DD
     if (!byDate.has(key)) byDate.set(key, []);
     byDate.get(key)!.push(visit);
@@ -141,9 +145,9 @@ function findVisitDuplicates(items: Visit[]): DuplicateGroup[] {
 
       for (let j = i + 1; j < visitsOnDate.length; j++) {
         if (processed.has(visitsOnDate[j].id)) continue;
-        
+
         const compare = visitsOnDate[j];
-        
+
         // Critères : Même orateur ET (même discours OU heure très proche)
         const sameSpeaker = calculateSimilarity(current.nom, compare.nom) > 0.9;
         const sameTalk = current.talkNoOrType === compare.talkNoOrType;
@@ -162,7 +166,7 @@ function findVisitDuplicates(items: Visit[]): DuplicateGroup[] {
           type: 'visit',
           items: group,
           similarity: 1.0,
-          reason: 'Même orateur le même jour'
+          reason: 'Même orateur le même jour',
         });
       }
     }

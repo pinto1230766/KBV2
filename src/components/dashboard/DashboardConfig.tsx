@@ -3,10 +3,22 @@
  */
 
 import React, { useState } from 'react';
-import { 
-  Settings, LayoutGrid, Eye, EyeOff, GripVertical,
-  BarChart3, PieChart, LineChart, Bell, Calendar, Users,
-  Clock, Activity, Save, RotateCcw
+import {
+  Settings,
+  LayoutGrid,
+  Eye,
+  EyeOff,
+  GripVertical,
+  BarChart3,
+  PieChart,
+  LineChart,
+  Bell,
+  Calendar,
+  Users,
+  Clock,
+  Activity,
+  Save,
+  RotateCcw,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -49,62 +61,142 @@ interface DashboardConfigState {
 
 /* eslint-disable no-magic-numbers */
 const WIDGET_ORDER = {
-  SPEAKERS: 0, HOSTS: 1, VISITS: 2, ACTIONS: 3,
-  MONTHLY_CHART: 4, DISTRIBUTION_CHART: 5, TREND_CHART: 6,
-  UPCOMING_LIST: 7, ACTIONS_LIST: 8, SMART_ALERTS: 9,
-  QUICK_ACTIONS: 10, ADVANCED_KPIS: 11
+  SPEAKERS: 0,
+  HOSTS: 1,
+  VISITS: 2,
+  ACTIONS: 3,
+  MONTHLY_CHART: 4,
+  DISTRIBUTION_CHART: 5,
+  TREND_CHART: 6,
+  UPCOMING_LIST: 7,
+  ACTIONS_LIST: 8,
+  SMART_ALERTS: 9,
+  QUICK_ACTIONS: 10,
+  ADVANCED_KPIS: 11,
 } as const;
 /* eslint-enable no-magic-numbers */
 
 const DEFAULT_WIDGETS: WidgetConfig[] = [
   {
-    id: 'stats-speakers', name: 'Orateurs actifs', description: 'Nombre d\'orateurs dans la base',
-    icon: Users, visible: true, order: WIDGET_ORDER.SPEAKERS, size: 'small', category: 'stats'
+    id: 'stats-speakers',
+    name: 'Orateurs actifs',
+    description: "Nombre d'orateurs dans la base",
+    icon: Users,
+    visible: true,
+    order: WIDGET_ORDER.SPEAKERS,
+    size: 'small',
+    category: 'stats',
   },
   {
-    id: 'stats-hosts', name: 'Contacts d\'accueil', description: 'Nombre d\'hôtes disponibles',
-    icon: Users, visible: true, order: WIDGET_ORDER.HOSTS, size: 'small', category: 'stats'
+    id: 'stats-hosts',
+    name: "Contacts d'accueil",
+    description: "Nombre d'hôtes disponibles",
+    icon: Users,
+    visible: true,
+    order: WIDGET_ORDER.HOSTS,
+    size: 'small',
+    category: 'stats',
   },
   {
-    id: 'stats-visits', name: 'Visites ce mois', description: 'Nombre de visites planifiées',
-    icon: Calendar, visible: true, order: WIDGET_ORDER.VISITS, size: 'small', category: 'stats'
+    id: 'stats-visits',
+    name: 'Visites ce mois',
+    description: 'Nombre de visites planifiées',
+    icon: Calendar,
+    visible: true,
+    order: WIDGET_ORDER.VISITS,
+    size: 'small',
+    category: 'stats',
   },
   {
-    id: 'stats-actions', name: 'Actions requises', description: 'Tâches en attente',
-    icon: Clock, visible: true, order: WIDGET_ORDER.ACTIONS, size: 'small', category: 'stats'
+    id: 'stats-actions',
+    name: 'Actions requises',
+    description: 'Tâches en attente',
+    icon: Clock,
+    visible: true,
+    order: WIDGET_ORDER.ACTIONS,
+    size: 'small',
+    category: 'stats',
   },
   {
-    id: 'chart-monthly', name: 'Évolution mensuelle', description: 'Graphique des visites par mois',
-    icon: BarChart3, visible: true, order: WIDGET_ORDER.MONTHLY_CHART, size: 'large', category: 'charts'
+    id: 'chart-monthly',
+    name: 'Évolution mensuelle',
+    description: 'Graphique des visites par mois',
+    icon: BarChart3,
+    visible: true,
+    order: WIDGET_ORDER.MONTHLY_CHART,
+    size: 'large',
+    category: 'charts',
   },
   {
-    id: 'chart-distribution', name: 'Répartition', description: 'Types de visites',
-    icon: PieChart, visible: true, order: WIDGET_ORDER.DISTRIBUTION_CHART, size: 'medium', category: 'charts'
+    id: 'chart-distribution',
+    name: 'Répartition',
+    description: 'Types de visites',
+    icon: PieChart,
+    visible: true,
+    order: WIDGET_ORDER.DISTRIBUTION_CHART,
+    size: 'medium',
+    category: 'charts',
   },
   {
-    id: 'chart-trend', name: 'Tendances annuelles', description: 'Évolution sur 12 mois',
-    icon: LineChart, visible: true, order: WIDGET_ORDER.TREND_CHART, size: 'large', category: 'charts'
+    id: 'chart-trend',
+    name: 'Tendances annuelles',
+    description: 'Évolution sur 12 mois',
+    icon: LineChart,
+    visible: true,
+    order: WIDGET_ORDER.TREND_CHART,
+    size: 'large',
+    category: 'charts',
   },
   {
-    id: 'list-upcoming', name: 'Prochaines visites', description: 'Visites à venir',
-    icon: Calendar, visible: true, order: WIDGET_ORDER.UPCOMING_LIST, size: 'medium', category: 'lists'
+    id: 'list-upcoming',
+    name: 'Prochaines visites',
+    description: 'Visites à venir',
+    icon: Calendar,
+    visible: true,
+    order: WIDGET_ORDER.UPCOMING_LIST,
+    size: 'medium',
+    category: 'lists',
   },
   {
-    id: 'list-actions', name: 'Actions requises', description: 'Tâches à traiter',
-    icon: Activity, visible: true, order: WIDGET_ORDER.ACTIONS_LIST, size: 'large', category: 'lists'
+    id: 'list-actions',
+    name: 'Actions requises',
+    description: 'Tâches à traiter',
+    icon: Activity,
+    visible: true,
+    order: WIDGET_ORDER.ACTIONS_LIST,
+    size: 'large',
+    category: 'lists',
   },
   {
-    id: 'alerts-smart', name: 'Alertes intelligentes', description: 'Notifications automatiques',
-    icon: Bell, visible: true, order: WIDGET_ORDER.SMART_ALERTS, size: 'medium', category: 'actions'
+    id: 'alerts-smart',
+    name: 'Alertes intelligentes',
+    description: 'Notifications automatiques',
+    icon: Bell,
+    visible: true,
+    order: WIDGET_ORDER.SMART_ALERTS,
+    size: 'medium',
+    category: 'actions',
   },
   {
-    id: 'quick-actions', name: 'Accès rapide', description: 'Actions fréquentes',
-    icon: Activity, visible: true, order: WIDGET_ORDER.QUICK_ACTIONS, size: 'medium', category: 'actions'
+    id: 'quick-actions',
+    name: 'Accès rapide',
+    description: 'Actions fréquentes',
+    icon: Activity,
+    visible: true,
+    order: WIDGET_ORDER.QUICK_ACTIONS,
+    size: 'medium',
+    category: 'actions',
   },
   {
-    id: 'kpis-advanced', name: 'KPIs avancés', description: 'Indicateurs de performance',
-    icon: Activity, visible: false, order: WIDGET_ORDER.ADVANCED_KPIS, size: 'full', category: 'stats'
-  }
+    id: 'kpis-advanced',
+    name: 'KPIs avancés',
+    description: 'Indicateurs de performance',
+    icon: Activity,
+    visible: false,
+    order: WIDGET_ORDER.ADVANCED_KPIS,
+    size: 'full',
+    category: 'stats',
+  },
 ];
 
 export const useDashboardConfig = create<DashboardConfigState>()(
@@ -113,30 +205,27 @@ export const useDashboardConfig = create<DashboardConfigState>()(
       currentLayout: 'default',
       layouts: [
         {
-          id: 'default', name: 'Vue par défaut', widgets: DEFAULT_WIDGETS,
-          createdAt: new Date(), isDefault: true
-        }
+          id: 'default',
+          name: 'Vue par défaut',
+          widgets: DEFAULT_WIDGETS,
+          createdAt: new Date(),
+          isDefault: true,
+        },
       ],
       widgets: DEFAULT_WIDGETS,
       setWidgetVisibility: (_widgetId, _visible) => {
         set((state) => ({
-          widgets: state.widgets.map(w => 
-            w.id === _widgetId ? { ...w, visible: _visible } : w
-          )
+          widgets: state.widgets.map((w) => (w.id === _widgetId ? { ...w, visible: _visible } : w)),
         }));
       },
       setWidgetOrder: (_widgetId, _order) => {
         set((state) => ({
-          widgets: state.widgets.map(w => 
-            w.id === _widgetId ? { ...w, order: _order } : w
-          )
+          widgets: state.widgets.map((w) => (w.id === _widgetId ? { ...w, order: _order } : w)),
         }));
       },
       setWidgetSize: (_widgetId, _size) => {
         set((state) => ({
-          widgets: state.widgets.map(w => 
-            w.id === _widgetId ? { ...w, size: _size } : w
-          )
+          widgets: state.widgets.map((w) => (w.id === _widgetId ? { ...w, size: _size } : w)),
         }));
       },
       reorderWidgets: (_startIndex, _endIndex) => {
@@ -150,19 +239,26 @@ export const useDashboardConfig = create<DashboardConfigState>()(
       saveLayout: (_name) => {
         const id = `layout-${Date.now()}`;
         set((state) => ({
-          layouts: [...state.layouts, { id, name: _name, widgets: [...state.widgets], createdAt: new Date() }],
-          currentLayout: id
+          layouts: [
+            ...state.layouts,
+            { id, name: _name, widgets: [...state.widgets], createdAt: new Date() },
+          ],
+          currentLayout: id,
         }));
       },
       loadLayout: (_layoutId) => {
-        const layout = get().layouts.find(l => l.id === _layoutId);
+        const layout = get().layouts.find((l) => l.id === _layoutId);
         if (layout) set({ widgets: [...layout.widgets], currentLayout: _layoutId });
       },
-      resetToDefault: () => set({ widgets: DEFAULT_WIDGETS, currentLayout: 'default' })
+      resetToDefault: () => set({ widgets: DEFAULT_WIDGETS, currentLayout: 'default' }),
     }),
     {
       name: 'kbv-dashboard-config',
-      partialize: (state) => ({ currentLayout: state.currentLayout, layouts: state.layouts, widgets: state.widgets })
+      partialize: (state) => ({
+        currentLayout: state.currentLayout,
+        layouts: state.layouts,
+        widgets: state.widgets,
+      }),
     }
   )
 );
@@ -177,39 +273,65 @@ interface WidgetItemProps {
 const WidgetItem: React.FC<WidgetItemProps> = ({ widget, onToggle, onSizeChange, isDragging }) => {
   const Icon = widget.icon;
   return (
-    <div className={cn(
-      "flex items-center gap-3 p-3 rounded-lg border transition-all",
-      widget.visible ? "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" : "bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-60",
-      isDragging && "shadow-lg ring-2 ring-primary-500"
-    )}>
-      <div className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-        <GripVertical className="w-5 h-5" />
+    <div
+      className={cn(
+        'flex items-center gap-3 p-3 rounded-lg border transition-all',
+        widget.visible
+          ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+          : 'bg-gray-50 dark:bg-gray-900 border-gray-100 dark:border-gray-800 opacity-60',
+        isDragging && 'shadow-lg ring-2 ring-primary-500'
+      )}
+    >
+      <div className='cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'>
+        <GripVertical className='w-5 h-5' />
       </div>
-      <div className={cn("p-2 rounded-lg", widget.visible ? "bg-primary-100 dark:bg-primary-900/20" : "bg-gray-100 dark:bg-gray-800")}>
-        <Icon className={cn("w-4 h-4", widget.visible ? "text-primary-600 dark:text-primary-400" : "text-gray-400")} />
+      <div
+        className={cn(
+          'p-2 rounded-lg',
+          widget.visible ? 'bg-primary-100 dark:bg-primary-900/20' : 'bg-gray-100 dark:bg-gray-800'
+        )}
+      >
+        <Icon
+          className={cn(
+            'w-4 h-4',
+            widget.visible ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400'
+          )}
+        />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className={cn("font-medium", widget.visible ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400")}>{widget.name}</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{widget.description}</p>
+      <div className='flex-1 min-w-0'>
+        <p
+          className={cn(
+            'font-medium',
+            widget.visible ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
+          )}
+        >
+          {widget.name}
+        </p>
+        <p className='text-xs text-gray-500 dark:text-gray-400 truncate'>{widget.description}</p>
       </div>
       <select
         aria-label={`Taille du widget ${widget.name}`}
         title={`Taille du widget ${widget.name}`}
         value={widget.size}
         onChange={(e) => onSizeChange(e.target.value as WidgetConfig['size'])}
-        className="text-xs px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+        className='text-xs px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
         disabled={!widget.visible}
       >
-        <option value="small">Petit</option>
-        <option value="medium">Moyen</option>
-        <option value="large">Grand</option>
-        <option value="full">Plein</option>
+        <option value='small'>Petit</option>
+        <option value='medium'>Moyen</option>
+        <option value='large'>Grand</option>
+        <option value='full'>Plein</option>
       </select>
       <button
         onClick={onToggle}
-        className={cn("p-2 rounded-lg transition-colors", widget.visible ? "text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20" : "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800")}
+        className={cn(
+          'p-2 rounded-lg transition-colors',
+          widget.visible
+            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
+            : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+        )}
       >
-        {widget.visible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+        {widget.visible ? <Eye className='w-4 h-4' /> : <EyeOff className='w-4 h-4' />}
       </button>
     </div>
   );
@@ -221,7 +343,16 @@ interface DashboardConfigModalProps {
 }
 
 export const DashboardConfigModal: React.FC<DashboardConfigModalProps> = ({ isOpen, onClose }) => {
-  const { widgets, setWidgetVisibility, setWidgetSize, saveLayout, resetToDefault, layouts = [], currentLayout = 'default', loadLayout = () => {} } = useDashboardConfig();
+  const {
+    widgets,
+    setWidgetVisibility,
+    setWidgetSize,
+    saveLayout,
+    resetToDefault,
+    layouts = [],
+    currentLayout = 'default',
+    loadLayout = () => {},
+  } = useDashboardConfig();
   const [newLayoutName, setNewLayoutName] = useState('');
   const [activeTab, setActiveTab] = useState('widgets');
 
@@ -237,40 +368,58 @@ export const DashboardConfigModal: React.FC<DashboardConfigModalProps> = ({ isOp
     { id: 'stats', name: 'Statistiques', icon: BarChart3 },
     { id: 'charts', name: 'Graphiques', icon: LineChart },
     { id: 'lists', name: 'Listes', icon: Calendar },
-    { id: 'actions', name: 'Actions', icon: Activity }
+    { id: 'actions', name: 'Actions', icon: Activity },
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Configuration du Dashboard">
-      <div className="space-y-6">
-        <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+    <Modal isOpen={isOpen} onClose={onClose} title='Configuration du Dashboard'>
+      <div className='space-y-6'>
+        <div className='flex gap-2 border-b border-gray-200 dark:border-gray-700'>
           <button
             onClick={() => setActiveTab('widgets')}
-            className={cn("px-4 py-2 text-sm font-medium border-b-2 transition-colors", activeTab === 'widgets' ? "border-primary-500 text-primary-600 dark:text-primary-400" : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400")}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'widgets'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
+            )}
           >
-            <LayoutGrid className="w-4 h-4 inline mr-2" />Widgets
+            <LayoutGrid className='w-4 h-4 inline mr-2' />
+            Widgets
           </button>
           <button
             onClick={() => setActiveTab('layouts')}
-            className={cn("px-4 py-2 text-sm font-medium border-b-2 transition-colors", activeTab === 'layouts' ? "border-primary-500 text-primary-600 dark:text-primary-400" : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400")}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
+              activeTab === 'layouts'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400'
+            )}
           >
-            <Settings className="w-4 h-4 inline mr-2" />Mises en page
+            <Settings className='w-4 h-4 inline mr-2' />
+            Mises en page
           </button>
         </div>
 
         {activeTab === 'widgets' && (
-          <div className="space-y-6 max-h-[60vh] overflow-y-auto">
+          <div className='space-y-6 max-h-[60vh] overflow-y-auto'>
             {categories.map((category) => {
-              const categoryWidgets = sortedWidgets.filter(w => w.category === category.id);
+              const categoryWidgets = sortedWidgets.filter((w) => w.category === category.id);
               if (categoryWidgets.length === 0) return null;
               return (
                 <div key={category.id}>
-                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <category.icon className="w-4 h-4" />{category.name}
+                  <h4 className='text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2'>
+                    <category.icon className='w-4 h-4' />
+                    {category.name}
                   </h4>
-                  <div className="space-y-2">
+                  <div className='space-y-2'>
                     {categoryWidgets.map((widget) => (
-                      <WidgetItem key={widget.id} widget={widget} onToggle={() => setWidgetVisibility(widget.id, !widget.visible)} onSizeChange={(_size) => setWidgetSize(widget.id, _size)} />
+                      <WidgetItem
+                        key={widget.id}
+                        widget={widget}
+                        onToggle={() => setWidgetVisibility(widget.id, !widget.visible)}
+                        onSizeChange={(_size) => setWidgetSize(widget.id, _size)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -280,40 +429,58 @@ export const DashboardConfigModal: React.FC<DashboardConfigModalProps> = ({ isOp
         )}
 
         {activeTab === 'layouts' && (
-          <div className="space-y-4">
+          <div className='space-y-4'>
             <Card>
-              <CardBody className="p-4">
-                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Sauvegarder la configuration actuelle</h4>
-                <div className="flex gap-2">
+              <CardBody className='p-4'>
+                <h4 className='font-medium text-gray-900 dark:text-white mb-3'>
+                  Sauvegarder la configuration actuelle
+                </h4>
+                <div className='flex gap-2'>
                   <input
-                    type="text"
+                    type='text'
                     value={newLayoutName}
                     onChange={(e) => setNewLayoutName(e.target.value)}
-                    placeholder="Nom de la mise en page..."
-                    className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                    placeholder='Nom de la mise en page...'
+                    className='flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm'
                   />
                   <Button onClick={handleSaveLayout} disabled={!newLayoutName.trim()}>
-                    <Save className="w-4 h-4 mr-1" />Sauvegarder
+                    <Save className='w-4 h-4 mr-1' />
+                    Sauvegarder
                   </Button>
                 </div>
               </CardBody>
             </Card>
 
-            <div className="space-y-2">
-              <h4 className="font-medium text-gray-900 dark:text-white">Mises en page enregistrées</h4>
+            <div className='space-y-2'>
+              <h4 className='font-medium text-gray-900 dark:text-white'>
+                Mises en page enregistrées
+              </h4>
               {layouts.map((layout) => (
                 <div
                   key={layout.id}
-                  className={cn("flex items-center justify-between p-3 rounded-lg border transition-colors", currentLayout === layout.id ? "bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800" : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700")}
+                  className={cn(
+                    'flex items-center justify-between p-3 rounded-lg border transition-colors',
+                    currentLayout === layout.id
+                      ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800'
+                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                  )}
                 >
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
+                    <p className='font-medium text-gray-900 dark:text-white'>
                       {layout.name}
-                      {layout.isDefault && <span className="ml-2 text-xs text-gray-500">(par défaut)</span>}
+                      {layout.isDefault && (
+                        <span className='ml-2 text-xs text-gray-500'>(par défaut)</span>
+                      )}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(layout.createdAt).toLocaleDateString('fr-FR')}</p>
+                    <p className='text-xs text-gray-500 dark:text-gray-400'>
+                      {new Date(layout.createdAt).toLocaleDateString('fr-FR')}
+                    </p>
                   </div>
-                  <Button variant={currentLayout === layout.id ? "primary" : "secondary"} size="sm" onClick={() => loadLayout(layout.id)}>
+                  <Button
+                    variant={currentLayout === layout.id ? 'primary' : 'secondary'}
+                    size='sm'
+                    onClick={() => loadLayout(layout.id)}
+                  >
                     {currentLayout === layout.id ? 'Active' : 'Charger'}
                   </Button>
                 </div>
@@ -322,12 +489,15 @@ export const DashboardConfigModal: React.FC<DashboardConfigModalProps> = ({ isOp
           </div>
         )}
 
-        <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="ghost" onClick={resetToDefault}>
-            <RotateCcw className="w-4 h-4 mr-1" />Réinitialiser
+        <div className='flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700'>
+          <Button variant='ghost' onClick={resetToDefault}>
+            <RotateCcw className='w-4 h-4 mr-1' />
+            Réinitialiser
           </Button>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={onClose}>Annuler</Button>
+          <div className='flex gap-2'>
+            <Button variant='secondary' onClick={onClose}>
+              Annuler
+            </Button>
             <Button onClick={onClose}>Appliquer</Button>
           </div>
         </div>

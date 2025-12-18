@@ -11,936 +11,1011 @@ export const initialCongregationProfile: CongregationProfile = {
 
 export const initialSpeakers: Speaker[] = [
   {
-    id: "4",
-    nom: "Alexis CARVALHO",
-    congregation: "Lyon KBV",
+    id: '4',
+    nom: 'Alexis CARVALHO',
+    congregation: 'Lyon KBV',
     talkHistory: [
       {
-        "visitId": "visit-4-2026-01-03",
-        "date": "2026-01-03",
-        "talkNo": "",
-        "talkTheme": "",
-        "locationType": "physical"
-      }
+        visitId: 'visit-4-2026-01-03',
+        date: '2026-01-03',
+        talkNo: '',
+        talkTheme: '',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33644556677",
-    gender: "male"
+    telephone: '33644556677',
+    gender: 'male',
   },
   {
-    id: "25",
-    nom: "José DA SILVA",
-    congregation: "Creil KBV",
+    id: '25',
+    nom: 'José DA SILVA',
+    congregation: 'Creil KBV',
     talkHistory: [
       {
-        "visitId": "visit-25-2026-01-10",
-        "date": "2026-01-10",
-        "talkNo": "179",
-        "talkTheme": "Nega iluzon di mundu, sforsa pa kes kuza di Reinu ki ta izisti di verdadi",
-        "locationType": "physical"
-      }
+        visitId: 'visit-25-2026-01-10',
+        date: '2026-01-10',
+        talkNo: '179',
+        talkTheme: 'Nega iluzon di mundu, sforsa pa kes kuza di Reinu ki ta izisti di verdadi',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33618772533",
-    gender: "male"
+    telephone: '33618772533',
+    gender: 'male',
   },
   {
-    id: "20",
-    nom: "João CECCON",
-    congregation: "Villiers KBV",
+    id: '20',
+    nom: 'João CECCON',
+    congregation: 'Villiers KBV',
     talkHistory: [
       {
-        "visitId": "visit-20-2026-01-17",
-        "date": "2026-01-17",
-        "talkNo": "1",
-        "talkTheme": "Bu konxe Deus dretu?",
-        "locationType": "physical"
-      }
+        visitId: 'visit-20-2026-01-17',
+        date: '2026-01-17',
+        talkNo: '1',
+        talkTheme: 'Bu konxe Deus dretu?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33601234567",
-    gender: "male"
+    telephone: '33601234567',
+    gender: 'male',
   },
   {
-    id: "30",
-    nom: "Marcelino DOS SANTOS",
-    congregation: "Plaisir KBV",
+    id: '30',
+    nom: 'Marcelino DOS SANTOS',
+    congregation: 'Plaisir KBV',
     talkHistory: [
       {
-        "visitId": "visit-30-2026-01-10",
-        "date": "2026-01-10",
-        "talkNo": "100",
-        "talkTheme": "Modi ki nu pode faze bons amizadi",
-        "locationType": "physical"
+        visitId: 'visit-30-2026-01-10',
+        date: '2026-01-10',
+        talkNo: '100',
+        talkTheme: 'Modi ki nu pode faze bons amizadi',
+        locationType: 'physical',
       },
       {
-        "visitId": "visit-30-2026-01-24",
-        "date": "2026-01-24",
-        "talkNo": "36",
-        "talkTheme": "Vida é só kel-li?",
-        "locationType": "physical"
-      }
+        visitId: 'visit-30-2026-01-24',
+        date: '2026-01-24',
+        talkNo: '36',
+        talkTheme: 'Vida é só kel-li?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33650015128",
-    gender: "male"
+    telephone: '33650015128',
+    gender: 'male',
   },
   {
-    id: "9",
-    nom: "David MOREIRA",
-    congregation: "Steinsel KBV",
+    id: '9',
+    nom: 'David MOREIRA',
+    congregation: 'Steinsel KBV',
     talkHistory: [
       {
-        "visitId": "visit-9-2026-01-31",
-        "date": "2026-01-31",
-        "talkNo": "56",
-        "talkTheme": "Na ki lider ki bu pode kunfia?",
-        "locationType": "physical"
-      }
+        visitId: 'visit-9-2026-01-31',
+        date: '2026-01-31',
+        talkNo: '56',
+        talkTheme: 'Na ki lider ki bu pode kunfia?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "352621386797",
-    gender: "male"
+    telephone: '352621386797',
+    gender: 'male',
   },
   {
-    id: "11",
-    nom: "Eddy SILVA",
-    congregation: "Steinsel KBV",
+    id: '11',
+    nom: 'Eddy SILVA',
+    congregation: 'Steinsel KBV',
     talkHistory: [
       {
-        "visitId": "visit-11-2026-02-07",
-        "date": "2026-02-07",
-        "talkNo": "9",
-        "talkTheme": "Obi i kunpri Palavra di Deus",
-        "locationType": "physical"
+        visitId: 'visit-11-2026-02-07',
+        date: '2026-02-07',
+        talkNo: '9',
+        talkTheme: 'Obi i kunpri Palavra di Deus',
+        locationType: 'physical',
       },
       {
-        "visitId": "visit-11-2026-02-28",
-        "date": "2026-02-28",
-        "talkNo": "9",
-        "talkTheme": "Obi i kunpri Palavra di Deus",
-        "locationType": "physical"
-      }
+        visitId: 'visit-11-2026-02-28',
+        date: '2026-02-28',
+        talkNo: '9',
+        talkTheme: 'Obi i kunpri Palavra di Deus',
+        locationType: 'physical',
+      },
     ],
-    telephone: "352691574935",
-    gender: "male"
+    telephone: '352691574935',
+    gender: 'male',
   },
   {
-    id: "37",
-    nom: "Valdir DIOGO",
-    congregation: "Porto KBV",
+    id: '37',
+    nom: 'Valdir DIOGO',
+    congregation: 'Porto KBV',
     talkHistory: [
       {
-        "visitId": "visit-37-2026-02-14",
-        "date": "2026-02-14",
-        "talkNo": "189",
-        "talkTheme": "Anda ku Deus ta traze-nu bensons gosi i pa tudu témpu",
-        "locationType": "physical"
-      }
+        visitId: 'visit-37-2026-02-14',
+        date: '2026-02-14',
+        talkNo: '189',
+        talkTheme: 'Anda ku Deus ta traze-nu bensons gosi i pa tudu témpu',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33677788899",
-    gender: "male"
+    telephone: '33677788899',
+    gender: 'male',
   },
   {
-    id: "23",
-    nom: "Jorge GONÇALVES",
-    congregation: "Porto KBV",
+    id: '23',
+    nom: 'Jorge GONÇALVES',
+    congregation: 'Porto KBV',
     talkHistory: [
       {
-        "visitId": "visit-23-2026-02-21",
-        "date": "2026-02-21",
-        "talkNo": "4",
-        "talkTheme": "Ki próvas ten ma Deus ta izisti?",
-        "locationType": "physical"
-      }
+        visitId: 'visit-23-2026-02-21',
+        date: '2026-02-21',
+        talkNo: '4',
+        talkTheme: 'Ki próvas ten ma Deus ta izisti?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33633456789",
-    gender: "male"
+    telephone: '33633456789',
+    gender: 'male',
   },
   {
-    id: "57",
-    nom: "Jeje ou JP",
-    congregation: "",
+    id: '57',
+    nom: 'Jeje ou JP',
+    congregation: '',
     talkHistory: [
       {
-        "visitId": "visit-57-2026-02-28",
-        "date": "2026-02-28",
-        "talkNo": "",
-        "talkTheme": "",
-        "locationType": "physical"
-      }
+        visitId: 'visit-57-2026-02-28',
+        date: '2026-02-28',
+        talkNo: '',
+        talkTheme: '',
+        locationType: 'physical',
+      },
     ],
-    telephone: "",
-    gender: "male"
+    telephone: '',
+    gender: 'male',
   },
   {
-    id: "18",
-    nom: "Nuno PEREIRA",
-    congregation: "Rotterdam KBV",
+    id: '18',
+    nom: 'Nuno PEREIRA',
+    congregation: 'Rotterdam KBV',
     talkHistory: [
       {
-        "visitId": "visit-18-2026-03-07",
-        "date": "2026-03-07",
-        "talkNo": "",
-        "talkTheme": "",
-        "locationType": "physical"
-      }
+        visitId: 'visit-18-2026-03-07',
+        date: '2026-03-07',
+        talkNo: '',
+        talkTheme: '',
+        locationType: 'physical',
+      },
     ],
-    telephone: "31618513034",
-    gender: "male"
+    telephone: '31618513034',
+    gender: 'male',
   },
   {
-    id: "58",
-    nom: "Dimitri GIVAC",
-    congregation: "Marseille KBV",
+    id: '58',
+    nom: 'Dimitri GIVAC',
+    congregation: 'Marseille KBV',
     talkHistory: [
       {
-        "visitId": "visit-58-2025-10-18",
-        "date": "2025-10-18",
-        "talkNo": "",
-        "talkTheme": "",
-        "locationType": "physical"
-      }
+        visitId: 'visit-58-2025-10-18',
+        date: '2025-10-18',
+        talkNo: '',
+        talkTheme: '',
+        locationType: 'physical',
+      },
     ],
-    telephone: "",
-    tags: [
-      "zoom",
-      "expérimenté"
-    ],
-    gender: "male"
+    telephone: '',
+    tags: ['zoom', 'expérimenté'],
+    gender: 'male',
   },
   {
-    id: "event-59",
-    nom: "Diskursu Spesial",
-    congregation: "Événement spécial",
+    id: 'event-59',
+    nom: 'Diskursu Spesial',
+    congregation: 'Événement spécial',
     talkHistory: [
       {
-        "visitId": "visit-event-59-2026-03-28",
-        "date": "2026-03-28",
-        "talkNo": "DS",
-        "talkTheme": "Ken ki ta ben konpo téra?",
-        "locationType": "physical"
-      }
+        visitId: 'visit-event-59-2026-03-28',
+        date: '2026-03-28',
+        talkNo: 'DS',
+        talkTheme: 'Ken ki ta ben konpo téra?',
+        locationType: 'physical',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "6",
-    nom: "Dany TAVARES",
-    congregation: "Plaisir KBV",
+    id: '6',
+    nom: 'Dany TAVARES',
+    congregation: 'Plaisir KBV',
     talkHistory: [
       {
-        visitId: "visit-6-2025-05-03",
-        date: "2025-05-03",
-        talkNo: "32",
-        talkTheme: "Modi ki nu pode lida ku preokupasons di vida",
-        locationType: "physical"
+        visitId: 'visit-6-2025-05-03',
+        date: '2025-05-03',
+        talkNo: '32',
+        talkTheme: 'Modi ki nu pode lida ku preokupasons di vida',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-6-2025-09-20",
-        date: "2025-09-20",
-        talkNo: "102",
-        talkTheme: "Presta atenson na \"profesia\"",
-        locationType: "physical"
-      }
+        visitId: 'visit-6-2025-09-20',
+        date: '2025-09-20',
+        talkNo: '102',
+        talkTheme: 'Presta atenson na "profesia"',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33668121101",
-    gender: "male"
+    telephone: '33668121101',
+    gender: 'male',
   },
   {
-    id: "24",
-    nom: "José BATALHA",
-    congregation: "Marseille KBV",
+    id: '24',
+    nom: 'José BATALHA',
+    congregation: 'Marseille KBV',
     talkHistory: [
       {
-        visitId: "visit-24-2025-05-31",
-        date: "2025-05-31",
-        talkNo: "17",
-        talkTheme: "Da Deus glória ku tudu kel ki bu ten",
-        locationType: "physical"
+        visitId: 'visit-24-2025-05-31',
+        date: '2025-05-31',
+        talkNo: '17',
+        talkTheme: 'Da Deus glória ku tudu kel ki bu ten',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-24-2026-04-04",
-        date: "2026-04-04",
-        talkNo: "18",
-        talkTheme: "Faze Jeová bu fortaléza",
-        locationType: "physical"
-      }
+        visitId: 'visit-24-2026-04-04',
+        date: '2026-04-04',
+        talkNo: '18',
+        talkTheme: 'Faze Jeová bu fortaléza',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33618505292",
-    gender: "male"
+    telephone: '33618505292',
+    gender: 'male',
   },
   {
-    id: "22",
-    nom: "Joel CARDOSO",
-    congregation: "Nice KBV",
+    id: '22',
+    nom: 'Joel CARDOSO',
+    congregation: 'Nice KBV',
     talkHistory: [
       {
-        visitId: "visit-22-2025-06-14",
-        date: "2025-06-14",
-        talkNo: "30",
-        talkTheme: "Modi ki familia pode pápia ku kunpanheru midjór",
-        locationType: "physical"
-      }
+        visitId: 'visit-22-2025-06-14',
+        date: '2025-06-14',
+        talkNo: '30',
+        talkTheme: 'Modi ki familia pode pápia ku kunpanheru midjór',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33658943038",
-    gender: "male"
+    telephone: '33658943038',
+    gender: 'male',
   },
   {
-    id: "19",
-    nom: "Jérémy TORRES",
-    congregation: "Lyon KBV",
+    id: '19',
+    nom: 'Jérémy TORRES',
+    congregation: 'Lyon KBV',
     talkHistory: [
       {
-        visitId: "visit-19-2025-07-05",
-        date: "2025-07-05",
-        talkNo: "12",
-        talkTheme: "Deus kré pa bu ruspeta kes ki ren autoridadi",
-        locationType: "physical"
+        visitId: 'visit-19-2025-07-05',
+        date: '2025-07-05',
+        talkNo: '12',
+        talkTheme: 'Deus kré pa bu ruspeta kes ki ren autoridadi',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-19-2026-02-07",
-        date: "2026-02-07",
-        talkNo: "76",
-        talkTheme: "Prinsípius di Bíblia pode djuda-nu lida ku prublémas di oji?",
-        locationType: "physical"
-      }
+        visitId: 'visit-19-2026-02-07',
+        date: '2026-02-07',
+        talkNo: '76',
+        talkTheme: 'Prinsípius di Bíblia pode djuda-nu lida ku prublémas di oji?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33690123456",
-    notes: "Allergique aux chats.",
-    tags: [
-      "allergie-chat"
-    ],
+    telephone: '33690123456',
+    notes: 'Allergique aux chats.',
+    tags: ['allergie-chat'],
     isVehiculed: false,
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "10",
-    nom: "David VIEIRA",
-    congregation: "Villiers KBV",
+    id: '10',
+    nom: 'David VIEIRA',
+    congregation: 'Villiers KBV',
     talkHistory: [
       {
-        visitId: "visit-10-2024-05-26",
-        date: "2024-05-26",
-        talkNo: "48",
-        talkTheme: "Modi ki nu pode kontinua lial pa Deus óras ki nu ta pasa pa próva",
-        locationType: "physical"
+        visitId: 'visit-10-2024-05-26',
+        date: '2024-05-26',
+        talkNo: '48',
+        talkTheme: 'Modi ki nu pode kontinua lial pa Deus óras ki nu ta pasa pa próva',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-10-2025-08-30",
-        date: "2025-08-30",
-        talkNo: "108",
-        talkTheme: "Bu pode kunfia ma nu ta ben ten un futuru sóbi!",
-        locationType: "physical"
-      }
+        visitId: 'visit-10-2025-08-30',
+        date: '2025-08-30',
+        talkNo: '108',
+        talkTheme: 'Bu pode kunfia ma nu ta ben ten un futuru sóbi!',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33771670140",
-    gender: "male"
+    telephone: '33771670140',
+    gender: 'male',
   },
   {
-    id: "27",
-    nom: "Luis CARDOSO",
-    congregation: "Nice KBV",
+    id: '27',
+    nom: 'Luis CARDOSO',
+    congregation: 'Nice KBV',
     talkHistory: [
       {
-        visitId: "visit-27-2025-09-06",
-        date: "2025-09-06",
-        talkNo: "15",
-        talkTheme: "Mostra bondadi pa tudu algen",
-        locationType: "physical"
-      }
+        visitId: 'visit-27-2025-09-06',
+        date: '2025-09-06',
+        talkNo: '15',
+        talkTheme: 'Mostra bondadi pa tudu algen',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33669519131",
-    gender: "male"
+    telephone: '33669519131',
+    gender: 'male',
   },
   {
-    id: "60",
-    nom: "Paulo COSTA",
-    congregation: "Streaming",
+    id: '60',
+    nom: 'Paulo COSTA',
+    congregation: 'Streaming',
     talkHistory: [
       {
-        visitId: "visit-60-2025-09-13",
-        date: "2025-09-13",
-        talkNo: "43",
-        talkTheme: "Kel ki Deus ta fla sénpri é midjór pa nos",
-        locationType: "streaming"
-      }
+        visitId: 'visit-60-2025-09-13',
+        date: '2025-09-13',
+        talkNo: '43',
+        talkTheme: 'Kel ki Deus ta fla sénpri é midjór pa nos',
+        locationType: 'streaming',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "61",
-    nom: "João Paulo BAPTISTA",
-    congregation: "Lyon KBV",
+    id: '61',
+    nom: 'João Paulo BAPTISTA',
+    congregation: 'Lyon KBV',
     talkHistory: [
       {
-        visitId: "visit-61-2025-09-27",
-        date: "2025-09-27",
-        talkNo: "DS",
-        talkTheme: "Modi ki géra ta ben kaba ?",
-        locationType: "physical"
-      }
+        visitId: 'visit-61-2025-09-27',
+        date: '2025-09-27',
+        talkNo: 'DS',
+        talkTheme: 'Modi ki géra ta ben kaba ?',
+        locationType: 'physical',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "8",
-    nom: "David LUCIO",
-    congregation: "Porto KBV",
+    id: '8',
+    nom: 'David LUCIO',
+    congregation: 'Porto KBV',
     talkHistory: [
       {
-        visitId: "visit-8-2025-10-04",
-        date: "2025-10-04",
-        talkNo: "16",
-        talkTheme: "Kontinua ta bira bu amizadi ku Deus más fórti",
-        locationType: "physical"
-      }
+        visitId: 'visit-8-2025-10-04',
+        date: '2025-10-04',
+        talkNo: '16',
+        talkTheme: 'Kontinua ta bira bu amizadi ku Deus más fórti',
+        locationType: 'physical',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "33",
-    nom: "Moises CALDES",
-    congregation: "Cannes KBV",
+    id: '33',
+    nom: 'Moises CALDES',
+    congregation: 'Cannes KBV',
     talkHistory: [
       {
-        visitId: "visit-33-2024-11-17",
-        date: "2024-11-17",
-        talkNo: "64",
+        visitId: 'visit-33-2024-11-17',
+        date: '2024-11-17',
+        talkNo: '64',
         talkTheme: "Bu 'krê sô passa sábi' ô bu ta 'ama Deus'?",
-        locationType: "physical"
+        locationType: 'physical',
       },
       {
-        visitId: "visit-33-2025-10-11",
-        date: "2025-10-11",
-        talkNo: "183",
-        talkTheme: "Tra odju di kuzas ki ka ten valor!",
-        locationType: "physical"
+        visitId: 'visit-33-2025-10-11',
+        date: '2025-10-11',
+        talkNo: '183',
+        talkTheme: 'Tra odju di kuzas ki ka ten valor!',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-33-2026-03-07",
-        date: "2026-03-07",
-        talkNo: "183",
-        talkTheme: "Tra odju di kuzas ki ka ten valor!",
-        locationType: "physical"
-      }
+        visitId: 'visit-33-2026-03-07',
+        date: '2026-03-07',
+        talkNo: '183',
+        talkTheme: 'Tra odju di kuzas ki ka ten valor!',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33627826869",
-    gender: "male"
+    telephone: '33627826869',
+    gender: 'male',
   },
   {
-    id: "31",
-    nom: "Mario MIRANDA",
-    congregation: "Cannes KBV Zoom",
+    id: '31',
+    nom: 'Mario MIRANDA',
+    congregation: 'Cannes KBV Zoom',
     talkHistory: [
       {
-        visitId: "visit-31-2025-10-25",
-        date: "2025-10-25",
-        talkNo: "100",
-        talkTheme: "Modi ki nu pode faze bons amizadi",
-        locationType: "zoom"
-      }
+        visitId: 'visit-31-2025-10-25',
+        date: '2025-10-25',
+        talkNo: '100',
+        talkTheme: 'Modi ki nu pode faze bons amizadi',
+        locationType: 'zoom',
+      },
     ],
-    telephone: "33615879709",
-    gender: "male"
+    telephone: '33615879709',
+    gender: 'male',
   },
   {
-    id: "15",
-    nom: "Gilberto FERNANDES",
-    congregation: "St Denis KBV",
+    id: '15',
+    nom: 'Gilberto FERNANDES',
+    congregation: 'St Denis KBV',
     talkHistory: [
       {
-        visitId: "visit-15-2025-11-01",
-        date: "2025-11-01",
-        talkNo: "2",
-        talkTheme: "Bu ta skara na témpu di fin?",
-        locationType: "physical"
-      }
+        visitId: 'visit-15-2025-11-01',
+        date: '2025-11-01',
+        talkNo: '2',
+        talkTheme: 'Bu ta skara na témpu di fin?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33769017274",
-    gender: "male"
+    telephone: '33769017274',
+    gender: 'male',
   },
   {
-    id: "14",
-    nom: "Gianni FARIA",
-    congregation: "Plaisir KBV",
+    id: '14',
+    nom: 'Gianni FARIA',
+    congregation: 'Plaisir KBV',
     talkHistory: [
       {
-        visitId: "visit-14-2025-11-08",
-        date: "2025-11-08",
-        talkNo: "26",
-        talkTheme: "Abo é inportanti pa Deus?",
-        locationType: "physical"
-      }
+        visitId: 'visit-14-2025-11-08',
+        date: '2025-11-08',
+        talkNo: '26',
+        talkTheme: 'Abo é inportanti pa Deus?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33698657173",
-    gender: "male"
+    telephone: '33698657173',
+    gender: 'male',
   },
   {
-    id: "event-62",
-    nom: "Visita do Superintendente de Circuito",
-    congregation: "Événement spécial",
+    id: 'event-62',
+    nom: 'Visita do Superintendente de Circuito',
+    congregation: 'Événement spécial',
     talkHistory: [
       {
-        visitId: "visit-event-62-2025-11-15",
-        date: "2025-11-15",
-        talkNo: "Visita do Superintendente de Circuito",
-        talkTheme: "Visita do Superintendente de Circuito",
-        locationType: "physical"
-      }
+        visitId: 'visit-event-62-2025-11-15',
+        date: '2025-11-15',
+        talkNo: 'Visita do Superintendente de Circuito',
+        talkTheme: 'Visita do Superintendente de Circuito',
+        locationType: 'physical',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "event-63",
-    nom: "Assembleia de Circuito com Representante da Filial",
-    congregation: "Événement spécial",
+    id: 'event-63',
+    nom: 'Assembleia de Circuito com Representante da Filial',
+    congregation: 'Événement spécial',
     talkHistory: [
       {
-        visitId: "visit-event-63-2025-11-22",
-        date: "2025-11-22",
-        talkNo: "Assembleia de Circuito com Representante da Filial",
-        talkTheme: "Assembleia de Circuito com Representante da Filial",
-        locationType: "physical"
-      }
+        visitId: 'visit-event-63-2025-11-22',
+        date: '2025-11-22',
+        talkNo: 'Assembleia de Circuito com Representante da Filial',
+        talkTheme: 'Assembleia de Circuito com Representante da Filial',
+        locationType: 'physical',
+      },
     ],
-    gender: "male"
+    gender: 'male',
   },
   {
-    id: "36",
-    nom: "Thomas FREITAS",
-    congregation: "Lyon KBV",
+    id: '36',
+    nom: 'Thomas FREITAS',
+    congregation: 'Lyon KBV',
     talkHistory: [
       {
-        visitId: "visit-36-2025-11-29",
-        date: "2025-11-29",
-        talkNo: "70",
-        talkTheme: "Pamodi ki Deus merese nos kunfiansa?",
-        locationType: "physical"
+        visitId: 'visit-36-2025-11-29',
+        date: '2025-11-29',
+        talkNo: '70',
+        talkTheme: 'Pamodi ki Deus merese nos kunfiansa?',
+        locationType: 'physical',
       },
       {
-        visitId: "visit-36-2026-06-06",
-        date: "2026-06-06",
-        talkNo: "31",
-        talkTheme: "Bu ten konsénsia ma bu ten nisisidadi spritual?",
-        locationType: "physical"
-      }
+        visitId: 'visit-36-2026-06-06',
+        date: '2026-06-06',
+        talkNo: '31',
+        talkTheme: 'Bu ten konsénsia ma bu ten nisisidadi spritual?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33666677788",
-    gender: "male"
+    telephone: '33666677788',
+    gender: 'male',
   },
   {
-    id: "32",
-    nom: "Matthieu DHALENNE",
-    congregation: "Steinsel KBV",
+    id: '32',
+    nom: 'Matthieu DHALENNE',
+    congregation: 'Steinsel KBV',
     talkHistory: [
       {
-        visitId: "visit-32-2025-12-06",
-        date: "2025-12-06",
-        talkNo: "194",
-        talkTheme: "Modi ki sabedoria di Deus ta djuda-nu",
-        locationType: "physical"
-      }
+        visitId: 'visit-32-2025-12-06',
+        date: '2025-12-06',
+        talkNo: '194',
+        talkTheme: 'Modi ki sabedoria di Deus ta djuda-nu',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33628253599",
-    gender: "male"
+    telephone: '33628253599',
+    gender: 'male',
   },
   {
-    id: "12",
-    nom: "François GIANNINO",
-    congregation: "St Denis KBV",
+    id: '12',
+    nom: 'François GIANNINO',
+    congregation: 'St Denis KBV',
     talkHistory: [
       {
-        visitId: "visit-12-2025-12-13",
-        date: "2025-12-13",
-        talkNo: "7",
-        talkTheme: "Imita mizerikordia di Jeová",
-        locationType: "physical"
-      }
+        visitId: 'visit-12-2025-12-13',
+        date: '2025-12-13',
+        talkNo: '7',
+        talkTheme: 'Imita mizerikordia di Jeová',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33633891566",
-    gender: "male"
+    telephone: '33633891566',
+    gender: 'male',
   },
   {
-    id: "event-64",
-    nom: "Asenbleia ku enkaregadu di grupu di kongregason",
-    congregation: "Événement spécial",
+    id: 'event-64',
+    nom: 'Asenbleia ku enkaregadu di grupu di kongregason',
+    congregation: 'Événement spécial',
     talkHistory: [
       {
-        visitId: "visit-event-64-2025-12-20",
-        date: "2025-12-20",
-        talkNo: "55",
-        talkTheme: "Modi ki bu pode faze un bon nómi ki ta agrada Deus?",
-        locationType: "physical"
-      }
+        visitId: 'visit-event-64-2025-12-20',
+        date: '2025-12-20',
+        talkNo: '55',
+        talkTheme: 'Modi ki bu pode faze un bon nómi ki ta agrada Deus?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33666789012",
-    gender: "male"
+    telephone: '33666789012',
+    gender: 'male',
   },
   {
-    id: "1",
-    nom: "Ailton DIAS",
-    congregation: "Villiers-sur-Marne",
+    id: '1',
+    nom: 'Ailton DIAS',
+    congregation: 'Villiers-sur-Marne',
     talkHistory: [],
-    telephone: "33611223344",
-    gender: "male"
+    telephone: '33611223344',
+    gender: 'male',
   },
   {
-    id: "26",
-    nom: "Alexandre NOGUEIRA",
-    congregation: "Creil",
+    id: '26',
+    nom: 'Alexandre NOGUEIRA',
+    congregation: 'Creil',
     talkHistory: [],
-    telephone: "33612526605",
-    gender: "male"
+    telephone: '33612526605',
+    gender: 'male',
   },
   {
-    id: "3",
-    nom: "Alexandre NOGUEIRA",
-    congregation: "Creil",
+    id: '3',
+    nom: 'Alexandre NOGUEIRA',
+    congregation: 'Creil',
     talkHistory: [],
-    telephone: "33612526605",
-    gender: "male"
+    telephone: '33612526605',
+    gender: 'male',
   },
   {
-    id: "5",
-    nom: "Daniel FORTES",
-    congregation: "Villiers-sur-Marne",
+    id: '5',
+    nom: 'Daniel FORTES',
+    congregation: 'Villiers-sur-Marne',
     talkHistory: [],
-    telephone: "33655667788",
-    gender: "male"
+    telephone: '33655667788',
+    gender: 'male',
   },
   {
-    id: "7",
-    nom: "David DE FARIA",
-    congregation: "Villiers-sur-Marne",
+    id: '7',
+    nom: 'David DE FARIA',
+    congregation: 'Villiers-sur-Marne',
     talkHistory: [],
-    telephone: "33677889900",
-    gender: "male"
+    telephone: '33677889900',
+    gender: 'male',
   },
   {
-    id: "13",
-    nom: "Fred MARQUES",
-    congregation: "Villiers-sur-Marne",
+    id: '13',
+    nom: 'Fred MARQUES',
+    congregation: 'Villiers-sur-Marne',
     talkHistory: [],
-    telephone: "33634567890",
-    gender: "male"
+    telephone: '33634567890',
+    gender: 'male',
   },
   {
-    id: "16",
-    nom: "Isaque PEREIRA",
-    congregation: "St Denis KBV",
+    id: '16',
+    nom: 'Isaque PEREIRA',
+    congregation: 'St Denis KBV',
     talkHistory: [
       {
-        visitId: "visit-16-2024-02-18",
-        date: "2024-02-18",
-        talkNo: "50",
-        talkTheme: "Modi ki nu pode toma disizons ki ta djuda-nu ten bons rezultadu na vida",
-        locationType: "physical"
-      }
+        visitId: 'visit-16-2024-02-18',
+        date: '2024-02-18',
+        talkNo: '50',
+        talkTheme: 'Modi ki nu pode toma disizons ki ta djuda-nu ten bons rezultadu na vida',
+        locationType: 'physical',
+      },
     ],
-    telephone: "33652851904",
-    gender: "male"
+    telephone: '33652851904',
+    gender: 'male',
   },
   {
-    id: "17",
-    nom: "Jean-Paul BATISTA",
-    congregation: "Lyon",
+    id: '17',
+    nom: 'Jean-Paul BATISTA',
+    congregation: 'Lyon',
     talkHistory: [],
-    telephone: "33606630000",
-    notes: "Préfère un repas léger le soir. Pas d'hébergement nécessaire, a de la famille à proximité.",
-    gender: "male",
-    tags: [
-      "sans escaliers",
-      "calme"
-    ]
+    telephone: '33606630000',
+    notes:
+      "Préfère un repas léger le soir. Pas d'hébergement nécessaire, a de la famille à proximité.",
+    gender: 'male',
+    tags: ['sans escaliers', 'calme'],
   },
   {
-    id: "27",
-    nom: "João-Paulo BAPTISTA",
-    congregation: "Lyon KBV",
+    id: '27',
+    nom: 'João-Paulo BAPTISTA',
+    congregation: 'Lyon KBV',
     talkHistory: [],
-    telephone: "33611234567",
-    gender: "male"
+    telephone: '33611234567',
+    gender: 'male',
   },
   {
-    id: "28",
-    nom: "Luis FARIA",
-    congregation: "Plaisir",
+    id: '28',
+    nom: 'Luis FARIA',
+    congregation: 'Plaisir',
     talkHistory: [],
-    telephone: "33670748952",
-    gender: "male"
+    telephone: '33670748952',
+    gender: 'male',
   },
   {
-    id: "29",
-    nom: "Manuel ANTUNES",
-    congregation: "Villiers KBV",
+    id: '29',
+    nom: 'Manuel ANTUNES',
+    congregation: 'Villiers KBV',
     talkHistory: [
       {
-        visitId: "visit-29-2025-01-19",
-        date: "2025-01-19",
-        talkNo: "77",
+        visitId: 'visit-29-2025-01-19',
+        date: '2025-01-19',
+        talkNo: '77',
         talkTheme: "'Nhos mostra sénpri ma nhos sabe resebe algen dretu'",
-        locationType: "physical"
-      }
+        locationType: 'physical',
+      },
     ],
-    telephone: "33670872232",
-    gender: "male"
+    telephone: '33670872232',
+    gender: 'male',
   },
   {
-    id: "35",
-    nom: "Santiago MONIZ",
-    congregation: "Esch",
+    id: '35',
+    nom: 'Santiago MONIZ',
+    congregation: 'Esch',
     talkHistory: [],
-    telephone: "352691253068",
-    gender: "male"
+    telephone: '352691253068',
+    gender: 'male',
   },
   {
-    id: "39",
-    nom: "Lionel ALMEIDA",
-    congregation: "À definir",
+    id: '39',
+    nom: 'Lionel ALMEIDA',
+    congregation: 'À definir',
     talkHistory: [],
-    telephone: "33632461762",
-    gender: "male"
+    telephone: '33632461762',
+    gender: 'male',
   },
   {
-    id: "40",
-    nom: "Arthur FELICIANO",
-    congregation: "À definir",
+    id: '40',
+    nom: 'Arthur FELICIANO',
+    congregation: 'À definir',
     talkHistory: [],
-    telephone: "352621283777",
-    gender: "male"
+    telephone: '352621283777',
+    gender: 'male',
   },
   {
-    id: "41",
-    nom: "Andrea MENARA",
-    congregation: "À definir",
+    id: '41',
+    nom: 'Andrea MENARA',
+    congregation: 'À definir',
     talkHistory: [
       {
-        visitId: "visit-41-2026-04-11",
-        date: "2026-04-11",
-        talkNo: "103",
-        talkTheme: "Modi ki bu pode xinti alegria di verdadi?",
-        locationType: "physical"
-      }
+        visitId: 'visit-41-2026-04-11',
+        date: '2026-04-11',
+        talkNo: '103',
+        talkTheme: 'Modi ki bu pode xinti alegria di verdadi?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "352691295018",
-    gender: "male"
+    telephone: '352691295018',
+    gender: 'male',
   },
   {
-    id: "42",
-    nom: "Victor RIBEIRO",
-    congregation: "À definir",
+    id: '42',
+    nom: 'Victor RIBEIRO',
+    congregation: 'À definir',
     talkHistory: [],
-    telephone: "352621625893",
-    gender: "male"
+    telephone: '352621625893',
+    gender: 'male',
   },
   {
-    id: "43",
-    nom: "Benvindo SILVA",
-    congregation: "À définir",
+    id: '43',
+    nom: 'Benvindo SILVA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "352691453468",
-    gender: "male"
+    telephone: '352691453468',
+    gender: 'male',
   },
   {
-    id: "44",
-    nom: "Miguel SILVA",
-    congregation: "À définir",
+    id: '44',
+    nom: 'Miguel SILVA',
+    congregation: 'À définir',
     talkHistory: [
       {
-        visitId: "visit-44-2026-06-13",
-        date: "2026-06-13",
-        talkNo: "65",
-        talkTheme: "Modi ki nu pode luta pa pas na un mundu xeiu di ódiu",
-        locationType: "physical"
-      }
+        visitId: 'visit-44-2026-06-13',
+        date: '2026-06-13',
+        talkNo: '65',
+        talkTheme: 'Modi ki nu pode luta pa pas na un mundu xeiu di ódiu',
+        locationType: 'physical',
+      },
     ],
-    telephone: "352621651610",
-    gender: "male"
+    telephone: '352621651610',
+    gender: 'male',
   },
   {
-    id: "45",
-    nom: "José BARBOSA",
-    congregation: "À définir",
+    id: '45',
+    nom: 'José BARBOSA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33612345678",
-    gender: "male"
+    telephone: '33612345678',
+    gender: 'male',
   },
   {
-    id: "46",
-    nom: "Nelson SILVA",
-    congregation: "À définir",
+    id: '46',
+    nom: 'Nelson SILVA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33623456789",
-    gender: "male"
+    telephone: '33623456789',
+    gender: 'male',
   },
   {
-    id: "47",
-    nom: "Rui COSTA",
-    congregation: "À définir",
+    id: '47',
+    nom: 'Rui COSTA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33634567890",
-    gender: "male"
+    telephone: '33634567890',
+    gender: 'male',
   },
   {
-    id: "48",
-    nom: "Tiago FERNANDES",
-    congregation: "À définir",
+    id: '48',
+    nom: 'Tiago FERNANDES',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33645678901",
-    gender: "male"
+    telephone: '33645678901',
+    gender: 'male',
   },
   {
-    id: "49",
-    nom: "Carlos MENDONÇA",
-    congregation: "À définir",
+    id: '49',
+    nom: 'Carlos MENDONÇA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33656789012",
-    gender: "male"
+    telephone: '33656789012',
+    gender: 'male',
   },
   {
-    id: "50",
-    nom: "João SANTOS",
-    congregation: "À définir",
+    id: '50',
+    nom: 'João SANTOS',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33667890123",
-    gender: "male"
+    telephone: '33667890123',
+    gender: 'male',
   },
   {
-    id: "51",
-    nom: "Pedro ALMEIDA",
-    congregation: "À définir",
+    id: '51',
+    nom: 'Pedro ALMEIDA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33678901234",
-    gender: "male"
+    telephone: '33678901234',
+    gender: 'male',
   },
   {
-    id: "52",
-    nom: "Miguel SOUSA",
-    congregation: "À définir",
+    id: '52',
+    nom: 'Miguel SOUSA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33689012345",
-    gender: "male"
+    telephone: '33689012345',
+    gender: 'male',
   },
   {
-    id: "53",
-    nom: "Ricardo PEREIRA",
-    congregation: "À définir",
+    id: '53',
+    nom: 'Ricardo PEREIRA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "31610337402",
-    gender: "male"
+    telephone: '31610337402',
+    gender: 'male',
   },
   {
-    id: "54",
-    nom: "Patrick SOUSA",
-    congregation: "À définir",
+    id: '54',
+    nom: 'Patrick SOUSA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "31640081710",
-    gender: "male"
+    telephone: '31640081710',
+    gender: 'male',
   },
   {
-    id: "55",
-    nom: "Franck BHAGOOA",
-    congregation: "À définir",
+    id: '55',
+    nom: 'Franck BHAGOOA',
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33782551793",
-    gender: "male"
+    telephone: '33782551793',
+    gender: 'male',
   },
   {
-    id: "56",
+    id: '56',
     nom: "Van'dredi DOMINGOS",
-    congregation: "À définir",
+    congregation: 'À définir',
     talkHistory: [],
-    telephone: "33769111390",
-    gender: "male"
+    telephone: '33769111390',
+    gender: 'male',
   },
   {
-    id: "62",
-    nom: "STREAM",
-    congregation: "À définir",
+    id: '62',
+    nom: 'STREAM',
+    congregation: 'À définir',
     talkHistory: [
       {
-        visitId: "visit-62-2025-09-13",
-        date: "2025-09-13",
-        talkNo: "43",
-        talkTheme: "Kel ki Deus ta fla sénpri é midjór pa nos",
-        locationType: "streaming"
+        visitId: 'visit-62-2025-09-13',
+        date: '2025-09-13',
+        talkNo: '43',
+        talkTheme: 'Kel ki Deus ta fla sénpri é midjór pa nos',
+        locationType: 'streaming',
       },
       {
-        visitId: "visit-62-2025-10-11",
-        date: "2025-10-11",
-        talkNo: "5",
-        talkTheme: "Kuzê ki ta djuda bu família ser filís?",
-        locationType: "streaming"
-      }
+        visitId: 'visit-62-2025-10-11',
+        date: '2025-10-11',
+        talkNo: '5',
+        talkTheme: 'Kuzê ki ta djuda bu família ser filís?',
+        locationType: 'streaming',
+      },
     ],
-    telephone: "",
-    gender: "male"
+    telephone: '',
+    gender: 'male',
   },
   {
-    id: "63",
-    nom: "Rémy CAPELA",
-    congregation: "À définir",
+    id: '63',
+    nom: 'Rémy CAPELA',
+    congregation: 'À définir',
     talkHistory: [
       {
-        visitId: "visit-63-2023-12-18",
-        date: "2023-12-18",
-        talkNo: "26",
-        talkTheme: "Abo é inportanti pa Deus?",
-        locationType: "physical"
-      }
+        visitId: 'visit-63-2023-12-18',
+        date: '2023-12-18',
+        talkNo: '26',
+        talkTheme: 'Abo é inportanti pa Deus?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "",
-    gender: "male"
+    telephone: '',
+    gender: 'male',
   },
   {
-    id: "64",
-    nom: "JP BAPTISTA",
-    congregation: "À définir",
+    id: '64',
+    nom: 'JP BAPTISTA',
+    congregation: 'À définir',
     talkHistory: [
       {
-        visitId: "visit-64-2026-05-09",
-        date: "2026-05-09",
-        talkNo: "61",
-        talkTheme: "Na promésas di kenha ki bu ta kunfia?",
-        locationType: "physical"
-      }
+        visitId: 'visit-64-2026-05-09',
+        date: '2026-05-09',
+        talkNo: '61',
+        talkTheme: 'Na promésas di kenha ki bu ta kunfia?',
+        locationType: 'physical',
+      },
     ],
-    telephone: "",
-    gender: "male"
+    telephone: '',
+    gender: 'male',
   },
   {
-    id: "65",
-    nom: "Octávio PEREIRA",
-    congregation: "À définir",
+    id: '65',
+    nom: 'Octávio PEREIRA',
+    congregation: 'À définir',
     talkHistory: [
       {
-        visitId: "visit-65-2026-04-25",
-        date: "2026-04-25",
-        talkNo: "186",
-        talkTheme: "Faze vontadi di Deus djuntu ku se povu filís",
-        locationType: "physical"
-      }
+        visitId: 'visit-65-2026-04-25',
+        date: '2026-04-25',
+        talkNo: '186',
+        talkTheme: 'Faze vontadi di Deus djuntu ku se povu filís',
+        locationType: 'physical',
+      },
     ],
-    telephone: "",
-    gender: "male"
-  }
+    telephone: '',
+    gender: 'male',
+  },
 ];
 
 export const initialHosts: Host[] = [
-  { "nom": "Jean-Paul Batista", "telephone": "", "gender": "male", "address": "182 Avenue Felix Faure, 69003", "notes": "Logement en centre-ville, idéal pour orateur sans voiture. Pas d'animaux.", "unavailableDates": [], "tags": ["centre-ville", "sans-animaux"] },
-  { "nom": "Suzy", "telephone": "", "gender": "female", "address": "14 bis Montée des Roches, 69009", "unavailableDates": [], "tags": ["calme"] },
-  { "nom": "Alexis", "telephone": "", "gender": "male", "address": "13 Avenue Debrousse, 69005", "unavailableDates": [] },
-  { "nom": "Andréa", "telephone": "", "gender": "female", "address": "25c Rue Georges Courteline, Villeurbanne", "unavailableDates": [] },
-  { "nom": "Dara & Lia", "telephone": "", "gender": "couple", "address": "16 Rue Imbert Colomes, 69001", "unavailableDates": [], "tags": ["proche salle", "escaliers"] },
-  { "nom": "José Freitas", "telephone": "", "gender": "male", "address": "27 Av Maréchal Foch, 69110", "notes": "Possède un chat. Idéal pour un orateur seul.", "unavailableDates": [], "tags": ["animaux", "chat"] },
-  { "nom": "Paulo Martins", "telephone": "", "gender": "male", "address": "18 Rue des Soeurs Bouviers, 69005", "unavailableDates": [], "tags": ["escaliers"] },
-  { "nom": "Fátima", "telephone": "", "gender": "female", "address": "9 Chemin de la Vire, Caluire", "unavailableDates": [] },
-  { "nom": "Sanches", "telephone": "", "gender": "male", "address": "132 Av. L'Aqueduc de Beaunant, 69110 Ste Foy", "unavailableDates": [], "tags": ["sans escaliers"] },
-  { "nom": "Torres", "telephone": "", "gender": "male", "address": "15 Cours Rouget de l'Isle, Rillieux", "notes": "Famille avec jeunes enfants, très accueillants.", "unavailableDates": [], "tags": ["enfants"] },
-  { "nom": "Nathalie", "telephone": "", "gender": "female", "address": "86 Rue Pierre Delore, 69008", "unavailableDates": [] },
-  { "nom": "Francisco Pinto", "telephone": "", "gender": "male", "address": "20 Rue Professeur Patel, 69009", "unavailableDates": [] }
+  {
+    nom: 'Jean-Paul Batista',
+    telephone: '',
+    gender: 'male',
+    address: '182 Avenue Felix Faure, 69003',
+    notes: "Logement en centre-ville, idéal pour orateur sans voiture. Pas d'animaux.",
+    unavailableDates: [],
+    tags: ['centre-ville', 'sans-animaux'],
+  },
+  {
+    nom: 'Suzy',
+    telephone: '',
+    gender: 'female',
+    address: '14 bis Montée des Roches, 69009',
+    unavailableDates: [],
+    tags: ['calme'],
+  },
+  {
+    nom: 'Alexis',
+    telephone: '',
+    gender: 'male',
+    address: '13 Avenue Debrousse, 69005',
+    unavailableDates: [],
+  },
+  {
+    nom: 'Andréa',
+    telephone: '',
+    gender: 'female',
+    address: '25c Rue Georges Courteline, Villeurbanne',
+    unavailableDates: [],
+  },
+  {
+    nom: 'Dara & Lia',
+    telephone: '',
+    gender: 'couple',
+    address: '16 Rue Imbert Colomes, 69001',
+    unavailableDates: [],
+    tags: ['proche salle', 'escaliers'],
+  },
+  {
+    nom: 'José Freitas',
+    telephone: '',
+    gender: 'male',
+    address: '27 Av Maréchal Foch, 69110',
+    notes: 'Possède un chat. Idéal pour un orateur seul.',
+    unavailableDates: [],
+    tags: ['animaux', 'chat'],
+  },
+  {
+    nom: 'Paulo Martins',
+    telephone: '',
+    gender: 'male',
+    address: '18 Rue des Soeurs Bouviers, 69005',
+    unavailableDates: [],
+    tags: ['escaliers'],
+  },
+  {
+    nom: 'Fátima',
+    telephone: '',
+    gender: 'female',
+    address: '9 Chemin de la Vire, Caluire',
+    unavailableDates: [],
+  },
+  {
+    nom: 'Sanches',
+    telephone: '',
+    gender: 'male',
+    address: "132 Av. L'Aqueduc de Beaunant, 69110 Ste Foy",
+    unavailableDates: [],
+    tags: ['sans escaliers'],
+  },
+  {
+    nom: 'Torres',
+    telephone: '',
+    gender: 'male',
+    address: "15 Cours Rouget de l'Isle, Rillieux",
+    notes: 'Famille avec jeunes enfants, très accueillants.',
+    unavailableDates: [],
+    tags: ['enfants'],
+  },
+  {
+    nom: 'Nathalie',
+    telephone: '',
+    gender: 'female',
+    address: '86 Rue Pierre Delore, 69008',
+    unavailableDates: [],
+  },
+  {
+    nom: 'Francisco Pinto',
+    telephone: '',
+    gender: 'male',
+    address: '20 Rue Professeur Patel, 69009',
+    unavailableDates: [],
+  },
 ];
 
 export const initialPublicTalks: PublicTalk[] = [
   { number: 1, theme: 'Bu konxe Deus dretu?', language: 'cv' },
   { number: 2, theme: 'Bu ta skara na ténpu di fin?', language: 'cv' },
-  { number: 3, theme: 'Bu sta ta anda ku organizason unidu di Jeová?', language: 'cv' }
+  { number: 3, theme: 'Bu sta ta anda ku organizason unidu di Jeová?', language: 'cv' },
 ];
 
 export const initialData = {

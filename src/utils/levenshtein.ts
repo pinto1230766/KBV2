@@ -22,8 +22,8 @@ export function levenshteinDistance(s1: string, s2: string): number {
     for (let j = 1; j <= len2; j++) {
       const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
       matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,      // Suppression
-        matrix[i][j - 1] + 1,      // Insertion
+        matrix[i - 1][j] + 1, // Suppression
+        matrix[i][j - 1] + 1, // Insertion
         matrix[i - 1][j - 1] + cost // Substitution
       );
     }
@@ -39,10 +39,10 @@ export function levenshteinDistance(s1: string, s2: string): number {
 export function calculateSimilarity(s1: string, s2: string): number {
   if (s1 === s2) return 1;
   if (!s1 || !s2) return 0;
-  
+
   const maxLength = Math.max(s1.length, s2.length);
   if (maxLength === 0) return 1;
-  
+
   const distance = levenshteinDistance(s1.toLowerCase(), s2.toLowerCase());
-  return 1 - (distance / maxLength);
+  return 1 - distance / maxLength;
 }

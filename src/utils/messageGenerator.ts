@@ -1,5 +1,17 @@
-import { Visit, Speaker, Host, Language, MessageType, MessageRole, CongregationProfile } from '@/types';
-import { messageTemplates, hostRequestMessageTemplates, adaptMessageGender } from '@/data/messageTemplates';
+import {
+  Visit,
+  Speaker,
+  Host,
+  Language,
+  MessageType,
+  MessageRole,
+  CongregationProfile,
+} from '@/types';
+import {
+  messageTemplates,
+  hostRequestMessageTemplates,
+  adaptMessageGender,
+} from '@/data/messageTemplates';
 import { formatFullDate } from './formatters';
 
 // ============================================================================
@@ -67,7 +79,10 @@ function replaceVariables(
 
   // Variables de la congrégation
   message = message.replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer);
-  message = message.replace(/{hospitalityOverseerPhone}/g, congregationProfile.hospitalityOverseerPhone);
+  message = message.replace(
+    /{hospitalityOverseerPhone}/g,
+    congregationProfile.hospitalityOverseerPhone
+  );
   message = message.replace(/{congregationName}/g, congregationProfile.name);
 
   // Introduction pour premier contact
@@ -121,7 +136,10 @@ export function generateHostRequestMessage(
   let message = template;
   message = message.replace(/{visitsList}/g, visitsList);
   message = message.replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer);
-  message = message.replace(/{hospitalityOverseerPhone}/g, congregationProfile.hospitalityOverseerPhone);
+  message = message.replace(
+    /{hospitalityOverseerPhone}/g,
+    congregationProfile.hospitalityOverseerPhone
+  );
 
   return message;
 }
@@ -164,10 +182,10 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     textarea.style.left = '-9999px';
     document.body.appendChild(textarea);
     textarea.select();
-    
+
     const success = document.execCommand('copy');
     document.body.removeChild(textarea);
-    
+
     return success;
   } catch (error) {
     console.error('Error copying to clipboard:', error);
@@ -219,7 +237,8 @@ export async function generateWithAI(
 
     // Définir les prompts selon l'action
     const prompts = {
-      rewrite: 'Réécris ce message de manière plus claire et professionnelle tout en gardant le sens:',
+      rewrite:
+        'Réécris ce message de manière plus claire et professionnelle tout en gardant le sens:',
       shorten: 'Raccourcis ce message en gardant uniquement les informations essentielles:',
       expand: 'Développe ce message en ajoutant plus de détails et de chaleur:',
       formal: 'Réécris ce message avec un ton plus formel et respectueux:',

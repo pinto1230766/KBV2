@@ -11,7 +11,7 @@ interface CommunicationProgressProps {
 export const CommunicationProgress: React.FC<CommunicationProgressProps> = ({
   visit,
   showLabels = false,
-  size = 'md'
+  size = 'md',
 }) => {
   // Définir les étapes de communication
   const steps = [
@@ -19,12 +19,13 @@ export const CommunicationProgress: React.FC<CommunicationProgressProps> = ({
     { key: 'preparation', label: 'Préparation', role: 'speaker' },
     { key: 'reminder-7', label: 'Rappel J-7', role: 'speaker' },
     { key: 'reminder-2', label: 'Rappel J-2', role: 'speaker' },
-    { key: 'thanks', label: 'Remerciements', role: 'speaker' }
+    { key: 'thanks', label: 'Remerciements', role: 'speaker' },
   ];
 
   // Calculer le nombre d'étapes complétées
-  const completedSteps = steps.filter(step => {
-    const stepData = visit.communicationStatus?.[step.key as keyof typeof visit.communicationStatus];
+  const completedSteps = steps.filter((step) => {
+    const stepData =
+      visit.communicationStatus?.[step.key as keyof typeof visit.communicationStatus];
     return stepData && (stepData as any)[step.role];
   });
 
@@ -33,7 +34,7 @@ export const CommunicationProgress: React.FC<CommunicationProgressProps> = ({
   const progress = Math.round((completedCount / totalSteps) * 100);
 
   const iconSize = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4';
-  
+
   // Classes Tailwind pour les différentes largeurs de progression
   const getProgressWidthClass = (progress: number) => {
     if (progress === 0) return 'w-0';
@@ -51,41 +52,43 @@ export const CommunicationProgress: React.FC<CommunicationProgressProps> = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className='space-y-2'>
       {/* Barre de progression */}
-      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-        <div 
+      <div className='w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden'>
+        <div
           className={`bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500 ease-out ${getProgressWidthClass(progress)}`}
         />
       </div>
 
       {/* Texte de progression */}
-      <div className="flex items-center justify-between">
+      <div className='flex items-center justify-between'>
         <p className={`text-gray-600 dark:text-gray-400 ${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
           {completedCount}/{totalSteps} étapes
         </p>
-        <span className={`font-medium ${
-          progress === 100 
-            ? 'text-green-600 dark:text-green-400' 
-            : progress > 50 
-            ? 'text-blue-600 dark:text-blue-400' 
-            : 'text-gray-500 dark:text-gray-400'
-        } ${size === 'sm' ? 'text-xs' : 'text-sm'}`}>
+        <span
+          className={`font-medium ${
+            progress === 100
+              ? 'text-green-600 dark:text-green-400'
+              : progress > 50
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-gray-500 dark:text-gray-400'
+          } ${size === 'sm' ? 'text-xs' : 'text-sm'}`}
+        >
           {Math.round(progress)}%
         </span>
       </div>
 
       {/* Liste détaillée des étapes (optionnel) */}
       {showLabels && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className='mt-3 grid grid-cols-2 gap-2'>
           {steps.map((step) => {
-            const isCompleted = completedSteps.some(s => s.key === step.key);
+            const isCompleted = completedSteps.some((s) => s.key === step.key);
             return (
-              <div 
+              <div
                 key={step.key}
                 className={`flex items-center gap-2 text-xs ${
-                  isCompleted 
-                    ? 'text-green-600 dark:text-green-400' 
+                  isCompleted
+                    ? 'text-green-600 dark:text-green-400'
                     : 'text-gray-400 dark:text-gray-600'
                 }`}
               >

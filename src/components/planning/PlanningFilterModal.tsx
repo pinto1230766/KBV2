@@ -56,7 +56,7 @@ export const PlanningFilterModal: React.FC<PlanningFilterModalProps> = ({
     setTypeFilter(localTypeFilter);
     onClose();
   };
-  
+
   const handleCancel = () => {
     onClose();
   };
@@ -68,21 +68,21 @@ export const PlanningFilterModal: React.FC<PlanningFilterModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Filtres avancés">
-      <div className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title='Filtres avancés'>
+      <div className='space-y-6'>
         {/* Statut */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
             Statut
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className='flex flex-wrap gap-2'>
             {[
               { value: 'all', label: 'Tous' },
               { value: 'pending', label: 'En attente' },
               { value: 'confirmed', label: 'Confirmé' },
               { value: 'completed', label: 'Terminé' },
-              { value: 'cancelled', label: 'Annulé' }
-            ].map(option => (
+              { value: 'cancelled', label: 'Annulé' },
+            ].map((option) => (
               <button
                 key={option.value}
                 onClick={() => setLocalStatusFilter(option.value as VisitStatus | 'all')}
@@ -100,16 +100,16 @@ export const PlanningFilterModal: React.FC<PlanningFilterModalProps> = ({
 
         {/* Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
             Type de visite
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className='flex flex-wrap gap-2'>
             {[
               { value: 'all', label: 'Tous' },
               { value: 'physical', label: 'Physique' },
               { value: 'zoom', label: 'Zoom' },
-              { value: 'streaming', label: 'Streaming' }
-            ].map(option => (
+              { value: 'streaming', label: 'Streaming' },
+            ].map((option) => (
               <button
                 key={option.value}
                 onClick={() => setLocalTypeFilter(option.value as LocationType | 'all')}
@@ -127,28 +127,36 @@ export const PlanningFilterModal: React.FC<PlanningFilterModalProps> = ({
 
         {/* Plage de dates */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
             Plage de dates
           </label>
-          <div className="flex items-center space-x-2">
+          <div className='flex items-center space-x-2'>
             <DatePicker
               value={dateToString(localDateRange.start)}
-              onChange={(dateStr) => setLocalDateRange(prev => ({...prev, start: stringToDate(dateStr)}))}
-              placeholder="Date de début"
+              onChange={(dateStr) =>
+                setLocalDateRange((prev) => ({ ...prev, start: stringToDate(dateStr) }))
+              }
+              placeholder='Date de début'
             />
-            <span className="text-gray-500">-</span>
+            <span className='text-gray-500'>-</span>
             <DatePicker
               value={dateToString(localDateRange.end)}
-              onChange={(dateStr) => setLocalDateRange(prev => ({...prev, end: stringToDate(dateStr)}))}
-              placeholder="Date de fin"
+              onChange={(dateStr) =>
+                setLocalDateRange((prev) => ({ ...prev, end: stringToDate(dateStr) }))
+              }
+              placeholder='Date de fin'
               min={dateToString(localDateRange.start)}
             />
           </div>
         </div>
       </div>
-      <div className="mt-8 flex justify-end space-x-3">
-        <Button variant="ghost" onClick={handleClear}>Réinitialiser</Button>
-        <Button variant="ghost" onClick={handleCancel}>Annuler</Button>
+      <div className='mt-8 flex justify-end space-x-3'>
+        <Button variant='ghost' onClick={handleClear}>
+          Réinitialiser
+        </Button>
+        <Button variant='ghost' onClick={handleCancel}>
+          Annuler
+        </Button>
         <Button onClick={handleApply}>Appliquer les filtres</Button>
       </div>
     </Modal>

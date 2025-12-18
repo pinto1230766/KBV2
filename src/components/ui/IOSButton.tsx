@@ -74,9 +74,9 @@ export const IOSButton: React.FC<IOSButtonProps> = ({
       disabled={disabled}
       {...props}
     >
-      {leftIcon && <span className="mr-2">{leftIcon}</span>}
+      {leftIcon && <span className='mr-2'>{leftIcon}</span>}
       {children}
-      {rightIcon && <span className="ml-2">{rightIcon}</span>}
+      {rightIcon && <span className='ml-2'>{rightIcon}</span>}
     </button>
   );
 };

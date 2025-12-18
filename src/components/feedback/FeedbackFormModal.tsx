@@ -32,15 +32,15 @@ const IMPROVEMENT_AREAS = [
   'Gestion du temps',
   'Utilisation des Écritures',
   'Applications pratiques',
-  'Interaction avec l\'auditoire',
-  'Clarté de l\'expression',
+  "Interaction avec l'auditoire",
+  "Clarté de l'expression",
 ];
 
 export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
   isOpen,
   onClose,
   visit,
-  onSubmit
+  onSubmit,
 }) => {
   const [speakerRating, setSpeakerRating] = useState(0);
   const [hostRating, setHostRating] = useState(0);
@@ -57,17 +57,15 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
   };
 
   const handleCategoryRating = (categoryId: string, rating: number) => {
-    setCategoryRatings(prev => ({
+    setCategoryRatings((prev) => ({
       ...prev,
-      [categoryId]: rating
+      [categoryId]: rating,
     }));
   };
 
   const toggleImprovement = (area: string) => {
-    setSelectedImprovements(prev =>
-      prev.includes(area)
-        ? prev.filter(a => a !== area)
-        : [...prev, area]
+    setSelectedImprovements((prev) =>
+      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
     );
   };
 
@@ -82,34 +80,32 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
       areasForImprovement: selectedImprovements.length > 0 ? selectedImprovements : undefined,
       isPrivate,
       submittedBy: 'Coordinateur', // À remplacer par l'utilisateur connecté
-      submittedAt: new Date().toISOString()
+      submittedAt: new Date().toISOString(),
     };
 
     onSubmit(feedback);
     onClose();
   };
 
-  const StarRating = ({ 
-    rating, 
-    onRate, 
-    label 
-  }: { 
-    rating: number; 
-    onRate: (rating: number) => void; 
+  const StarRating = ({
+    rating,
+    onRate,
+    label,
+  }: {
+    rating: number;
+    onRate: (rating: number) => void;
     label: string;
   }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label}
-      </label>
-      <div className="flex gap-2">
+    <div className='space-y-2'>
+      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>{label}</label>
+      <div className='flex gap-2'>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
-            type="button"
+            type='button'
             onClick={() => onRate(star)}
             aria-label={`Noter ${star} étoile${star > 1 ? 's' : ''}`}
-            className="focus:outline-none transition-transform hover:scale-110"
+            className='focus:outline-none transition-transform hover:scale-110'
           >
             <Star
               className={`w-8 h-8 ${
@@ -121,7 +117,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
           </button>
         ))}
         {rating > 0 && (
-          <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 self-center">
+          <span className='ml-2 text-sm text-gray-600 dark:text-gray-400 self-center'>
             {rating}/5
           </span>
         )}
@@ -130,34 +126,27 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
   );
 
   const getOverallRating = () => {
-    const ratings = [speakerRating, hostRating, organizationRating].filter(r => r > 0);
+    const ratings = [speakerRating, hostRating, organizationRating].filter((r) => r > 0);
     if (ratings.length === 0) return 0;
     return (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Évaluation de la visite"
-      size="lg"
-    >
-      <div className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title='Évaluation de la visite' size='lg'>
+      <div className='space-y-6'>
         {/* En-tête de la visite */}
-        <div className="p-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-lg">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-            {visit.nom}
-          </h4>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+        <div className='p-4 bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-lg'>
+          <h4 className='font-semibold text-gray-900 dark:text-white mb-1'>{visit.nom}</h4>
+          <p className='text-sm text-gray-600 dark:text-gray-400'>
             {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
               weekday: 'long',
               day: 'numeric',
               month: 'long',
-              year: 'numeric'
+              year: 'numeric',
             })}
           </p>
           {visit.talkTheme && (
-            <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+            <p className='text-sm text-gray-700 dark:text-gray-300 mt-2'>
               <strong>Discours :</strong> {visit.talkNoOrType} - {visit.talkTheme}
             </p>
           )}
@@ -165,19 +154,19 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
 
         {/* Note globale */}
         {speakerRating > 0 && (
-          <div className="flex items-center justify-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-yellow-600">{getOverallRating()}</div>
-              <div className="text-sm text-yellow-800 dark:text-yellow-300">Note globale</div>
+          <div className='flex items-center justify-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg'>
+            <div className='text-center'>
+              <div className='text-4xl font-bold text-yellow-600'>{getOverallRating()}</div>
+              <div className='text-sm text-yellow-800 dark:text-yellow-300'>Note globale</div>
             </div>
           </div>
         )}
 
         {/* Évaluation de l'orateur */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-            <Star className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className='space-y-4'>
+          <div className='flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700'>
+            <Star className='w-5 h-5 text-primary-600' />
+            <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
               Évaluation de l'orateur
             </h3>
           </div>
@@ -189,26 +178,27 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
           />
 
           {/* Évaluation par catégorie */}
-          <div className="space-y-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className='space-y-3'>
+            <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
               Évaluation détaillée (optionnel)
             </label>
             {FEEDBACK_CATEGORIES.map((category) => (
-              <div key={category.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{category.icon}</span>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {category.label}
-                  </span>
+              <div
+                key={category.id}
+                className='flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg'
+              >
+                <div className='flex items-center gap-2'>
+                  <span className='text-xl'>{category.icon}</span>
+                  <span className='text-sm text-gray-700 dark:text-gray-300'>{category.label}</span>
                 </div>
-                <div className="flex gap-1">
+                <div className='flex gap-1'>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
-                      type="button"
+                      type='button'
                       onClick={() => handleCategoryRating(category.id, star)}
                       aria-label={`${category.label}: ${star} étoile${star > 1 ? 's' : ''}`}
-                      className="focus:outline-none"
+                      className='focus:outline-none'
                     >
                       <Star
                         className={`w-5 h-5 ${
@@ -226,15 +216,15 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
         </div>
 
         {/* Axes d'amélioration */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className='space-y-3'>
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
             Axes d'amélioration suggérés (optionnel)
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className='grid grid-cols-2 gap-2'>
             {IMPROVEMENT_AREAS.map((area) => (
               <button
                 key={area}
-                type="button"
+                type='button'
                 onClick={() => toggleImprovement(area)}
                 className={`p-2 text-sm rounded-lg border-2 transition-all ${
                   selectedImprovements.includes(area)
@@ -249,10 +239,10 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
         </div>
 
         {/* Évaluation de l'hôte */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-            <ThumbsUp className="w-5 h-5 text-green-600" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className='space-y-4'>
+          <div className='flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700'>
+            <ThumbsUp className='w-5 h-5 text-green-600' />
+            <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
               Évaluation de l'accueil
             </h3>
           </div>
@@ -265,10 +255,10 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
         </div>
 
         {/* Évaluation de l'organisation */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-            <MessageSquare className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className='space-y-4'>
+          <div className='flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700'>
+            <MessageSquare className='w-5 h-5 text-blue-600' />
+            <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
               Évaluation de l'organisation
             </h3>
           </div>
@@ -276,39 +266,40 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
           <StarRating
             rating={organizationRating}
             onRate={(rating) => handleStarClick(rating, 'organization')}
-            label="Organisation générale (optionnel)"
+            label='Organisation générale (optionnel)'
           />
         </div>
 
         {/* Commentaires */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
             Commentaires détaillés
           </label>
           <textarea
             value={comments}
             onChange={(e) => setComments(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             rows={4}
             placeholder="Partagez vos impressions, points forts, suggestions d'amélioration..."
           />
         </div>
 
         {/* Options de confidentialité */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <label className="flex items-start gap-3 cursor-pointer">
+        <div className='p-4 bg-gray-50 dark:bg-gray-800 rounded-lg'>
+          <label className='flex items-start gap-3 cursor-pointer'>
             <input
-              type="checkbox"
+              type='checkbox'
               checked={isPrivate}
               onChange={(e) => setIsPrivate(e.target.checked)}
-              className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+              className='mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500'
             />
             <div>
-              <span className="font-medium text-gray-900 dark:text-white">
+              <span className='font-medium text-gray-900 dark:text-white'>
                 Évaluation confidentielle
               </span>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Cette évaluation sera visible uniquement par les coordinateurs et ne sera pas partagée avec l'orateur
+              <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>
+                Cette évaluation sera visible uniquement par les coordinateurs et ne sera pas
+                partagée avec l'orateur
               </p>
             </div>
           </label>
@@ -316,14 +307,14 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
 
         {/* Résumé */}
         {speakerRating > 0 && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900 dark:text-blue-200">
+          <div className='p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+            <div className='flex items-center gap-2 mb-2'>
+              <MessageSquare className='w-4 h-4 text-blue-600' />
+              <span className='text-sm font-medium text-blue-900 dark:text-blue-200'>
                 Résumé de l'évaluation
               </span>
             </div>
-            <div className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+            <div className='text-sm text-blue-800 dark:text-blue-300 space-y-1'>
               <p>• Note orateur : {speakerRating}/5</p>
               {hostRating > 0 && <p>• Note accueil : {hostRating}/5</p>}
               {organizationRating > 0 && <p>• Note organisation : {organizationRating}/5</p>}
@@ -336,16 +327,12 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
         )}
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button variant="secondary" onClick={onClose}>
+        <div className='flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700'>
+          <Button variant='secondary' onClick={onClose}>
             Annuler
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleSubmit}
-            disabled={speakerRating === 0}
-          >
-            <Save className="w-4 h-4 mr-2" />
+          <Button variant='primary' onClick={handleSubmit} disabled={speakerRating === 0}>
+            <Save className='w-4 h-4 mr-2' />
             Enregistrer l'évaluation
           </Button>
         </div>

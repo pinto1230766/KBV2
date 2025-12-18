@@ -21,15 +21,18 @@ export const Input: React.FC<InputProps> = ({
   const inputId = id || props.name || Math.random().toString(36).substr(2, 9);
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label
+          htmlFor={inputId}
+          className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+        >
           {label}
         </label>
       )}
-      <div className="relative">
+      <div className='relative'>
         {leftIcon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+          <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400'>
             {leftIcon}
           </div>
         )}
@@ -41,9 +44,10 @@ export const Input: React.FC<InputProps> = ({
             disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed
             ${leftIcon ? 'pl-10' : 'pl-4'}
             ${rightIcon ? 'pr-10' : 'pr-4'}
-            ${error 
-              ? 'border-danger-500 focus:ring-danger-500' 
-              : 'border-gray-300 dark:border-gray-600'
+            ${
+              error
+                ? 'border-danger-500 focus:ring-danger-500'
+                : 'border-gray-300 dark:border-gray-600'
             }
             ${className}
             py-2
@@ -51,13 +55,15 @@ export const Input: React.FC<InputProps> = ({
           {...props}
         />
         {rightIcon && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 z-10">
+          <div className='absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 z-10'>
             {rightIcon}
           </div>
         )}
       </div>
-      {error && <p className="mt-1 text-sm text-danger-600 dark:text-danger-400">{error}</p>}
-      {helperText && !error && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>}
+      {error && <p className='mt-1 text-sm text-danger-600 dark:text-danger-400'>{error}</p>}
+      {helperText && !error && (
+        <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>{helperText}</p>
+      )}
     </div>
   );
 };

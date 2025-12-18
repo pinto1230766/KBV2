@@ -28,11 +28,7 @@ interface PlatformProviderProps {
 export const PlatformProvider: React.FC<PlatformProviderProps> = ({ children }) => {
   const platformInfo = usePlatform();
 
-  return (
-    <PlatformContext.Provider value={platformInfo}>
-      {children}
-    </PlatformContext.Provider>
-  );
+  return <PlatformContext.Provider value={platformInfo}>{children}</PlatformContext.Provider>;
 };
 
 export const usePlatformContext = () => {

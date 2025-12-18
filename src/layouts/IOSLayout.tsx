@@ -19,22 +19,20 @@ export const IOSLayout: React.FC<IOSLayoutProps> = ({
   rightButton,
   onBack,
 }) => (
-    <div className="flex flex-col h-full bg-ios-system-background dark:bg-ios-system-background">
-      {/* Navigation Bar */}
-      <IOSNavBar
-        title={title}
-        largeTitle={largeTitle}
-        showBackButton={showBackButton}
-        rightButton={rightButton}
-        onBack={onBack}
-      />
+  <div className='flex flex-col h-full bg-ios-system-background dark:bg-ios-system-background'>
+    {/* Navigation Bar */}
+    <IOSNavBar
+      title={title}
+      largeTitle={largeTitle}
+      showBackButton={showBackButton}
+      rightButton={rightButton}
+      onBack={onBack}
+    />
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto pb-[83px]">
-        {children}
-      </div>
+    {/* Content */}
+    <div className='flex-1 overflow-y-auto pb-[83px]'>{children}</div>
 
-      {/* Tab Bar */}
-      <IOSTabBar />
-    </div>
-  );
+    {/* Tab Bar */}
+    <IOSTabBar />
+  </div>
+);

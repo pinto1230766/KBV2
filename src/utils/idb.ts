@@ -150,7 +150,7 @@ export async function migrateFromLocalStorage(): Promise<void> {
   try {
     // Vérifier si des données existent dans localStorage
     const localStorageKeys = ['kbv-app-data', 'kbv-settings'];
-    
+
     for (const key of localStorageKeys) {
       const data = localStorage.getItem(key);
       if (data) {

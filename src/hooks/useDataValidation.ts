@@ -3,7 +3,10 @@ import { validateSpeaker, validateVisit, validateHost } from '@/utils/validation
 import { Speaker, Visit, Host } from '@/types';
 
 export function useDataValidation() {
-  const validateSpeakerData = useCallback((speaker: Partial<Speaker>) => validateSpeaker(speaker), []);
+  const validateSpeakerData = useCallback(
+    (speaker: Partial<Speaker>) => validateSpeaker(speaker),
+    []
+  );
 
   const validateVisitData = useCallback((visit: Partial<Visit>) => validateVisit(visit), []);
 
@@ -25,6 +28,6 @@ export function useDataValidation() {
     validateVisit: validateVisitData,
     validateHost: validateHostData,
     validateEmail,
-    validatePhone
+    validatePhone,
   };
 }

@@ -38,31 +38,44 @@ export function useSyncQueue() {
       payload,
       timestamp: Date.now(),
       status: 'pending',
-      retryCount: 0
+      retryCount: 0,
     };
-    
-    setQueue(prev => [...prev, newAction]);
+
+    setQueue((prev) => [...prev, newAction]);
     return newAction.id;
   }, []);
 
   const removeAction = useCallback((id: string) => {
-    setQueue(prev => prev.filter(action => action.id !== id));
+    setQueue((prev) => prev.filter((action) => action.id !== id));
   }, []);
 
-  const updateActionStatus = useCallback((id: string, status: SyncAction['status'], error?: string) => {
-    setQueue(prev => prev.map(action => 
-      action.id === id 
-        ? { ...action, status, error, retryCount: status === 'failed' ? action.retryCount + 1 : action.retryCount } 
-        : action
-    ));
-  }, []);
+  const updateActionStatus = useCallback(
+    (id: string, status: SyncAction['status'], error?: string) => {
+      setQueue((prev) =>
+        prev.map((action) =>
+          action.id === id
+            ? {
+                ...action,
+                status,
+                error,
+                retryCount: status === 'failed' ? action.retryCount + 1 : action.retryCount,
+              }
+            : action
+        )
+      );
+    },
+    []
+  );
 
   const clearQueue = useCallback(() => {
     setQueue([]);
     localStorage.removeItem(QUEUE_STORAGE_KEY);
   }, []);
 
-  const getPendingActions = useCallback(() => queue.filter(action => action.status === 'pending' || action.status === 'failed'), [queue]);
+  const getPendingActions = useCallback(
+    () => queue.filter((action) => action.status === 'pending' || action.status === 'failed'),
+    [queue]
+  );
 
   return {
     queue,
@@ -70,6 +83,6 @@ export function useSyncQueue() {
     removeAction,
     updateActionStatus,
     clearQueue,
-    getPendingActions
+    getPendingActions,
   };
 }

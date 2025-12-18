@@ -23,8 +23,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'charts': ['recharts'],
-          'utils': ['date-fns', 'idb'],
+          charts: ['recharts'],
+          utils: ['date-fns', 'idb'],
         },
       },
     },

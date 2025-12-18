@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
@@ -18,7 +15,7 @@ export default {
         'ios-red': '#FF3B30',
         'ios-teal': '#5AC8FA',
         'ios-yellow': '#FFCC00',
-        
+
         // Garder les couleurs existantes pour compatibilité
         primary: {
           50: '#eff6ff',
@@ -101,7 +98,7 @@ export default {
         'ios-lg': '0 4px 16px rgba(0, 0, 0, 0.12)',
         'ios-xl': '0 8px 24px rgba(0, 0, 0, 0.15)',
         // Garder pour compatibilité
-        'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+        card: '0 2px 8px rgba(0, 0, 0, 0.08)',
         'card-hover': '0 4px 16px rgba(0, 0, 0, 0.12)',
       },
       animation: {
@@ -127,4 +124,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

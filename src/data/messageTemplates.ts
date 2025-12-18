@@ -21,7 +21,7 @@ Merci beaucoup et à bientôt !
 Fraternellement,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
-      
+
       host: `Bonjour Frère *{hostName}*,
 
 J'espère que tu vas bien. 🏠
@@ -34,7 +34,7 @@ Fraternellement,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
     },
-    
+
     preparation: {
       speaker: `Bonjour Frère *{speakerName}*,
 
@@ -52,7 +52,7 @@ Au plaisir de te voir bientôt !
 
 Fraternellement,
 {hospitalityOverseer}`,
-      
+
       host: `Bonjour Frère *{hostName}*,
 
 Merci pour ta disponibilité ! 🙏
@@ -68,7 +68,7 @@ Merci de prendre contact avec lui pour coordonner l'accueil.
 Fraternellement,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-7': {
       speaker: `Bonjour Frère *{speakerName}*,
 
@@ -81,7 +81,7 @@ Bon voyage et à très bientôt !
 
 Fraternellement,
 {hospitalityOverseer}`,
-      
+
       host: `Bonjour Frère *{hostName}*,
 
 Petit rappel : tu accueilles *{speakerName}* dans *7 jours*, le *{visitDate}* ! 🏠
@@ -91,7 +91,7 @@ Merci pour ton hospitalité !
 Fraternellement,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-2': {
       speaker: `Bonjour Frère *{speakerName}*,
 
@@ -105,7 +105,7 @@ Bon voyage et à très vite !
 Fraternellement,
 {hospitalityOverseer}`,
     },
-    
+
     thanks: {
       speaker: `Bonjour Frère *{speakerName}*,
 
@@ -115,7 +115,7 @@ Ce fut un réel plaisir de t'accueillir parmi nous. Nous espérons te revoir tr�
 
 Fraternellement,
 {hospitalityOverseer}`,
-      
+
       host: `Bonjour Frère *{hostName}*,
 
 Un grand merci pour ton hospitalité envers notre orateur invité, {speakerName} ! 🏠❤️
@@ -143,7 +143,7 @@ Obrigadu di more i te logu!
 Fraternalmenti,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
-      
+
       host: `Bon dia Mon *{hostName}*,
 
 N ta spera ma bu sta bon. 🏠
@@ -156,7 +156,7 @@ Fraternalmenti,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
     },
-    
+
     preparation: {
       speaker: `Bon dia Mon *{speakerName}*,
 
@@ -174,7 +174,7 @@ Te logu!
 
 Fraternalmenti,
 {hospitalityOverseer}`,
-      
+
       host: `Bon dia Mon *{hostName}*,
 
 Obrigadu pa bu dizponibilidadi! 🙏
@@ -190,7 +190,7 @@ Favor kontakta-l pa kordina akolhimentu.
 Fraternalmenti,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-7': {
       speaker: `Bon dia Mon *{speakerName}*,
 
@@ -203,7 +203,7 @@ Bon biaji i te logu!
 
 Fraternalmenti,
 {hospitalityOverseer}`,
-      
+
       host: `Bon dia Mon *{hostName}*,
 
 Limbrans a : bu ta akolhe *{speakerName}* dento di *7 dia*, dia *{visitDate}*! 🏠
@@ -213,7 +213,7 @@ Obrigadu pa bu ospitalidadi!
 Fraternalmenti,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-2': {
       speaker: `Bon dia Mon *{speakerName}*,
 
@@ -227,7 +227,7 @@ Bon biaji i te ja!
 Fraternalmenti,
 {hospitalityOverseer}`,
     },
-    
+
     thanks: {
       speaker: `Bon dia Mon *{speakerName}*,
 
@@ -237,7 +237,7 @@ Foi un prazer riali di akolhe-u entre nu. Nu ta spera bo i-u logu!
 
 Fraternalmenti,
 {hospitalityOverseer}`,
-      
+
       host: `Bon dia Mon *{hostName}*,
 
 Un grandi obrigadu pa bu ospitalidadi pa ku nu orador kombidadu, {speakerName}! 🏠❤️
@@ -265,7 +265,7 @@ Muito obrigado e até breve!
 Fraternalmente,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
-      
+
       host: `Olá Irmão *{hostName}*,
 
 Espero que estejas bem. 🏠
@@ -278,7 +278,7 @@ Fraternalmente,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
     },
-    
+
     preparation: {
       speaker: `Olá Irmão *{speakerName}*,
 
@@ -296,7 +296,7 @@ Até breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
-      
+
       host: `Olá Irmão *{hostName}*,
 
 Obrigado pela tua disponibilidade! 🙏
@@ -312,7 +312,7 @@ Por favor, contacta-o para coordenar o acolhimento.
 Fraternalmente,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-7': {
       speaker: `Olá Irmão *{speakerName}*,
 
@@ -325,7 +325,7 @@ Boa viagem e até breve!
 
 Fraternalmente,
 {hospitalityOverseer}`,
-      
+
       host: `Olá Irmão *{hostName}*,
 
 Lembrete: irás acolher *{speakerName}* daqui a *7 dias*, no dia *{visitDate}*! 🏠
@@ -335,7 +335,7 @@ Obrigado pela tua hospitalidade!
 Fraternalmente,
 {hospitalityOverseer}`,
     },
-    
+
     'reminder-2': {
       speaker: `Olá Irmão *{speakerName}*,
 
@@ -349,7 +349,7 @@ Boa viagem e até muito breve!
 Fraternalmente,
 {hospitalityOverseer}`,
     },
-    
+
     thanks: {
       speaker: `Olá Irmão *{speakerName}*,
 
@@ -359,7 +359,7 @@ Foi um verdadeiro prazer receber-te entre nós. Esperamos ver-te novamente em br
 
 Fraternalmente,
 {hospitalityOverseer}`,
-      
+
       host: `Olá Irmão *{hostName}*,
 
 Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️

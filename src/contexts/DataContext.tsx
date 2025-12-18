@@ -1,5 +1,14 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { AppData, Speaker, Visit, Host, MessageType, MessageRole, Language, SyncAction } from '@/types';
+import {
+  AppData,
+  Speaker,
+  Visit,
+  Host,
+  MessageType,
+  MessageRole,
+  Language,
+  SyncAction,
+} from '@/types';
 import * as storage from '@/utils/storage';
 import { completeData } from '@/data/completeData';
 import { UNASSIGNED_HOST, NA_HOST } from '@/data/commonConstants';
@@ -15,32 +24,36 @@ interface DataContextValue extends AppData {
   addSpeaker: (speaker: Speaker) => void;
   updateSpeaker: (speaker: Speaker) => void;
   deleteSpeaker: (id: string) => void;
-  
+
   addVisit: (visit: Visit) => void;
   updateVisit: (visit: Visit) => void;
   deleteVisit: (visitId: string) => void;
   completeVisit: (visit: Visit) => void;
-  
+
   addHost: (host: Host) => void;
   updateHost: (name: string, data: Partial<Host>) => void;
   deleteHost: (name: string) => void;
-  
+
   logCommunication: (visitId: string, type: MessageType, role: MessageRole) => void;
   saveCustomTemplate: (lang: Language, type: MessageType, role: MessageRole, text: string) => void;
   updateCongregationProfile: (profile: any) => void;
-  
+
   exportData: () => string;
   importData: (json: string) => void;
   resetData: () => void;
   syncWithGoogleSheet: () => Promise<void>;
 
   refreshData: () => Promise<void>;
-  
+
   // Sync
   syncQueue: SyncAction[];
   isOnline: boolean;
   clearSyncQueue: () => void;
-  mergeDuplicates: (type: 'speaker' | 'host' | 'visit' | 'message', keepId: string, duplicateIds: string[]) => void;
+  mergeDuplicates: (
+    type: 'speaker' | 'host' | 'visit' | 'message',
+    keepId: string,
+    duplicateIds: string[]
+  ) => void;
 }
 
 const DataContext = createContext<DataContextValue | undefined>(undefined);
@@ -49,9 +62,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(completeData);
   const [loaded, setLoaded] = useState(false);
   const { addToast } = useToast();
-  
-  const { queue: syncQueue, addAction: addToSyncQueue, clearQueue: clearSyncQueue } = useSyncQueue();
-  // On utilise useOfflineMode simplement pour le statut online ici, 
+
+  const {
+    queue: syncQueue,
+    addAction: addToSyncQueue,
+    clearQueue: clearSyncQueue,
+  } = useSyncQueue();
+  // On utilise useOfflineMode simplement pour le statut online ici,
   // car le chargement de données est déjà géré par useEffect + idb ci-dessous
   const { isOnline } = useOfflineMode('app_state', async () => completeData);
 
@@ -61,38 +78,41 @@ export function DataProvider({ children }: { children: ReactNode }) {
       try {
         // Migration automatique si nécessaire
         await storage.migrateToCapacitor();
-        
+
         const saved = await storage.get<AppData>('kbv-app-data');
-        
+
         // SOLUTION: Toujours utiliser completeData comme base, puis fusionner avec les sauvegardes
         // Cela garantit que la tablette aura TOUTES les données complètes
-        const visitsWithTitles = (saved?.visits || []).map(visit => ({
+        const visitsWithTitles = (saved?.visits || []).map((visit) => ({
           ...visit,
-          talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+          talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType),
         }));
 
         // FORCE RELOAD: Si les données sauvegardées n'ont pas la nouvelle version ou sont vides,
         // utiliser uniquement completeData pour forcer le rechargement complet
-        const shouldForceReload = !saved?.dataVersion || saved.dataVersion < '1.2.1' ||
-                                  !saved.speakers || saved.speakers.length < 50;
+        const shouldForceReload =
+          !saved?.dataVersion ||
+          saved.dataVersion < '1.2.1' ||
+          !saved.speakers ||
+          saved.speakers.length < 50;
 
         let mergedData;
         if (shouldForceReload) {
           console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.2.1)');
           mergedData = {
             ...completeData,
-            dataVersion: '1.2.1' // Forcer la nouvelle version
+            dataVersion: '1.2.1', // Forcer la nouvelle version
           };
         } else {
           mergedData = {
             ...completeData, // BASE = Données complètes intégrées
-            ...saved,        // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
+            ...saved, // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
             visits: visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits,
             // Préserver les hôtes personnalisés mais ajouter ceux manquants
-            hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter((host, index, arr) =>
-              arr.findIndex(h => h.nom === host.nom) === index
+            hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter(
+              (host, index, arr) => arr.findIndex((h) => h.nom === host.nom) === index
             ),
-            dataVersion: '1.2.1' // Mettre à jour la version
+            dataVersion: '1.2.1', // Mettre à jour la version
           };
         }
 
@@ -107,7 +127,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setLoaded(true);
       }
     };
-    
+
     loadInitialData();
   }, []);
 
@@ -125,12 +145,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const updateSpeaker = (speaker: Speaker) => {
     setData((d) => {
       const updatedSpeakers = d.speakers.map((s) => (s.id === speaker.id ? speaker : s));
-      
+
       // Synchroniser les visites futures avec les nouvelles données de l'orateur
       const today = new Date();
       const updatedVisits = d.visits.map((visit) => {
         if (visit.id !== speaker.id) return visit;
-        
+
         const visitDate = new Date(visit.visitDate);
         // Synchroniser uniquement les visites futures
         if (visitDate >= today) {
@@ -139,17 +159,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
             nom: speaker.nom,
             congregation: speaker.congregation,
             telephone: speaker.telephone,
-            photoUrl: speaker.photoUrl
+            photoUrl: speaker.photoUrl,
           };
         }
-        
+
         return visit;
       });
-      
+
       return {
         ...d,
         speakers: updatedSpeakers,
-        visits: updatedVisits
+        visits: updatedVisits,
       };
     });
     addToSyncQueue('UPDATE_SPEAKER', speaker);
@@ -225,7 +245,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   // Templates
-  const saveCustomTemplate = (lang: Language, type: MessageType, role: MessageRole, text: string) => {
+  const saveCustomTemplate = (
+    lang: Language,
+    type: MessageType,
+    role: MessageRole,
+    text: string
+  ) => {
     setData((d) => ({
       ...d,
       customTemplates: {
@@ -248,8 +273,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       congregationProfile: { ...d.congregationProfile, ...profile },
     }));
   };
-
-
 
   const resetData = () => {
     setData(completeData);
@@ -285,7 +308,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         const parsedData = JSON.parse(jsonMatch[1]);
         if (parsedData.status === 'error') {
-          console.warn(`Error in sheet with gid "${gid}": ${parsedData.errors.map((e: any) => e.detailed_message).join(', ')}. Trying next one.`);
+          console.warn(
+            `Error in sheet with gid "${gid}": ${parsedData.errors.map((e: any) => e.detailed_message).join(', ')}. Trying next one.`
+          );
           continue;
         }
 
@@ -294,172 +319,235 @@ export function DataProvider({ children }: { children: ReactNode }) {
           if (!cols) cols = parsedData.table.cols;
           successfulGids.push(gid);
         }
-        } catch (error) {
-          console.error('Erreur lors du chargement des données:', error);
-          setData(completeData);
-        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        setData(completeData);
+      }
 
-    if (allRows.length === 0) {
-      setTimeout(() => addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'), 0);
-      return;
-    }
-
-    try {
-      const rows = allRows;
-
-      if (!rows || rows.length === 0) {
-        setTimeout(() => addToast('Aucune donnée trouvée dans les feuilles synchronisées.', 'warning'), 0);
+      if (allRows.length === 0) {
+        setTimeout(
+          () =>
+            addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'),
+          0
+        );
         return;
       }
 
-      const headers = cols.map((h: any) => h.label.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, ''));
-      const dateIndex = headers.findIndex((h: string) => h.includes('data'));
-      const speakerIndex = headers.findIndex((h: string) => h.includes('orador'));
-      const congIndex = headers.findIndex((h: string) => h.includes('kongregason'));
-      const talkNoIndex = headers.findIndex((h: string) => h === 'n' || h === 'no');
-      const themeIndex = headers.findIndex((h: string) => h.includes('tema'));
+      try {
+        const rows = allRows;
 
-      if ([dateIndex, speakerIndex, congIndex].some(i => i === -1)) {
-        setTimeout(() => addToast("En-têtes requis manquants: Data, Orador, Kongregason.", 'error'), 0);
-        return;
-      }
-
-      let addedCount = 0, updatedCount = 0, skippedCount = 0;
-      const addedVisitsDetails: string[] = [];
-      const updatedVisitsDetails: string[] = [];
-
-      setData(prev => {
-        const newSpeakers = [...prev.speakers];
-        const newVisits = [...prev.visits];
-        const speakerMap = new Map(newSpeakers.map(s => [s.nom.toLowerCase(), s]));
-
-        for (const row of rows) {
-          const cells = row.c;
-          const dateValue = cells[dateIndex]?.v;
-          let visitDateObj: Date | null = null;
-
-          if (typeof dateValue === 'string' && dateValue.startsWith('Date(')) {
-            const dateParts = dateValue.substring(5, dateValue.length - 1).split(',');
-            visitDateObj = new Date(Number(dateParts[0]), Number(dateParts[1]), Number(dateParts[2]));
-          } else if (typeof dateValue === 'string') {
-            visitDateObj = parseDate(dateValue);
-          }
-
-          const speakerName = cells[speakerIndex]?.v?.trim();
-          const congregation = cells[congIndex]?.v?.trim() || '';
-          
-          if (!visitDateObj || !speakerName) {
-            skippedCount++;
-            continue;
-          }
-
-          // Timezone-safe date formatting
-          const year = visitDateObj.getFullYear();
-          const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
-          const day = String(visitDateObj.getDate()).padStart(2, '0');
-          const formattedDate = `${year}-${month}-${day}`;
-          
-          const displayDate = visitDateObj.toLocaleDateString('fr-FR');
-
-          let speaker = speakerMap.get(speakerName.toLowerCase());
-          if (!speaker) {
-            speaker = { id: generateUUID(), nom: speakerName, congregation: congregation || 'À définir', talkHistory: [], gender: 'male' };
-            newSpeakers.push(speaker);
-            speakerMap.set(speakerName.toLowerCase(), speaker);
-          } else if (speaker.congregation !== congregation && congregation) {
-            // Update congregation if it differs
-            speaker.congregation = congregation;
-          }
-
-          const existingVisitIndex = newVisits.findIndex(v => v.visitDate === formattedDate);
-
-          const talkNoValue = talkNoIndex > -1 ? (cells[talkNoIndex]?.v !== null ? String(cells[talkNoIndex]?.v) : null) : null;
-          const themeValue = themeIndex > -1 ? (cells[themeIndex]?.v !== null ? String(cells[themeIndex]?.v) : null) : null;
-          // Si pas de titre dans le sheet, utiliser le titre par défaut
-          const finalTheme = themeValue || getTalkTitle(talkNoValue);
-
-          if (existingVisitIndex > -1) {
-            const existingVisit = newVisits[existingVisitIndex];
-            const updates: string[] = [];
-            
-            if (existingVisit.id !== speaker.id) {
-              existingVisit.id = speaker.id;
-              existingVisit.nom = speaker.nom;
-              existingVisit.telephone = speaker.telephone;
-              existingVisit.photoUrl = speaker.photoUrl;
-              updates.push("Orateur");
-            }
-            
-            if (congregation && existingVisit.congregation !== congregation) {
-              existingVisit.congregation = congregation;
-              updates.push("Congrégation");
-            }
-            if (talkNoIndex > -1 && existingVisit.talkNoOrType !== talkNoValue) {
-              existingVisit.talkNoOrType = talkNoValue;
-              updates.push("N° Discours");
-            }
-            if (themeIndex > -1 && existingVisit.talkTheme !== finalTheme) {
-              existingVisit.talkTheme = finalTheme;
-              updates.push("Thème");
-            }
-
-            if (updates.length > 0) {
-              updatedCount++;
-              updatedVisitsDetails.push(`- ${speaker.nom} (${displayDate}): ${updates.join(', ')}`);
-            }
-          } else {
-            const newVisit: Visit = {
-              id: speaker.id, nom: speaker.nom, congregation, telephone: speaker.telephone, photoUrl: speaker.photoUrl,
-              visitId: generateUUID(), visitDate: formattedDate, visitTime: prev.congregationProfile.meetingTime || '14:30',
-              host: congregation.toLowerCase().includes('zoom') || congregation.toLowerCase().includes('streaming') ? NA_HOST : UNASSIGNED_HOST,
-              accommodation: '', meals: '', status: 'pending',
-              locationType: congregation.toLowerCase().includes('zoom') ? 'zoom' : congregation.toLowerCase().includes('streaming') ? 'streaming' : 'physical',
-              talkNoOrType: talkNoValue,
-              talkTheme: finalTheme,
-              communicationStatus: {},
-            };
-            newVisits.push(newVisit);
-            addedCount++;
-            addedVisitsDetails.push(`- ${newVisit.nom} (${displayDate})`);
-          }
+        if (!rows || rows.length === 0) {
+          setTimeout(
+            () => addToast('Aucune donnée trouvée dans les feuilles synchronisées.', 'warning'),
+            0
+          );
+          return;
         }
-        // IMPORTANT: Préserver les hôtes lors de la sync
-        return { ...prev, speakers: newSpeakers, visits: newVisits, hosts: prev.hosts };
-      });
 
-      let toastMessage = `Synchronisation depuis les onglets ${successfulGids.join(', ')} terminée !\n- ${addedCount} visite(s) ajoutée(s)\n- ${updatedCount} visite(s) mise(s) à jour\n- ${skippedCount} ligne(s) ignorée(s)`;
-      if (addedVisitsDetails.length > 0) {
-        toastMessage += `\n\nAjouts:\n${addedVisitsDetails.join('\n')}`;
-      }
-      if (updatedVisitsDetails.length > 0) {
-        toastMessage += `\n\nMises à jour:\n${updatedVisitsDetails.join('\n')}`;
-      }
-      localStorage.setItem('lastGoogleSheetSync', new Date().toISOString());
-      setTimeout(() => addToast(toastMessage, 'success', 15000), 0);
+        const headers = cols.map((h: any) =>
+          h.label
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]/g, '')
+        );
+        const dateIndex = headers.findIndex((h: string) => h.includes('data'));
+        const speakerIndex = headers.findIndex((h: string) => h.includes('orador'));
+        const congIndex = headers.findIndex((h: string) => h.includes('kongregason'));
+        const talkNoIndex = headers.findIndex((h: string) => h === 'n' || h === 'no');
+        const themeIndex = headers.findIndex((h: string) => h.includes('tema'));
 
-    } catch (error) {
-      console.error("Error syncing with Google Sheet:", error);
-      setTimeout(() => addToast(`Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`, 'error'), 0);
+        if ([dateIndex, speakerIndex, congIndex].some((i) => i === -1)) {
+          setTimeout(
+            () => addToast('En-têtes requis manquants: Data, Orador, Kongregason.', 'error'),
+            0
+          );
+          return;
+        }
+
+        let addedCount = 0,
+          updatedCount = 0,
+          skippedCount = 0;
+        const addedVisitsDetails: string[] = [];
+        const updatedVisitsDetails: string[] = [];
+
+        setData((prev) => {
+          const newSpeakers = [...prev.speakers];
+          const newVisits = [...prev.visits];
+          const speakerMap = new Map(newSpeakers.map((s) => [s.nom.toLowerCase(), s]));
+
+          for (const row of rows) {
+            const cells = row.c;
+            const dateValue = cells[dateIndex]?.v;
+            let visitDateObj: Date | null = null;
+
+            if (typeof dateValue === 'string' && dateValue.startsWith('Date(')) {
+              const dateParts = dateValue.substring(5, dateValue.length - 1).split(',');
+              visitDateObj = new Date(
+                Number(dateParts[0]),
+                Number(dateParts[1]),
+                Number(dateParts[2])
+              );
+            } else if (typeof dateValue === 'string') {
+              visitDateObj = parseDate(dateValue);
+            }
+
+            const speakerName = cells[speakerIndex]?.v?.trim();
+            const congregation = cells[congIndex]?.v?.trim() || '';
+
+            if (!visitDateObj || !speakerName) {
+              skippedCount++;
+              continue;
+            }
+
+            // Timezone-safe date formatting
+            const year = visitDateObj.getFullYear();
+            const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(visitDateObj.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+
+            const displayDate = visitDateObj.toLocaleDateString('fr-FR');
+
+            let speaker = speakerMap.get(speakerName.toLowerCase());
+            if (!speaker) {
+              speaker = {
+                id: generateUUID(),
+                nom: speakerName,
+                congregation: congregation || 'À définir',
+                talkHistory: [],
+                gender: 'male',
+              };
+              newSpeakers.push(speaker);
+              speakerMap.set(speakerName.toLowerCase(), speaker);
+            } else if (speaker.congregation !== congregation && congregation) {
+              // Update congregation if it differs
+              speaker.congregation = congregation;
+            }
+
+            const existingVisitIndex = newVisits.findIndex((v) => v.visitDate === formattedDate);
+
+            const talkNoValue =
+              talkNoIndex > -1
+                ? cells[talkNoIndex]?.v !== null
+                  ? String(cells[talkNoIndex]?.v)
+                  : null
+                : null;
+            const themeValue =
+              themeIndex > -1
+                ? cells[themeIndex]?.v !== null
+                  ? String(cells[themeIndex]?.v)
+                  : null
+                : null;
+            // Si pas de titre dans le sheet, utiliser le titre par défaut
+            const finalTheme = themeValue || getTalkTitle(talkNoValue);
+
+            if (existingVisitIndex > -1) {
+              const existingVisit = newVisits[existingVisitIndex];
+              const updates: string[] = [];
+
+              if (existingVisit.id !== speaker.id) {
+                existingVisit.id = speaker.id;
+                existingVisit.nom = speaker.nom;
+                existingVisit.telephone = speaker.telephone;
+                existingVisit.photoUrl = speaker.photoUrl;
+                updates.push('Orateur');
+              }
+
+              if (congregation && existingVisit.congregation !== congregation) {
+                existingVisit.congregation = congregation;
+                updates.push('Congrégation');
+              }
+              if (talkNoIndex > -1 && existingVisit.talkNoOrType !== talkNoValue) {
+                existingVisit.talkNoOrType = talkNoValue;
+                updates.push('N° Discours');
+              }
+              if (themeIndex > -1 && existingVisit.talkTheme !== finalTheme) {
+                existingVisit.talkTheme = finalTheme;
+                updates.push('Thème');
+              }
+
+              if (updates.length > 0) {
+                updatedCount++;
+                updatedVisitsDetails.push(
+                  `- ${speaker.nom} (${displayDate}): ${updates.join(', ')}`
+                );
+              }
+            } else {
+              const newVisit: Visit = {
+                id: speaker.id,
+                nom: speaker.nom,
+                congregation,
+                telephone: speaker.telephone,
+                photoUrl: speaker.photoUrl,
+                visitId: generateUUID(),
+                visitDate: formattedDate,
+                visitTime: prev.congregationProfile.meetingTime || '14:30',
+                host:
+                  congregation.toLowerCase().includes('zoom') ||
+                  congregation.toLowerCase().includes('streaming')
+                    ? NA_HOST
+                    : UNASSIGNED_HOST,
+                accommodation: '',
+                meals: '',
+                status: 'pending',
+                locationType: congregation.toLowerCase().includes('zoom')
+                  ? 'zoom'
+                  : congregation.toLowerCase().includes('streaming')
+                    ? 'streaming'
+                    : 'physical',
+                talkNoOrType: talkNoValue,
+                talkTheme: finalTheme,
+                communicationStatus: {},
+              };
+              newVisits.push(newVisit);
+              addedCount++;
+              addedVisitsDetails.push(`- ${newVisit.nom} (${displayDate})`);
+            }
+          }
+          // IMPORTANT: Préserver les hôtes lors de la sync
+          return { ...prev, speakers: newSpeakers, visits: newVisits, hosts: prev.hosts };
+        });
+
+        let toastMessage = `Synchronisation depuis les onglets ${successfulGids.join(', ')} terminée !\n- ${addedCount} visite(s) ajoutée(s)\n- ${updatedCount} visite(s) mise(s) à jour\n- ${skippedCount} ligne(s) ignorée(s)`;
+        if (addedVisitsDetails.length > 0) {
+          toastMessage += `\n\nAjouts:\n${addedVisitsDetails.join('\n')}`;
+        }
+        if (updatedVisitsDetails.length > 0) {
+          toastMessage += `\n\nMises à jour:\n${updatedVisitsDetails.join('\n')}`;
+        }
+        localStorage.setItem('lastGoogleSheetSync', new Date().toISOString());
+        setTimeout(() => addToast(toastMessage, 'success', 15000), 0);
+      } catch (error) {
+        console.error('Error syncing with Google Sheet:', error);
+        setTimeout(
+          () =>
+            addToast(
+              `Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`,
+              'error'
+            ),
+          0
+        );
+      }
     }
-  }
-};
+  };
 
   const refreshData = async (): Promise<void> => {
     // Mettre à jour tous les titres manquants
-    setData(prev => {
-      const visitsWithTitles = prev.visits.map(visit => ({
+    setData((prev) => {
+      const visitsWithTitles = prev.visits.map((visit) => ({
         ...visit,
-        talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType)
+        talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType),
       }));
       return { ...prev, visits: visitsWithTitles };
     });
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   };
 
   const exportData = (): string => {
     const dataToExport = {
       ...data,
-      dataVersion: data.dataVersion || '1.0.0'
+      dataVersion: data.dataVersion || '1.0.0',
     };
     return JSON.stringify(dataToExport, null, 2);
   };
@@ -467,44 +555,52 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const importData = (json: string) => {
     try {
       const parsed = JSON.parse(json);
-      
+
       // Validation plus souple
       if (!parsed.speakers || !parsed.visits) {
-        throw new Error("Format de données invalide : orateurs ou visites manquants");
+        throw new Error('Format de données invalide : orateurs ou visites manquants');
       }
 
       // Si version manquante, on assume 1.0.0
       if (!parsed.dataVersion) {
-        console.warn("Version de données manquante lors de l'import, ajout de la version par défaut 1.0.0");
+        console.warn(
+          "Version de données manquante lors de l'import, ajout de la version par défaut 1.0.0"
+        );
         parsed.dataVersion = '1.0.0';
       }
-      
+
       // Update state and persistence
       setData(parsed);
       setLoaded(true);
       // Force immediate save to storage
       storage.set('kbv-app-data', parsed).then(() => {
-         addToast('Données importées avec succès !', 'success');
+        addToast('Données importées avec succès !', 'success');
       });
-      
     } catch (e) {
       console.error('Import error:', e);
-      addToast(`Erreur lors de l'importation: ${e instanceof Error ? e.message : 'Format invalide'}`, 'error');
+      addToast(
+        `Erreur lors de l'importation: ${e instanceof Error ? e.message : 'Format invalide'}`,
+        'error'
+      );
     }
   };
 
   // Merge Duplicates
-  const mergeDuplicates = (type: 'speaker' | 'host' | 'visit' | 'message', keepId: string, duplicateIds: string[]) => {
-    setData(prev => {
+  const mergeDuplicates = (
+    type: 'speaker' | 'host' | 'visit' | 'message',
+    keepId: string,
+    duplicateIds: string[]
+  ) => {
+    setData((prev) => {
       const newState = { ...prev };
       const updates: string[] = [];
 
       if (type === 'speaker') {
-        const keepSpeaker = prev.speakers.find(s => s.id === keepId);
+        const keepSpeaker = prev.speakers.find((s) => s.id === keepId);
         if (!keepSpeaker) return prev;
 
         // 1. Mettre à jour toutes les visites pointant vers les doublons
-        newState.visits = prev.visits.map(v => {
+        newState.visits = prev.visits.map((v) => {
           if (duplicateIds.includes(v.id)) {
             updates.push(`Visite ${v.visitDate} réassignée à ${keepSpeaker.nom}`);
             return {
@@ -512,22 +608,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
               id: keepId,
               nom: keepSpeaker.nom,
               telephone: keepSpeaker.telephone || v.telephone,
-              photoUrl: keepSpeaker.photoUrl || v.photoUrl
+              photoUrl: keepSpeaker.photoUrl || v.photoUrl,
             };
           }
           return v;
         });
 
         // 2. Supprimer les doublons
-        newState.speakers = prev.speakers.filter(s => !duplicateIds.includes(s.id));
+        newState.speakers = prev.speakers.filter((s) => !duplicateIds.includes(s.id));
         addToSyncQueue('DELETE_SPEAKER', { count: duplicateIds.length, ids: duplicateIds });
-      } 
-      else if (type === 'host') {
+      } else if (type === 'host') {
         // keepId est le NOM de l'hôte à garder
         const keepHostName = keepId;
-        
+
         // 1. Mettre à jour toutes les visites utilisant les noms en doublon
-        newState.visits = prev.visits.map(v => {
+        newState.visits = prev.visits.map((v) => {
           if (duplicateIds.includes(v.host)) {
             updates.push(`Visite ${v.visitDate} hôte mis à jour: ${v.host} -> ${keepHostName}`);
             return { ...v, host: keepHostName };
@@ -536,22 +631,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
         });
 
         // 2. Supprimer les doublons
-        newState.hosts = prev.hosts.filter(h => !duplicateIds.includes(h.nom));
+        newState.hosts = prev.hosts.filter((h) => !duplicateIds.includes(h.nom));
         addToSyncQueue('DELETE_HOST', { count: duplicateIds.length, names: duplicateIds });
-      }
-      else if (type === 'visit') {
+      } else if (type === 'visit') {
         // keepId est le visitId à garder
         // 1. Supprimer les autres visites
-        newState.visits = prev.visits.filter(v => 
-          v.visitId === keepId || !duplicateIds.includes(v.visitId)
+        newState.visits = prev.visits.filter(
+          (v) => v.visitId === keepId || !duplicateIds.includes(v.visitId)
         );
         addToSyncQueue('DELETE_VISIT', { count: duplicateIds.length, visitIds: duplicateIds });
-      }
-      else if (type === 'message') {
+      } else if (type === 'message') {
         // keepId est le message id à garder
         // 1. Supprimer les autres messages
-        newState.speakerMessages = (prev.speakerMessages || []).filter(m => 
-          m.id === keepId || !duplicateIds.includes(m.id)
+        newState.speakerMessages = (prev.speakerMessages || []).filter(
+          (m) => m.id === keepId || !duplicateIds.includes(m.id)
         );
         // addToSyncQueue('DELETE_MESSAGE', { count: duplicateIds.length, messageIds: duplicateIds }); // TODO: Implement DELETE_MESSAGE sync if needed
       }
@@ -565,8 +658,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   if (!loaded) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className='h-screen flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600' />
       </div>
     );
   }

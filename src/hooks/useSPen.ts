@@ -22,7 +22,7 @@ export const useSPen = () => {
 
     const handlePointerEnter = (e: PointerEvent) => {
       if (e.pointerType === 'pen') {
-        setSPenState(prev => ({
+        setSPenState((prev) => ({
           ...prev,
           isHovering: true,
           position: { x: e.clientX, y: e.clientY },
@@ -32,7 +32,7 @@ export const useSPen = () => {
 
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType === 'pen') {
-        setSPenState(prev => ({
+        setSPenState((prev) => ({
           ...prev,
           isHovering: true,
           position: { x: e.clientX, y: e.clientY },
@@ -43,7 +43,7 @@ export const useSPen = () => {
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.pointerType === 'pen') {
-        setSPenState(prev => ({
+        setSPenState((prev) => ({
           ...prev,
           isActive: true,
           pressure: e.pressure,
@@ -53,7 +53,7 @@ export const useSPen = () => {
 
     const handlePointerUp = (e: PointerEvent) => {
       if (e.pointerType === 'pen') {
-        setSPenState(prev => ({
+        setSPenState((prev) => ({
           ...prev,
           isActive: false,
           pressure: 0,
