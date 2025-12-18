@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
-import { Visit, Expense, MessageType, Accommodation } from '@/types';
+import { Visit, Expense, MessageType, Accommodation, VisitFeedback } from '@/types';
 import { Edit2, Trash2, MessageSquare, CheckCircle, XCircle, Star, CreditCard, Truck, Utensils, Home } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
@@ -121,10 +121,10 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Message Generator Logic
 
 
-  const handleFeedbackSubmit = async (feedbackData: any) => {
+  const handleFeedbackSubmit = async (feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>) => {
     setIsLoading(true);
     try {
-      const newFeedback = {
+      const newFeedback: VisitFeedback = {
         ...feedbackData,
         id: generateUUID(),
         visitId: visit.visitId,

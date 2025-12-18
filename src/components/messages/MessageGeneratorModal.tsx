@@ -55,7 +55,6 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       setMessage(result);
       addToast("Message amélioré par l'IA", "success");
     } catch (error) {
-      console.error(error);
       addToast("Erreur lors de la génération IA", "error");
     } finally {
       setIsGenerating(false);
@@ -165,7 +164,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 { value: 'pt', label: 'Português' },
               ]}
               value={language}
-              onChange={(e) => setLanguage(e.target.value as any)}
+              onChange={(e) => setLanguage(e.target.value)}
             />
           </div>
 
