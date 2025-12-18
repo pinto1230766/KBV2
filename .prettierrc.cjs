@@ -13,8 +13,8 @@ module.exports = {
   useTabs: false,
 
   // Configuration TypeScript/React
-  parser: 'typescript',
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  // parser: 'typescript',
+  // plugins: [],
 
   // Configuration des quotes
   quoteProps: 'as-needed',
