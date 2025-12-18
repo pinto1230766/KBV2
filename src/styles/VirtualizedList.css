@@ -3,7 +3,7 @@
   --bg-color: white;
   --dark-border-color: rgb(55 65 81);
   --dark-bg-color: rgb(31 41 55);
-  
+
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   overflow: hidden;

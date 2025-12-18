@@ -6,7 +6,9 @@
   color: white;
   font-weight: 500;
   font-size: 0.875rem;
-  transition: color 0.2s, background-color 0.2s;
+  transition:
+    color 0.2s,
+    background-color 0.2s;
 }
 
 .swipeable-actions-container {
@@ -92,8 +94,18 @@
 }
 
 /* Dynamic styles for swipe actions */
-.swipeable-action-width-1 { width: 80px; }
-.swipeable-action-width-2 { width: 100px; }
-.swipeable-action-width-3 { width: 120px; }
-.swipeable-action-width-4 { width: 140px; }
-.swipeable-action-width-5 { width: 160px; }
+.swipeable-action-width-1 {
+  width: 80px;
+}
+.swipeable-action-width-2 {
+  width: 100px;
+}
+.swipeable-action-width-3 {
+  width: 120px;
+}
+.swipeable-action-width-4 {
+  width: 140px;
+}
+.swipeable-action-width-5 {
+  width: 160px;
+}

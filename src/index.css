@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
-@import "./styles/ios-design-system.css";
-@import "./styles/samsung-optimizations.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import './styles/ios-design-system.css';
+@import './styles/samsung-optimizations.css';
 
 @tailwind base;
 @tailwind components;
@@ -9,7 +9,11 @@
 @layer base {
   body {
     @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans;
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   html,

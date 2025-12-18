@@ -19,36 +19,57 @@
 }
 
 /* Progress width classes for dynamic values */
-.progressBarFillWidth0 { width: 0%; }
-.progressBarFillWidth10 { width: 10%; }
-.progressBarFillWidth20 { width: 20%; }
-.progressBarFillWidth30 { width: 30%; }
-.progressBarFillWidth40 { width: 40%; }
-.progressBarFillWidth50 { width: 50%; }
-.progressBarFillWidth60 { width: 60%; }
-.progressBarFillWidth70 { width: 70%; }
-.progressBarFillWidth80 { width: 80%; }
-.progressBarFillWidth90 { width: 90%; }
-.progressBarFillWidth100 { width: 100%; }
+.progressBarFillWidth0 {
+  width: 0%;
+}
+.progressBarFillWidth10 {
+  width: 10%;
+}
+.progressBarFillWidth20 {
+  width: 20%;
+}
+.progressBarFillWidth30 {
+  width: 30%;
+}
+.progressBarFillWidth40 {
+  width: 40%;
+}
+.progressBarFillWidth50 {
+  width: 50%;
+}
+.progressBarFillWidth60 {
+  width: 60%;
+}
+.progressBarFillWidth70 {
+  width: 70%;
+}
+.progressBarFillWidth80 {
+  width: 80%;
+}
+.progressBarFillWidth90 {
+  width: 90%;
+}
+.progressBarFillWidth100 {
+  width: 100%;
+}
 
 .progressBarFill {
-
 }
 
 .progressBarFill.complete {
-  background-color: #10B981; /* green-500 */
+  background-color: #10b981; /* green-500 */
 }
 
 .progressBarFill.high {
-  background-color: #3B82F6; /* blue-500 */
+  background-color: #3b82f6; /* blue-500 */
 }
 
 .progressBarFill.medium {
-  background-color: #F59E0B; /* yellow-500 */
+  background-color: #f59e0b; /* yellow-500 */
 }
 
 .progressBarFill.low {
-  background-color: #EF4444; /* red-500 */
+  background-color: #ef4444; /* red-500 */
 }
 
 /* Chart Containers */
