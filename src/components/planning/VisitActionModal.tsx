@@ -46,6 +46,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 }) => {
   const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
+  const { confirm } = useConfirm(); // Hook at top level
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Visit>>({});
 
@@ -87,8 +88,6 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       setIsLoading(false);
     }
   };
-
-  const { confirm } = useConfirm();
 
   const handleDelete = async () => {
     const userConfirmed = await confirm({
@@ -185,7 +184,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   };
 
   const handleDeleteExpense = async (expenseId: string) => {
-    const { confirm: confirmDelete } = useConfirm();
+    const confirmDelete = confirm; // Use the hook from top level
     const userConfirmed = await confirmDelete({
       title: 'Supprimer la dépense',
       message: 'Voulez-vous vraiment supprimer cette dépense ?',

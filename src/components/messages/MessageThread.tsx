@@ -15,8 +15,13 @@ interface MessageThreadProps {
 }
 
 export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, onAction }) => {
+  // Deduplicate visits based on ID
+  const uniqueVisits = visits.filter(
+    (visit, index, self) => index === self.findIndex((t) => t.id === visit.id)
+  );
+
   // Trier les visites par date décroissante
-  const sortedVisits = [...visits].sort(
+  const sortedVisits = [...uniqueVisits].sort(
     (a, b) => new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime()
   );
 

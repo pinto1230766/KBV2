@@ -212,49 +212,7 @@ export async function shareMessage(message: string): Promise<boolean> {
   }
 }
 
-// ============================================================================
-// GÉNÉRATION AVEC IA (GOOGLE GEMINI)
-// ============================================================================
 
-export async function generateWithAI(
-  message: string,
-  action: 'rewrite' | 'shorten' | 'expand' | 'formal' | 'friendly',
-  apiKey: string,
-  temperature: number = 0.7
-): Promise<string> {
-  try {
-    // Import dynamique de la bibliothèque Gemini
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-pro',
-      generationConfig: {
-        temperature,
-        maxOutputTokens: 1000,
-      },
-    });
-
-    // Définir les prompts selon l'action
-    const prompts = {
-      rewrite:
-        'Réécris ce message de manière plus claire et professionnelle tout en gardant le sens:',
-      shorten: 'Raccourcis ce message en gardant uniquement les informations essentielles:',
-      expand: 'Développe ce message en ajoutant plus de détails et de chaleur:',
-      formal: 'Réécris ce message avec un ton plus formel et respectueux:',
-      friendly: 'Réécris ce message avec un ton plus amical et chaleureux:',
-    };
-
-    const prompt = `${prompts[action]}\n\n${message}`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (error) {
-    console.error('Error generating with AI:', error);
-    throw new Error("Erreur lors de la génération avec l'IA");
-  }
-}
 
 // ============================================================================
 // EXTRACTION DE VARIABLES D'UN MODÈLE

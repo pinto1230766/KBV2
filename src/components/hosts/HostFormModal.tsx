@@ -26,6 +26,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
     address: '',
     telephone: '',
     email: '',
+    photoUrl: '',
     gender: 'couple',
     notes: '',
     capacity: DEFAULT_CAPACITY,
@@ -35,13 +36,26 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
 
   useEffect(() => {
     if (host) {
-      setFormData(host);
+      setFormData({
+        ...host,
+        nom: host.nom || '',
+        address: host.address || '',
+        telephone: host.telephone || '',
+        email: host.email || '',
+        photoUrl: host.photoUrl || '',
+        gender: host.gender || 'couple',
+        notes: host.notes || '',
+        capacity: host.capacity ?? DEFAULT_CAPACITY,
+        hasPets: host.hasPets ?? false,
+        isSmoker: host.isSmoker ?? false,
+      });
     } else {
       setFormData({
         nom: '',
         address: '',
         telephone: '',
         email: '',
+        photoUrl: '',
         gender: 'couple',
         notes: '',
         capacity: DEFAULT_CAPACITY,
@@ -106,7 +120,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
         {/* Photo de profil */}
         <div className='flex justify-center mb-4'>
           <ImageUpload
-            value={formData.photoUrl}
+            value={formData.photoUrl || ''}
             onChange={(url) => setFormData((prev) => ({ ...prev, photoUrl: url }))}
             label='Photo du contact'
             size='lg'
@@ -116,7 +130,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Input
             label='Nom complet'
-            value={formData.nom}
+            value={formData.nom || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, nom: e.target.value }))}
             required
             placeholder='Ex: Famille Martin'
@@ -124,14 +138,14 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
 
           <Input
             label='Adresse'
-            value={formData.address}
+            value={formData.address || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
             placeholder='Ex: 12 rue de la Paix, Lyon'
           />
 
           <Input
             label='Téléphone'
-            value={formData.telephone}
+            value={formData.telephone || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, telephone: e.target.value }))}
             placeholder='Ex: 06 12 34 56 78'
           />
@@ -139,7 +153,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
           <Input
             label='Email'
             type='email'
-            value={formData.email}
+            value={formData.email || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
             placeholder='Ex: famille.martin@email.com'
           />
@@ -151,7 +165,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
               { value: 'male', label: 'Frère seul' },
               { value: 'female', label: 'Sœur seule' },
             ]}
-            value={formData.gender}
+            value={formData.gender || 'couple'}
             onChange={(e) => setFormData((prev) => ({ ...prev, gender: e.target.value as Gender }))}
           />
 
@@ -159,7 +173,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
             label="Capacité d'accueil (personnes)"
             type='number'
             min={1}
-            value={formData.capacity}
+            value={formData.capacity ?? DEFAULT_CAPACITY}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, capacity: parseInt(e.target.value, 10) }))
             }
@@ -191,7 +205,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
           <textarea
             className='w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             rows={3}
-            value={formData.notes}
+            value={formData.notes || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
             placeholder='Allergies, régime alimentaire, escaliers...'
           />

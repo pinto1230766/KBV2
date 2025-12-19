@@ -516,6 +516,25 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                                   <div>Statut : {item.status}</div>
                                 </>
                               )}
+                              {group.type === 'archivedVisit' && (
+                                <>
+                                  <div>
+                                    Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}
+                                  </div>
+                                  <div>Heure : {item.visitTime || 'N/A'}</div>
+                                  <div>Statut : {item.status}</div>
+                                  {item._source && (
+                                    <div className='mt-1'>
+                                      <Badge
+                                        variant={item._source === 'archived' ? 'warning' : 'success'}
+                                        className='text-xs'
+                                      >
+                                        {item._source === 'archived' ? 'Archivée' : 'Actuelle'}
+                                      </Badge>
+                                    </div>
+                                  )}
+                                </>
+                              )}
                               {group.type === 'message' && (
                                 <>
                                   <div>Orateur : {item.speakerName}</div>

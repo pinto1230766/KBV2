@@ -119,7 +119,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setData(mergedData);
         // Sauvegarder immédiatement les données complètes
         await storage.set('kbv-app-data', mergedData);
-        addToast('Données complètes chargées avec succès !', 'success');
+        setTimeout(() => addToast('Données complètes chargées avec succès !', 'success'), 0);
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
         setData(completeData);
@@ -574,20 +574,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setLoaded(true);
       // Force immediate save to storage
       storage.set('kbv-app-data', parsed).then(() => {
-        addToast('Données importées avec succès !', 'success');
+        setTimeout(() => addToast('Données importées avec succès !', 'success'), 0);
       });
     } catch (e) {
       console.error('Import error:', e);
-      addToast(
-        `Erreur lors de l'importation: ${e instanceof Error ? e.message : 'Format invalide'}`,
-        'error'
+      setTimeout(
+        () =>
+          addToast(
+            `Erreur lors de l'importation: ${e instanceof Error ? e.message : 'Format invalide'}`,
+            'error'
+          ),
+        0
       );
     }
   };
 
   // Merge Duplicates
   const mergeDuplicates = (
-    type: 'speaker' | 'host' | 'visit' | 'message',
+    type: 'speaker' | 'host' | 'visit' | 'message' | 'archivedVisit',
     keepId: string,
     duplicateIds: string[]
   ) => {
@@ -640,6 +644,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
           (v) => v.visitId === keepId || !duplicateIds.includes(v.visitId)
         );
         addToSyncQueue('DELETE_VISIT', { count: duplicateIds.length, visitIds: duplicateIds });
+      } else if (type === 'archivedVisit') {
+        // keepId est le visitId à garder
+        // 1. Supprimer les doublons des visites actuelles ET archivées
+        newState.visits = prev.visits.filter(
+          (v) => v.visitId === keepId || !duplicateIds.includes(v.visitId)
+        );
+        newState.archivedVisits = prev.archivedVisits.filter(
+          (v) => v.visitId === keepId || !duplicateIds.includes(v.visitId)
+        );
+        updates.push(`${duplicateIds.length} visite(s) archivée(s) supprimée(s)`);
       } else if (type === 'message') {
         // keepId est le message id à garder
         // 1. Supprimer les autres messages
@@ -650,7 +664,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       if (updates.length > 0) {
-        addToast(`${updates.length} relation(s) mise(s) à jour lors de la fusion`, 'info');
+        setTimeout(() => addToast(`${updates.length} relation(s) mise(s) à jour lors de la fusion`, 'info'), 0);
       }
       return newState;
     });

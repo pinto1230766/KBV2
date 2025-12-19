@@ -6,8 +6,8 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Visit, Speaker, MessageType, CommunicationChannel } from '@/types';
-import { generateMessage, generateWithAI } from '@/utils/messageGenerator';
-import { Copy, RefreshCw, Send, Wand2 } from 'lucide-react';
+import { generateMessage } from '@/utils/messageGenerator';
+import { Copy, RefreshCw, Send } from 'lucide-react';
 
 interface MessageGeneratorModalProps {
   isOpen: boolean;
@@ -35,33 +35,6 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const [type, setType] = useState<MessageType>(initialType);
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [showAIOptions, setShowAIOptions] = useState(false);
-
-  const handleAIGenerate = async (
-    action: 'rewrite' | 'shorten' | 'expand' | 'formal' | 'friendly'
-  ) => {
-    if (!settings.aiSettings.apiKey) {
-      addToast('Veuillez configurer la clé API dans les paramètres', 'error');
-      return;
-    }
-
-    setIsGenerating(true);
-    setShowAIOptions(false);
-    try {
-      const result = await generateWithAI(
-        message,
-        action,
-        settings.aiSettings.apiKey,
-        settings.aiSettings.temperature
-      );
-      setMessage(result);
-      addToast("Message amélioré par l'IA", 'success');
-    } catch (error) {
-      addToast('Erreur lors de la génération IA', 'error');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   // Générer le message initial lors de l'ouverture ou du changement de paramètres
   useEffect(() => {
@@ -203,54 +176,6 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             >
               Régénérer
             </Button>
-            {settings.aiSettings.enabled && (
-              <div className='relative'>
-                <Button
-                  size='sm'
-                  variant='secondary'
-                  className='bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200'
-                  leftIcon={<Wand2 className='w-4 h-4' />}
-                  onClick={() => setShowAIOptions(!showAIOptions)}
-                >
-                  Améliorer avec IA
-                </Button>
-
-                {showAIOptions && (
-                  <div className='absolute bottom-full right-0 mb-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50'>
-                    <button
-                      onClick={() => handleAIGenerate('rewrite')}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm'
-                    >
-                      Réécrire
-                    </button>
-                    <button
-                      onClick={() => handleAIGenerate('shorten')}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm'
-                    >
-                      Raccourcir
-                    </button>
-                    <button
-                      onClick={() => handleAIGenerate('expand')}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm'
-                    >
-                      Développer
-                    </button>
-                    <button
-                      onClick={() => handleAIGenerate('formal')}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm'
-                    >
-                      Plus formel
-                    </button>
-                    <button
-                      onClick={() => handleAIGenerate('friendly')}
-                      className='w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm'
-                    >
-                      Plus amical
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       </div>

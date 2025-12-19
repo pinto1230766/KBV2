@@ -159,7 +159,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                 { value: '', label: 'Sélectionner un orateur' },
                 ...speakers.map((s) => ({ value: s.id, label: `${s.nom} (${s.congregation})` })),
               ]}
-              value={formData.id}
+              value={formData.id || ''}
               onChange={(e) => handleSpeakerChange(e.target.value)}
               required
             />
@@ -169,7 +169,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
           <Input
             type='date'
             label='Date'
-            value={formData.visitDate}
+            value={formData.visitDate || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, visitDate: e.target.value }))}
             required
             error={dateError}
@@ -191,7 +191,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
           <Input
             type='time'
             label='Heure'
-            value={formData.visitTime}
+            value={formData.visitTime || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, visitTime: e.target.value }))}
             required
           />
@@ -234,7 +234,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
               { value: 'zoom', label: 'Visioconférence' },
               { value: 'streaming', label: 'Streaming' },
             ]}
-            value={formData.locationType}
+            value={formData.locationType || 'physical'}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, locationType: e.target.value as any }))
             }

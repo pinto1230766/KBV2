@@ -14,7 +14,6 @@ import {
   Palette,
   Database,
   Save,
-  Key,
   Smartphone,
   Moon,
   Sun,
@@ -71,7 +70,7 @@ export const Settings: React.FC = () => {
   const { addToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<
-    'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'ai' | 'duplicates'
+    'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'duplicates'
   >('profile');
   const [profileForm, setProfileForm] = useState<CongregationProfile>(congregationProfile);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -89,9 +88,8 @@ export const Settings: React.FC = () => {
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'security', label: 'Sécurité', icon: Shield },
     { id: 'data', label: 'Données', icon: Database },
-    { id: 'ai', label: 'IA', icon: Key },
     { id: 'duplicates', label: 'Doublons', icon: Copy },
-  ];
+  ] as const;
 
   const handleSaveProfile = () => {
     updateCongregationProfile(profileForm);
@@ -217,7 +215,7 @@ export const Settings: React.FC = () => {
           : (keepItem as any).id || (keepItem as any).visitId;
       const duplicateIds = duplicates.map((item: any) => {
         if (group.type === 'host') return (item as any).nom;
-        if (group.type === 'visit') return (item as any).visitId;
+        if (group.type === 'visit' || group.type === 'archivedVisit') return (item as any).visitId;
         return (item as any).id;
       });
 
@@ -789,25 +787,25 @@ export const Settings: React.FC = () => {
                       Liens Utiles
                     </h4>
                     <div className='flex flex-col sm:flex-row gap-4'>
-                      <Button asChild variant='secondary'>
-                        <a
-                          href='https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg'
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='no-underline'
-                        >
-                          Ouvrir Google Sheet
-                        </a>
+                      <Button
+                        variant='secondary'
+                        onClick={() =>
+                          window.open(
+                            'https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg',
+                            '_blank',
+                            'noopener,noreferrer'
+                          )
+                        }
+                      >
+                        Ouvrir Google Sheet
                       </Button>
-                      <Button asChild variant='outline'>
-                        <a
-                          href='https://www.jw.org/kea/'
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          className='no-underline'
-                        >
-                          JW.ORG (Cap-Verdien)
-                        </a>
+                      <Button
+                        variant='outline'
+                        onClick={() =>
+                          window.open('https://www.jw.org/kea/', '_blank', 'noopener,noreferrer')
+                        }
+                      >
+                        JW.ORG (Cap-Verdien)
                       </Button>
                     </div>
                   </div>
@@ -816,156 +814,7 @@ export const Settings: React.FC = () => {
             </Card>
           )}
 
-          {/* IA */}
-          {activeTab === 'ai' && (
-            <Card>
-              <CardHeader>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
-                  <Key className='w-5 h-5' />
-                  Configuration IA
-                </h3>
-                <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
-                  Paramètres de l'assistant IA pour la génération de messages
-                </p>
-              </CardHeader>
-              <CardBody className='space-y-6'>
-                {/* Section 1: Activation */}
-                <div className='flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
-                  <label htmlFor='ai-enabled' className='cursor-pointer'>
-                    <div className='font-medium text-blue-900 dark:text-blue-300'>
-                      Assistant IA activé
-                    </div>
-                    <div className='text-sm text-blue-700 dark:text-blue-400'>
-                      Utiliser Gemini pour générer des messages personnalisés
-                    </div>
-                  </label>
-                  <input
-                    id='ai-enabled'
-                    type='checkbox'
-                    checked={settings.aiSettings.enabled}
-                    onChange={(e) =>
-                      updateSettings({
-                        ...settings,
-                        aiSettings: { ...settings.aiSettings, enabled: e.target.checked },
-                      })
-                    }
-                    className='rounded'
-                  />
-                </div>
 
-                {settings.aiSettings.enabled && (
-                  <>
-                    {/* Section 2: Configuration API */}
-                    <div className='space-y-4'>
-                      <h4 className='font-medium text-gray-900 dark:text-white'>Connexion API</h4>
-
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                          Clé API Gemini
-                        </label>
-                        <Input
-                          type='password'
-                          value={settings.aiSettings.apiKey || ''}
-                          onChange={(e) =>
-                            updateSettings({
-                              ...settings,
-                              aiSettings: { ...settings.aiSettings, apiKey: e.target.value },
-                            })
-                          }
-                          placeholder='AIza...'
-                        />
-                        <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                          Obtenez votre clé sur{' '}
-                          <a
-                            href='https://makersuite.google.com/app/apikey'
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            className='text-primary-600 dark:text-primary-400 hover:underline'
-                          >
-                            Google AI Studio
-                          </a>
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                          Modèle
-                        </label>
-                        <Select
-                          value={settings.aiSettings.model}
-                          onChange={(e) =>
-                            updateSettings({
-                              ...settings,
-                              aiSettings: { ...settings.aiSettings, model: e.target.value },
-                            })
-                          }
-                          options={[
-                            { value: 'gemini-pro', label: 'Gemini Pro (Recommandé)' },
-                            { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-                            { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Rapide)' },
-                          ]}
-                          className='max-w-xs'
-                        />
-                      </div>
-                    </div>
-
-                    {/* Section 3: Paramètres de génération */}
-                    <div className='border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4'>
-                      <h4 className='font-medium text-gray-900 dark:text-white'>
-                        Paramètres de génération
-                      </h4>
-
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                          Créativité (Température): {settings.aiSettings.temperature.toFixed(1)}
-                        </label>
-                        <div className='flex items-center gap-4'>
-                          <span className='text-xs text-gray-500'>Précis</span>
-                          <input
-                            type='range'
-                            min='0'
-                            max='1'
-                            step='0.1'
-                            value={settings.aiSettings.temperature}
-                            onChange={(e) =>
-                              updateSettings({
-                                ...settings,
-                                aiSettings: {
-                                  ...settings.aiSettings,
-                                  temperature: parseFloat(e.target.value),
-                                },
-                              })
-                            }
-                            aria-label='Créativité - Température'
-                            className='flex-1'
-                          />
-                          <span className='text-xs text-gray-500'>Créatif</span>
-                        </div>
-                        <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                          Valeur recommandée: 0.7 pour un équilibre entre précision et créativité
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Section 4: Informations */}
-                    <div className='border-t border-gray-200 dark:border-gray-700 pt-4'>
-                      <div className='bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2'>
-                        <h4 className='font-medium text-gray-900 dark:text-white text-sm'>
-                          💡 Conseils d'utilisation
-                        </h4>
-                        <ul className='text-xs text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside'>
-                          <li>Gemini Pro est recommandé pour la plupart des usages</li>
-                          <li>Gemini 1.5 Flash est plus rapide mais moins précis</li>
-                          <li>Une température de 0.7 offre un bon équilibre</li>
-                          <li>Votre clé API est stockée de manière sécurisée</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardBody>
-            </Card>
-          )}
 
           {/* Doublons (NOUVELLE VERSION) */}
           {activeTab === 'duplicates' && (

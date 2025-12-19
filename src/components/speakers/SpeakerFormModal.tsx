@@ -25,6 +25,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
     congregation: '',
     telephone: '',
     email: '',
+    photoUrl: '',
     gender: 'male',
     notes: '',
     isVehiculed: true,
@@ -32,13 +33,24 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
 
   useEffect(() => {
     if (speaker) {
-      setFormData(speaker);
+      setFormData({
+        ...speaker,
+        nom: speaker.nom || '',
+        congregation: speaker.congregation || '',
+        telephone: speaker.telephone || '',
+        email: speaker.email || '',
+        photoUrl: speaker.photoUrl || '',
+        gender: speaker.gender || 'male',
+        notes: speaker.notes || '',
+        isVehiculed: speaker.isVehiculed ?? true,
+      });
     } else {
       setFormData({
         nom: '',
         congregation: '',
         telephone: '',
         email: '',
+        photoUrl: '',
         gender: 'male',
         notes: '',
         isVehiculed: true,
@@ -104,7 +116,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
         {/* Photo de profil */}
         <div className='flex justify-center mb-4'>
           <ImageUpload
-            value={formData.photoUrl}
+            value={formData.photoUrl || ''}
             onChange={(url) => setFormData((prev) => ({ ...prev, photoUrl: url }))}
             label="Photo de l'orateur"
             size='lg'
@@ -114,7 +126,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <Input
             label='Nom complet'
-            value={formData.nom}
+            value={formData.nom || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, nom: e.target.value }))}
             required
             placeholder='Ex: Jean Dupont'
@@ -122,7 +134,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
 
           <Input
             label='Congrégation'
-            value={formData.congregation}
+            value={formData.congregation || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, congregation: e.target.value }))}
             required
             placeholder='Ex: Lyon Centre'
@@ -130,7 +142,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
 
           <Input
             label='Téléphone'
-            value={formData.telephone}
+            value={formData.telephone || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, telephone: e.target.value }))}
             placeholder='Ex: 06 12 34 56 78'
           />
@@ -138,7 +150,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
           <Input
             label='Email'
             type='email'
-            value={formData.email}
+            value={formData.email || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
             placeholder='Ex: jean.dupont@email.com'
           />
@@ -150,7 +162,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
               { value: 'female', label: 'Sœur' }, // Peu probable pour un orateur public, mais possible pour d'autres rôles
               { value: 'couple', label: 'Couple' },
             ]}
-            value={formData.gender}
+            value={formData.gender || 'male'}
             onChange={(e) => setFormData((prev) => ({ ...prev, gender: e.target.value as Gender }))}
           />
 
@@ -178,7 +190,7 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
           <textarea
             className='w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 p-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             rows={3}
-            value={formData.notes}
+            value={formData.notes || ''}
             onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
             placeholder='Notes particulières...'
           />
