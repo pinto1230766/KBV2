@@ -245,18 +245,10 @@ export interface NotificationSettings {
   vibration: boolean;
 }
 
-export interface AISettings {
-  enabled: boolean;
-  model: string;
-  temperature: number;
-  apiKey?: string;
-}
-
 export interface Settings {
   theme: Theme;
   language: Language;
   notifications: NotificationSettings;
-  aiSettings: AISettings;
   encryptionEnabled: boolean;
   sessionTimeout?: number; // minutes
   autoArchiveDays?: number;

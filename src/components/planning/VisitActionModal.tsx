@@ -239,83 +239,105 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               />
               <div>
                 <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                  Contact d'accueil
+                  Type de visite
                 </label>
                 <select
-                  value={formData.host || ''}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    const selectedHost = hosts.find((h) => h.nom === value);
-
-                    setFormData((prev) => {
-                      const currentLogistics = prev.logistics || {};
-                      const currentAccommodation = currentLogistics.accommodation || {};
-
-                      const newAccommodation = {
-                        ...currentAccommodation,
-                      } as Partial<Accommodation>;
-                      let newAddress = prev.accommodation;
-
-                      if (value === 'Hôtel') {
-                        newAccommodation.type = 'hotel';
-                        // Keep existing booking ref etc, but maybe clear name if it was a host's name
-                        if (newAccommodation.type !== 'hotel') {
-                          // If switching TO hotel, maybe clear name/address?
-                          // Actually, let's just set type. User can fill details in Logistics.
-                        }
-                        newAddress = ''; // Clear main address field as it's likely a host address
-                      } else if (selectedHost) {
-                        newAccommodation.type = 'host';
-                        newAccommodation.name = selectedHost.nom;
-                        newAccommodation.address = selectedHost.address;
-                        newAddress = selectedHost.address || '';
-                      } else if (value === 'Pas besoin') {
-                        // Reset accommodation when no host is needed
-                        newAccommodation.type = 'other';
-                        newAccommodation.name = '';
-                        newAccommodation.address = '';
-                        newAddress = '';
-                      }
-
-                      return {
-                        ...prev,
-                        host: value,
-                        accommodation: newAddress,
-                        logistics: {
-                          ...currentLogistics,
-                          accommodation: newAccommodation as Accommodation,
-                        },
-                      };
-                    });
-                  }}
-                  title='Sélectionner un hôte'
+                  value={formData.locationType || 'physical'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationType: e.target.value as any,
+                      // Si ce n'est pas physique, on réinitialise l'hôte
+                      host: e.target.value !== 'physical' ? '' : prev.host,
+                      accommodation: e.target.value !== 'physical' ? '' : prev.accommodation,
+                    }))
+                  }
                   className='w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
+                  title='Sélectionner le type de visite'
                 >
-                  <option value=''>Sélectionner un hôte...</option>
-                  <option value='Pas besoin'>Pas besoin</option>
-                  <option value='Hôtel'>Hôtel</option>
-                  {hosts.map((host) => (
-                    <option key={host.nom} value={host.nom}>
-                      {host.nom}
-                    </option>
-                  ))}
+                  <option value='physical'>Présentiel</option>
+                  <option value='zoom'>Zoom</option>
+                  <option value='streaming'>Streaming</option>
                 </select>
               </div>
 
-              <Input
-                label="Nombre d'accompagnateurs"
-                type='number'
-                min={0}
-                max={10}
-                value={formData.accompanyingPersons || 0}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    accompanyingPersons: parseInt(e.target.value, 10) || 0,
-                  }))
-                }
-                placeholder='0'
-              />
+              {formData.locationType === 'physical' && (
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+                    Contact d'accueil
+                  </label>
+                  <select
+                    value={formData.host || ''}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      const selectedHost = hosts.find((h) => h.nom === value);
+
+                      setFormData((prev) => {
+                        const currentLogistics = prev.logistics || {};
+                        const currentAccommodation = currentLogistics.accommodation || {};
+
+                        const newAccommodation = {
+                          ...currentAccommodation,
+                        } as Partial<Accommodation>;
+                        let newAddress = prev.accommodation;
+
+                        if (value === 'Hôtel') {
+                          newAccommodation.type = 'hotel';
+                          newAddress = '';
+                        } else if (selectedHost) {
+                          newAccommodation.type = 'host';
+                          newAccommodation.name = selectedHost.nom;
+                          newAccommodation.address = selectedHost.address;
+                          newAddress = selectedHost.address || '';
+                        } else if (value === 'Pas besoin') {
+                          newAccommodation.type = 'other';
+                          newAccommodation.name = '';
+                          newAccommodation.address = '';
+                          newAddress = '';
+                        }
+
+                        return {
+                          ...prev,
+                          host: value,
+                          accommodation: newAddress,
+                          logistics: {
+                            ...currentLogistics,
+                            accommodation: newAccommodation as Accommodation,
+                          },
+                        };
+                      });
+                    }}
+                    title='Sélectionner un hôte'
+                    className='w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
+                  >
+                    <option value=''>Sélectionner un hôte...</option>
+                    <option value='Pas besoin'>Pas besoin</option>
+                    <option value='Hôtel'>Hôtel</option>
+                    {hosts.map((host) => (
+                      <option key={host.nom} value={host.nom}>
+                        {host.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {formData.locationType === 'physical' && (
+                <Input
+                  label="Nombre d'accompagnateurs"
+                  type='number'
+                  min={0}
+                  max={10}
+                  value={formData.accompanyingPersons || 0}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      accompanyingPersons: parseInt(e.target.value, 10) || 0,
+                    }))
+                  }
+                  placeholder='0'
+                />
+              )}
             </div>
             <Input
               label='Titre du discours'

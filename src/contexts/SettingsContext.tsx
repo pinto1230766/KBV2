@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Settings, Language, Theme, NotificationSettings, AISettings } from '@/types';
+import { Settings, Language, Theme, NotificationSettings } from '@/types';
 import * as idb from '@/utils/idb';
 
 // ============================================================================
@@ -14,12 +14,6 @@ const defaultSettings: Settings = {
     reminderDays: [7, 2],
     sound: true,
     vibration: true,
-  },
-  aiSettings: {
-    enabled: false,
-    model: 'gemini-pro',
-    temperature: 0.7,
-    apiKey: undefined,
   },
   encryptionEnabled: false,
   sessionTimeout: 30, // 30 minutes
@@ -36,7 +30,6 @@ interface SettingsContextValue {
   setTheme: (theme: Theme) => void;
   setLanguage: (language: Language) => void;
   setNotifications: (notifications: Partial<NotificationSettings>) => void;
-  setAISettings: (aiSettings: Partial<AISettings>) => void;
   resetSettings: () => Promise<void>;
 }
 
@@ -56,7 +49,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       try {
         const saved = await idb.get<Settings>('kbv-settings');
         if (saved) {
-          setSettings({ ...defaultSettings, ...saved });
+          // Fusionner avec les défauts pour s'assurer que les nouvelles propriétés existent
+          // et que les anciennes (comme aiSettings) sont ignorées si elles ne sont plus dans le type
+          const { aiSettings, ...rest } = (saved as any);
+          setSettings({ ...defaultSettings, ...rest });
         }
       } catch (error) {
         console.error('Error loading settings:', error);
@@ -103,7 +99,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Fonctions de mise à jour
   const updateSettings = async (updates: Partial<Settings>) => {
-    setSettings((prev) => ({ ...prev, ...updates }));
+    setSettings((prev: Settings) => ({ ...prev, ...updates }));
   };
 
   const setTheme = (theme: Theme) => {
@@ -115,16 +111,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   };
 
   const setNotifications = (notifications: Partial<NotificationSettings>) => {
-    setSettings((prev) => ({
+    setSettings((prev: Settings) => ({
       ...prev,
       notifications: { ...prev.notifications, ...notifications },
-    }));
-  };
-
-  const setAISettings = (aiSettings: Partial<AISettings>) => {
-    setSettings((prev) => ({
-      ...prev,
-      aiSettings: { ...prev.aiSettings, ...aiSettings },
     }));
   };
 
@@ -149,7 +138,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setTheme,
         setLanguage,
         setNotifications,
-        setAISettings,
         resetSettings,
       }}
     >

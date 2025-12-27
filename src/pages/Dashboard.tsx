@@ -313,7 +313,7 @@ export const Dashboard: React.FC = () => {
         className={cn(
           'h-full',
           isPhoneS25Ultra && 's25-ultra-optimized',
-          isTablet ? 'flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6',
+          isSamsungTablet ? 'flex flex-col space-y-2 pb-2' : isTablet ? 'flex flex-col space-y-3 pb-4' : isMobile ? 'space-y-4' : 'space-y-6',
           isTablet && orientation === 'landscape' ? 'px-4' : isTablet ? 'px-4' : 'px-4',
           isLowEndDevice && 'optimize-rendering'
         )}
@@ -326,16 +326,18 @@ export const Dashboard: React.FC = () => {
 
         {/* Stats Cards - Optimisé pour tous les appareils Samsung */}
         <div
-          className={`flex-shrink-0 grid gap-3 sm:gap-6 ${
+          className={`flex-shrink-0 grid gap-3 ${
             isPhoneS25Ultra
               ? 'grid-cols-2'
               : isMobile
                 ? 'grid-cols-2'
-                : deviceType === 'tablet' && orientation === 'landscape'
-                  ? 'grid-cols-4'
-                  : deviceType === 'tablet'
-                    ? 'grid-cols-4'
-                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+                : isSamsungTablet && orientation === 'landscape'
+                  ? 'grid-cols-4 gap-4'
+                  : deviceType === 'tablet' && orientation === 'landscape'
+                    ? 'grid-cols-4 sm:gap-6'
+                    : deviceType === 'tablet'
+                      ? 'grid-cols-4'
+                      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 sm:gap-6'
           }`}
         >
           {stats.map((stat, index) => (
@@ -344,25 +346,39 @@ export const Dashboard: React.FC = () => {
               hoverable
               className={cn(
                 'relative overflow-hidden cursor-pointer',
-                isPhoneS25Ultra && 's25-card'
+                isPhoneS25Ultra && 's25-card',
+                isSamsungTablet && 'shadow-sm'
               )}
               onClick={() => {
                 if (index === 0 || index === 1) navigate('/speakers');
                 else if (index === 2 || index === 3) navigate('/planning');
               }}
             >
-              <CardBody className='flex items-center'>
-                <div className={`p-2 sm:p-3 rounded-xl ${stat.bg} mr-3 sm:mr-4`}>
-                  <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${stat.color}`} />
+              <CardBody className={cn('flex items-center', isSamsungTablet ? 'p-3' : 'sm:p-6')}>
+                <div
+                  className={cn(
+                    'rounded-xl mr-3 sm:mr-4',
+                    stat.bg,
+                    isSamsungTablet ? 'p-2' : 'p-2 sm:p-3'
+                  )}
+                >
+                  <stat.icon
+                    className={cn(stat.color, isSamsungTablet ? 'w-4 h-4' : 'w-5 h-5 sm:w-6 sm:h-6')}
+                  />
                 </div>
                 <div className='flex-1 min-w-0'>
                   <p className='text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400'>
                     {stat.label}
                   </p>
-                  <p className='text-lg sm:text-2xl font-bold text-gray-900 dark:text-white'>
+                  <p
+                    className={cn(
+                      'font-bold text-gray-900 dark:text-white',
+                      isSamsungTablet ? 'text-lg' : 'text-lg sm:text-2xl'
+                    )}
+                  >
                     {stat.value}
                   </p>
-                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>{stat.trend}</p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>{stat.trend}</p>
                 </div>
               </CardBody>
             </Card>
@@ -383,14 +399,14 @@ export const Dashboard: React.FC = () => {
         `}
           >
             <Card className='h-full'>
-              <CardHeader>
+              <CardHeader className={cn(isSamsungTablet && 'py-3 px-4')}>
                 <h3 className='text-base md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
                   <TrendingUp className='w-4 h-4 md:w-5 md:h-5' />
                   Évolution mensuelle
                 </h3>
               </CardHeader>
-              <CardBody>
-                <div className={`${isMobile ? 'h-48' : 'h-64'} w-full`}>
+              <CardBody className={cn(isSamsungTablet && 'p-4')}>
+                <div className={cn('w-full', isSamsungTablet ? 'h-40' : isMobile ? 'h-48' : 'h-64')}>
                   <ResponsiveContainer width='100%' height='100%'>
                     <BarChart data={monthlyData}>
                       <CartesianGrid
@@ -425,7 +441,12 @@ export const Dashboard: React.FC = () => {
         `}
           >
             <Card className='h-full flex flex-col'>
-              <CardHeader className='flex items-center justify-between flex-shrink-0'>
+              <CardHeader
+                className={cn(
+                  'flex items-center justify-between flex-shrink-0',
+                  isSamsungTablet && 'py-3 px-4'
+                )}
+              >
                 <h3 className='text-sm md:text-md font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
                   <Clock className='w-4 h-4' />
                   Prochaines visites
@@ -434,7 +455,12 @@ export const Dashboard: React.FC = () => {
                   Voir tout
                 </Button>
               </CardHeader>
-              <CardBody className='flex-1 overflow-y-auto min-h-[200px]'>
+              <CardBody
+                className={cn(
+                  'flex-1 overflow-y-auto min-h-[200px]',
+                  isSamsungTablet ? 'p-3' : 'p-6'
+                )}
+              >
                 {upcomingVisits.length > 0 ? (
                   <div className='space-y-3'>
                     {upcomingVisits.slice(0, 5).map((visit: Visit) => (
@@ -465,14 +491,14 @@ export const Dashboard: React.FC = () => {
           >
             {/* Card 1: Répartition - Compacte */}
             <Card>
-              <CardHeader className='py-3'>
+              <CardHeader className={cn('py-3', isSamsungTablet && 'px-4')}>
                 <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
                   <Calendar className='w-4 h-4' />
                   Répartition
                 </h3>
               </CardHeader>
-              <CardBody className='py-2'>
-                <div className='h-32 w-full'>
+              <CardBody className={cn('py-2', isSamsungTablet && 'px-4')}>
+                <div className={cn('w-full', isSamsungTablet ? 'h-24' : 'h-32')}>
                   <ResponsiveContainer width='100%' height='100%'>
                     <PieChart>
                       <Pie
@@ -518,13 +544,13 @@ export const Dashboard: React.FC = () => {
 
             {/* Card 2: Accès Rapide */}
             <Card className='flex-1'>
-              <CardHeader className='py-3'>
+              <CardHeader className={cn('py-3', isSamsungTablet && 'px-4')}>
                 <h3 className='text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
                   <Zap className='w-4 h-4 text-yellow-500' />
                   Accès Rapide
                 </h3>
               </CardHeader>
-              <CardBody>
+              <CardBody className={cn(isSamsungTablet ? 'p-3' : 'p-6')}>
                 <div className='grid grid-cols-2 gap-3'>
                   <Button
                     variant='secondary'
@@ -581,7 +607,12 @@ export const Dashboard: React.FC = () => {
         `}
           >
             <Card className='h-full flex flex-col'>
-              <CardHeader className='flex items-center justify-between flex-shrink-0'>
+              <CardHeader
+                className={cn(
+                  'flex items-center justify-between flex-shrink-0',
+                  isSamsungTablet && 'py-3 px-4'
+                )}
+              >
                 <h3 className='text-sm md:text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2'>
                   <AlertCircle className='w-4 h-4 md:w-5 md:h-5' />
                   Actions requises
@@ -592,7 +623,12 @@ export const Dashboard: React.FC = () => {
                   </Badge>
                 )}
               </CardHeader>
-              <CardBody className='flex-1 overflow-y-auto min-h-[250px]'>
+              <CardBody
+                className={cn(
+                  'flex-1 overflow-y-auto min-h-[200px]',
+                  isSamsungTablet ? 'p-3' : 'p-6'
+                )}
+              >
                 <div className='space-y-3'>
                   {visitsNeedingAction.length > 0 ? (
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>

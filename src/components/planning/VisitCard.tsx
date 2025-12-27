@@ -157,16 +157,18 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
 
         <div className='pt-3 border-t border-gray-100 dark:border-gray-700'>
           <div className='flex justify-between items-start mb-2'>
-            <div className='flex-1 min-w-0'>
-              <div className='text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded inline-block mb-1'>
-                Discours n°{visit.talkNoOrType}
-              </div>
-              {visit.talkTheme && (
-                <p className='text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-1'>
-                  {visit.talkTheme}
-                </p>
-              )}
-            </div>
+                <div className='flex-1 min-w-0'>
+                  <div className='text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded inline-block mb-1'>
+                    {visit.talkNoOrType === 'Assemblée' || visit.talkNoOrType === 'Congrès'
+                      ? visit.talkNoOrType
+                      : `Discours n°${visit.talkNoOrType}`}
+                  </div>
+                  {visit.talkTheme && visit.talkNoOrType !== 'Assemblée' && visit.talkNoOrType !== 'Congrès' && (
+                    <p className='text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-1'>
+                      {visit.talkTheme}
+                    </p>
+                  )}
+                </div>
           </div>
 
           <div className='relative'>

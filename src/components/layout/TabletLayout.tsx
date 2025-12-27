@@ -66,10 +66,22 @@ export const TabletLayout: React.FC = () => {
 
     const fileName = `rapport-kbv-${new Date().toISOString().slice(0, 10)}`;
 
+    // Helper pour formater la date de manière cohérente (JJ/MM/AAAA)
+    const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('fr-FR');
+
+    // Helper pour échapper les caractères spéciaux CSV (virgules, guillemets, sauts de ligne)
+    const escapeCsv = (value: any) => {
+      const str = String(value || '');
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
     if (config.format === 'csv') {
       let csvContent = 'Date,Orateur,Congrégation,Discours,Thème,Hôte,Statut\n';
       filteredVisits.forEach((v) => {
-        csvContent += `${v.visitDate},${v.nom},${v.congregation},${v.talkNoOrType || ''},${v.talkTheme || ''},${v.host || ''},${v.status}\n`;
+        csvContent += `${formatDate(v.visitDate)},${escapeCsv(v.nom)},${escapeCsv(v.congregation)},${escapeCsv(v.talkNoOrType)},${escapeCsv(v.talkTheme)},${escapeCsv(v.host)},${escapeCsv(v.status)}\n`;
       });
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -84,7 +96,7 @@ export const TabletLayout: React.FC = () => {
     } else if (config.format === 'excel') {
       let htmlContent = `<html><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;}th,td{border:1px solid black;padding:8px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
       filteredVisits.forEach((v) => {
-        htmlContent += `<tr><td>${v.visitDate}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
+        htmlContent += `<tr><td>${formatDate(v.visitDate)}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
       });
       htmlContent += '</table></body></html>';
       const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
