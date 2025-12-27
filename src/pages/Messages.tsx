@@ -7,62 +7,62 @@ import { HostRequestModal } from '@/components/messages/HostRequestModal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
+import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
-import { MessageSquare, Search, Plus, CheckCircle, Clock, AlertCircle, Users } from 'lucide-react';
+import { 
+  MessageSquare, 
+  Search, 
+  Plus, 
+  CheckCircle, 
+  Clock, 
+  AlertCircle, 
+  Users, 
+  ArrowLeft, 
+  Calendar, 
+  ChevronRight,
+  Filter,
+  Send,
+  Mail,
+  UserCheck,
+  ShieldAlert,
+  Info
+} from 'lucide-react';
 import { Speaker, Visit } from '@/types';
 
 export const Messages: React.FC = () => {
   const { visits, speakers, updateVisit, refreshData } = useData();
-  const { isPhoneS25Ultra, deviceType } = usePlatformContext();
+  const { deviceType } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isSamsungTablet = isTablet && window.innerWidth >= 1200;
 
-  // Mettre à jour les titres manquants au chargement
   React.useEffect(() => {
-    if (refreshData) {
-      refreshData();
-    }
+    if (refreshData) refreshData();
   }, []);
+
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'needs_host'>('all');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
   const [isHostRequestModalOpen, setIsHostRequestModalOpen] = useState(false);
   const [generatorVisit, setGeneratorVisit] = useState<Visit | null>(null);
 
-  // Generate conversations from visits (sans doublons)
+  // Group visits by speaker
   const conversations = useMemo(() => {
     const convos: { speaker: Speaker; visits: Visit[]; nextVisitDate: string }[] = [];
     const seenSpeakers = new Set<string>();
 
-    // Group visits by speaker and find next visit date
     speakers.forEach((speaker) => {
       if (!seenSpeakers.has(speaker.id)) {
         seenSpeakers.add(speaker.id);
-        // Filtre les visites pour exclure les événements spéciaux (car on veut seulement les discours)
-        const speakerVisits = visits.filter(
-          (visit) => {
-            const type = (visit.talkNoOrType || '').toLowerCase();
-            const isSpecialEvent = type.includes('assembl') || 
-                                  type.includes('congr') || 
-                                  type.includes('especial') || 
-                                  type.includes('circun');
-            
-            return visit.id === speaker.id &&
-                   !isSpecialEvent &&
-                   visit.status !== 'cancelled';
-          }
-        );
+        const speakerVisits = visits.filter(v => {
+          const type = (v.talkNoOrType || '').toLowerCase();
+          const isSpecialEvent = type.includes('assembl') || type.includes('congr') || type.includes('especial') || type.includes('circun');
+          return v.id === speaker.id && !isSpecialEvent && v.status !== 'cancelled';
+        });
 
         if (speakerVisits.length > 0) {
-          // Trouve la date de visite la plus proche dans le futur (ou la plus récente)
-          const sortedVisits = [...speakerVisits].sort(
-            (a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
-          );
-
-          // Ne garde que les orateurs ayant au moins une visite non passée ou en attente
-          const upcomingVisits = sortedVisits.filter(
-            (v) => new Date(v.visitDate) >= new Date(new Date().setHours(0, 0, 0, 0))
-          );
+          const sortedVisits = [...speakerVisits].sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
+          const upcomingVisits = sortedVisits.filter(v => new Date(v.visitDate) >= new Date(new Date().setHours(0, 0, 0, 0)));
 
           if (upcomingVisits.length > 0) {
             convos.push({
@@ -75,61 +75,37 @@ export const Messages: React.FC = () => {
       }
     });
 
-    // Trie les conversations par date de prochaine visite (la plus proche en premier)
-    return convos.sort(
-      (a, b) => new Date(a.nextVisitDate).getTime() - new Date(b.nextVisitDate).getTime()
-    );
+    return convos.sort((a, b) => new Date(a.nextVisitDate).getTime() - new Date(b.nextVisitDate).getTime());
   }, [visits, speakers]);
 
   // Filtered conversations
-  const filteredConversations = useMemo(
-    () =>
-      conversations.filter((convo) => {
-        const matchesSearch =
-          convo.speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          convo.speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          convo.nextVisitDate.includes(searchTerm);
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((convo) => {
+      const matchesSearch = 
+        convo.speaker.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        convo.speaker.congregation.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesFilter = activeFilter === 'all' || 
+        (activeFilter === 'pending' && convo.visits.some(v => v.status === 'pending')) ||
+        (activeFilter === 'needs_host' && convo.visits.some(v => !v.host || v.host === 'À définir'));
 
-        return matchesSearch;
-      }),
-    [conversations, searchTerm]
-  );
+      return matchesSearch && matchesFilter;
+    });
+  }, [conversations, searchTerm, activeFilter]);
 
   const stats = useMemo(() => {
-    const total = conversations.length;
-    const pending = visits.filter((v) => v.status === 'pending').length;
-    const needingHost = visits.filter(
-      (v) => !v.host || v.host === 'À définir' || v.host === ''
-    ).length;
-
-    return { total, pending, needingHost };
-  }, [conversations, visits]);
-
-  const getStatusIcon = (visit: Visit) => {
-    switch (visit.status) {
-      case 'pending':
-        return <Clock className='w-4 h-4 text-orange-500' />;
-      case 'confirmed':
-        return <CheckCircle className='w-4 h-4 text-green-500' />;
-      default:
-        return <AlertCircle className='w-4 h-4 text-gray-500' />;
-    }
-  };
+    const pendingTotal = visits.filter(v => v.status === 'pending').length;
+    const confirmedTotal = visits.filter(v => v.status === 'confirmed').length;
+    const needingHostTotal = visits.filter(v => (!v.host || v.host === 'À définir') && v.locationType === 'physical').length;
+    return { pendingTotal, confirmedTotal, needingHostTotal, totalConversations: conversations.length };
+  }, [visits, conversations]);
 
   const handleMessageAction = (action: string, visit?: Visit) => {
-    if (action === 'whatsapp' || action === 'email') {
-      if (visit && selectedSpeaker) {
-        setGeneratorVisit(visit);
-        setIsGeneratorModalOpen(true);
-      }
+    if ((action === 'whatsapp' || action === 'email') && visit && selectedSpeaker) {
+      setGeneratorVisit(visit);
+      setIsGeneratorModalOpen(true);
     } else if (action === 'confirm' && visit) {
-      // Confirmer la visite
-      const updatedVisit: Visit = {
-        ...visit,
-        status: 'confirmed',
-        updatedAt: new Date().toISOString(),
-      };
-      updateVisit(updatedVisit);
+      updateVisit({ ...visit, status: 'confirmed', updatedAt: new Date().toISOString() });
     } else if (action === 'host_request' && visit) {
       setGeneratorVisit(visit);
       setIsHostRequestModalOpen(true);
@@ -137,235 +113,226 @@ export const Messages: React.FC = () => {
   };
 
   return (
-    <div
-      className={cn(
-        'min-h-[calc(100vh-12rem)] flex flex-col',
-        isPhoneS25Ultra && 's25-ultra-optimized'
-      )}
-    >
-      {/* Header */}
-      <div className={cn('flex justify-end gap-3 mb-6', isPhoneS25Ultra && 'flex-col gap-2')}>
-        {/* Bouton demande d'accueil - conditionnel */}
-        {stats.needingHost > 0 && (
-          <Button
-            variant='secondary'
-            className='bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:hover:bg-orange-900/50'
-            leftIcon={<Users className='w-4 h-4' />}
-            onClick={() => setIsHostRequestModalOpen(true)}
+    <div className='max-w-[1600px] mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-4'>
+      {/* Header Section */}
+      <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-6'>
+        <div>
+          <div className='flex items-center gap-2 text-sm text-primary-600 dark:text-primary-400 font-medium mb-1'>
+            <MessageSquare className='w-4 h-4' />
+            <span>Communications Hub</span>
+          </div>
+          <h2 className='text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight'>
+            Messages & Suivi
+          </h2>
+          <p className='text-gray-500 dark:text-gray-400 mt-2 max-w-2xl text-sm'>
+            Gérez vos échanges avec les orateurs, confirmez les visites et organisez l'accueil en un seul endroit.
+          </p>
+        </div>
+
+        <div className='flex items-center gap-3'>
+          {deviceType === 'phone' && selectedSpeaker && (
+             <Button variant='ghost' onClick={() => setSelectedSpeaker(null)} leftIcon={<ArrowLeft className='w-4 h-4' />}>
+               Retour
+             </Button>
+          )}
+          <Button 
+            className='shadow-lg shadow-primary-200 dark:shadow-none'
+            leftIcon={<Plus className='w-4 h-4' />}
+            onClick={() => {
+              setGeneratorVisit(null);
+              setIsGeneratorModalOpen(true);
+            }}
           >
-            Demande d'accueil ({stats.needingHost})
+            Nouveau Message
           </Button>
-        )}
-        <Button
-          variant='secondary'
-          leftIcon={<Plus className='w-4 h-4' />}
-          onClick={() => setIsGeneratorModalOpen(true)}
-        >
-          Nouveau message
-        </Button>
-      </div>
-
-      {/* Statistics Cards - More compact */}
-      <div className={cn('grid gap-3 mb-4', isPhoneS25Ultra ? 'grid-cols-1' : 'grid-cols-3')}>
-        <div
-          className={cn(
-            'bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800',
-            isPhoneS25Ultra && 's25-card'
-          )}
-        >
-          <div className='flex items-center gap-2'>
-            <MessageSquare className='w-5 h-5 text-blue-600 dark:text-blue-400' />
-            <div>
-              <div className='text-base font-semibold text-blue-900 dark:text-blue-100 leading-tight'>
-                {stats.total}
-              </div>
-              <div className='text-[10px] text-blue-700 dark:text-blue-300'>Orateurs</div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={cn(
-            'bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800',
-            isPhoneS25Ultra && 's25-card'
-          )}
-        >
-          <div className='flex items-center gap-2'>
-            <Clock className='w-5 h-5 text-orange-600 dark:text-orange-400' />
-            <div>
-              <div className='text-base font-semibold text-orange-900 dark:text-orange-100 leading-tight'>
-                {stats.pending}
-              </div>
-              <div className='text-[10px] text-orange-700 dark:text-orange-300'>En attente</div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={cn(
-            'bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800',
-            isPhoneS25Ultra && 's25-card'
-          )}
-        >
-          <div className='flex items-center gap-2'>
-            <CheckCircle className='w-5 h-5 text-green-600 dark:text-green-400' />
-            <div>
-              <div className='text-base font-semibold text-green-900 dark:text-green-100 leading-tight'>
-                {visits.filter((v) => v.status === 'confirmed').length}
-              </div>
-              <div className='text-[10px] text-green-700 dark:text-green-300'>Confirmées</div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Filters - Simplified */}
-      <div
-        className={cn(
-          'flex items-center bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-4',
-          isPhoneS25Ultra && 'p-1'
-        )}
-      >
-        <Input
-          placeholder='Rechercher un orateur ou une date (AAAA-MM-DD)...'
-          leftIcon={<Search className='w-4 h-4' />}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className='w-full border-none focus:ring-0 bg-transparent'
-        />
-      </div>
+      {/* Landing / Stats Layer */}
+      {(!selectedSpeaker || !isTablet) && (
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in duration-500'>
+          {[
+            { label: 'Conversations', value: stats.totalConversations, icon: MessageSquare, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+            { label: 'En attente', value: stats.pendingTotal, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' },
+            { label: 'À confirmer', value: stats.needingHostTotal, icon: Users, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' },
+            { label: 'Confirmées', value: stats.confirmedTotal, icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
+          ].map((s, i) => (
+            <Card key={i} className='border-none shadow-sm hover:translate-y-[-2px] transition-transform'>
+              <CardBody className='p-4 flex items-center justify-between'>
+                <div>
+                  <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>{s.label}</p>
+                  <p className='text-xl font-black text-gray-900 dark:text-white mt-1'>{s.value}</p>
+                </div>
+                <div className={cn('p-2.5 rounded-xl', s.bg)}>
+                  <s.icon className={cn('w-4 h-4', s.color)} />
+                </div>
+              </CardBody>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      {/* Main Content - Split View */}
-      <div className={cn('flex-1 flex gap-6 min-h-0', isPhoneS25Ultra && 'flex-col gap-4')}>
-        {/* Conversations List */}
-        <div
-          className={cn(
-            'flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden',
-            isPhoneS25Ultra ? 'w-full min-h-0 flex-1' : isSamsungTablet ? 'w-[800px]' : 'w-full lg:w-96'
-          )}
-        >
-          <div className='p-4 border-b border-gray-200 dark:border-gray-700'>
-            <h3 className='font-semibold text-gray-900 dark:text-white'>Orateurs</h3>
-          </div>
+      {/* Main Content Area */}
+      <div className='flex flex-col lg:flex-row gap-8 items-start min-h-[600px]'>
+        
+        {/* Left Pane: Conversations List */}
+        {(!selectedSpeaker || deviceType !== 'phone') && (
+          <div className={cn(
+            'flex flex-col w-full shrink-0',
+            isSamsungTablet ? 'lg:w-[450px]' : 'lg:w-96'
+          )}>
+            <div className='space-y-4 sticky top-4'>
+              {/* Filter & Search Card */}
+              <Card className='border-none shadow-md overflow-hidden'>
+                <CardBody className='p-4 space-y-4'>
+                   <div className='relative'>
+                      <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
+                      <input 
+                        className='w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all'
+                        placeholder='Rechercher un orateur...'
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                   </div>
+                   
+                   <div className='flex gap-1 overflow-x-auto pb-1 scrollbar-none'>
+                      {[
+                        { id: 'all', label: 'Tout' },
+                        { id: 'pending', label: 'En attente' },
+                        { id: 'needs_host', label: 'Sans accueil' },
+                      ].map(f => (
+                        <button
+                          key={f.id}
+                          onClick={() => setActiveFilter(f.id as any)}
+                          className={cn(
+                            'px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all uppercase tracking-tighter',
+                            activeFilter === f.id 
+                              ? 'bg-primary-600 text-white shadow-md' 
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-gray-200'
+                          )}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                   </div>
+                </CardBody>
+              </Card>
 
-          <div className='flex-1 overflow-y-auto p-3'>
-            {filteredConversations.length > 0 ? (
-              <div className={cn(
-                'grid gap-3',
-                isSamsungTablet ? 'grid-cols-3' : isTablet ? 'grid-cols-2' : 'grid-cols-1'
-              )}>
-                {filteredConversations.map(({ speaker, visits: speakerVisits }) => (
-                  <div
-                    key={speaker.id}
-                    onClick={() => setSelectedSpeaker(speaker)}
-                    className={cn(
-                      'p-3 rounded-lg cursor-pointer border transition-all',
-                      selectedSpeaker?.id === speaker.id
-                        ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 shadow-sm'
-                        : 'border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600'
-                    )}
-                  >
-                    <div className='flex items-start justify-between'>
-                      <div className='flex items-start gap-3 flex-1 min-w-0'>
-                        <div className='w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold flex-shrink-0'>
-                          {speaker.nom.charAt(0).toUpperCase()}
-                        </div>
-
-                        <div className='flex-1 min-w-0'>
-                          <div className='flex items-center gap-2 mb-0.5'>
-                            <h4 className='font-medium text-gray-900 dark:text-white leading-tight'>
-                              {speaker.nom}
-                            </h4>
-                            {speakerVisits.some((v: Visit) => v.status === 'pending') && (
-                              <Badge variant='danger' className='text-[10px] px-1.5 py-0 flex-shrink-0'>
-                                !
-                              </Badge>
+              {/* Conversations Scroller */}
+              <div className='space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700'>
+                 {filteredConversations.length > 0 ? (
+                   filteredConversations.map(({ speaker, visits: speakerVisits, nextVisitDate }) => {
+                     const isSelected = selectedSpeaker?.id === speaker.id;
+                     const hasPending = speakerVisits.some(v => v.status === 'pending');
+                     const needsHost = speakerVisits.some(v => (!v.host || v.host === 'À définir') && v.locationType === 'physical');
+                     
+                     return (
+                       <button
+                         key={speaker.id}
+                         onClick={() => setSelectedSpeaker(speaker)}
+                         className={cn(
+                           'w-full flex items-start gap-3 p-4 rounded-2xl text-left transition-all duration-200 group relative',
+                           isSelected 
+                             ? 'bg-white dark:bg-gray-800 shadow-xl border-l-[6px] border-primary-500 translate-x-1' 
+                             : 'hover:bg-white/50 dark:hover:bg-white/5'
+                         )}
+                       >
+                         <div className={cn(
+                           'relative w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 transition-transform group-hover:scale-105',
+                           isSelected ? 'bg-primary-600 text-white shadow-lg' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                         )}>
+                            {speaker.nom.charAt(0).toUpperCase()}
+                            {(hasPending || needsHost) && (
+                               <div className='absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse' />
                             )}
-                          </div>
+                         </div>
 
-                          <div className='flex flex-col gap-0.5'>
-                            <p className='text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-tight'>
-                              {speaker.congregation}
-                            </p>
-                            <div className='flex items-center gap-2'>
-                              <span className='text-[11px] font-medium text-primary-600 dark:text-primary-400'>
-                                {new Date(
-                                  (conversations.find(c => c.speaker.id === speaker.id) as any)?.nextVisitDate
-                                ).toLocaleDateString('fr-FR', {
-                                  day: '2-digit',
-                                  month: 'short',
-                                })}
-                              </span>
-                              <Badge className='text-[9px] px-1 py-0 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-none'>
-                                {speakerVisits.find((v: Visit) => v.visitDate === (conversations.find(c => c.speaker.id === speaker.id) as any)?.nextVisitDate)?.locationType === 'physical' ? 'Présentiel' : 
-                                 speakerVisits.find((v: Visit) => v.visitDate === (conversations.find(c => c.speaker.id === speaker.id) as any)?.nextVisitDate)?.locationType === 'zoom' ? 'Zoom' : 'Streaming'}
-                              </Badge>
+                         <div className='flex-1 min-w-0'>
+                            <div className='flex items-center justify-between mb-1'>
+                               <h4 className={cn('font-bold truncate text-sm uppercase tracking-tight', isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400')}>
+                                 {speaker.nom}
+                               </h4>
+                               <span className='text-[10px] text-gray-400 font-bold uppercase'>
+                                 {new Date(nextVisitDate).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}
+                               </span>
                             </div>
-                          </div>
-                        </div>
-                      </div>
+                            <p className='text-[11px] text-gray-500 truncate mb-2'>{speaker.congregation}</p>
+                            
+                            <div className='flex gap-1.5'>
+                               {hasPending && <Badge variant='danger' className='text-[9px] px-1.5 py-0'>À CONFIRMER</Badge>}
+                               {needsHost && <Badge variant='warning' className='text-[9px] px-1.5 py-0'>SANS ACCUEIL</Badge>}
+                               {!hasPending && !needsHost && <Badge variant='success' className='text-[9px] px-1.5 py-0'>OK</Badge>}
+                            </div>
+                         </div>
+                         
+                         <ChevronRight className={cn(
+                           'w-4 h-4 mt-1 transition-all',
+                           isSelected ? 'opacity-100 text-primary-500' : 'opacity-0 group-hover:opacity-100 text-gray-300'
+                         )} />
+                       </button>
+                     );
+                   })
+                 ) : (
+                   <div className='py-20 text-center opacity-40'>
+                      <Info className='w-8 h-8 mx-auto mb-3' />
+                      <p className='text-xs font-bold uppercase tracking-widest'>Aucun résultat</p>
+                   </div>
+                 )}
+              </div>
+            </div>
+          </div>
+        )}
 
-                      <div className='flex flex-col items-end gap-1 flex-shrink-0'>
-                        {speakerVisits.some((v: Visit) => getStatusIcon(v))}
-                        <span className='text-[10px] text-gray-400 dark:text-gray-500'>
-                          {speaker.telephone || speaker.email ? 'Contacté' : 'Sans contact'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {/* Right Pane: Message Thread / Dashboard Overview */}
+        {(selectedSpeaker || isTablet) && (
+          <div className='flex-1 w-full min-h-[600px]'>
+            {selectedSpeaker ? (
+              <div className='animate-in fade-in slide-in-from-right-4 duration-300 h-full'>
+                 <Card className='border-none shadow-xl h-full flex flex-col bg-gray-50 dark:bg-gray-900/40 rounded-3xl overflow-hidden'>
+                    <MessageThread 
+                      speaker={selectedSpeaker}
+                      visits={visits.filter(v => v.id === selectedSpeaker.id)}
+                      onAction={handleMessageAction}
+                    />
+                 </Card>
               </div>
             ) : (
-              <div className='flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400'>
-                <MessageSquare className='w-12 h-12 mb-4 opacity-20' />
-                <p className='text-center'>
-                  {searchTerm ? 'Aucun orateur trouvé' : 'Aucun orateur'}
-                </p>
+              <div className='h-full flex flex-col items-center justify-center p-12 text-center animate-in zoom-in-95 duration-500'>
+                 <div className='relative mb-10'>
+                    <div className='absolute -inset-4 bg-primary-100 dark:bg-primary-900/30 rounded-full blur-2xl animate-pulse' />
+                    <div className='relative w-24 h-24 bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex items-center justify-center'>
+                       <Send className='w-12 h-12 text-primary-500 rotate-[-15deg]' />
+                    </div>
+                 </div>
+                 
+                 <h3 className='text-2xl font-black text-gray-900 dark:text-white tracking-tighter mb-4'>
+                    Prêt à communiquer ?
+                 </h3>
+                 <p className='text-gray-500 max-w-sm mb-12 text-sm leading-relaxed'>
+                    Sélectionnez un orateur dans la liste de gauche pour préparer son arrivée, gérer l'accueil ou simplement lui envoyer un message de confirmation.
+                 </p>
+                 
+                 <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl'>
+                    {[
+                      { icon: Mail, label: 'Modèles SMS', desc: 'Gagnez du temps' },
+                      { icon: UserCheck, label: 'Suivi Précis', desc: 'Statut en direct' },
+                      { icon: ShieldAlert, label: 'Gestion Hosting', desc: 'Alertes accueil' },
+                    ].map((feat, i) => (
+                      <div key={i} className='p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-all'>
+                         <feat.icon className='w-6 h-6 text-primary-500 mx-auto mb-3' />
+                         <p className='font-bold text-xs uppercase tracking-tighter mb-1'>{feat.label}</p>
+                         <p className='text-[10px] text-gray-400'>{feat.desc}</p>
+                      </div>
+                    ))}
+                 </div>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Message Thread */}
-        <div
-          className={cn(
-            'flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden',
-            isPhoneS25Ultra && 'w-full'
-          )}
-        >
-          {selectedSpeaker ? (
-            <MessageThread
-              speaker={selectedSpeaker}
-              visits={visits.filter((v) => v.nom === selectedSpeaker.nom)}
-              onAction={handleMessageAction}
-            />
-          ) : (
-            <div className='flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400'>
-              <MessageSquare className='w-16 h-16 mb-4 opacity-20' />
-              <h3 className='text-lg font-medium mb-2'>Sélectionnez un orateur</h3>
-              <p className='text-center max-w-md'>
-                Choisissez un orateur dans la liste pour voir les détails et envoyer des messages.
-              </p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Message Generator Modal */}
-      {isGeneratorModalOpen && selectedSpeaker && generatorVisit && (
-        <MessageGeneratorModal
-          isOpen={isGeneratorModalOpen}
-          onClose={() => {
-            setIsGeneratorModalOpen(false);
-            setGeneratorVisit(null);
-          }}
-          speaker={selectedSpeaker}
-          visit={generatorVisit}
-        />
-      )}
-
-      {/* Fallback modal when no specific visit is selected */}
-      {isGeneratorModalOpen && !generatorVisit && (
+      {/* Modals */}
+      {isGeneratorModalOpen && (
         <MessageGeneratorModal
           isOpen={isGeneratorModalOpen}
           onClose={() => {
@@ -373,26 +340,19 @@ export const Messages: React.FC = () => {
             setGeneratorVisit(null);
           }}
           speaker={selectedSpeaker || speakers[0]}
-          visit={
-            selectedSpeaker
-              ? visits.find(
-                  (v) =>
-                    v.id === selectedSpeaker.id &&
-                    (v.status === 'pending' || v.status === 'confirmed')
-                ) ||
-                visits.find((v) => v.id === selectedSpeaker.id) ||
-                visits[0]
-              : visits[0]
-          }
+          visit={generatorVisit || visits.find(v => v.id === (selectedSpeaker?.id)) || visits[0]}
         />
       )}
 
-      {/* Host Request Modal */}
-      <HostRequestModal
-        isOpen={isHostRequestModalOpen}
-        onClose={() => setIsHostRequestModalOpen(false)}
-        visitsNeedingHost={visits.filter((v) => !v.host || v.host === 'À définir' || v.host === '')}
-      />
+      {isHostRequestModalOpen && (
+        <HostRequestModal
+          isOpen={isHostRequestModalOpen}
+          onClose={() => setIsHostRequestModalOpen(false)}
+          visitsNeedingHost={visits.filter(v => (!v.host || v.host === 'À définir') && v.locationType === 'physical')}
+        />
+      )}
     </div>
   );
 };
+
+export default Messages;

@@ -9,6 +9,9 @@ interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   footer?: React.ReactNode;
+  className?: string; // Additional classes for the modal container
+  hideCloseButton?: boolean; // Option to hide the default close button
+  padding?: 'none' | 'default'; // Control internal padding
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -18,6 +21,9 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   size = 'md',
   footer,
+  className = '',
+  hideCloseButton = false,
+  padding = 'default',
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -61,24 +67,27 @@ export const Modal: React.FC<ModalProps> = ({
           relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[90vh] flex flex-col
           transform transition-all duration-200 scale-100 opacity-100
           ${sizes[size]}
+          ${className}
         `}
         role='dialog'
         aria-modal='true'
       >
-        <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0'>
-          {title && (
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
-          )}
-          <button
-            onClick={onClose}
-            aria-label='Fermer'
-            className='text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700'
-          >
-            <X className='w-5 h-5' />
-          </button>
-        </div>
+        {!hideCloseButton && (
+          <div className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0 ${title ? '' : 'justify-end border-none pb-0'}`}>
+            {title && (
+              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
+            )}
+            <button
+              onClick={onClose}
+              aria-label='Fermer'
+              className='text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700'
+            >
+              <X className='w-5 h-5' />
+            </button>
+          </div>
+        )}
 
-        <div className='px-6 py-4 overflow-y-auto custom-scrollbar grow'>{children}</div>
+        <div className={`${padding === 'none' ? 'p-0' : 'px-6 py-4'} overflow-y-auto custom-scrollbar grow`}>{children}</div>
 
         {footer && (
           <div className='px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 rounded-b-xl shrink-0 flex justify-end gap-3'>

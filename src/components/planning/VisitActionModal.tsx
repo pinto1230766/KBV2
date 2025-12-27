@@ -17,19 +17,25 @@ import {
   Truck,
   Utensils,
   Home,
+  AlertOctagon,
+  Calendar,
+  Clock,
+  BookOpen,
+  MapPin,
+  ChevronRight,
+  Send,
+  Download,
+  FileText
 } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
-import {
-  TravelCoordinationModal,
-  MealPlanningModal,
-  AccommodationMatchingModal,
-} from '@/components/modals';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
 import { generateUUID } from '@/utils/uuid';
+import { cn } from '@/utils/cn';
+import { Badge } from '@/components/ui/Badge';
 
 interface VisitActionModalProps {
   isOpen: boolean;
@@ -46,37 +52,24 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 }) => {
   const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
-  const { confirm } = useConfirm(); // Hook at top level
+  const { confirm } = useConfirm();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Visit>>({});
-
-  // Expenses Logic
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
-
-  // Logistics Logic
-  const [_activeTab, _setActiveTab] = useState('accommodation');
-  const [_isTravelModalOpen, _setIsTravelModalOpen] = useState(false);
-  const [_isMealModalOpen, _setIsMealModalOpen] = useState(false);
-  const [_isAccommodationModalOpen, _setIsAccommodationModalOpen] = useState(false);
-
-  // Message Generator Logic
   const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({
     isOpen: false,
     type: 'confirmation',
   });
 
   useEffect(() => {
-    if (visit) {
-      setFormData(visit);
-    }
+    if (visit) setFormData(visit);
   }, [visit]);
 
   if (!visit) return null;
 
   const handleSave = async () => {
     if (!formData) return;
-
     setIsLoading(true);
     try {
       await updateVisit({ ...visit, ...formData });
@@ -90,25 +83,22 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   };
 
   const handleDelete = async () => {
-    const userConfirmed = await confirm({
+    if (await confirm({
       title: 'Supprimer la visite',
-      message: 'Êtes-vous sûr de vouloir supprimer cette visite ?',
+      message: 'Voulez-vous vraiment supprimer cette visite ?',
       confirmText: 'Supprimer',
       confirmVariant: 'danger',
-      cancelText: 'Annuler',
-    });
-
-    if (!userConfirmed) return;
-
-    setIsLoading(true);
-    try {
-      await deleteVisit(visit.visitId);
-      addToast('Visite supprimée', 'success');
-      onClose();
-    } catch (error) {
-      addToast('Erreur lors de la suppression', 'error');
-    } finally {
-      setIsLoading(false);
+    })) {
+      setIsLoading(true);
+      try {
+        await deleteVisit(visit.visitId);
+        addToast('Visite supprimée', 'success');
+        onClose();
+      } catch (error) {
+        addToast('Erreur lors de la suppression', 'error');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -116,595 +106,265 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     setIsLoading(true);
     try {
       if (newStatus === 'completed') {
-        // Utiliser completeVisit pour marquer comme terminé et archiver
         await completeVisit(visit);
         addToast('Visite terminée et archivée', 'success');
       } else {
-        // Pour les autres statuts, utiliser updateVisit normalement
         await updateVisit({ ...visit, status: newStatus as any });
         addToast('Statut mis à jour', 'success');
       }
       onClose();
     } catch (error) {
-      addToast('Erreur lors de la mise à jour', 'error');
+       addToast("Erreur lors de la mise à jour", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Message Generator Logic
+  // Render Helpers
+  const renderHeader = () => {
+     let title = "Détails de la visite";
+     let subtitle = `Programmé pour le ${new Date(visit.visitDate).toLocaleDateString()}`;
+     let Icon = Calendar;
+     let colorClass = "from-blue-600 to-indigo-600";
 
-  const handleFeedbackSubmit = async (
-    feedbackData: Omit<VisitFeedback, 'id' | 'visitId' | 'submittedBy' | 'submittedAt'>
-  ) => {
-    setIsLoading(true);
-    try {
-      const newFeedback: VisitFeedback = {
-        ...feedbackData,
-        id: generateUUID(),
-        visitId: visit.visitId,
-        submittedBy: 'currentUser',
-        submittedAt: new Date().toISOString(),
-      };
-      await updateVisit({ ...visit, visitFeedback: newFeedback });
-      addToast('Bilan enregistré avec succès', 'success');
-      onClose();
-    } catch (error) {
-      addToast("Erreur lors de l'enregistrement du bilan", 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+     switch(action) {
+        case 'edit': title="Modifier la visite"; Icon=Edit2; break;
+        case 'delete': title="Supprimer la visite"; Icon=Trash2; colorClass="from-red-600 to-red-500"; break;
+        case 'status': title="Changer le statut"; Icon=CheckCircle; colorClass="from-green-600 to-emerald-600"; break;
+        case 'message': title="Envoyer un message"; Icon=Send; colorClass="from-violet-600 to-purple-600"; break;
+        case 'logistics': title="Logistique"; Icon=Truck; colorClass="from-blue-600 to-cyan-600"; break;
+        case 'expenses': title="Dépenses"; Icon=CreditCard; colorClass="from-emerald-600 to-teal-600"; break;
+     }
 
-  const handleSaveExpense = async (expenseData: Omit<Expense, 'id'>) => {
-    setIsLoading(true);
-    try {
-      const currentExpenses = visit.expenses || [];
-      let newExpenses: Expense[];
-
-      if (editingExpense) {
-        newExpenses = currentExpenses.map((e) =>
-          e.id === editingExpense.id ? { ...expenseData, id: editingExpense.id } : e
-        );
-      } else {
-        newExpenses = [...currentExpenses, { ...expenseData, id: generateUUID() }];
-      }
-
-      const updatedVisit = { ...visit, expenses: newExpenses };
-      await updateVisit(updatedVisit);
-      setFormData(updatedVisit);
-      addToast(editingExpense ? 'Dépense modifiée' : 'Dépense ajoutée', 'success');
-      setIsAddingExpense(false);
-      setEditingExpense(undefined);
-    } catch (error) {
-      addToast('Erreur lors de la sauvegarde de la dépense', 'error');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteExpense = async (expenseId: string) => {
-    const confirmDelete = confirm; // Use the hook from top level
-    const userConfirmed = await confirmDelete({
-      title: 'Supprimer la dépense',
-      message: 'Voulez-vous vraiment supprimer cette dépense ?',
-      confirmText: 'Supprimer',
-      confirmVariant: 'danger',
-      cancelText: 'Annuler',
-    });
-
-    if (!userConfirmed) return;
-
-    setIsLoading(true);
-    try {
-      const newExpenses = (visit.expenses || []).filter((e) => e.id !== expenseId);
-      const updatedVisit = { ...visit, expenses: newExpenses };
-      await updateVisit(updatedVisit);
-      setFormData(updatedVisit);
-      addToast('Dépense supprimée', 'success');
-    } catch (error) {
-      addToast('Erreur lors de la suppression', 'error');
-    } finally {
-      setIsLoading(false);
-    }
+     return (
+        <div className={cn("bg-gradient-to-r p-6 text-white relative overflow-hidden shrink-0", colorClass)}>
+           <Icon className="absolute right-[-10px] top-[-10px] w-32 h-32 opacity-10 rotate-12" />
+           <div className="relative z-10">
+              <h2 className="text-2xl font-black tracking-tighter mb-1">{title}</h2>
+              <p className="opacity-90 text-sm font-medium">{subtitle}</p>
+              
+              <div className="mt-4 flex items-center gap-3">
+                 <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg">
+                    <span className="text-xs font-bold uppercase tracking-wider opacity-80">Orateur</span>
+                    <span className="font-bold text-sm">{visit.nom}</span>
+                 </div>
+                 <Badge className="bg-white/20 text-white border-none backdrop-blur-md">
+                    {visit.congregation}
+                 </Badge>
+              </div>
+           </div>
+        </div>
+     );
   };
 
   const getModalContent = () => {
     switch (action) {
       case 'edit':
         return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <Edit2 className='w-5 h-5' />
-              Modifier la visite
-            </h3>
-            <div className='grid grid-cols-2 gap-4'>
-              <Input
-                label='Date'
-                type='date'
-                value={formData.visitDate || ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, visitDate: e.target.value }))}
-              />
-              <Input
-                label='Heure'
-                type='time'
-                value={formData.visitTime || ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, visitTime: e.target.value }))}
-              />
-              <Input
-                label='N° Discours'
-                value={formData.talkNoOrType || ''}
-                onChange={(e) => setFormData((prev) => ({ ...prev, talkNoOrType: e.target.value }))}
-                placeholder='Ex: 185'
-              />
-              <div>
-                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                  Type de visite
-                </label>
-                <select
-                  value={formData.locationType || 'physical'}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationType: e.target.value as any,
-                      // Si ce n'est pas physique, on réinitialise l'hôte
-                      host: e.target.value !== 'physical' ? '' : prev.host,
-                      accommodation: e.target.value !== 'physical' ? '' : prev.accommodation,
-                    }))
-                  }
-                  className='w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
-                  title='Sélectionner le type de visite'
-                >
-                  <option value='physical'>Présentiel</option>
-                  <option value='zoom'>Zoom</option>
-                  <option value='streaming'>Streaming</option>
-                </select>
+          <div className="space-y-6 p-6">
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Date</label>
+                  <input type="date" value={formData.visitDate} onChange={e => setFormData({ ...formData, visitDate: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+               </div>
+               <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Heure</label>
+                   <input type="time" value={formData.visitTime} onChange={e => setFormData({ ...formData, visitTime: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+               </div>
+            </div>
+
+            <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Discours</label>
+               <div className="grid grid-cols-[1fr,2fr] gap-4">
+                  <input placeholder="N°" value={formData.talkNoOrType} onChange={e => setFormData({ ...formData, talkNoOrType: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+                  <input placeholder="Thème..." value={formData.talkTheme} onChange={e => setFormData({ ...formData, talkTheme: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Type</label>
+                 <select 
+                    value={formData.locationType} 
+                    onChange={e => setFormData({...formData, locationType: e.target.value as any})}
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500"
+                 >
+                    <option value="physical">Présentiel</option>
+                    <option value="zoom">Zoom</option>
+                    <option value="streaming">Streaming</option>
+                 </select>
               </div>
-
-              {formData.locationType === 'physical' && (
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                    Contact d'accueil
-                  </label>
-                  <select
-                    value={formData.host || ''}
-                    onChange={(e) => {
-                      const { value } = e.target;
-                      const selectedHost = hosts.find((h) => h.nom === value);
-
-                      setFormData((prev) => {
-                        const currentLogistics = prev.logistics || {};
-                        const currentAccommodation = currentLogistics.accommodation || {};
-
-                        const newAccommodation = {
-                          ...currentAccommodation,
-                        } as Partial<Accommodation>;
-                        let newAddress = prev.accommodation;
-
-                        if (value === 'Hôtel') {
-                          newAccommodation.type = 'hotel';
-                          newAddress = '';
-                        } else if (selectedHost) {
-                          newAccommodation.type = 'host';
-                          newAccommodation.name = selectedHost.nom;
-                          newAccommodation.address = selectedHost.address;
-                          newAddress = selectedHost.address || '';
-                        } else if (value === 'Pas besoin') {
-                          newAccommodation.type = 'other';
-                          newAccommodation.name = '';
-                          newAccommodation.address = '';
-                          newAddress = '';
-                        }
-
-                        return {
-                          ...prev,
-                          host: value,
-                          accommodation: newAddress,
-                          logistics: {
-                            ...currentLogistics,
-                            accommodation: newAccommodation as Accommodation,
-                          },
-                        };
-                      });
-                    }}
-                    title='Sélectionner un hôte'
-                    className='w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
-                  >
-                    <option value=''>Sélectionner un hôte...</option>
-                    <option value='Pas besoin'>Pas besoin</option>
-                    <option value='Hôtel'>Hôtel</option>
-                    {hosts.map((host) => (
-                      <option key={host.nom} value={host.nom}>
-                        {host.nom}
-                      </option>
-                    ))}
-                  </select>
+              
+              {formData.locationType === 'physical' && !(formData.congregation?.includes('Lyon')) && (
+                <div className="space-y-1">
+                   <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Hôte</label>
+                   <select 
+                      value={formData.host} 
+                      onChange={e => setFormData({...formData, host: e.target.value})}
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500"
+                   >
+                      <option value="">-- Sélectionner --</option>
+                      <option value="Hôtel">Hôtel</option>
+                      <option value="Pas besoin">Pas besoin</option>
+                      {hosts.map(h => <option key={h.id} value={h.nom}>{h.nom}</option>)}
+                   </select>
                 </div>
               )}
-
-              {formData.locationType === 'physical' && (
-                <Input
-                  label="Nombre d'accompagnateurs"
-                  type='number'
-                  min={0}
-                  max={10}
-                  value={formData.accompanyingPersons || 0}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      accompanyingPersons: parseInt(e.target.value, 10) || 0,
-                    }))
-                  }
-                  placeholder='0'
-                />
-              )}
-            </div>
-            <Input
-              label='Titre du discours'
-              value={formData.talkTheme || ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, talkTheme: e.target.value }))}
-              placeholder='Ex: Nega iluzon di mundu...'
-            />
-
-            {/* Section Statut */}
-            <div className='border-t border-gray-200 dark:border-gray-700 pt-4'>
-              <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
-                Statut de la visite
-              </label>
-              <div className='grid grid-cols-2 gap-2'>
-                <Button
-                  variant={visit.status === 'pending' ? 'primary' : 'secondary'}
-                  size='sm'
-                  onClick={() => handleStatusChange('pending')}
-                  disabled={isLoading}
-                  leftIcon={<XCircle className='w-3 h-3' />}
-                >
-                  En attente
-                </Button>
-                <Button
-                  variant={visit.status === 'confirmed' ? 'primary' : 'secondary'}
-                  size='sm'
-                  onClick={() => handleStatusChange('confirmed')}
-                  disabled={isLoading}
-                  leftIcon={<CheckCircle className='w-3 h-3' />}
-                >
-                  Confirmé
-                </Button>
-                <Button
-                  variant={visit.status === 'completed' ? 'primary' : 'secondary'}
-                  size='sm'
-                  onClick={() => handleStatusChange('completed')}
-                  disabled={isLoading}
-                  leftIcon={<CheckCircle className='w-3 h-3' />}
-                >
-                  Terminé
-                </Button>
-                <Button
-                  variant={visit.status === 'cancelled' ? 'danger' : 'secondary'}
-                  size='sm'
-                  onClick={() => handleStatusChange('cancelled')}
-                  disabled={isLoading}
-                  leftIcon={<XCircle className='w-3 h-3' />}
-                >
-                  Annulé
-                </Button>
-              </div>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>
-                Statut actuel: <span className='font-medium capitalize'>{visit.status}</span>
-              </p>
             </div>
 
-            <Input
-              label='Notes'
-              value={formData.notes || ''}
-              onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-            />
-            <div className='bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-400'>
-              💡 Pour gérer le logement et les repas, utilisez l'onglet "Logistique" du menu
+            <div className="space-y-1">
+               <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Notes</label>
+               <textarea 
+                  value={formData.notes} 
+                  onChange={e => setFormData({...formData, notes: e.target.value})}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 min-h-[100px]"
+                  placeholder="Notes privées..."
+               />
             </div>
-          </div>
-        );
-
-      case 'delete':
-        return (
-          <div className='text-center py-6'>
-            <Trash2 className='w-16 h-16 text-red-500 mx-auto mb-4' />
-            <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
-              Supprimer la visite
-            </h3>
-            <p className='text-gray-600 dark:text-gray-400 mb-6'>
-              Êtes-vous sûr de vouloir supprimer la visite de <strong>{visit.nom}</strong>
-              du {new Date(visit.visitDate).toLocaleDateString('fr-FR')} ?
-            </p>
-            <p className='text-sm text-red-600 dark:text-red-400'>Cette action est irréversible.</p>
           </div>
         );
 
       case 'status':
-        return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <CheckCircle className='w-5 h-5' />
-              Changer le statut
-            </h3>
-            <div className='space-y-3'>
-              <p className='text-gray-600 dark:text-gray-400'>
-                Statut actuel: <span className='font-medium'>{visit.status}</span>
-              </p>
-              <div className='space-y-2'>
-                <Button
-                  variant='secondary'
-                  onClick={() => handleStatusChange('pending')}
-                  className='w-full justify-start'
-                  leftIcon={<XCircle className='w-4 h-4' />}
-                >
-                  Marquer en attente
-                </Button>
-                <Button
-                  variant='secondary'
-                  onClick={() => handleStatusChange('confirmed')}
-                  className='w-full justify-start'
-                  leftIcon={<CheckCircle className='w-4 h-4' />}
-                >
-                  Confirmer
-                </Button>
-                <Button
-                  variant='secondary'
-                  onClick={() => handleStatusChange('completed')}
-                  className='w-full justify-start'
-                  leftIcon={<CheckCircle className='w-4 h-4' />}
-                >
-                  Marquer comme terminé
-                </Button>
-                <Button
-                  variant='danger'
-                  onClick={() => handleStatusChange('cancelled')}
-                  className='w-full justify-start'
-                  leftIcon={<XCircle className='w-4 h-4' />}
-                >
-                  Annuler
-                </Button>
-              </div>
+         return (
+            <div className="p-6 space-y-4">
+               <div className="grid grid-cols-1 gap-3">
+                  {[
+                    { id: 'pending', label: 'En attente', icon: Clock, color: 'text-orange-500', bg: 'bg-orange-50 hover:bg-orange-100', border: 'border-orange-200' },
+                    { id: 'confirmed', label: 'Confirmé', icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-50 hover:bg-green-100', border: 'border-green-200' },
+                    { id: 'completed', label: 'Terminé', icon: CheckCircle, color: 'text-blue-500', bg: 'bg-blue-50 hover:bg-blue-100', border: 'border-blue-200' },
+                    { id: 'cancelled', label: 'Annulé', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50 hover:bg-red-100', border: 'border-red-200' },
+                  ].map(status => (
+                     <button
+                        key={status.id}
+                        onClick={() => handleStatusChange(status.id)}
+                        className={cn(
+                           "flex items-center p-4 rounded-xl border text-left transition-all",
+                           status.bg,
+                           status.border,
+                           visit.status === status.id ? "ring-2 ring-offset-2 ring-indigo-500" : ""
+                        )}
+                     >
+                        <div className={cn("p-2 rounded-full bg-white mr-4", status.color)}>
+                           <status.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                           <div className={cn("font-bold text-sm", status.color.replace('text-', 'text-'))}>{status.label}</div>
+                           <div className="text-xs text-gray-500">
+                              {visit.status === status.id ? "Statut actuel" : "Cliquez pour changer"}
+                           </div>
+                        </div>
+                     </button>
+                  ))}
+               </div>
             </div>
-          </div>
-        );
+         );
 
-      case 'message':
-        return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <MessageSquare className='w-5 h-5' />
-              Générer un message
-            </h3>
-            <p className='text-gray-600 dark:text-gray-400'>
-              Choisissez un type de message pour ouvrir l'assistant de rédaction :
-            </p>
-            <div className='grid grid-cols-1 gap-2'>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'confirmation' })}
-                className='w-full justify-start'
-              >
-                Message de confirmation
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'preparation' })}
-                className='w-full justify-start'
-              >
-                Message de préparation
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-7' })}
-                className='w-full justify-start'
-              >
-                Rappel J-7
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'reminder-2' })}
-                className='w-full justify-start'
-              >
-                Rappel J-2
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'thanks' })}
-                className='w-full justify-start'
-              >
-                Message de remerciement
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => setGeneratorParams({ isOpen: true, type: 'host_request' })}
-                className='w-full justify-start'
-              >
-                Demande d'accueil
-              </Button>
-            </div>
-          </div>
-        );
-
-      case 'feedback':
-        return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <Star className='w-5 h-5 text-yellow-500' />
-              Bilan de la visite
-            </h3>
-            <div className='text-sm text-gray-600 dark:text-gray-400'>
-              Utilisez la modale de feedback pour évaluer cette visite.
-            </div>
-          </div>
-        );
-
-      case 'expenses':
-        return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <CreditCard className='w-5 h-5 text-green-600' />
-              Gestion des coûts
-            </h3>
-
-            {isAddingExpense || editingExpense ? (
-              <ExpenseForm
-                initialData={editingExpense}
-                onSubmit={handleSaveExpense}
-                onCancel={() => {
-                  setIsAddingExpense(false);
-                  setEditingExpense(undefined);
-                }}
-              />
-            ) : (
-              <ExpenseList
-                expenses={formData.expenses || []}
-                onAdd={() => setIsAddingExpense(true)}
-                onEdit={setEditingExpense}
-                onDelete={handleDeleteExpense}
-                readOnly={isLoading}
-              />
-            )}
-          </div>
-        );
-
-      case 'logistics': {
-        const activeVisit = { ...visit, ...formData };
-        const acc = (activeVisit.logistics?.accommodation || {}) as Partial<Accommodation>;
-        const isHostType = (acc.type || 'host') === 'host';
-
-        return (
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold flex items-center gap-2'>
-              <Truck className='w-5 h-5 text-blue-600' />
-              Logistique
-            </h3>
-
-            <LogisticsManager
-              logistics={{
-                ...activeVisit.logistics,
-                accommodation: {
-                  ...acc,
-                  type: acc.type || 'host',
-                  name: isHostType ? activeVisit.host || acc.name || '' : acc.name || '',
-                  address: isHostType
-                    ? activeVisit.accommodation || acc.address || ''
-                    : acc.address || '',
-                },
-              }}
-              onUpdate={(updatedLogistics) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  logistics: updatedLogistics,
-                  // Sync back to top-level fields only if we are in host mode
-                  host:
-                    updatedLogistics.accommodation?.type === 'host'
-                      ? updatedLogistics.accommodation?.name || prev.host
-                      : prev.host,
-                  accommodation:
-                    updatedLogistics.accommodation?.type === 'host'
-                      ? updatedLogistics.accommodation?.address || prev.accommodation
-                      : prev.accommodation,
-                }));
-              }}
-              readOnly={isLoading}
-              hosts={hosts}
-            />
-
-            <div className='border-t pt-4 mt-4'>
-              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-                Documents
-              </h4>
-              <div className='bg-gray-50 dark:bg-gray-800 p-4 rounded-lg'>
-                <RoadmapView
-                  visit={activeVisit}
-                  speaker={speakers.find((s) => s.id === activeVisit.id)}
-                  host={hosts.find((h) => h.nom === activeVisit.host)}
-                />
-              </div>
-            </div>
-            <div className='space-y-2'>
-              <Button
-                variant='outline'
-                onClick={() => _setIsTravelModalOpen(true)}
-                leftIcon={<Truck className='w-4 h-4' />}
-              >
-                Organiser le transport
-              </Button>
-              <Button
-                variant='outline'
-                onClick={() => _setIsMealModalOpen(true)}
-                leftIcon={<Utensils className='w-4 h-4' />}
-              >
-                Planifier les repas
-              </Button>
-              <Button
-                variant='outline'
-                onClick={() => _setIsAccommodationModalOpen(true)}
-                leftIcon={<Home className='w-4 h-4' />}
-              >
-                Gérer l'hébergement
-              </Button>
-            </div>
-          </div>
-        );
-      }
-
-      default:
-        return null;
-    }
-  };
-
-  const getFooter = () => {
-    switch (action) {
-      case 'edit':
-      case 'logistics':
-        return (
-          <>
-            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-              Annuler
-            </Button>
-            <Button onClick={handleSave} isLoading={isLoading}>
-              Enregistrer
-            </Button>
-          </>
-        );
       case 'delete':
-        return (
-          <>
-            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-              Annuler
-            </Button>
-            <Button variant='danger' onClick={handleDelete} isLoading={isLoading}>
-              Supprimer
-            </Button>
-          </>
-        );
-      case 'feedback':
-      case 'expenses':
-        return null;
-      case 'message':
-        return (
-          <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-            Fermer
-          </Button>
-        );
-      default:
-        // Pour les autres actions, on rend le Modal normal
-        break;
+         return (
+            <div className="p-8 text-center">
+               <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-300">
+                  <AlertOctagon className="w-10 h-10" />
+               </div>
+               <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Êtes-vous sûr ?</h3>
+               <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+                  Cette action supprimera définitivement la visite de <strong>{visit.nom}</strong> du {new Date(visit.visitDate).toLocaleDateString()}.
+               </p>
+               <div className="flex gap-4 justify-center">
+                  <Button variant="ghost" onClick={onClose}>Annuler</Button>
+                  <Button variant="danger" onClick={handleDelete} isLoading={isLoading}>Oui, Supprimer</Button>
+               </div>
+            </div>
+         );
+
+       case 'message':
+          return (
+             <div className="p-6 grid grid-cols-2 gap-4">
+                {[
+                  { type: 'confirmation', label: 'Confirmation', icon: CheckCircle },
+                  { type: 'preparation', label: 'Préparation', icon: FileText },
+                  { type: 'reminder-7', label: 'Rappel J-7', icon: Clock },
+                  { type: 'reminder-2', label: 'Rappel J-2', icon: Clock },
+                  { type: 'thanks', label: 'Remerciements', icon: Star },
+                  { type: 'host_request', label: 'Demande Accueil', icon: Home },
+                ].map(msg => (
+                   <button
+                      key={msg.type}
+                      onClick={() => setGeneratorParams({ isOpen: true, type: msg.type as MessageType })}
+                      className="flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-gray-200"
+                   >
+                      <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 text-indigo-500 flex items-center justify-center shadow-sm">
+                         <msg.icon className="w-5 h-5" />
+                      </div>
+                      <span className="font-bold text-sm text-gray-700 dark:text-gray-300">{msg.label}</span>
+                   </button>
+                ))}
+             </div>
+          );
+
+        case 'logistics': {
+            if (visit.congregation?.includes('Lyon')) {
+               return (
+                  <div className="p-8 text-center">
+                     <div className="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Home className="w-10 h-10" />
+                     </div>
+                     <h3 className="text-lg font-bold">Orateur Local</h3>
+                     <p className="text-gray-500 mt-2">Aucune logistique nécessaire.</p>
+                  </div>
+               );
+            }
+            return (
+               <div className="p-6">
+                  <LogisticsManager 
+                     logistics={formData.logistics || {}} 
+                     onUpdate={(l) => setFormData({...formData, logistics: l})} 
+                     readOnly={isLoading} 
+                     hosts={hosts} 
+                  />
+                  <div className="mt-6 border-t pt-6 bg-gray-50 dark:bg-gray-800/50 -mx-6 -mb-6 p-6">
+                     <h4 className="text-xs font-bold uppercase text-gray-500 mb-4">Feuille de route</h4>
+                     <RoadmapView visit={{...visit, ...formData}} speaker={speakers.find(s=>s.id===visit.id)} host={hosts.find(h=>h.nom===formData.host)} />
+                  </div>
+               </div>
+            );
+        }
+
+        case 'expenses':
+           return (
+              <div className="p-6">
+                 {isAddingExpense || editingExpense ? (
+                    <ExpenseForm 
+                       initialData={editingExpense} 
+                       onSubmit={async (data) => {
+                          // Simplified Logic for Demo
+                          setIsLoading(true);
+                          const newExpenses = [...(formData.expenses || []), { ...data, id: generateUUID() }];
+                          await updateVisit({ ...visit, expenses: newExpenses as any });
+                          setFormData({ ...formData, expenses: newExpenses as any });
+                          setIsAddingExpense(false);
+                          setEditingExpense(undefined);
+                          setIsLoading(false);
+                       }} 
+                       onCancel={() => { setIsAddingExpense(false); setEditingExpense(undefined); }}
+                    />
+                 ) : (
+                    <ExpenseList 
+                       expenses={formData.expenses || []} 
+                       onAdd={() => setIsAddingExpense(true)} 
+                       onEdit={setEditingExpense}
+                       onDelete={() => {}} 
+                       readOnly={isLoading} 
+                    />
+                 )}
+              </div>
+           );
+
+      default: return null;
     }
   };
 
-  // Si l'action est 'feedback', on retourne directement le FeedbackFormModal
-  if (action === 'feedback' && visit) {
-    return (
-      <FeedbackFormModal
-        isOpen={isOpen}
-        onClose={onClose}
-        visit={visit}
-        onSubmit={handleFeedbackSubmit}
-      />
-    );
+  if (action === 'feedback') {
+     return <FeedbackFormModal isOpen={isOpen} onClose={onClose} visit={visit} onSubmit={()=>{}} />;
   }
 
   return (
@@ -712,52 +372,39 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        size={action === 'logistics' ? 'xl' : 'md'}
-        footer={getFooter()}
+        title=""
+        size={['logistics', 'message'].includes(action) ? 'xl' : 'md'}
+        padding="none"
+        hideCloseButton={true}
+        className="overflow-hidden"
       >
-        {getModalContent()}
+        <div className="max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 flex flex-col">
+           {renderHeader()}
+           
+           <div className="flex-1">
+              {getModalContent()}
+           </div>
+
+           {(action === 'edit' || action === 'logistics') && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0">
+                 <Button variant="ghost" onClick={onClose} disabled={isLoading}>Annuler</Button>
+                 <Button onClick={handleSave} isLoading={isLoading} className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none">Enregistrer</Button>
+              </div>
+           )}
+           
+           {action === 'message' && (
+              <div className="p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end shrink-0">
+                 <Button variant="ghost" onClick={onClose}>Fermer</Button>
+              </div>
+           )}
+        </div>
       </Modal>
-
-      {_isTravelModalOpen && (
-        <TravelCoordinationModal
-          isOpen={_isTravelModalOpen}
-          onClose={() => _setIsTravelModalOpen(false)}
-          visit={visit}
-          onSave={() => {}}
-        />
-      )}
-
-      {_isMealModalOpen && (
-        <MealPlanningModal
-          isOpen={_isMealModalOpen}
-          onClose={() => _setIsMealModalOpen(false)}
-          visit={visit}
-          onSave={() => {}}
-        />
-      )}
-
-      {_isAccommodationModalOpen && (
-        <AccommodationMatchingModal
-          isOpen={_isAccommodationModalOpen}
-          onClose={() => _setIsAccommodationModalOpen(false)}
-          visit={visit}
-          onSelectHost={() => {}}
-        />
-      )}
 
       {generatorParams.isOpen && (
         <MessageGeneratorModal
           isOpen={generatorParams.isOpen}
-          onClose={() => setGeneratorParams((prev) => ({ ...prev, isOpen: false }))}
-          speaker={
-            speakers.find((s) => s.id === visit.id) || {
-              id: visit.id,
-              nom: visit.nom,
-              congregation: visit.congregation || '',
-              gender: 'male',
-              talkHistory: [],
-            }
-          }
+          onClose={() => setGeneratorParams({ ...generatorParams, isOpen: false })}
+          speaker={speakers.find(s => s.id === visit.id)!}
           visit={visit}
           initialType={generatorParams.type}
         />

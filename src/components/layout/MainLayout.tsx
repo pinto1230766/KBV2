@@ -114,85 +114,94 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className='flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden'>
-      {/* Sidebar Desktop */}
-      <aside className='hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700'>
-        <div className='flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700 py-4'>
-          <div className='flex flex-col items-center gap-[2px]'>
-            <div className='text-[28px] font-bold tracking-[0.1em] leading-none text-primary-600 dark:text-primary-400'>
-              KBV
+      {/* Premium Sidebar Desktop */}
+      <aside className='hidden md:flex flex-col w-72 bg-slate-900 border-r border-slate-800 shadow-2xl relative overflow-hidden'>
+        {/* Ambient Background Effects */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+           <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full"></div>
+           <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full"></div>
+        </div>
+
+        <div className='relative z-10 flex items-center justify-center h-28 border-b border-white/5 py-8 mb-4'>
+          <div className='flex flex-col items-center gap-1.5'>
+            <div className='text-[11px] font-black tracking-[0.4em] uppercase text-slate-400'>
+              GROUPE DE
             </div>
-            <div className='text-[14px] font-semibold leading-none text-primary-500 dark:text-primary-300'>
+            <div className='text-4xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
               LYON
             </div>
-            <div className='text-[11px] leading-none mt-[2px] text-gray-500 dark:text-gray-400'>
-              FP
-            </div>
+            <div className='w-12 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full mt-3 shadow-lg shadow-blue-500/20'></div>
           </div>
         </div>
 
-        <nav className='flex-1 overflow-y-auto py-4'>
-          <ul className='space-y-1 px-2'>
+        <nav className='relative z-10 flex-1 overflow-y-auto py-2 px-3 space-y-1 custom-scrollbar'>
             {NAV_ITEMS.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) => `
-                    flex items-center px-4 py-3 rounded-lg transition-colors duration-200
-                    ${
-                      isActive
-                        ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
-                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50'
-                    }
-                  `}
-                >
-                  <item.icon className='w-5 h-5 mr-3' />
-                  <span className='font-medium'>{item.label}</span>
-                </NavLink>
-              </li>
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `
+                  group flex items-center px-4 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden
+                  ${
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/50 translate-x-1'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1'
+                  }
+                `}
+              >
+                {({ isActive }) => (
+                  <>
+                    <div className={`
+                      p-2 rounded-xl mr-4 transition-all duration-300
+                      ${isActive ? 'bg-white/20 backdrop-blur-md' : 'bg-slate-800 group-hover:bg-slate-700'}
+                    `}>
+                      <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
+                    </div>
+                    <span className={`font-bold tracking-wide ${isActive ? 'text-base' : 'text-sm'}`}>{item.label}</span>
+                    {isActive && (
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]"></div>
+                    )}
+                  </>
+                )}
+              </NavLink>
             ))}
-          </ul>
         </nav>
 
-        <div className='p-4 border-t border-gray-200 dark:border-gray-700 space-y-4'>
+        <div className='relative z-10 p-5 mt-auto space-y-4 bg-gradient-to-t from-slate-900 to-transparent'>
           {/* Quick Actions & Reports Buttons */}
-          <div className='space-y-2 pb-2 border-b border-gray-100 dark:border-gray-700/50'>
+          <div className='grid grid-cols-2 gap-3 pb-6 border-b border-white/5'>
             <button
               onClick={() => setIsQuickActionsOpen(true)}
-              className='w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors'
+              className='flex flex-col items-center justify-center gap-2 p-3 bg-slate-800/50 hover:bg-slate-700 hover:-translate-y-0.5 border border-white/5 rounded-2xl transition-all duration-300 group'
             >
-              <Zap className='w-4 h-4 mr-3 text-amber-500' />
-              Actions rapides
+              <div className="p-2 bg-amber-500/10 rounded-full group-hover:scale-110 transition-transform">
+                <Zap className='w-5 h-5 text-amber-500' />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Actions</span>
             </button>
             <button
               onClick={() => setIsReportModalOpen(true)}
-              className='w-full flex items-center px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors'
+              className='flex flex-col items-center justify-center gap-2 p-3 bg-slate-800/50 hover:bg-slate-700 hover:-translate-y-0.5 border border-white/5 rounded-2xl transition-all duration-300 group'
             >
-              <FileText className='w-4 h-4 mr-3 text-blue-500' />
-              Rapports
+              <div className="p-2 bg-blue-500/10 rounded-full group-hover:scale-110 transition-transform">
+                <FileText className='w-5 h-5 text-blue-500' />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Rapports</span>
             </button>
           </div>
 
-          <div className='flex justify-center'>
-            <SyncStatusIndicator />
-          </div>
-          <div className='flex items-center justify-between'>
-            <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>
-              Mode sombre
-            </span>
+          <div className='flex items-center justify-between px-2 pt-2'>
+            <div className='flex items-center gap-2'>
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className='text-[10px] font-medium text-slate-500 uppercase tracking-widest'>Système OK</span>
+            </div>
             <button
               onClick={toggleTheme}
-              title='Changer le thème'
               className={`
-                relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-                ${isDarkMode ? 'bg-primary-600' : 'bg-gray-200'}
+                p-2 rounded-xl transition-all duration-300
+                ${isDarkMode ? 'bg-slate-800 text-yellow-400' : 'bg-slate-800 text-slate-400 hover:text-white'}
               `}
             >
-              <span
-                className={`
-                  inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                  ${isDarkMode ? 'translate-x-6' : 'translate-x-1'}
-                `}
-              />
+               {isDarkMode ? <span className="text-xs">🌙</span> : <span className="text-xs">☀️</span>}
             </button>
           </div>
         </div>
@@ -201,7 +210,7 @@ export const MainLayout: React.FC = () => {
       {/* Mobile Header & Content */}
       <div className='flex-1 flex flex-col min-w-0 overflow-hidden'>
         {/* Mobile Header */}
-        <header className='md:hidden flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0'>
+        <header className='md:hidden flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shrink-0 sticky top-0 z-50'>
           <div className='flex flex-col'>
             <span className='text-lg font-bold text-primary-600 dark:text-primary-400 tracking-wide leading-tight'>
               KBV

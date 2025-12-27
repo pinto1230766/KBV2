@@ -139,7 +139,7 @@ export const PhoneLayout: React.FC = () => {
         )}
       >
         {/* Header avec hamburger menu */}
-        <header className='flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700'>
+        <header className='flex items-center justify-between h-16 px-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50'>
           <button
             onClick={toggleSidebar}
             className='p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
@@ -166,110 +166,109 @@ export const PhoneLayout: React.FC = () => {
         </header>
 
         {/* Sidebar overlay */}
+        {/* Premium Sidebar overlay */}
         {isSidebarOpen && (
           <div className='fixed inset-0 z-50 flex'>
-            <div className='fixed inset-0 bg-black bg-opacity-50' onClick={toggleSidebar} />
-            <aside className='relative flex-shrink-0 w-80 bg-white dark:bg-gray-800 shadow-xl'>
-              {/* Header de la sidebar */}
-              <div className='flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700'>
-                <div className='flex items-center gap-3'>
-                  <div className='flex flex-col items-center justify-center'>
-                    <div className='text-[20px] font-bold tracking-widest leading-none text-blue-600 dark:text-blue-400'>
-                      KBV
+            <div className='fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity' onClick={toggleSidebar} />
+            <aside className='relative flex-shrink-0 w-[85vw] max-w-[320px] bg-slate-900 shadow-2xl overflow-hidden flex flex-col'>
+              
+               {/* Ambient Background */}
+               <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                  <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full"></div>
+                  <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full"></div>
+               </div>
+
+              {/* Premium Header */}
+              <div className='relative z-10 flex items-center justify-between h-24 px-6 border-b border-white/5 pt-4'>
+                <div className='flex flex-col gap-1'>
+                    <div className='text-[10px] font-black tracking-[0.3em] uppercase text-slate-500'>
+                      GROUPE DE
                     </div>
-                    <div className='text-[10px] font-bold leading-none text-blue-500 dark:text-blue-300'>
+                    <div className='text-3xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
                       LYON
                     </div>
-                    <div className='text-[8px] leading-none mt-[1px] text-gray-500 dark:text-gray-400'>
-                      FP
-                    </div>
-                  </div>
-                  <div>
-                    <h1 className='font-bold text-gray-900 dark:text-white text-sm'>KBV Lyon</h1>
-                    <p className='text-xs text-gray-500 dark:text-gray-400'>Gestion orateurs</p>
-                  </div>
                 </div>
                 <button
                   onClick={toggleSidebar}
-                  className='s25-touch-zone p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors'
+                  className='s25-touch-zone p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors'
                   title='Fermer le menu'
                 >
-                  <X className='w-4 h-4' />
+                  <X className='w-6 h-6' />
                 </button>
               </div>
 
               {/* Navigation */}
-              <nav className='flex-1 overflow-y-auto py-4'>
-                <ul className='space-y-1 px-2'>
+              <nav className='relative z-10 flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar'>
                   {NAV_ITEMS.map((item) => (
-                    <li key={item.path}>
-                      <button
-                        onClick={() => {
-                          navigate(item.path);
-                          setIsSidebarOpen(false);
-                        }}
-                        className={cn(
-                          'w-full flex items-center rounded-lg transition-colors duration-200 px-4 py-3',
-                          location.pathname === item.path
-                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                            : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50'
-                        )}
-                      >
-                        <item.icon className='w-5 h-5 mr-3' />
-                        <span className='font-medium'>{item.label}</span>
-                      </button>
-                    </li>
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        navigate(item.path);
+                        setIsSidebarOpen(false);
+                      }}
+                      className={cn(
+                        'w-full flex items-center p-4 rounded-xl transition-all duration-200 group relative overflow-hidden',
+                        location.pathname === item.path
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/40'
+                          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      )}
+                    >
+                      <item.icon className={cn('w-6 h-6 mr-4 transition-colors', location.pathname === item.path ? 'text-white' : 'text-slate-500 group-hover:text-white')} />
+                      <span className='font-bold text-lg tracking-wide'>{item.label}</span>
+                      {location.pathname === item.path && (
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]"></div>
+                      )}
+                    </button>
                   ))}
-                </ul>
 
-                <div className='my-2 border-t border-gray-100 dark:border-gray-700 mx-2'></div>
+                <div className='my-6 border-t border-white/5 mx-2'></div>
 
-                {/* Action Buttons */}
-                <ul className='space-y-1 px-2'>
-                  <li>
+                {/* Quick Actions Buttons */}
+                <div className="space-y-3">
                     <button
                       onClick={() => {
                         setIsQuickActionsOpen(true);
                         setIsSidebarOpen(false);
                       }}
-                      className='w-full flex items-center rounded-lg transition-colors duration-200 px-4 py-3 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50'
+                      className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
                     >
-                      <Zap className='w-5 h-5 text-amber-500 mr-3' />
-                      <span className='font-medium'>Actions rapides</span>
+                      <div className="p-2 bg-amber-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                          <Zap className='w-6 h-6 text-amber-500' />
+                      </div>
+                      <span className='font-bold text-slate-300 group-hover:text-white'>Actions rapides</span>
                     </button>
-                  </li>
-                  <li>
+
                     <button
                       onClick={() => {
                         setIsReportModalOpen(true);
                         setIsSidebarOpen(false);
                       }}
-                      className='w-full flex items-center rounded-lg transition-colors duration-200 px-4 py-3 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700/50'
+                      className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
                     >
-                      <FileText className='w-5 h-5 text-blue-500 mr-3' />
-                      <span className='font-medium'>Rapports</span>
+                      <div className="p-2 bg-blue-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform">
+                          <FileText className='w-6 h-6 text-blue-500' />
+                      </div>
+                      <span className='font-bold text-slate-300 group-hover:text-white'>Rapports</span>
                     </button>
-                  </li>
-                </ul>
+                </div>
               </nav>
 
               {/* Footer */}
-              <div className='p-4 border-t border-gray-200 dark:border-gray-700 space-y-4'>
+              <div className='relative z-10 p-6 border-t border-white/5 bg-slate-900'>
                 <div className='flex items-center justify-between'>
-                  <span className='text-sm font-medium text-gray-500 dark:text-gray-400'>
+                  <span className='text-sm font-medium text-slate-500 uppercase tracking-widest'>
                     Mode sombre
                   </span>
                   <button
                     onClick={toggleTheme}
                     className={cn(
-                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
-                      isDarkMode ? 'bg-primary-600' : 'bg-gray-200'
+                      'relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900',
+                      isDarkMode ? 'bg-blue-600' : 'bg-slate-700'
                     )}
-                    title={isDarkMode ? 'Désactiver le mode sombre' : 'Activer le mode sombre'}
                   >
                     <span
                       className={cn(
-                        'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                        'inline-block h-5 w-5 transform rounded-full bg-white transition-transform',
                         isDarkMode ? 'translate-x-6' : 'translate-x-1'
                       )}
                     />
