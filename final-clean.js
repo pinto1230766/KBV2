@@ -23,17 +23,17 @@ try {
   );
   
   // Supprimer la fonction de normalisation
-  content = content.replace(/  const normalizeCongregationName = \([^;]+;[\s\S]*?;/, '');
+  content = content.replace(/ {2}const normalizeCongregationName = \([^;]+;[\s\S]*?;/, '');
   
   // Supprimer les lignes de filtrage complexes
   content = content.replace(
-    /      const matchesCongregation =[\s\S]*?return matchesCongregation;/,
+    / {6}const matchesCongregation =[\s\S]*?return matchesCongregation;/,
     '    return true;'
   );
   
   // Supprimer la fonction de tri
   content = content.replace(
-    /    \.sort\(\([^;]+;[\s\S]*?\);/,
+    / {4}\.sort\(\([^;]+;[\s\S]*?\);/,
     '    .sort((a, b) => a.nom.toLowerCase().localeCompare(b.nom.toLowerCase()));'
   );
   

@@ -25,7 +25,7 @@ import {
   Star,
   CalendarDays,
   Sparkles,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 import { LocationType, VisitStatus, Visit } from '@/types';
 import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
@@ -43,34 +43,52 @@ import { cn } from '@/utils/cn';
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
 // Premium Stat Card
-const StatCard = memo(({ 
-  icon: Icon, 
-  value, 
-  label, 
-  colorClasses 
-}: { 
-  icon: any; 
-  value: number; 
-  label: string; 
-  colorClasses: { bg: string, text: string, iconBg: string } 
-}) => (
-  <div className={cn(
-    "relative overflow-hidden rounded-2xl p-5 border transition-all duration-300 hover:scale-[1.02] shadow-sm",
-    colorClasses.bg,
-    "border-white/20 dark:border-gray-700/50"
-  )}>
-    <div className="relative z-10 flex items-center justify-between">
-       <div>
-          <p className={cn("text-xs font-bold uppercase tracking-widest mb-1", colorClasses.text, "opacity-70")}>{label}</p>
-          <h3 className={cn("text-3xl font-black tracking-tighter", colorClasses.text)}>{value}</h3>
-       </div>
-       <div className={cn("p-3 rounded-xl", colorClasses.iconBg)}>
-          <Icon className={cn("w-6 h-6", colorClasses.text)} />
-       </div>
+const StatCard = memo(
+  ({
+    icon: Icon,
+    value,
+    label,
+    colorClasses,
+  }: {
+    icon: any;
+    value: number;
+    label: string;
+    colorClasses: { bg: string; text: string; iconBg: string };
+  }) => (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-2xl p-5 border transition-all duration-300 hover:scale-[1.02] shadow-sm',
+        colorClasses.bg,
+        'border-white/20 dark:border-gray-700/50'
+      )}
+    >
+      <div className='relative z-10 flex items-center justify-between'>
+        <div>
+          <p
+            className={cn(
+              'text-xs font-bold uppercase tracking-widest mb-1',
+              colorClasses.text,
+              'opacity-70'
+            )}
+          >
+            {label}
+          </p>
+          <h3 className={cn('text-3xl font-black tracking-tighter', colorClasses.text)}>{value}</h3>
+        </div>
+        <div className={cn('p-3 rounded-xl', colorClasses.iconBg)}>
+          <Icon className={cn('w-6 h-6', colorClasses.text)} />
+        </div>
+      </div>
+      <div
+        className={cn(
+          'absolute -bottom-4 -right-4 w-24 h-24 rounded-full opacity-10',
+          colorClasses.text,
+          'bg-current blur-2xl'
+        )}
+      />
     </div>
-    <div className={cn("absolute -bottom-4 -right-4 w-24 h-24 rounded-full opacity-10", colorClasses.text, "bg-current blur-2xl")} />
-  </div>
-));
+  )
+);
 
 export const Planning: React.FC = () => {
   const { visits, archivedVisits } = useData();
@@ -195,14 +213,19 @@ export const Planning: React.FC = () => {
         setIsViewMenuOpen(false);
       }}
       className={cn(
-        "w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors group",
-        view === id 
-          ? "bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400" 
-          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+        'w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors group',
+        view === id
+          ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
       )}
     >
-      <div className={cn("p-2 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-800 transition-colors", view === id ? "bg-white dark:bg-gray-800" : "bg-gray-100 dark:bg-gray-800")}>
-         <Icon className="w-4 h-4" />
+      <div
+        className={cn(
+          'p-2 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-800 transition-colors',
+          view === id ? 'bg-white dark:bg-gray-800' : 'bg-gray-100 dark:bg-gray-800'
+        )}
+      >
+        <Icon className='w-4 h-4' />
       </div>
       <div className='text-left'>
         <div className='font-bold text-xs uppercase tracking-tight'>{label}</div>
@@ -213,37 +236,36 @@ export const Planning: React.FC = () => {
 
   return (
     <div className='space-y-6 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-      
       {/* 1. Header & Primary Actions */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-         <div>
-            <div className="flex items-center gap-2 mb-2">
-               <Badge className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border-none px-3 py-1 font-bold text-[10px] tracking-widest uppercase">
-                  Planning
-               </Badge>
-               <span className="text-gray-400 text-xs font-medium">{new Date().getFullYear()}</span>
-            </div>
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
-               Gestion des Visites
-            </h1>
-         </div>
-         <div className="flex items-center gap-3">
-            <Button 
-               variant="secondary" 
-               className="font-bold border-gray-200 dark:border-gray-700 shadow-sm"
-               leftIcon={<Download className="w-4 h-4" />}
-               onClick={handleExport}
-            >
-               Exporter
-            </Button>
-            <Button 
-               className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none font-bold px-6"
-               leftIcon={<Plus className="w-5 h-5" />}
-               onClick={() => setIsModalOpen(true)}
-            >
-               Programmer
-            </Button>
-         </div>
+      <div className='flex flex-col md:flex-row md:items-center justify-between gap-6'>
+        <div>
+          <div className='flex items-center gap-2 mb-2'>
+            <Badge className='bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border-none px-3 py-1 font-bold text-[10px] tracking-widest uppercase'>
+              Planning
+            </Badge>
+            <span className='text-gray-400 text-xs font-medium'>{new Date().getFullYear()}</span>
+          </div>
+          <h1 className='text-3xl font-black text-gray-900 dark:text-white tracking-tighter'>
+            Gestion des Visites
+          </h1>
+        </div>
+        <div className='flex items-center gap-3'>
+          <Button
+            variant='secondary'
+            className='font-bold border-gray-200 dark:border-gray-700 shadow-sm'
+            leftIcon={<Download className='w-4 h-4' />}
+            onClick={handleExport}
+          >
+            Exporter
+          </Button>
+          <Button
+            className='bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 dark:shadow-none font-bold px-6'
+            leftIcon={<Plus className='w-5 h-5' />}
+            onClick={() => setIsModalOpen(true)}
+          >
+            Programmer
+          </Button>
+        </div>
       </div>
 
       {/* 2. Stats Grid */}
@@ -252,182 +274,247 @@ export const Planning: React.FC = () => {
           icon={CalendarDays}
           value={stats.total}
           label='Total Visites'
-          colorClasses={{ bg: 'bg-blue-50 dark:bg-blue-900/10', text: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-white dark:bg-blue-900/30' }}
+          colorClasses={{
+            bg: 'bg-blue-50 dark:bg-blue-900/10',
+            text: 'text-blue-600 dark:text-blue-400',
+            iconBg: 'bg-white dark:bg-blue-900/30',
+          }}
         />
         <StatCard
           icon={Sparkles}
           value={stats.confirmed}
           label='Confirmées'
-          colorClasses={{ bg: 'bg-green-50 dark:bg-green-900/10', text: 'text-green-600 dark:text-green-400', iconBg: 'bg-white dark:bg-green-900/30' }}
+          colorClasses={{
+            bg: 'bg-green-50 dark:bg-green-900/10',
+            text: 'text-green-600 dark:text-green-400',
+            iconBg: 'bg-white dark:bg-green-900/30',
+          }}
         />
         <StatCard
           icon={Clock}
           value={stats.pending}
           label='En Attente'
-          colorClasses={{ bg: 'bg-orange-50 dark:bg-orange-900/10', text: 'text-orange-600 dark:text-orange-400', iconBg: 'bg-white dark:bg-orange-900/30' }}
+          colorClasses={{
+            bg: 'bg-orange-50 dark:bg-orange-900/10',
+            text: 'text-orange-600 dark:text-orange-400',
+            iconBg: 'bg-white dark:bg-orange-900/30',
+          }}
         />
         <StatCard
           icon={CalendarIcon}
           value={stats.upcoming}
           label='À Venir'
-          colorClasses={{ bg: 'bg-purple-50 dark:bg-purple-900/10', text: 'text-purple-600 dark:text-purple-400', iconBg: 'bg-white dark:bg-purple-900/30' }}
+          colorClasses={{
+            bg: 'bg-purple-50 dark:bg-purple-900/10',
+            text: 'text-purple-600 dark:text-purple-400',
+            iconBg: 'bg-white dark:bg-purple-900/30',
+          }}
         />
       </div>
 
       {/* 3. Modern Control Bar */}
-      <div className="sticky top-20 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row gap-2">
-         {/* Search */}
-         <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
-            <input 
-               type="text" 
-               placeholder="Rechercher orateur, congrégation..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
-               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-gray-400"
-            />
-         </div>
+      <div className='sticky top-20 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl p-2 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row gap-2'>
+        {/* Search */}
+        <div className='relative flex-1 group'>
+          <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors' />
+          <input
+            type='text'
+            placeholder='Rechercher orateur, congrégation...'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className='w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-gray-400'
+          />
+        </div>
 
-         <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {/* Filter Toggle */}
-            <button 
-               onClick={() => setIsFilterModalOpen(true)}
-               className={cn(
-                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border shrink-0",
-                 (statusFilter !== 'all' || typeFilter !== 'all') 
-                   ? "bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800" 
-                   : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-300"
-               )}
+        <div className='flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none'>
+          {/* Filter Toggle */}
+          <button
+            onClick={() => setIsFilterModalOpen(true)}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all border shrink-0',
+              statusFilter !== 'all' || typeFilter !== 'all'
+                ? 'bg-indigo-50 text-indigo-600 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+            )}
+          >
+            <Filter className='w-4 h-4' />
+            <span>Filtres</span>
+            {(statusFilter !== 'all' || typeFilter !== 'all') && (
+              <span className='w-2 h-2 rounded-full bg-indigo-500 ml-1' />
+            )}
+          </button>
+
+          {/* View Switcher */}
+          <div className='bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex items-center shrink-0'>
+            {[
+              { id: 'cards', icon: LayoutGrid },
+              { id: 'list', icon: List },
+              { id: 'calendar', icon: CalendarIcon },
+            ].map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setView(v.id as ViewType)}
+                className={cn(
+                  'p-2 rounded-lg transition-all',
+                  view === v.id
+                    ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                )}
+              >
+                <v.icon className='w-4 h-4' />
+              </button>
+            ))}
+          </div>
+
+          {/* Specialized Views Dropdown */}
+          <div className='relative'>
+            <button
+              onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all border shrink-0',
+                ['timeline', 'workload', 'finance', 'archives'].includes(view)
+                  ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent shadow-lg'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+              )}
             >
-               <Filter className="w-4 h-4" />
-               <span>Filtres</span>
-               {(statusFilter !== 'all' || typeFilter !== 'all') && <span className="w-2 h-2 rounded-full bg-indigo-500 ml-1"/>}
+              <span>Vues Avancées</span>
+              <ChevronDown className='w-3 h-3' />
             </button>
 
-            {/* View Switcher */}
-            <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex items-center shrink-0">
-               {[
-                 { id: 'cards', icon: LayoutGrid },
-                 { id: 'list', icon: List },
-                 { id: 'calendar', icon: CalendarIcon },
-               ].map((v) => (
-                 <button
-                   key={v.id}
-                   onClick={() => setView(v.id as ViewType)}
-                   className={cn(
-                     "p-2 rounded-lg transition-all",
-                     view === v.id 
-                       ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm" 
-                       : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                   )}
-                 >
-                    <v.icon className="w-4 h-4" />
-                 </button>
-               ))}
-            </div>
-
-            {/* Specialized Views Dropdown */}
-            <div className="relative">
-               <button 
-                 onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
-                 className={cn(
-                   "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all border shrink-0",
-                   ['timeline', 'workload', 'finance', 'archives'].includes(view)
-                     ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900 border-transparent shadow-lg"
-                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                 )}
-               >
-                  <span>Vues Avancées</span>
-                  <ChevronDown className="w-3 h-3" />
-               </button>
-
-               {isViewMenuOpen && (
-                 <>
-                   <div className="fixed inset-0 z-40" onClick={() => setIsViewMenuOpen(false)} />
-                   <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="p-2 space-y-1">
-                         <div className="px-3 py-2 text-[10px] uppercase font-black tracking-widest text-gray-400">Analyses</div>
-                         <SpecializedViewOption id="timeline" label="Chronologie" icon={Eye} desc="Vue temporelle verticale" />
-                         <SpecializedViewOption id="workload" label="Disponibilité" icon={BarChart} desc="Charge des orateurs" />
-                         <SpecializedViewOption id="finance" label="Finances" icon={PieChart} desc="Suivi des dépenses" />
-                         <div className="my-1 border-t border-gray-100 dark:border-gray-800" />
-                         <SpecializedViewOption id="archives" label="Archives" icon={Archive} desc="Historique complet" />
-                      </div>
-                   </div>
-                 </>
-               )}
-            </div>
-         </div>
+            {isViewMenuOpen && (
+              <>
+                <div className='fixed inset-0 z-40' onClick={() => setIsViewMenuOpen(false)} />
+                <div className='absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200'>
+                  <div className='p-2 space-y-1'>
+                    <div className='px-3 py-2 text-[10px] uppercase font-black tracking-widest text-gray-400'>
+                      Analyses
+                    </div>
+                    <SpecializedViewOption
+                      id='timeline'
+                      label='Chronologie'
+                      icon={Eye}
+                      desc='Vue temporelle verticale'
+                    />
+                    <SpecializedViewOption
+                      id='workload'
+                      label='Disponibilité'
+                      icon={BarChart}
+                      desc='Charge des orateurs'
+                    />
+                    <SpecializedViewOption
+                      id='finance'
+                      label='Finances'
+                      icon={PieChart}
+                      desc='Suivi des dépenses'
+                    />
+                    <div className='my-1 border-t border-gray-100 dark:border-gray-800' />
+                    <SpecializedViewOption
+                      id='archives'
+                      label='Archives'
+                      icon={Archive}
+                      desc='Historique complet'
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* 4. Active Filters Display */}
       {(statusFilter !== 'all' || typeFilter !== 'all') && (
-        <div className="flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2">
-            {statusFilter !== 'all' && (
-              <Badge variant="primary" className="pl-2 pr-1 py-1 flex items-center gap-1">
-                 Statut: {statusFilter}
-                 <button onClick={() => setStatusFilter('all')} className="p-0.5 hover:bg-white/20 rounded-full"><X className="w-3 h-3" /></button>
-              </Badge>
-            )}
-            {typeFilter !== 'all' && (
-              <Badge variant="default" className="pl-2 pr-1 py-1 flex items-center gap-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                 Type: {typeFilter}
-                 <button onClick={() => setTypeFilter('all')} className="p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full"><X className="w-3 h-3" /></button>
-              </Badge>
-            )}
-            <button onClick={() => { setStatusFilter('all'); setTypeFilter('all'); }} className="text-xs text-gray-500 hover:text-red-500 font-medium underline px-2">
-               Tout effacer
-            </button>
+        <div className='flex flex-wrap gap-2 animate-in fade-in slide-in-from-top-2'>
+          {statusFilter !== 'all' && (
+            <Badge variant='primary' className='pl-2 pr-1 py-1 flex items-center gap-1'>
+              Statut: {statusFilter}
+              <button
+                onClick={() => setStatusFilter('all')}
+                className='p-0.5 hover:bg-white/20 rounded-full'
+              >
+                <X className='w-3 h-3' />
+              </button>
+            </Badge>
+          )}
+          {typeFilter !== 'all' && (
+            <Badge
+              variant='default'
+              className='pl-2 pr-1 py-1 flex items-center gap-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+            >
+              Type: {typeFilter}
+              <button
+                onClick={() => setTypeFilter('all')}
+                className='p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full'
+              >
+                <X className='w-3 h-3' />
+              </button>
+            </Badge>
+          )}
+          <button
+            onClick={() => {
+              setStatusFilter('all');
+              setTypeFilter('all');
+            }}
+            className='text-xs text-gray-500 hover:text-red-500 font-medium underline px-2'
+          >
+            Tout effacer
+          </button>
         </div>
       )}
 
       {/* 5. Content Area */}
       <div className='min-h-[500px] animate-in fade-in duration-500' ref={componentRef}>
         {view === 'cards' && (
-          <div className="bg-transparent">
-             <PlanningCardsView
-               visits={filteredVisits}
-               onVisitAction={handleVisitAction}
-               onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
-             />
+          <div className='bg-transparent'>
+            <PlanningCardsView
+              visits={filteredVisits}
+              onVisitAction={handleVisitAction}
+              onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+            />
           </div>
         )}
 
         {view === 'list' && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-             <PlanningListView
-               visits={filteredVisits}
-               onVisitAction={handleVisitAction}
-               onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
-             />
+          <div className='bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden'>
+            <PlanningListView
+              visits={filteredVisits}
+              onVisitAction={handleVisitAction}
+              onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+            />
           </div>
         )}
 
         {view === 'calendar' && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
-             <PlanningCalendarView
-               visits={filteredVisits}
-               onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
-             />
+          <div className='bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-4'>
+            <PlanningCalendarView
+              visits={filteredVisits}
+              onVisitClick={(visit) => handleVisitAction(visit, 'edit')}
+            />
           </div>
         )}
 
         {view === 'timeline' && <PlanningTimelineView visits={filteredVisits} />}
         {view === 'workload' && <PlanningWorkloadView />}
         {/* Finance Dashboard handles its own layout */}
-        {view === 'finance' && <div className="rounded-3xl overflow-hidden"><FinancialDashboard /></div>}
-        
+        {view === 'finance' && (
+          <div className='rounded-3xl overflow-hidden'>
+            <FinancialDashboard />
+          </div>
+        )}
+
         {view === 'archives' && (
           <div className='bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 p-8 shadow-sm'>
             <div className='flex items-center gap-4 mb-8'>
-              <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl">
-                 <Archive className='w-6 h-6 text-gray-600 dark:text-gray-400' />
+              <div className='p-3 bg-gray-100 dark:bg-gray-700 rounded-2xl'>
+                <Archive className='w-6 h-6 text-gray-600 dark:text-gray-400' />
               </div>
               <div>
-                 <h2 className='text-xl font-black text-gray-900 dark:text-white tracking-tight'>
-                   Visites archivées
-                 </h2>
-                 <p className="text-sm text-gray-500">{archivedVisits.length} visite(s) dans l'historique</p>
+                <h2 className='text-xl font-black text-gray-900 dark:text-white tracking-tight'>
+                  Visites archivées
+                </h2>
+                <p className='text-sm text-gray-500'>
+                  {archivedVisits.length} visite(s) dans l'historique
+                </p>
               </div>
             </div>
 
@@ -452,33 +539,37 @@ export const Planning: React.FC = () => {
                     >
                       <div className='flex items-start justify-between mb-4'>
                         <div>
-                          <h3 className='font-bold text-gray-900 dark:text-white'>
-                            {visit.nom}
-                          </h3>
+                          <h3 className='font-bold text-gray-900 dark:text-white'>{visit.nom}</h3>
                           <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mt-1'>
                             {visit.congregation}
                           </p>
                         </div>
-                        <Badge variant="success" className="text-[10px] px-2 py-0.5">Terminée</Badge>
+                        <Badge variant='success' className='text-[10px] px-2 py-0.5'>
+                          Terminée
+                        </Badge>
                       </div>
 
                       <div className='space-y-2 text-sm mb-4'>
                         <div className='flex justify-between py-1 border-b border-gray-100 dark:border-gray-700/50'>
-                          <span className='text-gray-500 text-xs uppercase font-bold tracking-wider'>Date</span>
+                          <span className='text-gray-500 text-xs uppercase font-bold tracking-wider'>
+                            Date
+                          </span>
                           <span className='font-medium text-gray-900 dark:text-gray-200'>
                             {new Date(visit.visitDate).toLocaleDateString('fr-FR')}
                           </span>
                         </div>
                         <div className='flex justify-between py-1 border-b border-gray-100 dark:border-gray-700/50'>
-                          <span className='text-gray-500 text-xs uppercase font-bold tracking-wider'>Numéro</span>
-                          <span className="font-medium">{visit.talkNoOrType || '-'}</span>
+                          <span className='text-gray-500 text-xs uppercase font-bold tracking-wider'>
+                            Numéro
+                          </span>
+                          <span className='font-medium'>{visit.talkNoOrType || '-'}</span>
                         </div>
                       </div>
 
                       <div className='mt-4 flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity'>
                         <Button
                           variant='secondary'
-                          className="flex-1 text-xs h-8"
+                          className='flex-1 text-xs h-8'
                           onClick={() => handleVisitAction(visit, 'message')}
                           leftIcon={<MessageSquare className='w-3 h-3' />}
                         >
@@ -486,7 +577,7 @@ export const Planning: React.FC = () => {
                         </Button>
                         <Button
                           variant='secondary'
-                          className="flex-1 text-xs h-8"
+                          className='flex-1 text-xs h-8'
                           onClick={() => handleVisitAction(visit, 'feedback')}
                           leftIcon={<Star className='w-3 h-3' />}
                         >

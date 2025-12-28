@@ -664,7 +664,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       if (updates.length > 0) {
-        setTimeout(() => addToast(`${updates.length} relation(s) mise(s) à jour lors de la fusion`, 'info'), 0);
+        setTimeout(
+          () => addToast(`${updates.length} relation(s) mise(s) à jour lors de la fusion`, 'info'),
+          0
+        );
       }
       return newState;
     });

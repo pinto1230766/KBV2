@@ -117,9 +117,9 @@ export const MainLayout: React.FC = () => {
       {/* Premium Sidebar Desktop */}
       <aside className='hidden md:flex flex-col w-72 bg-slate-900 border-r border-slate-800 shadow-2xl relative overflow-hidden'>
         {/* Ambient Background Effects */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-           <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full"></div>
-           <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full"></div>
+        <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0'>
+          <div className='absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full'></div>
+          <div className='absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full'></div>
         </div>
 
         <div className='relative z-10 flex items-center justify-center h-28 border-b border-white/5 py-8 mb-4'>
@@ -135,11 +135,11 @@ export const MainLayout: React.FC = () => {
         </div>
 
         <nav className='relative z-10 flex-1 overflow-y-auto py-2 px-3 space-y-1 custom-scrollbar'>
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) => `
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) => `
                   group flex items-center px-4 py-4 rounded-2xl transition-all duration-300 relative overflow-hidden
                   ${
                     isActive
@@ -147,23 +147,29 @@ export const MainLayout: React.FC = () => {
                       : 'text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1'
                   }
                 `}
-              >
-                {({ isActive }) => (
-                  <>
-                    <div className={`
+            >
+              {({ isActive }) => (
+                <>
+                  <div
+                    className={`
                       p-2 rounded-xl mr-4 transition-all duration-300
                       ${isActive ? 'bg-white/20 backdrop-blur-md' : 'bg-slate-800 group-hover:bg-slate-700'}
-                    `}>
-                      <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`} />
-                    </div>
-                    <span className={`font-bold tracking-wide ${isActive ? 'text-base' : 'text-sm'}`}>{item.label}</span>
-                    {isActive && (
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]"></div>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
+                    `}
+                  >
+                    <item.icon
+                      className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'}`}
+                    />
+                  </div>
+                  <span className={`font-bold tracking-wide ${isActive ? 'text-base' : 'text-sm'}`}>
+                    {item.label}
+                  </span>
+                  {isActive && (
+                    <div className='absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]'></div>
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
         </nav>
 
         <div className='relative z-10 p-5 mt-auto space-y-4 bg-gradient-to-t from-slate-900 to-transparent'>
@@ -173,26 +179,32 @@ export const MainLayout: React.FC = () => {
               onClick={() => setIsQuickActionsOpen(true)}
               className='flex flex-col items-center justify-center gap-2 p-3 bg-slate-800/50 hover:bg-slate-700 hover:-translate-y-0.5 border border-white/5 rounded-2xl transition-all duration-300 group'
             >
-              <div className="p-2 bg-amber-500/10 rounded-full group-hover:scale-110 transition-transform">
+              <div className='p-2 bg-amber-500/10 rounded-full group-hover:scale-110 transition-transform'>
                 <Zap className='w-5 h-5 text-amber-500' />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Actions</span>
+              <span className='text-[10px] font-bold uppercase tracking-wider text-slate-300'>
+                Actions
+              </span>
             </button>
             <button
               onClick={() => setIsReportModalOpen(true)}
               className='flex flex-col items-center justify-center gap-2 p-3 bg-slate-800/50 hover:bg-slate-700 hover:-translate-y-0.5 border border-white/5 rounded-2xl transition-all duration-300 group'
             >
-              <div className="p-2 bg-blue-500/10 rounded-full group-hover:scale-110 transition-transform">
+              <div className='p-2 bg-blue-500/10 rounded-full group-hover:scale-110 transition-transform'>
                 <FileText className='w-5 h-5 text-blue-500' />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">Rapports</span>
+              <span className='text-[10px] font-bold uppercase tracking-wider text-slate-300'>
+                Rapports
+              </span>
             </button>
           </div>
 
           <div className='flex items-center justify-between px-2 pt-2'>
             <div className='flex items-center gap-2'>
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                <span className='text-[10px] font-medium text-slate-500 uppercase tracking-widest'>Système OK</span>
+              <div className='w-2 h-2 rounded-full bg-emerald-500 animate-pulse'></div>
+              <span className='text-[10px] font-medium text-slate-500 uppercase tracking-widest'>
+                Système OK
+              </span>
             </div>
             <button
               onClick={toggleTheme}
@@ -201,7 +213,11 @@ export const MainLayout: React.FC = () => {
                 ${isDarkMode ? 'bg-slate-800 text-yellow-400' : 'bg-slate-800 text-slate-400 hover:text-white'}
               `}
             >
-               {isDarkMode ? <span className="text-xs">🌙</span> : <span className="text-xs">☀️</span>}
+              {isDarkMode ? (
+                <span className='text-xs'>🌙</span>
+              ) : (
+                <span className='text-xs'>☀️</span>
+              )}
             </button>
           </div>
         </div>

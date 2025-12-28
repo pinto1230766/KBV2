@@ -1,0 +1,3 @@
+// Remplacer les imports dans Dashboard.tsx par ces versions légères
+import { AdvancedStatsLight } from '@/components/dashboard/AdvancedStatsLight';
+import { SatisfactionChartLight } from '@/components/feedback/SatisfactionChartLight';

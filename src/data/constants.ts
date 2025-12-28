@@ -1,7 +1,7 @@
 import { Speaker, Host, PublicTalk, CongregationProfile } from '@/types';
 
 export const initialCongregationProfile: CongregationProfile = {
-  name: 'KBV DV LYON .FP',
+  name: 'pour le Groupe Capverdien De Lyon',
   city: 'Lyon',
   hospitalityOverseer: 'Responsable Accueil',
   hospitalityOverseerPhone: '+33 6 12 34 56 78',

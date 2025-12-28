@@ -36,7 +36,7 @@ export function generateMessage(
   }
 
   // Remplacer les variables
-  let message = replaceVariables(template, visit, host, congregationProfile);
+  let message = replaceVariables(template, visit, host, congregationProfile, language);
 
   // Adapter selon le genre
   message = adaptMessageGender(message, speaker?.gender, host?.gender);
@@ -52,7 +52,8 @@ function replaceVariables(
   template: string,
   visit: Visit,
   host: Host | undefined,
-  congregationProfile: CongregationProfile
+  congregationProfile: CongregationProfile,
+  language: Language
 ): string {
   let message = template;
 
@@ -90,7 +91,7 @@ function replaceVariables(
     !visit.communicationStatus || Object.keys(visit.communicationStatus).length === 0;
 
   if (isFirstContact) {
-    const intro = getFirstTimeIntroduction(congregationProfile.name);
+    const intro = getFirstTimeIntroduction(congregationProfile.name, language);
     message = message.replace(/{firstTimeIntroduction}/g, intro);
   } else {
     message = message.replace(/{firstTimeIntroduction}/g, '');
@@ -103,8 +104,14 @@ function replaceVariables(
 // INTRODUCTION PREMIER CONTACT
 // ============================================================================
 
-function getFirstTimeIntroduction(congregationName: string): string {
-  return `\n\nJe suis le responsable de l'accueil pour le ${congregationName}.`;
+function getFirstTimeIntroduction(congregationName: string, language: Language): string {
+  const introductions = {
+    fr: `\n\nJe suis le responsable de l'accueil pour le ${congregationName}.`,
+    cv: `\n\nNu ta responsavel di akolhimentu pa ${congregationName}.`,
+    pt: `\n\nSou o responsável pela hospitalidade para o ${congregationName}.`,
+  };
+
+  return introductions[language] || introductions.fr;
 }
 
 // ============================================================================
@@ -211,8 +218,6 @@ export async function shareMessage(message: string): Promise<boolean> {
     return false;
   }
 }
-
-
 
 // ============================================================================
 // EXTRACTION DE VARIABLES D'UN MODÈLE

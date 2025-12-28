@@ -172,27 +172,32 @@ export const TabletLayout: React.FC = () => {
             isLandscape ? 'block' : isSidebarOpen ? 'block' : 'hidden'
           )}
         >
-           {/* Ambient Background */}
-           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-              <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full"></div>
-              <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full"></div>
-           </div>
+          {/* Ambient Background */}
+          <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0'>
+            <div className='absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full'></div>
+            <div className='absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full'></div>
+          </div>
 
           {/* Header */}
           <div className='relative z-10 flex items-center justify-between h-24 px-4 border-b border-white/5'>
-            <div className={cn('flex flex-col gap-1 transition-opacity duration-300', !isSidebarOpen && 'opacity-0 hidden')}>
-                <div className='text-[10px] font-black tracking-[0.3em] uppercase text-slate-500'>
-                  GROUPE DE
-                </div>
-                <div className='text-3xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
-                  LYON
-                </div>
+            <div
+              className={cn(
+                'flex flex-col gap-1 transition-opacity duration-300',
+                !isSidebarOpen && 'opacity-0 hidden'
+              )}
+            >
+              <div className='text-[10px] font-black tracking-[0.3em] uppercase text-slate-500'>
+                GROUPE DE
+              </div>
+              <div className='text-3xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
+                LYON
+              </div>
             </div>
-            
+
             {!isSidebarOpen && (
-               <div className="w-full flex justify-center">
-                  <span className="text-2xl font-black text-white">GL</span>
-               </div>
+              <div className='w-full flex justify-center'>
+                <span className='text-2xl font-black text-white'>GL</span>
+              </div>
             )}
 
             {isLandscape && (
@@ -209,64 +214,97 @@ export const TabletLayout: React.FC = () => {
           {/* Navigation */}
           <nav className='relative z-10 flex-1 overflow-y-auto py-6 px-3 space-y-2 custom-scrollbar'>
             {NAV_ITEMS.map((item) => (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={cn(
+                  'w-full flex items-center rounded-xl transition-all duration-200 group relative',
+                  isSidebarOpen ? 'px-4 py-4' : 'px-0 py-4 justify-center',
+                  location.pathname === item.path
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/40'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                )}
+                title={!isSidebarOpen ? item.label : undefined}
+              >
+                <item.icon
                   className={cn(
-                    'w-full flex items-center rounded-xl transition-all duration-200 group relative',
-                    isSidebarOpen ? 'px-4 py-4' : 'px-0 py-4 justify-center',
+                    'w-6 h-6 transition-colors',
+                    isSidebarOpen && 'mr-4',
                     location.pathname === item.path
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/40'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      ? 'text-white'
+                      : 'text-slate-500 group-hover:text-white'
                   )}
-                  title={!isSidebarOpen ? item.label : undefined}
-                >
-                  <item.icon className={cn('w-6 h-6 transition-colors', isSidebarOpen && 'mr-4', location.pathname === item.path ? 'text-white' : 'text-slate-500 group-hover:text-white')} />
-                  {isSidebarOpen && <span className='font-bold text-lg tracking-wide'>{item.label}</span>}
-                  {location.pathname === item.path && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]"></div>
-                  )}
-                </button>
+                />
+                {isSidebarOpen && (
+                  <span className='font-bold text-lg tracking-wide'>{item.label}</span>
+                )}
+                {location.pathname === item.path && (
+                  <div className='absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]'></div>
+                )}
+              </button>
             ))}
 
             <div className='my-6 border-t border-white/5 mx-2'></div>
 
             {/* Action Buttons */}
             <div className='space-y-2'>
-                <button
-                  onClick={() => setIsQuickActionsOpen(true)}
+              <button
+                onClick={() => setIsQuickActionsOpen(true)}
+                className={cn(
+                  'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
+                  isSidebarOpen
+                    ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800'
+                    : 'px-0 py-3 justify-center hover:bg-slate-800'
+                )}
+                title={!isSidebarOpen ? 'Actions rapides' : undefined}
+              >
+                <div
                   className={cn(
-                    'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
-                    isSidebarOpen ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800' : 'px-0 py-3 justify-center hover:bg-slate-800'
+                    'bg-amber-500/10 rounded-lg group-hover:scale-110 transition-transform',
+                    isSidebarOpen ? 'p-2 mr-3' : 'p-2'
                   )}
-                  title={!isSidebarOpen ? 'Actions rapides' : undefined}
                 >
-                  <div className={cn("bg-amber-500/10 rounded-lg group-hover:scale-110 transition-transform", isSidebarOpen ? 'p-2 mr-3' : 'p-2')}>
-                      <Zap className='w-5 h-5 text-amber-500' />
-                  </div>
-                  {isSidebarOpen && <span className='font-bold text-slate-300 group-hover:text-white'>Actions</span>}
-                </button>
+                  <Zap className='w-5 h-5 text-amber-500' />
+                </div>
+                {isSidebarOpen && (
+                  <span className='font-bold text-slate-300 group-hover:text-white'>Actions</span>
+                )}
+              </button>
 
-                <button
-                  onClick={() => setIsReportModalOpen(true)}
+              <button
+                onClick={() => setIsReportModalOpen(true)}
+                className={cn(
+                  'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
+                  isSidebarOpen
+                    ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800'
+                    : 'px-0 py-3 justify-center hover:bg-slate-800'
+                )}
+                title={!isSidebarOpen ? 'Rapports' : undefined}
+              >
+                <div
                   className={cn(
-                    'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
-                    isSidebarOpen ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800' : 'px-0 py-3 justify-center hover:bg-slate-800'
+                    'bg-blue-500/10 rounded-lg group-hover:scale-110 transition-transform',
+                    isSidebarOpen ? 'p-2 mr-3' : 'p-2'
                   )}
-                  title={!isSidebarOpen ? 'Rapports' : undefined}
                 >
-                  <div className={cn("bg-blue-500/10 rounded-lg group-hover:scale-110 transition-transform", isSidebarOpen ? 'p-2 mr-3' : 'p-2')}>
-                      <FileText className='w-5 h-5 text-blue-500' />
-                  </div>
-                  {isSidebarOpen && <span className='font-bold text-slate-300 group-hover:text-white'>Rapports</span>}
-                </button>
+                  <FileText className='w-5 h-5 text-blue-500' />
+                </div>
+                {isSidebarOpen && (
+                  <span className='font-bold text-slate-300 group-hover:text-white'>Rapports</span>
+                )}
+              </button>
             </div>
           </nav>
 
           {/* Footer */}
           <div className='relative z-10 p-4 border-t border-white/5 bg-slate-900 space-y-4'>
             {/* Theme Toggle */}
-            <div className={cn('flex items-center', isSidebarOpen ? 'justify-between' : 'justify-center')}>
+            <div
+              className={cn(
+                'flex items-center',
+                isSidebarOpen ? 'justify-between' : 'justify-center'
+              )}
+            >
               {isSidebarOpen && (
                 <span className='text-xs font-bold uppercase tracking-widest text-slate-500'>
                   Mode sombre

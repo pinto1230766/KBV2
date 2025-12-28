@@ -526,7 +526,9 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
                                   {item._source && (
                                     <div className='mt-1'>
                                       <Badge
-                                        variant={item._source === 'archived' ? 'warning' : 'success'}
+                                        variant={
+                                          item._source === 'archived' ? 'warning' : 'success'
+                                        }
                                         className='text-xs'
                                       >
                                         {item._source === 'archived' ? 'Archivée' : 'Actuelle'}

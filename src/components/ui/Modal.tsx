@@ -73,7 +73,9 @@ export const Modal: React.FC<ModalProps> = ({
         aria-modal='true'
       >
         {!hideCloseButton && (
-          <div className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0 ${title ? '' : 'justify-end border-none pb-0'}`}>
+          <div
+            className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0 ${title ? '' : 'justify-end border-none pb-0'}`}
+          >
             {title && (
               <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
             )}
@@ -87,7 +89,11 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
 
-        <div className={`${padding === 'none' ? 'p-0' : 'px-6 py-4'} overflow-y-auto custom-scrollbar grow`}>{children}</div>
+        <div
+          className={`${padding === 'none' ? 'p-0' : 'px-6 py-4'} overflow-y-auto custom-scrollbar grow`}
+        >
+          {children}
+        </div>
 
         {footer && (
           <div className='px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 rounded-b-xl shrink-0 flex justify-end gap-3'>

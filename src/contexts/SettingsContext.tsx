@@ -51,7 +51,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         if (saved) {
           // Fusionner avec les défauts pour s'assurer que les nouvelles propriétés existent
           // et que les anciennes (comme aiSettings) sont ignorées si elles ne sont plus dans le type
-          const { aiSettings, ...rest } = (saved as any);
+          const { aiSettings, ...rest } = saved as any;
           setSettings({ ...defaultSettings, ...rest });
         }
       } catch (error) {

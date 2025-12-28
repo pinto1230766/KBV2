@@ -104,7 +104,14 @@ export const Settings: React.FC = () => {
   };
 
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'duplicates' | 'about'
+    | 'overview'
+    | 'profile'
+    | 'appearance'
+    | 'notifications'
+    | 'security'
+    | 'data'
+    | 'duplicates'
+    | 'about'
   >('overview');
   const [profileForm, setProfileForm] = useState<CongregationProfile>(congregationProfile);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -117,23 +124,74 @@ export const Settings: React.FC = () => {
   const [isPhoneImportModalOpen, setIsPhoneImportModalOpen] = useState(false);
 
   const tabs = [
-    { id: 'overview', label: 'Vue d\'ensemble', icon: Monitor, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'profile', label: 'Profil de la Congrégation', icon: User, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
-    { id: 'appearance', label: 'Apparence & Thème', icon: Palette, color: 'text-pink-600', bg: 'bg-pink-50 dark:bg-pink-900/20' },
-    { id: 'notifications', label: 'Notifications', icon: Bell, color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' },
-    { id: 'security', label: 'Sécurité & Accès', icon: Shield, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
-    { id: 'data', label: 'Export & Import', icon: Database, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { id: 'duplicates', label: 'Maintenance (Doublons)', icon: Copy, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
-    { id: 'about', label: 'À propos', icon: Info, color: 'text-gray-600', bg: 'bg-gray-50 dark:bg-gray-900/20' },
+    {
+      id: 'overview',
+      label: "Vue d'ensemble",
+      icon: Monitor,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-900/20',
+    },
+    {
+      id: 'profile',
+      label: 'Profil de la Congrégation',
+      icon: User,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50 dark:bg-purple-900/20',
+    },
+    {
+      id: 'appearance',
+      label: 'Apparence & Thème',
+      icon: Palette,
+      color: 'text-pink-600',
+      bg: 'bg-pink-50 dark:bg-pink-900/20',
+    },
+    {
+      id: 'notifications',
+      label: 'Notifications',
+      icon: Bell,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50 dark:bg-orange-900/20',
+    },
+    {
+      id: 'security',
+      label: 'Sécurité & Accès',
+      icon: Shield,
+      color: 'text-green-600',
+      bg: 'bg-green-50 dark:bg-green-900/20',
+    },
+    {
+      id: 'data',
+      label: 'Export & Import',
+      icon: Database,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 dark:bg-amber-900/20',
+    },
+    {
+      id: 'duplicates',
+      label: 'Maintenance (Doublons)',
+      icon: Copy,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50 dark:bg-indigo-900/20',
+    },
+    {
+      id: 'about',
+      label: 'À propos',
+      icon: Info,
+      color: 'text-gray-600',
+      bg: 'bg-gray-50 dark:bg-gray-900/20',
+    },
   ] as const;
 
-  const stats = useMemo(() => ({
-    speakersCount: speakers.length,
-    visitsCount: visits.length,
-    hostsCount: hosts.length,
-    archivedCount: archivedVisits?.length || 0,
-    messagesCount: speakerMessages?.length || 0
-  }), [speakers, visits, hosts, archivedVisits, speakerMessages]);
+  const stats = useMemo(
+    () => ({
+      speakersCount: speakers.length,
+      visitsCount: visits.length,
+      hostsCount: hosts.length,
+      archivedCount: archivedVisits?.length || 0,
+      messagesCount: speakerMessages?.length || 0,
+    }),
+    [speakers, visits, hosts, archivedVisits, speakerMessages]
+  );
 
   const handleSaveProfile = () => {
     updateCongregationProfile(profileForm);
@@ -181,7 +239,9 @@ export const Settings: React.FC = () => {
           try {
             importData(e.target.result as string);
             resolve();
-          } catch (err) { reject(err); }
+          } catch (err) {
+            reject(err);
+          }
         }
       };
       reader.onerror = reject;
@@ -191,23 +251,38 @@ export const Settings: React.FC = () => {
   const handleImportAdapter = (data: any, _mapping: ColumnMapping): Promise<ImportResult> => {
     addToast('Importation effectuée avec succès', 'success');
     return Promise.resolve({
-      speakersAdded: 0, speakersUpdated: 0,
+      speakersAdded: 0,
+      speakersUpdated: 0,
       visitsAdded: Array.isArray(data) ? data.length : 1,
-      visitsUpdated: 0, hostsAdded: 0, hostsUpdated: 0, errors: [],
+      visitsUpdated: 0,
+      hostsAdded: 0,
+      hostsUpdated: 0,
+      errors: [],
     });
   };
 
-  const handleMergeAdapter = (groups: any[], action: 'merge' | 'delete', strategy: 'keep-first' | 'keep-recent' | 'manual' = 'keep-recent') => {
+  const handleMergeAdapter = (
+    groups: any[],
+    action: 'merge' | 'delete',
+    strategy: 'keep-first' | 'keep-recent' | 'manual' = 'keep-recent'
+  ) => {
     let successCount = 0;
     groups.forEach((group: any) => {
       if (!group.items || group.items.length < 2) return;
       const sortedItems = [...group.items];
       if (strategy === 'keep-recent') {
-        sortedItems.sort((a, b) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime());
+        sortedItems.sort(
+          (a, b) =>
+            new Date(b.updatedAt || b.createdAt || 0).getTime() -
+            new Date(a.updatedAt || a.createdAt || 0).getTime()
+        );
       }
       const keepItem = sortedItems[0];
       const duplicates = sortedItems.slice(1);
-      const keepId = group.type === 'host' ? (keepItem as any).nom : (keepItem as any).id || (keepItem as any).visitId;
+      const keepId =
+        group.type === 'host'
+          ? (keepItem as any).nom
+          : (keepItem as any).id || (keepItem as any).visitId;
       const duplicateIds = duplicates.map((item: any) => {
         if (group.type === 'host') return (item as any).nom;
         if (group.type === 'visit' || group.type === 'archivedVisit') return (item as any).visitId;
@@ -224,7 +299,13 @@ export const Settings: React.FC = () => {
         successCount++;
       }
     });
-    if (successCount > 0) addToast(action === 'merge' ? `${successCount} groupe(s) fusionné(s)` : `${successCount} groupe(s) nettoyé(s)`, 'success');
+    if (successCount > 0)
+      addToast(
+        action === 'merge'
+          ? `${successCount} groupe(s) fusionné(s)`
+          : `${successCount} groupe(s) nettoyé(s)`,
+        'success'
+      );
   };
 
   return (
@@ -240,13 +321,14 @@ export const Settings: React.FC = () => {
             Paramètres
           </h2>
           <p className='text-gray-500 dark:text-gray-400 mt-2 max-w-2xl'>
-            Personnalisez votre expérience, gérez les données de la congrégation et configurez les options de sécurité avancées.
+            Personnalisez votre expérience, gérez les données de la congrégation et configurez les
+            options de sécurité avancées.
           </p>
         </div>
-        
+
         {activeTab !== 'overview' && (
-          <Button 
-            variant='ghost' 
+          <Button
+            variant='ghost'
             onClick={() => setActiveTab('overview')}
             className='text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
           >
@@ -272,18 +354,22 @@ export const Settings: React.FC = () => {
                   )}
                 >
                   <div className='flex items-center gap-3'>
-                    <div className={cn(
-                      'p-2 rounded-lg transition-colors',
-                      activeTab === tab.id ? 'bg-white/20' : cn(tab.bg, tab.color)
-                    )}>
+                    <div
+                      className={cn(
+                        'p-2 rounded-lg transition-colors',
+                        activeTab === tab.id ? 'bg-white/20' : cn(tab.bg, tab.color)
+                      )}
+                    >
                       <tab.icon className='w-4 h-4' />
                     </div>
                     <span>{tab.label}</span>
                   </div>
-                  <ChevronRight className={cn(
-                    'w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity',
-                    activeTab === tab.id && 'opacity-100'
-                  )} />
+                  <ChevronRight
+                    className={cn(
+                      'w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity',
+                      activeTab === tab.id && 'opacity-100'
+                    )}
+                  />
                 </button>
               ))}
             </CardBody>
@@ -292,7 +378,9 @@ export const Settings: React.FC = () => {
           {/* Quick Stats Sidebar (Only if not in overview) */}
           {activeTab !== 'overview' && (
             <div className='mt-8 space-y-4 hidden lg:block'>
-              <h4 className='text-xs font-bold text-gray-400 uppercase tracking-widest px-4'>État du système</h4>
+              <h4 className='text-xs font-bold text-gray-400 uppercase tracking-widest px-4'>
+                État du système
+              </h4>
               <Card className='bg-gray-50/50 dark:bg-gray-800/30 border-dashed'>
                 <CardBody className='p-4 space-y-3'>
                   <div className='flex justify-between text-xs'>
@@ -302,14 +390,18 @@ export const Settings: React.FC = () => {
                   <div className='flex justify-between text-xs'>
                     <span className='text-gray-500'>Dernière synchro</span>
                     <span className='text-gray-900 dark:text-white font-medium'>
-                      {localStorage.getItem('lastGoogleSheetSync') ? new Date(localStorage.getItem('lastGoogleSheetSync')!).toLocaleDateString() : 'Jamais'}
+                      {localStorage.getItem('lastGoogleSheetSync')
+                        ? new Date(
+                            localStorage.getItem('lastGoogleSheetSync')!
+                          ).toLocaleDateString()
+                        : 'Jamais'}
                     </span>
                   </div>
                   <div className='pt-2 border-t border-gray-200 dark:border-gray-700'>
-                     <div className='flex items-center gap-2 text-[10px] text-gray-400'>
-                        <Shield className='w-3 h-3' />
-                        Chiffrement AES-GCM 256
-                     </div>
+                    <div className='flex items-center gap-2 text-[10px] text-gray-400'>
+                      <Shield className='w-3 h-3' />
+                      Chiffrement AES-GCM 256
+                    </div>
                   </div>
                 </CardBody>
               </Card>
@@ -319,22 +411,49 @@ export const Settings: React.FC = () => {
 
         {/* Content Area */}
         <div className='flex-1 w-full min-h-[700px]'>
-          
           {activeTab === 'overview' && (
             <div className='space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500'>
               {/* Stats Bar */}
               <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
                 {[
-                  { label: 'Orateurs', value: stats.speakersCount, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-                  { label: 'Visites', value: stats.visitsCount, icon: Calendar, color: 'text-purple-600', bg: 'bg-purple-50' },
-                  { label: 'Hôtes', value: stats.hostsCount, icon: MapPin, color: 'text-green-600', bg: 'bg-green-50' },
-                  { label: 'Archives', value: stats.archivedCount, icon: Save, color: 'text-orange-600', bg: 'bg-orange-50' },
+                  {
+                    label: 'Orateurs',
+                    value: stats.speakersCount,
+                    icon: Users,
+                    color: 'text-blue-600',
+                    bg: 'bg-blue-50',
+                  },
+                  {
+                    label: 'Visites',
+                    value: stats.visitsCount,
+                    icon: Calendar,
+                    color: 'text-purple-600',
+                    bg: 'bg-purple-50',
+                  },
+                  {
+                    label: 'Hôtes',
+                    value: stats.hostsCount,
+                    icon: MapPin,
+                    color: 'text-green-600',
+                    bg: 'bg-green-50',
+                  },
+                  {
+                    label: 'Archives',
+                    value: stats.archivedCount,
+                    icon: Save,
+                    color: 'text-orange-600',
+                    bg: 'bg-orange-50',
+                  },
                 ].map((s, i) => (
                   <Card key={i} className='overflow-hidden border-none shadow-sm'>
                     <CardBody className='p-4 flex items-center justify-between'>
                       <div>
-                        <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider'>{s.label}</p>
-                        <p className='text-2xl font-bold text-gray-900 dark:text-white mt-0.5'>{s.value}</p>
+                        <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider'>
+                          {s.label}
+                        </p>
+                        <p className='text-2xl font-bold text-gray-900 dark:text-white mt-0.5'>
+                          {s.value}
+                        </p>
                       </div>
                       <div className={cn('p-3 rounded-2xl dark:bg-gray-700', s.bg)}>
                         <s.icon className={cn('w-5 h-5', s.color)} />
@@ -346,33 +465,50 @@ export const Settings: React.FC = () => {
 
               {/* Category Grid */}
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                {tabs.filter(t => t.id !== 'overview').map((tab) => (
-                  <Card 
-                    key={tab.id} 
-                    hoverable 
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className='group'
-                  >
-                    <CardBody className='p-6 flex flex-col h-full'>
-                      <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300', tab.bg)}>
-                        <tab.icon className={cn('w-6 h-6', tab.color)} />
-                      </div>
-                      <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>{tab.label}</h3>
-                      <p className='text-sm text-gray-500 dark:text-gray-400 flex-1'>
-                        {tab.id === 'profile' && 'Gérez le nom, la ville et les horaires de réunion de votre congrégation.'}
-                        {tab.id === 'appearance' && 'Modifiez le thème (Clair/Sombre), la langue et les préférences visuelles.'}
-                        {tab.id === 'notifications' && 'Configurez les rappels automatiques et les préférences d\'alertes.'}
-                        {tab.id === 'security' && 'Paramètres de chiffrement et gestion des délais de session.'}
-                        {tab.id === 'data' && 'Sauvegardes export/import et synchronisation Google Sheets.'}
-                        {tab.id === 'duplicates' && 'Outils de maintenance pour nettoyer les données en doublon.'}
-                        {tab.id === 'about' && 'Informations sur l\'application, licence et version actuelle.'}
-                      </p>
-                      <div className='mt-6 flex items-center text-primary-600 font-semibold text-sm'>
-                        Configurer <ChevronRight className='w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform' />
-                      </div>
-                    </CardBody>
-                  </Card>
-                ))}
+                {tabs
+                  .filter((t) => t.id !== 'overview')
+                  .map((tab) => (
+                    <Card
+                      key={tab.id}
+                      hoverable
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className='group'
+                    >
+                      <CardBody className='p-6 flex flex-col h-full'>
+                        <div
+                          className={cn(
+                            'w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300',
+                            tab.bg
+                          )}
+                        >
+                          <tab.icon className={cn('w-6 h-6', tab.color)} />
+                        </div>
+                        <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                          {tab.label}
+                        </h3>
+                        <p className='text-sm text-gray-500 dark:text-gray-400 flex-1'>
+                          {tab.id === 'profile' &&
+                            'Gérez le nom, la ville et les horaires de réunion de votre congrégation.'}
+                          {tab.id === 'appearance' &&
+                            'Modifiez le thème (Clair/Sombre), la langue et les préférences visuelles.'}
+                          {tab.id === 'notifications' &&
+                            "Configurez les rappels automatiques et les préférences d'alertes."}
+                          {tab.id === 'security' &&
+                            'Paramètres de chiffrement et gestion des délais de session.'}
+                          {tab.id === 'data' &&
+                            'Sauvegardes export/import et synchronisation Google Sheets.'}
+                          {tab.id === 'duplicates' &&
+                            'Outils de maintenance pour nettoyer les données en doublon.'}
+                          {tab.id === 'about' &&
+                            "Informations sur l'application, licence et version actuelle."}
+                        </p>
+                        <div className='mt-6 flex items-center text-primary-600 font-semibold text-sm'>
+                          Configurer{' '}
+                          <ChevronRight className='w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform' />
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
               </div>
             </div>
           )}
@@ -387,8 +523,12 @@ export const Settings: React.FC = () => {
                       <User className='w-6 h-6' />
                     </div>
                     <div>
-                      <h3 className='text-xl font-bold text-gray-900 dark:text-white'>Identité de la Congrégation</h3>
-                      <p className='text-sm text-gray-500'>Ces informations apparaissent sur les documents officiels.</p>
+                      <h3 className='text-xl font-bold text-gray-900 dark:text-white'>
+                        Identité de la Congrégation
+                      </h3>
+                      <p className='text-sm text-gray-500'>
+                        Ces informations apparaissent sur les documents officiels.
+                      </p>
                     </div>
                   </div>
                 </CardHeader>
@@ -411,20 +551,26 @@ export const Settings: React.FC = () => {
                     <Input
                       label='Responsable Accueil'
                       value={profileForm.hospitalityOverseer}
-                      onChange={(e) => setProfileForm({ ...profileForm, hospitalityOverseer: e.target.value })}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, hospitalityOverseer: e.target.value })
+                      }
                       placeholder='Nom complet'
                     />
                     <Input
                       label='Téléphone Responsable'
                       value={profileForm.hospitalityOverseerPhone}
-                      onChange={(e) => setProfileForm({ ...profileForm, hospitalityOverseerPhone: e.target.value })}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, hospitalityOverseerPhone: e.target.value })
+                      }
                       placeholder='+33 6 XX XX XX XX'
                       leftIcon={<Phone className='w-4 h-4' />}
                     />
                     <Select
                       label='Jour de réunion'
                       value={profileForm.meetingDay || 'Samedi'}
-                      onChange={(e) => setProfileForm({ ...profileForm, meetingDay: e.target.value })}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, meetingDay: e.target.value })
+                      }
                       options={[
                         { value: 'Dimanche', label: 'Dimanche' },
                         { value: 'Lundi', label: 'Lundi' },
@@ -439,38 +585,46 @@ export const Settings: React.FC = () => {
                       label='Heure de réunion'
                       type='time'
                       value={profileForm.meetingTime || '14:30'}
-                      onChange={(e) => setProfileForm({ ...profileForm, meetingTime: e.target.value })}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, meetingTime: e.target.value })
+                      }
                       leftIcon={<Clock className='w-4 h-4' />}
                     />
                   </div>
-                  
+
                   {/* Preview Business Card */}
                   <div className='bg-gradient-to-br from-primary-500 to-primary-700 p-6 rounded-2xl shadow-xl text-white max-w-sm mx-auto transform hover:rotate-1 transition-transform cursor-default'>
-                     <div className='flex justify-between items-start mb-8'>
-                        <div className='bg-white/20 p-2 rounded-lg backdrop-blur-md'>
-                           <Monitor className='w-6 h-6' />
-                        </div>
-                        <div className='text-[10px] bg-black/10 px-2 py-1 rounded-full tracking-tighter uppercase font-bold'>OFFICIAL PROFILE</div>
-                     </div>
-                     <h4 className='text-lg font-bold mb-1 truncate'>{profileForm.name || 'Nom Congrégation'}</h4>
-                     <p className='text-xs opacity-80 mb-4'>{profileForm.city || 'Ville'}, FR</p>
-                     
-                     <div className='space-y-2 text-xs'>
-                        <div className='flex items-center gap-2'>
-                           <User className='w-3 h-3 opacity-60' />
-                           <span>{profileForm.hospitalityOverseer || 'Responsable'}</span>
-                        </div>
-                        <div className='flex items-center gap-2'>
-                           <Calendar className='w-3 h-3 opacity-60' />
-                           <span>{profileForm.meetingDay || 'Jour'} à {profileForm.meetingTime || '00:00'}</span>
-                        </div>
-                     </div>
+                    <div className='flex justify-between items-start mb-8'>
+                      <div className='bg-white/20 p-2 rounded-lg backdrop-blur-md'>
+                        <Monitor className='w-6 h-6' />
+                      </div>
+                      <div className='text-[10px] bg-black/10 px-2 py-1 rounded-full tracking-tighter uppercase font-bold'>
+                        OFFICIAL PROFILE
+                      </div>
+                    </div>
+                    <h4 className='text-lg font-bold mb-1 truncate'>
+                      {profileForm.name || 'Nom Congrégation'}
+                    </h4>
+                    <p className='text-xs opacity-80 mb-4'>{profileForm.city || 'Ville'}, FR</p>
+
+                    <div className='space-y-2 text-xs'>
+                      <div className='flex items-center gap-2'>
+                        <User className='w-3 h-3 opacity-60' />
+                        <span>{profileForm.hospitalityOverseer || 'Responsable'}</span>
+                      </div>
+                      <div className='flex items-center gap-2'>
+                        <Calendar className='w-3 h-3 opacity-60' />
+                        <span>
+                          {profileForm.meetingDay || 'Jour'} à {profileForm.meetingTime || '00:00'}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className='flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800'>
-                    <Button 
-                      size='lg' 
-                      leftIcon={<Save className='w-4 h-4' />} 
+                    <Button
+                      size='lg'
+                      leftIcon={<Save className='w-4 h-4' />}
                       onClick={handleSaveProfile}
                       className='shadow-lg shadow-primary-200 dark:shadow-none'
                     >
@@ -499,29 +653,29 @@ export const Settings: React.FC = () => {
                     </label>
                     <div className='grid grid-cols-1 sm:grid-cols-3 gap-6'>
                       {[
-                        { 
-                          value: 'light', 
-                          label: 'Clair', 
-                          icon: Sun, 
-                          color: 'text-orange-500', 
+                        {
+                          value: 'light',
+                          label: 'Clair',
+                          icon: Sun,
+                          color: 'text-orange-500',
                           preview: 'bg-gray-100',
-                          inner: 'bg-white border-gray-200' 
+                          inner: 'bg-white border-gray-200',
                         },
-                        { 
-                          value: 'dark', 
-                          label: 'Sombre', 
-                          icon: Moon, 
-                          color: 'text-indigo-400', 
+                        {
+                          value: 'dark',
+                          label: 'Sombre',
+                          icon: Moon,
+                          color: 'text-indigo-400',
                           preview: 'bg-gray-950',
-                          inner: 'bg-gray-800 border-gray-700' 
+                          inner: 'bg-gray-800 border-gray-700',
                         },
-                        { 
-                          value: 'auto', 
-                          label: 'Système', 
-                          icon: Monitor, 
-                          color: 'text-gray-500', 
+                        {
+                          value: 'auto',
+                          label: 'Système',
+                          icon: Monitor,
+                          color: 'text-gray-500',
                           preview: 'bg-gradient-to-r from-gray-100 to-gray-950',
-                          inner: 'bg-gray-400 border-gray-400' 
+                          inner: 'bg-gray-400 border-gray-400',
                         },
                       ].map((theme) => (
                         <button
@@ -534,8 +688,15 @@ export const Settings: React.FC = () => {
                               : 'border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50'
                           )}
                         >
-                          <div className={cn('w-full aspect-[4/3] rounded-xl mb-4 overflow-hidden shadow-inner flex items-center justify-center', theme.preview)}>
-                              <div className={cn('w-1/2 h-1/2 border rounded-md shadow-lg', theme.inner)}></div>
+                          <div
+                            className={cn(
+                              'w-full aspect-[4/3] rounded-xl mb-4 overflow-hidden shadow-inner flex items-center justify-center',
+                              theme.preview
+                            )}
+                          >
+                            <div
+                              className={cn('w-1/2 h-1/2 border rounded-md shadow-lg', theme.inner)}
+                            ></div>
                           </div>
                           <div className='flex items-center gap-2 pb-2'>
                             <theme.icon className={cn('w-4 h-4', theme.color)} />
@@ -543,7 +704,7 @@ export const Settings: React.FC = () => {
                           </div>
                           {settings.theme === theme.value && (
                             <div className='absolute -top-2 -right-2 bg-primary-500 text-white p-1 rounded-full shadow-lg'>
-                               <CheckCircle className='w-4 h-4' />
+                              <CheckCircle className='w-4 h-4' />
                             </div>
                           )}
                         </button>
@@ -585,27 +746,33 @@ export const Settings: React.FC = () => {
                 <CardBody className='p-8 space-y-8'>
                   <div className='flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900/40 rounded-2xl'>
                     <div>
-                      <h4 className='font-bold text-gray-900 dark:text-white'>Service de notifications</h4>
-                      <p className='text-sm text-gray-500'>Autoriser l'application à envoyer des messages système.</p>
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
+                      <h4 className='font-bold text-gray-900 dark:text-white'>
+                        Service de notifications
+                      </h4>
+                      <p className='text-sm text-gray-500'>
+                        Autoriser l'application à envoyer des messages système.
+                      </p>
+                      <Button
+                        variant='secondary'
+                        size='sm'
                         onClick={handleTestNotification}
-                        className="mt-3"
-                        leftIcon={<Bell className="w-4 h-4" />}
+                        className='mt-3'
+                        leftIcon={<Bell className='w-4 h-4' />}
                       >
                         Tester une notification
                       </Button>
                     </div>
                     <label className='relative inline-flex items-center cursor-pointer'>
-                      <input 
-                        type='checkbox' 
+                      <input
+                        type='checkbox'
                         className='sr-only peer'
                         checked={settings.notifications.enabled}
-                        onChange={(e) => updateSettings({
-                          ...settings,
-                          notifications: { ...settings.notifications, enabled: e.target.checked },
-                        })}
+                        onChange={(e) =>
+                          updateSettings({
+                            ...settings,
+                            notifications: { ...settings.notifications, enabled: e.target.checked },
+                          })
+                        }
                       />
                       <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
                     </label>
@@ -614,31 +781,54 @@ export const Settings: React.FC = () => {
                   {settings.notifications.enabled && (
                     <div className='space-y-8 pl-4 border-l-2 border-primary-100 dark:border-primary-900/30'>
                       <div>
-                        <h4 className='font-bold text-gray-900 dark:text-white mb-4'>Délais de rappel</h4>
+                        <h4 className='font-bold text-gray-900 dark:text-white mb-4'>
+                          Délais de rappel
+                        </h4>
                         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                           {[
-                            { value: REMINDER_ONE_WEEK, label: 'Une semaine', desc: 'Rappel J-7 pour confirmer l\'orateur.' },
-                            { value: REMINDER_TWO_DAYS, label: '48 Heures', desc: 'Rappel J-2 pour les détails finaux.' },
+                            {
+                              value: REMINDER_ONE_WEEK,
+                              label: 'Une semaine',
+                              desc: "Rappel J-7 pour confirmer l'orateur.",
+                            },
+                            {
+                              value: REMINDER_TWO_DAYS,
+                              label: '48 Heures',
+                              desc: 'Rappel J-2 pour les détails finaux.',
+                            },
                           ].map((t) => (
-                            <Card key={t.value} 
+                            <Card
+                              key={t.value}
                               className={cn(
                                 'cursor-pointer border-2 transition-all',
-                                settings.notifications.reminderDays.includes(t.value) 
-                                  ? 'border-primary-500 bg-primary-50/20' 
+                                settings.notifications.reminderDays.includes(t.value)
+                                  ? 'border-primary-500 bg-primary-50/20'
                                   : 'border-transparent bg-gray-50/50 dark:bg-gray-800/50'
                               )}
                               onClick={() => {
-                                const newDays = settings.notifications.reminderDays.includes(t.value)
-                                  ? settings.notifications.reminderDays.filter(d => d !== t.value)
+                                const newDays = settings.notifications.reminderDays.includes(
+                                  t.value
+                                )
+                                  ? settings.notifications.reminderDays.filter((d) => d !== t.value)
                                   : [...settings.notifications.reminderDays, t.value];
-                                updateSettings({...settings, notifications: {...settings.notifications, reminderDays: newDays}});
+                                updateSettings({
+                                  ...settings,
+                                  notifications: {
+                                    ...settings.notifications,
+                                    reminderDays: newDays,
+                                  },
+                                });
                               }}
                             >
                               <CardBody className='p-4 flex items-start gap-3'>
-                                <div className={cn(
-                                  'p-2 rounded-lg',
-                                  settings.notifications.reminderDays.includes(t.value) ? 'bg-primary-500 text-white' : 'bg-gray-200 dark:bg-gray-700'
-                                )}>
+                                <div
+                                  className={cn(
+                                    'p-2 rounded-lg',
+                                    settings.notifications.reminderDays.includes(t.value)
+                                      ? 'bg-primary-500 text-white'
+                                      : 'bg-gray-200 dark:bg-gray-700'
+                                  )}
+                                >
                                   <Clock className='w-4 h-4' />
                                 </div>
                                 <div>
@@ -652,26 +842,46 @@ export const Settings: React.FC = () => {
                       </div>
 
                       <div className='pt-4'>
-                        <h4 className='font-bold text-gray-900 dark:text-white mb-4'>Alertes sonores & Vibrations</h4>
+                        <h4 className='font-bold text-gray-900 dark:text-white mb-4'>
+                          Alertes sonores & Vibrations
+                        </h4>
                         <div className='space-y-4'>
                           {[
-                            { id: 'sound', label: 'Alertes sonores', icon: Bell, checked: settings.notifications.sound },
-                            { id: 'vibration', label: 'Vibrations', icon: Smartphone, checked: settings.notifications.vibration },
-                          ].map(opt => (
-                            <div key={opt.id} className='flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors'>
-                               <div className='flex items-center gap-3'>
-                                  <opt.icon className='w-4 h-4 text-gray-400' />
-                                  <span className='text-sm font-medium'>{opt.label}</span>
-                               </div>
-                               <input 
-                                  type='checkbox' 
-                                  checked={opt.checked}
-                                  onChange={(e) => updateSettings({
+                            {
+                              id: 'sound',
+                              label: 'Alertes sonores',
+                              icon: Bell,
+                              checked: settings.notifications.sound,
+                            },
+                            {
+                              id: 'vibration',
+                              label: 'Vibrations',
+                              icon: Smartphone,
+                              checked: settings.notifications.vibration,
+                            },
+                          ].map((opt) => (
+                            <div
+                              key={opt.id}
+                              className='flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors'
+                            >
+                              <div className='flex items-center gap-3'>
+                                <opt.icon className='w-4 h-4 text-gray-400' />
+                                <span className='text-sm font-medium'>{opt.label}</span>
+                              </div>
+                              <input
+                                type='checkbox'
+                                checked={opt.checked}
+                                onChange={(e) =>
+                                  updateSettings({
                                     ...settings,
-                                    notifications: { ...settings.notifications, [opt.id]: e.target.checked },
-                                  })}
-                                  className='w-5 h-5 rounded text-primary-600 focus:ring-primary-500' 
-                                />
+                                    notifications: {
+                                      ...settings.notifications,
+                                      [opt.id]: e.target.checked,
+                                    },
+                                  })
+                                }
+                                className='w-5 h-5 rounded text-primary-600 focus:ring-primary-500'
+                              />
                             </div>
                           ))}
                         </div>
@@ -694,51 +904,68 @@ export const Settings: React.FC = () => {
                   </h3>
                 </CardHeader>
                 <CardBody className='p-8 space-y-10'>
-                   <div className='p-6 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-2xl flex items-start gap-4'>
-                      <div className='p-3 bg-white dark:bg-green-900/40 rounded-xl shadow-sm'>
-                         <Shield className='w-8 h-8 text-green-600' />
-                      </div>
-                      <div>
-                         <h4 className='font-bold text-green-900 dark:text-green-100'>Protection des données</h4>
-                         <p className='text-sm text-green-700 dark:text-green-300 mt-1'>
-                            Toutes les données sensibles (noms, téléphones) sont stockées localement et peuvent être chiffrées pour plus de sécurité.
-                         </p>
-                      </div>
-                   </div>
+                  <div className='p-6 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-2xl flex items-start gap-4'>
+                    <div className='p-3 bg-white dark:bg-green-900/40 rounded-xl shadow-sm'>
+                      <Shield className='w-8 h-8 text-green-600' />
+                    </div>
+                    <div>
+                      <h4 className='font-bold text-green-900 dark:text-green-100'>
+                        Protection des données
+                      </h4>
+                      <p className='text-sm text-green-700 dark:text-green-300 mt-1'>
+                        Toutes les données sensibles (noms, téléphones) sont stockées localement et
+                        peuvent être chiffrées pour plus de sécurité.
+                      </p>
+                    </div>
+                  </div>
 
-                   <div className='space-y-6'>
-                      <div className='flex items-center justify-between'>
-                        <div>
-                           <label className='font-bold text-gray-900 dark:text-white'>Chiffrement de la base</label>
-                           <p className='text-sm text-gray-500'>Utiliser AES-GCM 256 pour les données locales.</p>
-                        </div>
-                        <input 
-                          type='checkbox' 
-                          checked={settings.encryptionEnabled}
-                          onChange={(e) => updateSettings({ ...settings, encryptionEnabled: e.target.checked })}
-                          className='w-6 h-6 rounded-lg text-green-600 focus:ring-green-500' 
+                  <div className='space-y-6'>
+                    <div className='flex items-center justify-between'>
+                      <div>
+                        <label className='font-bold text-gray-900 dark:text-white'>
+                          Chiffrement de la base
+                        </label>
+                        <p className='text-sm text-gray-500'>
+                          Utiliser AES-GCM 256 pour les données locales.
+                        </p>
+                      </div>
+                      <input
+                        type='checkbox'
+                        checked={settings.encryptionEnabled}
+                        onChange={(e) =>
+                          updateSettings({ ...settings, encryptionEnabled: e.target.checked })
+                        }
+                        className='w-6 h-6 rounded-lg text-green-600 focus:ring-green-500'
+                      />
+                    </div>
+
+                    <div className='pt-6 border-t border-gray-100 dark:border-gray-800'>
+                      <label className='block font-bold text-gray-900 dark:text-white mb-2'>
+                        Délai d'expiration de session
+                      </label>
+                      <p className='text-sm text-gray-500 mb-4'>
+                        L'application demandera une authentification après cette période
+                        d'inactivité.
+                      </p>
+                      <div className='max-w-xs'>
+                        <Select
+                          value={settings.sessionTimeout?.toString() || '30'}
+                          onChange={(e) =>
+                            updateSettings({
+                              ...settings,
+                              sessionTimeout: parseInt(e.target.value, 10),
+                            })
+                          }
+                          options={[
+                            { value: '15', label: '15 minutes' },
+                            { value: '30', label: '30 minutes' },
+                            { value: '60', label: '1 heure' },
+                            { value: '120', label: '2 heures' },
+                          ]}
                         />
                       </div>
-
-                      <div className='pt-6 border-t border-gray-100 dark:border-gray-800'>
-                         <label className='block font-bold text-gray-900 dark:text-white mb-2'>
-                            Délai d'expiration de session
-                         </label>
-                         <p className='text-sm text-gray-500 mb-4'>L'application demandera une authentification après cette période d'inactivité.</p>
-                         <div className='max-w-xs'>
-                           <Select
-                             value={settings.sessionTimeout?.toString() || '30'}
-                             onChange={(e) => updateSettings({ ...settings, sessionTimeout: parseInt(e.target.value, 10) })}
-                             options={[
-                               { value: '15', label: '15 minutes' },
-                               { value: '30', label: '30 minutes' },
-                               { value: '60', label: '1 heure' },
-                               { value: '120', label: '2 heures' },
-                             ]}
-                           />
-                         </div>
-                      </div>
-                   </div>
+                    </div>
+                  </div>
                 </CardBody>
               </Card>
             </div>
@@ -749,54 +976,91 @@ export const Settings: React.FC = () => {
             <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-300'>
               <Card className='border-none shadow-lg overflow-hidden'>
                 <div className='bg-gradient-to-r from-amber-500 to-amber-600 p-8 text-white relative'>
-                   <Database className='absolute right-[-20px] top-[-20px] w-48 h-48 opacity-10 rotate-12' />
-                   <h3 className='text-2xl font-bold flex items-center gap-3'>
-                     <Database className='w-8 h-8' />
-                     Cycle de vie des données
-                   </h3>
-                   <p className='text-amber-50 mt-2 opacity-90 max-w-xl'>
-                     Contrôlez la synchronisation avec le cloud, créez des sauvegardes et gérez l'importation massive de données.
-                   </p>
+                  <Database className='absolute right-[-20px] top-[-20px] w-48 h-48 opacity-10 rotate-12' />
+                  <h3 className='text-2xl font-bold flex items-center gap-3'>
+                    <Database className='w-8 h-8' />
+                    Cycle de vie des données
+                  </h3>
+                  <p className='text-amber-50 mt-2 opacity-90 max-w-xl'>
+                    Contrôlez la synchronisation avec le cloud, créez des sauvegardes et gérez
+                    l'importation massive de données.
+                  </p>
                 </div>
-                
+
                 <CardBody className='p-8 space-y-10'>
                   {/* Google Sheets Section */}
                   <div className='p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-2xl'>
                     <div className='flex flex-col md:flex-row justify-between gap-6'>
-                       <div className='flex-1'>
-                          <h4 className='text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2'>
-                             <RefreshCw className={cn('w-5 h-5', isSyncing && 'animate-spin')} />
-                             Synchronisation Google Sheets
-                          </h4>
-                          <p className='text-sm text-blue-700 dark:text-blue-300 mt-2'>
-                             Mise à jour automatique des orateurs et des visites depuis la feuille de calcul partagée.
+                      <div className='flex-1'>
+                        <h4 className='text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2'>
+                          <RefreshCw className={cn('w-5 h-5', isSyncing && 'animate-spin')} />
+                          Synchronisation Google Sheets
+                        </h4>
+                        <p className='text-sm text-blue-700 dark:text-blue-300 mt-2'>
+                          Mise à jour automatique des orateurs et des visites depuis la feuille de
+                          calcul partagée.
+                        </p>
+                        {localStorage.getItem('lastGoogleSheetSync') && (
+                          <p className='text-xs text-blue-500 mt-2 font-medium'>
+                            Dernière synchronisation :{' '}
+                            {new Date(localStorage.getItem('lastGoogleSheetSync')!).toLocaleString(
+                              'fr-FR'
+                            )}
                           </p>
-                          {localStorage.getItem('lastGoogleSheetSync') && (
-                            <p className='text-xs text-blue-500 mt-2 font-medium'>
-                              Dernière synchronisation : {new Date(localStorage.getItem('lastGoogleSheetSync')!).toLocaleString('fr-FR')}
-                            </p>
-                          )}
-                       </div>
-                       <div className='flex items-center shrink-0'>
-                          <Button
-                            onClick={handleSyncGoogleSheet}
-                            disabled={isSyncing}
-                            className='shadow-lg shadow-blue-200 dark:shadow-none'
-                          >
-                            {isSyncing ? 'Traitement en cours...' : 'Synchroniser maintenant'}
-                          </Button>
-                       </div>
+                        )}
+                      </div>
+                      <div className='flex items-center shrink-0'>
+                        <Button
+                          onClick={handleSyncGoogleSheet}
+                          disabled={isSyncing}
+                          className='shadow-lg shadow-blue-200 dark:shadow-none'
+                        >
+                          {isSyncing ? 'Traitement en cours...' : 'Synchroniser maintenant'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Actions Grid */}
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     {[
-                      { id: 'backup', label: 'Sauvegardes', desc: 'Backups locaux chiffrés', icon: Save, color: 'text-green-600', bg: 'bg-green-100', action: () => setIsBackupModalOpen(true) },
-                      { id: 'import', label: 'Importation', desc: 'Assistant CSV / JSON', icon: RefreshCw, color: 'text-purple-600', bg: 'bg-purple-100', action: () => setIsImportModalOpen(true) },
-                      { id: 'archive', label: 'Archives', desc: 'Consulter l\'historique', icon: Database, color: 'text-orange-600', bg: 'bg-orange-100', action: () => setIsArchiveModalOpen(true) },
-                      { id: 'phones', label: 'Téléphones', desc: 'Import numéros massif', icon: Phone, color: 'text-indigo-600', bg: 'bg-indigo-100', action: () => setIsPhoneImportModalOpen(true) },
-                    ].map(btn => (
+                      {
+                        id: 'backup',
+                        label: 'Sauvegardes',
+                        desc: 'Backups locaux chiffrés',
+                        icon: Save,
+                        color: 'text-green-600',
+                        bg: 'bg-green-100',
+                        action: () => setIsBackupModalOpen(true),
+                      },
+                      {
+                        id: 'import',
+                        label: 'Importation',
+                        desc: 'Assistant CSV / JSON',
+                        icon: RefreshCw,
+                        color: 'text-purple-600',
+                        bg: 'bg-purple-100',
+                        action: () => setIsImportModalOpen(true),
+                      },
+                      {
+                        id: 'archive',
+                        label: 'Archives',
+                        desc: "Consulter l'historique",
+                        icon: Database,
+                        color: 'text-orange-600',
+                        bg: 'bg-orange-100',
+                        action: () => setIsArchiveModalOpen(true),
+                      },
+                      {
+                        id: 'phones',
+                        label: 'Téléphones',
+                        desc: 'Import numéros massif',
+                        icon: Phone,
+                        color: 'text-indigo-600',
+                        bg: 'bg-indigo-100',
+                        action: () => setIsPhoneImportModalOpen(true),
+                      },
+                    ].map((btn) => (
                       <button
                         key={btn.id}
                         onClick={btn.action}
@@ -822,7 +1086,12 @@ export const Settings: React.FC = () => {
                     <div className='flex flex-wrap gap-3'>
                       <Button
                         variant='outline'
-                        onClick={() => window.open('https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg', '_blank')}
+                        onClick={() =>
+                          window.open(
+                            'https://docs.google.com/spreadsheets/d/1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg',
+                            '_blank'
+                          )
+                        }
                         className='rounded-xl'
                       >
                         Google Sheet Source
@@ -844,77 +1113,106 @@ export const Settings: React.FC = () => {
           {/* Doublons */}
           {activeTab === 'duplicates' && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-300 uppercase'>
-               <Card className='border-none shadow-lg'>
-                  <CardHeader>
-                     <h3 className='text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2'>
-                        <Copy className='w-6 h-6 text-indigo-500' />
-                        Détection de Doublons
-                     </h3>
-                  </CardHeader>
-                  <CardBody className='p-8 space-y-8'>
-                     <p className='text-gray-500'>Utilisez ces outils pour identifier les entrées similaires et garder une base de données propre.</p>
-                     
-                     <div className='grid grid-cols-2 md:grid-cols-3 gap-6'>
-                        {[
-                          { label: 'Orateurs', count: stats.speakersCount, icon: User, color: 'text-blue-500' },
-                          { label: 'Visites', count: stats.visitsCount, icon: Calendar, color: 'text-purple-500' },
-                          { label: 'Hôtes', count: stats.hostsCount, icon: MapPin, color: 'text-green-500' },
-                        ].map(s => (
-                          <div key={s.label} className='p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl text-center border border-gray-100 dark:border-gray-800'>
-                             <s.icon className={cn('w-8 h-8 mx-auto mb-3', s.color)} />
-                             <div className='text-3xl font-extrabold text-gray-900 dark:text-white'>{s.count}</div>
-                             <div className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>{s.label} totaux</div>
-                          </div>
-                        ))}
-                     </div>
+              <Card className='border-none shadow-lg'>
+                <CardHeader>
+                  <h3 className='text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2'>
+                    <Copy className='w-6 h-6 text-indigo-500' />
+                    Détection de Doublons
+                  </h3>
+                </CardHeader>
+                <CardBody className='p-8 space-y-8'>
+                  <p className='text-gray-500'>
+                    Utilisez ces outils pour identifier les entrées similaires et garder une base de
+                    données propre.
+                  </p>
 
-                     <div className='pt-8 text-center'>
-                        <Button 
-                          size='lg' 
-                          onClick={() => setIsDuplicateModalOpen(true)}
-                          className='px-12 py-6 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none bg-indigo-600 hover:bg-indigo-700'
-                        >
-                           Démarrer l'audit complet
-                        </Button>
-                     </div>
-                  </CardBody>
-               </Card>
+                  <div className='grid grid-cols-2 md:grid-cols-3 gap-6'>
+                    {[
+                      {
+                        label: 'Orateurs',
+                        count: stats.speakersCount,
+                        icon: User,
+                        color: 'text-blue-500',
+                      },
+                      {
+                        label: 'Visites',
+                        count: stats.visitsCount,
+                        icon: Calendar,
+                        color: 'text-purple-500',
+                      },
+                      {
+                        label: 'Hôtes',
+                        count: stats.hostsCount,
+                        icon: MapPin,
+                        color: 'text-green-500',
+                      },
+                    ].map((s) => (
+                      <div
+                        key={s.label}
+                        className='p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl text-center border border-gray-100 dark:border-gray-800'
+                      >
+                        <s.icon className={cn('w-8 h-8 mx-auto mb-3', s.color)} />
+                        <div className='text-3xl font-extrabold text-gray-900 dark:text-white'>
+                          {s.count}
+                        </div>
+                        <div className='text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1'>
+                          {s.label} totaux
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className='pt-8 text-center'>
+                    <Button
+                      size='lg'
+                      onClick={() => setIsDuplicateModalOpen(true)}
+                      className='px-12 py-6 rounded-2xl shadow-xl shadow-indigo-200 dark:shadow-none bg-indigo-600 hover:bg-indigo-700'
+                    >
+                      Démarrer l'audit complet
+                    </Button>
+                  </div>
+                </CardBody>
+              </Card>
             </div>
           )}
 
           {/* About */}
           {activeTab === 'about' && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-4 duration-300'>
-               <div className='flex flex-col items-center justify-center p-12 text-center'>
-                  <div className='w-32 h-32 bg-primary-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-primary-200 dark:shadow-none mb-8 rotate-12 transition-transform hover:rotate-0 duration-500'>
-                     <Monitor className='w-16 h-16 text-white' />
-                  </div>
-                  <h3 className='text-4xl font-black text-gray-900 dark:text-white tracking-tighter mb-2'>
-                     KBV <span className='text-primary-600'>MANAGER</span>
-                  </h3>
-                  <p className='text-gray-400 font-bold tracking-[0.2em] uppercase text-[10px] mb-8'>Version 1.20.1 Built 2025</p>
-                  
-                  <div className='max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 space-y-6'>
-                    <p className='text-sm text-gray-500 dark:text-gray-400'>
-                      Cette application a été conçue exclusivement pour l'organisation et la gestion des orateurs visiteurs pour la congrégation KBV DV Lyon .FP.
-                    </p>
-                    <div className='pt-4 border-t border-gray-50 dark:border-gray-700 grid grid-cols-2 gap-4 text-left'>
-                       <div>
-                          <p className='text-[10px] text-gray-400 font-bold uppercase'>Développeur</p>
-                          <p className='text-sm font-bold text-gray-900 dark:text-white'>Internal IT</p>
-                       </div>
-                       <div>
-                          <p className='text-[10px] text-gray-400 font-bold uppercase'>Dernière MAJ</p>
-                          <p className='text-sm font-bold text-gray-900 dark:text-white'>Dec 2025</p>
-                       </div>
+              <div className='flex flex-col items-center justify-center p-12 text-center'>
+                <div className='w-32 h-32 bg-primary-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-primary-200 dark:shadow-none mb-8 rotate-12 transition-transform hover:rotate-0 duration-500'>
+                  <Monitor className='w-16 h-16 text-white' />
+                </div>
+                <h3 className='text-4xl font-black text-gray-900 dark:text-white tracking-tighter mb-2'>
+                  KBV <span className='text-primary-600'>MANAGER</span>
+                </h3>
+                <p className='text-gray-400 font-bold tracking-[0.2em] uppercase text-[10px] mb-8'>
+                  Version 1.20.1 Built 2025
+                </p>
+
+                <div className='max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 space-y-6'>
+                  <p className='text-sm text-gray-500 dark:text-gray-400'>
+                    Cette application a été conçue exclusivement pour l'organisation et la gestion
+                    des orateurs visiteurs pour la congrégation KBV DV Lyon .FP.
+                  </p>
+                  <div className='pt-4 border-t border-gray-50 dark:border-gray-700 grid grid-cols-2 gap-4 text-left'>
+                    <div>
+                      <p className='text-[10px] text-gray-400 font-bold uppercase'>Développeur</p>
+                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Internal IT</p>
+                    </div>
+                    <div>
+                      <p className='text-[10px] text-gray-400 font-bold uppercase'>Dernière MAJ</p>
+                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Dec 2025</p>
                     </div>
                   </div>
-                  
-                  <p className='mt-12 text-[10px] text-gray-400 uppercase tracking-widest font-bold'>Built with React • Tailwind • Capacitor</p>
-               </div>
+                </div>
+
+                <p className='mt-12 text-[10px] text-gray-400 uppercase tracking-widest font-bold'>
+                  Built with React • Tailwind • Capacitor
+                </p>
+              </div>
             </div>
           )}
-
         </div>
       </div>
 
@@ -945,7 +1243,10 @@ export const Settings: React.FC = () => {
         }}
         onExport={async () => {
           await handleBackupAdapter({
-            includeArchived: true, includeSettings: false, includeTemplates: false, encrypt: false,
+            includeArchived: true,
+            includeSettings: false,
+            includeTemplates: false,
+            encrypt: false,
           });
         }}
       />

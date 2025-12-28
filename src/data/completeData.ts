@@ -1539,7 +1539,7 @@ export const completeData: AppData = {
   archivedVisits: completeArchivedVisits,
   specialDates: completeSpecialDates,
   congregationProfile: {
-    name: 'KBV DV LYON .FP',
+    name: 'pour le Groupe Capverdien De Lyon',
     city: 'Lyon',
     hospitalityOverseer: 'Pinto Francisco',
     hospitalityOverseerPhone: '+33777388914',

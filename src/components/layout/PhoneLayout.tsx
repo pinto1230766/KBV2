@@ -169,24 +169,26 @@ export const PhoneLayout: React.FC = () => {
         {/* Premium Sidebar overlay */}
         {isSidebarOpen && (
           <div className='fixed inset-0 z-50 flex'>
-            <div className='fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity' onClick={toggleSidebar} />
+            <div
+              className='fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity'
+              onClick={toggleSidebar}
+            />
             <aside className='relative flex-shrink-0 w-[85vw] max-w-[320px] bg-slate-900 shadow-2xl overflow-hidden flex flex-col'>
-              
-               {/* Ambient Background */}
-               <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-                  <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full"></div>
-                  <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full"></div>
-               </div>
+              {/* Ambient Background */}
+              <div className='absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0'>
+                <div className='absolute top-[-10%] left-[-20%] w-[80%] h-[30%] bg-blue-500/10 blur-[80px] rounded-full'></div>
+                <div className='absolute bottom-[-10%] right-[-20%] w-[80%] h-[30%] bg-indigo-500/10 blur-[80px] rounded-full'></div>
+              </div>
 
               {/* Premium Header */}
               <div className='relative z-10 flex items-center justify-between h-24 px-6 border-b border-white/5 pt-4'>
                 <div className='flex flex-col gap-1'>
-                    <div className='text-[10px] font-black tracking-[0.3em] uppercase text-slate-500'>
-                      GROUPE DE
-                    </div>
-                    <div className='text-3xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
-                      LYON
-                    </div>
+                  <div className='text-[10px] font-black tracking-[0.3em] uppercase text-slate-500'>
+                    GROUPE DE
+                  </div>
+                  <div className='text-3xl font-black tracking-tighter leading-none text-white drop-shadow-lg transform scale-y-90'>
+                    LYON
+                  </div>
                 </div>
                 <button
                   onClick={toggleSidebar}
@@ -199,57 +201,68 @@ export const PhoneLayout: React.FC = () => {
 
               {/* Navigation */}
               <nav className='relative z-10 flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar'>
-                  {NAV_ITEMS.map((item) => (
-                    <button
-                      key={item.path}
-                      onClick={() => {
-                        navigate(item.path);
-                        setIsSidebarOpen(false);
-                      }}
+                {NAV_ITEMS.map((item) => (
+                  <button
+                    key={item.path}
+                    onClick={() => {
+                      navigate(item.path);
+                      setIsSidebarOpen(false);
+                    }}
+                    className={cn(
+                      'w-full flex items-center p-4 rounded-xl transition-all duration-200 group relative overflow-hidden',
+                      location.pathname === item.path
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/40'
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                    )}
+                  >
+                    <item.icon
                       className={cn(
-                        'w-full flex items-center p-4 rounded-xl transition-all duration-200 group relative overflow-hidden',
+                        'w-6 h-6 mr-4 transition-colors',
                         location.pathname === item.path
-                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-900/40'
-                          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                          ? 'text-white'
+                          : 'text-slate-500 group-hover:text-white'
                       )}
-                    >
-                      <item.icon className={cn('w-6 h-6 mr-4 transition-colors', location.pathname === item.path ? 'text-white' : 'text-slate-500 group-hover:text-white')} />
-                      <span className='font-bold text-lg tracking-wide'>{item.label}</span>
-                      {location.pathname === item.path && (
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]"></div>
-                      )}
-                    </button>
-                  ))}
+                    />
+                    <span className='font-bold text-lg tracking-wide'>{item.label}</span>
+                    {location.pathname === item.path && (
+                      <div className='absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white/20 rounded-l-full blur-[1px]'></div>
+                    )}
+                  </button>
+                ))}
 
                 <div className='my-6 border-t border-white/5 mx-2'></div>
 
                 {/* Quick Actions Buttons */}
-                <div className="space-y-3">
-                    <button
-                      onClick={() => {
-                        setIsQuickActionsOpen(true);
-                        setIsSidebarOpen(false);
-                      }}
-                      className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
-                    >
-                      <div className="p-2 bg-amber-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform">
-                          <Zap className='w-6 h-6 text-amber-500' />
-                      </div>
-                      <span className='font-bold text-slate-300 group-hover:text-white'>Actions rapides</span>
-                    </button>
+                <div className='space-y-3'>
+                  <button
+                    onClick={() => {
+                      setIsQuickActionsOpen(true);
+                      setIsSidebarOpen(false);
+                    }}
+                    className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
+                  >
+                    <div className='p-2 bg-amber-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform'>
+                      <Zap className='w-6 h-6 text-amber-500' />
+                    </div>
+                    <span className='font-bold text-slate-300 group-hover:text-white'>
+                      Actions rapides
+                    </span>
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setIsReportModalOpen(true);
-                        setIsSidebarOpen(false);
-                      }}
-                      className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
-                    >
-                      <div className="p-2 bg-blue-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform">
-                          <FileText className='w-6 h-6 text-blue-500' />
-                      </div>
-                      <span className='font-bold text-slate-300 group-hover:text-white'>Rapports</span>
-                    </button>
+                  <button
+                    onClick={() => {
+                      setIsReportModalOpen(true);
+                      setIsSidebarOpen(false);
+                    }}
+                    className='w-full flex items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-800 transition-all border border-white/5 group'
+                  >
+                    <div className='p-2 bg-blue-500/10 rounded-lg mr-4 group-hover:scale-110 transition-transform'>
+                      <FileText className='w-6 h-6 text-blue-500' />
+                    </div>
+                    <span className='font-bold text-slate-300 group-hover:text-white'>
+                      Rapports
+                    </span>
+                  </button>
                 </div>
               </nav>
 
