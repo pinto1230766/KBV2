@@ -308,8 +308,8 @@ jobs:
             - ✅ Sécurité: Validée
             
             ### 🔗 Assets
-            - [📦 Build artifacts](${{ steps.upload.outputs.artifact-url }})
-            - [📖 Storybook](${{ steps.storybook.outputs.url }})
-            - [📊 Test reports](${{ steps.reports.outputs.url }})
+            - Build: https://github.com/pinto1230766/KBV2/actions
+            - Docs: https://pinto1230766.github.io/KBV2/
+            - Tests: https://github.com/pinto1230766/KBV2/actions
           draft: false
           prerelease: false

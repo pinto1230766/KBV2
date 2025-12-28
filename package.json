@@ -6,13 +6,27 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:analyze": "npm run build && npx vite-bundle-analyzer dist",
+    "build:stats": "npm run build && npx vite-bundle-analyzer dist/stats.html",
+    "build:prod": "NODE_ENV=production npm run build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,md,json}\"",
+    "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:run": "vitest run",
-    "test:update": "vitest run -u"
+    "test:update": "vitest run -u",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "dev:full": "concurrently \"npm run dev\" \"npm run storybook\"",
+    "ci": "npm run lint && npm run type-check && npm run test:coverage && npm run build"
   },
   "dependencies": {
     "@capacitor/android": "^5.0.0",
