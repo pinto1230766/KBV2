@@ -67,9 +67,5 @@ module.exports = {
 
   // Règles de formatage spécifiques
   singleAttributePerLine: false,
-  quoteProps: 'as-needed',
 
-  // Règles pour les imports
-  importOrder: ['<THIRD_PARTY_MODULES>', '^@/(.*)$', '^\\./(.*)$', '^\\.\\./(.*)$'],
-  importOrderTypeScriptVersion: '5.0.0',
-};
+  };
