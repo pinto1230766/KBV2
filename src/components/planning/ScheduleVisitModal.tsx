@@ -5,19 +5,21 @@ import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Visit } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
-import { 
-  AlertTriangle, 
-  Calendar, 
-  Clock, 
-  User, 
-  MapPin, 
-  BookOpen, 
-  Home, 
-  CheckCircle2, 
+import {
+  AlertTriangle,
+  Calendar,
+  Clock,
+  User,
+  MapPin,
+  BookOpen,
+  Home,
+  CheckCircle2,
   ChevronRight,
   Info
 } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
+import { useVisitNotifications } from '@/hooks/useVisitNotifications';
 
 interface ScheduleVisitModalProps {
   isOpen: boolean;
@@ -32,6 +34,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
 }) => {
   const { speakers, hosts, addVisit, publicTalks, visits, congregationProfile } = useData();
   const { addToast } = useToast();
+  const { scheduleVisitReminder } = useVisitNotifications();
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [dateError, setDateError] = useState<string>('');
@@ -143,6 +146,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
       };
 
       await addVisit(newVisit);
+      await scheduleVisitReminder(newVisit);
       addToast('Visite programmée avec succès', 'success');
       onClose();
     } catch (error) {
@@ -274,14 +278,14 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                    <div className="grid grid-cols-[1fr,2fr] gap-4">
                       <input 
                         placeholder="N°" 
-                        value={formData.talkNoOrType} 
+                        value={formData.talkNoOrType || ''} 
                         onChange={e => handleTalkChange(e.target.value)}
                         list="talks-list"
                         className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                       />
                       <input 
                         placeholder="Thème du discours..." 
-                        value={formData.talkTheme} 
+                        value={formData.talkTheme || ''} 
                         onChange={e => setFormData(p => ({ ...p, talkTheme: e.target.value }))}
                         className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500"
                       />
@@ -335,8 +339,8 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                             className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 appearance-none"
                           >
                              <option value="">Sélectionner un hôte...</option>
-                             {hosts.filter(h => h.isActive).map(h => (
-                               <option key={h.id} value={h.nom}>{h.nom} ({h.city})</option>
+                             {hosts.map((h, index) => (
+                               <option key={index} value={h.nom}>{h.nom}</option>
                              ))}
                           </select>
                           <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 rotate-90 pointer-events-none" />
@@ -389,7 +393,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                    </div>
                    <div className="flex justify-between items-center">
                        <span className="text-xs font-bold text-gray-400 uppercase">Logistique</span>
-                       <Badge variant="secondary" className="text-xs">
+                       <Badge variant="default" className="text-xs">
                           {formData.host || 'Aucun hôte'}
                        </Badge>
                    </div>

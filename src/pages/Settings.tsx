@@ -36,6 +36,8 @@ import { ArchiveManagerModal } from '@/components/settings/ArchiveManagerModal';
 import { DuplicateDetectionModal } from '@/components/settings/DuplicateDetectionModal';
 import { PhoneNumberImportModal } from '@/components/settings/PhoneNumberImportModal';
 import { cn } from '@/utils/cn';
+import { useVisitNotifications } from '@/hooks/useVisitNotifications';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface BackupOptions {
   includeArchived: boolean;
@@ -71,6 +73,35 @@ export const Settings: React.FC = () => {
   } = useData();
   const { settings, updateSettings } = useSettings();
   const { addToast } = useToast();
+  const { requestPermissions } = useVisitNotifications();
+
+  const handleTestNotification = async () => {
+    const granted = await requestPermissions();
+    if (granted) {
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: 'Test Notification',
+              body: 'Ceci est une notification de test pour KBV Lyon.',
+              id: Math.floor(Math.random() * 100000),
+              schedule: { at: new Date(Date.now() + 1000) }, // 1 second delay
+              sound: 'default',
+              attachments: [],
+              actionTypeId: '',
+              extra: null,
+            },
+          ],
+        });
+        addToast('Notification de test envoyée (dans 1s)', 'success');
+      } catch (error) {
+        console.error('Erreur notification:', error);
+        addToast('Erreur technique notification', 'error');
+      }
+    } else {
+      addToast('Permissions refusées', 'error');
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<
     'overview' | 'profile' | 'appearance' | 'notifications' | 'security' | 'data' | 'duplicates' | 'about'
@@ -556,6 +587,15 @@ export const Settings: React.FC = () => {
                     <div>
                       <h4 className='font-bold text-gray-900 dark:text-white'>Service de notifications</h4>
                       <p className='text-sm text-gray-500'>Autoriser l'application à envoyer des messages système.</p>
+                      <Button 
+                        variant="secondary" 
+                        size="sm" 
+                        onClick={handleTestNotification}
+                        className="mt-3"
+                        leftIcon={<Bell className="w-4 h-4" />}
+                      >
+                        Tester une notification
+                      </Button>
                     </div>
                     <label className='relative inline-flex items-center cursor-pointer'>
                       <input 

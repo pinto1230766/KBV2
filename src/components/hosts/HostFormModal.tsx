@@ -5,7 +5,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Host, Gender } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Home, Users, MapPin, Phone, Mail, FileText, Dog, Cigarette } from 'lucide-react';
+import { Home, Users, MapPin, Phone, Mail, FileText, Dog } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface HostFormModalProps {

@@ -6,7 +6,7 @@ import { Speaker, Gender } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { v4 as uuidv4 } from 'uuid';
-import { User, Phone, Mail, MapPin, FileText, CheckCircle2, Car, Users } from 'lucide-react';
+import { User, Phone, Mail, FileText, CheckCircle2, Car, Users } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface SpeakerFormModalProps {

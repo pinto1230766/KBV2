@@ -1,4 +1,16 @@
-import React from 'react';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+console.log('📝 Réécriture complète du SpeakerList.tsx...\n');
+
+const speakerListPath = path.join(__dirname, 'src/components/speakers/SpeakerList.tsx');
+
+try {
+  const cleanContent = `import React from 'react';
 import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Edit, Trash2, Phone, Mail, Car, Star } from 'lucide-react';
@@ -75,7 +87,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
                   {speaker.telephone && (
                     <div className='flex items-center gap-2'>
                       <Phone className='w-4 h-4 text-gray-400' />
-                      <a href={`tel:${speaker.telephone}`} className='hover:text-primary-600'>
+                      <a href={\`tel:\${speaker.telephone}\`} className='hover:text-primary-600'>
                         {speaker.telephone}
                       </a>
                     </div>
@@ -84,7 +96,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
                     <div className='flex items-center gap-2'>
                       <Mail className='w-4 h-4 text-gray-400' />
                       <a
-                        href={`mailto:${speaker.email}`}
+                        href={\`mailto:\${speaker.email}\`}
                         className='hover:text-primary-600 truncate'
                       >
                         {speaker.email}
@@ -144,4 +156,13 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
       )}
     </div>
   );
-};
+};`;
+
+  fs.writeFileSync(speakerListPath, cleanContent);
+  console.log('✅ SpeakerList.tsx : Fichier complètement réécrit');
+  
+} catch (error) {
+  console.error('❌ Erreur lors de la réécriture:', error.message);
+}
+
+console.log('\n✨ Réécriture terminée !');

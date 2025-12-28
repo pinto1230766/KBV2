@@ -1,30 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
-import { Visit, Expense, MessageType, Accommodation, VisitFeedback } from '@/types';
+import { Visit, Expense, MessageType } from '@/types';
 import {
   Edit2,
   Trash2,
-  MessageSquare,
   CheckCircle,
   XCircle,
   Star,
   CreditCard,
   Truck,
-  Utensils,
   Home,
   AlertOctagon,
   Calendar,
   Clock,
-  BookOpen,
-  MapPin,
-  ChevronRight,
   Send,
-  Download,
   FileText
 } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
@@ -36,6 +29,7 @@ import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
 import { generateUUID } from '@/utils/uuid';
 import { cn } from '@/utils/cn';
 import { Badge } from '@/components/ui/Badge';
+import { useVisitNotifications } from '@/hooks/useVisitNotifications';
 
 interface VisitActionModalProps {
   isOpen: boolean;
@@ -53,6 +47,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
   const { confirm } = useConfirm();
+  const { scheduleVisitReminder, cancelVisitReminder } = useVisitNotifications();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<Visit>>({});
   const [isAddingExpense, setIsAddingExpense] = useState(false);
@@ -72,7 +67,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     if (!formData) return;
     setIsLoading(true);
     try {
+      await cancelVisitReminder(visit.visitId);
       await updateVisit({ ...visit, ...formData });
+      await scheduleVisitReminder({ ...visit, ...formData });
       addToast('Visite mise à jour', 'success');
       onClose();
     } catch (error) {
@@ -91,6 +88,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     })) {
       setIsLoading(true);
       try {
+        await cancelVisitReminder(visit.visitId);
         await deleteVisit(visit.visitId);
         addToast('Visite supprimée', 'success');
         onClose();
@@ -123,7 +121,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   // Render Helpers
   const renderHeader = () => {
      let title = "Détails de la visite";
-     let subtitle = `Programmé pour le ${new Date(visit.visitDate).toLocaleDateString()}`;
+     const subtitle = `Programmé pour le ${new Date(visit.visitDate).toLocaleDateString()}`;
      let Icon = Calendar;
      let colorClass = "from-blue-600 to-indigo-600";
 
@@ -176,8 +174,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
             <div className="space-y-1">
                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest pl-1">Discours</label>
                <div className="grid grid-cols-[1fr,2fr] gap-4">
-                  <input placeholder="N°" value={formData.talkNoOrType} onChange={e => setFormData({ ...formData, talkNoOrType: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
-                  <input placeholder="Thème..." value={formData.talkTheme} onChange={e => setFormData({ ...formData, talkTheme: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+                  <input placeholder="N°" value={formData.talkNoOrType || ''} onChange={e => setFormData({ ...formData, talkNoOrType: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
+                  <input placeholder="Thème..." value={formData.talkTheme || ''} onChange={e => setFormData({ ...formData, talkTheme: e.target.value })} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500" />
                </div>
             </div>
 
@@ -206,7 +204,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                       <option value="">-- Sélectionner --</option>
                       <option value="Hôtel">Hôtel</option>
                       <option value="Pas besoin">Pas besoin</option>
-                      {hosts.map(h => <option key={h.id} value={h.nom}>{h.nom}</option>)}
+                      {hosts.map(h => <option key={h.nom} value={h.nom}>{h.nom}</option>)}
                    </select>
                 </div>
               )}

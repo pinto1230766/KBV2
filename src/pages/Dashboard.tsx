@@ -133,7 +133,7 @@ export const Dashboard: React.FC = () => {
     <div className="max-w-[1600px] mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-6">
       
       {/* 1. Immersive Command Center Header */}
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 p-6 sm:p-10 text-white shadow-2xl shadow-blue-500/20">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 p-4 sm:p-6 text-white shadow-2xl shadow-blue-500/20">
          <div className="absolute top-0 right-0 p-8 opacity-10">
             <Sparkles className="w-64 h-64 rotate-12" />
          </div>
@@ -176,7 +176,7 @@ export const Dashboard: React.FC = () => {
                
                <div className="flex gap-3">
                   <Button 
-                    className="h-12 bg-white hover:bg-blue-50 text-indigo-900 border-none font-bold shadow-lg"
+                    className="h-12 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-lg"
                     leftIcon={<CalendarPlus className="w-4 h-4" />}
                     onClick={() => setIsVisitActionModalOpen(true)}
                   >

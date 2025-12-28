@@ -4,7 +4,6 @@ import {
   Calendar, 
   Users, 
   BarChart3, 
-  Settings, 
   X, 
   FileText, 
   FileSpreadsheet, 

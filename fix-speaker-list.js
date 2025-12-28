@@ -1,32 +1,24 @@
-import React from 'react';
-import { Speaker, Visit } from '@/types';
-import { Button } from '@/components/ui/Button';
-import { Edit, Trash2, Phone, Mail, Car, Star } from 'lucide-react';
-import { Card, CardBody } from '@/components/ui/Card';
-import { Avatar } from '@/components/ui/Avatar';
-import { useData } from '@/contexts/DataContext';
-import { calculateWorkload } from '@/utils/workload';
-import { WorkloadIndicator } from '@/components/workload/WorkloadIndicator';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-interface SpeakerListProps {
-  speakers: Speaker[];
-  onEdit: (_speaker: Speaker) => void;
-  onDelete: (_id: string) => void;
-  onFeedback: (_visit: Visit) => void;
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export const SpeakerList: React.FC<SpeakerListProps> = ({
-  speakers,
-  onEdit,
-  onDelete,
-  onFeedback,
-}) => {
-  const { visits } = useData();
+console.log('🔧 Correction complète du SpeakerList.tsx...\n');
 
-  return (
+const speakerListPath = path.join(__dirname, 'src/components/speakers/SpeakerList.tsx');
+
+try {
+  let content = fs.readFileSync(speakerListPath, 'utf8');
+  
+  // Réécrire complètement la structure JSX
+  content = content.replace(
+    /return \(\s*<div className='space-y-6'>[\s\S]*?<\/div>\s*\);/,
+    `return (
     <div className='space-y-6'>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        {speakers.map((speaker) => {
+        {filteredAndSortedSpeakers.map((speaker) => {
           const lastTalk = speaker.talkHistory[0];
           const lastVisit = lastTalk
             ? visits.find((v) => v.visitId === lastTalk.visitId)
@@ -75,7 +67,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
                   {speaker.telephone && (
                     <div className='flex items-center gap-2'>
                       <Phone className='w-4 h-4 text-gray-400' />
-                      <a href={`tel:${speaker.telephone}`} className='hover:text-primary-600'>
+                      <a href={\`tel:\${speaker.telephone}\`} className='hover:text-primary-600'>
                         {speaker.telephone}
                       </a>
                     </div>
@@ -84,7 +76,7 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
                     <div className='flex items-center gap-2'>
                       <Mail className='w-4 h-4 text-gray-400' />
                       <a
-                        href={`mailto:${speaker.email}`}
+                        href={\`mailto:\${speaker.email}\`}
                         className='hover:text-primary-600 truncate'
                       >
                         {speaker.email}
@@ -137,11 +129,20 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
         })}
       </div>
 
-      {speakers.length === 0 && (
+      {filteredAndSortedSpeakers.length === 0 && (
         <div className='text-center py-12 text-gray-500 dark:text-gray-400'>
           Aucun orateur trouvé
         </div>
       )}
     </div>
+  );`
   );
-};
+  
+  fs.writeFileSync(speakerListPath, content);
+  console.log('✅ SpeakerList.tsx : Structure JSX corrigée');
+  
+} catch (error) {
+  console.error('❌ Erreur lors de la correction:', error.message);
+}
+
+console.log('\n✨ Correction terminée !');

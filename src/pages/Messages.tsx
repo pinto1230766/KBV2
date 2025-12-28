@@ -5,9 +5,9 @@ import { MessageThread } from '@/components/messages/MessageThread';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { HostRequestModal } from '@/components/messages/HostRequestModal';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+
 import { Badge } from '@/components/ui/Badge';
-import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { Card, CardBody } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
 import { 
   MessageSquare, 
@@ -15,12 +15,9 @@ import {
   Plus, 
   CheckCircle, 
   Clock, 
-  AlertCircle, 
   Users, 
   ArrowLeft, 
-  Calendar, 
   ChevronRight,
-  Filter,
   Send,
   Mail,
   UserCheck,

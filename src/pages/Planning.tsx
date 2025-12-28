@@ -19,7 +19,6 @@ import {
   Eye,
   BarChart,
   PieChart,
-  MoreHorizontal,
   Clock,
   Archive,
   MessageSquare,
@@ -371,7 +370,7 @@ export const Planning: React.FC = () => {
               </Badge>
             )}
             {typeFilter !== 'all' && (
-              <Badge variant="secondary" className="pl-2 pr-1 py-1 flex items-center gap-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+              <Badge variant="default" className="pl-2 pr-1 py-1 flex items-center gap-1 bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                  Type: {typeFilter}
                  <button onClick={() => setTypeFilter('all')} className="p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full"><X className="w-3 h-3" /></button>
               </Badge>
@@ -528,7 +527,7 @@ export const Planning: React.FC = () => {
             isOpen={isConflictModalOpen}
             onClose={() => setIsConflictModalOpen(false)}
             visit={selectedVisit}
-            onResolve={(resolution) => setIsConflictModalOpen(false)}
+            onResolve={(_resolution) => setIsConflictModalOpen(false)}
           />
           <CancellationModal
             isOpen={isCancellationModalOpen}

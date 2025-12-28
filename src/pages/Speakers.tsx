@@ -16,8 +16,6 @@ import {
   Filter, 
   Download, 
   Mic2, 
-  MapPin, 
-  Star,
   UserCheck
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -63,7 +61,7 @@ export const Speakers: React.FC = () => {
     totalSpeakers: speakers.length,
     localSpeakers: speakers.filter(s => s.congregation.toLowerCase().includes('lyon')).length,
     totalHosts: hosts.length,
-    activeHosts: hosts.filter(h => h.isActive).length,
+    activeHosts: hosts.length,
   }), [speakers, hosts]);
 
   // Handlers
@@ -236,8 +234,8 @@ export const Speakers: React.FC = () => {
           <div className="bg-transparent">
             <HostList 
                hosts={hosts.filter(h => 
-                  h.nom.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                  h.city.toLowerCase().includes(searchTerm.toLowerCase())
+                  h.nom.toLowerCase().includes(searchTerm.toLowerCase()) 
+
                )} 
                onEdit={handleEditHost} 
                onDelete={handleDeleteHost} 
