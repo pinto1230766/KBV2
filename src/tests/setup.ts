@@ -3,8 +3,15 @@
  * Setup global pour tous les tests
  */
 import { afterEach } from 'vitest';
-
 import '@testing-library/jest-dom';
+
+// Déclaration des types manquants
+declare global {
+  interface Window {
+    ResizeObserver: typeof ResizeObserver;
+    IntersectionObserver: typeof IntersectionObserver;
+  }
+}
 
 // Mock des APIs navigateur non disponibles dans jsdom
 Object.defineProperty(window, 'matchMedia', {
@@ -25,7 +32,7 @@ Object.defineProperty(window, 'matchMedia', {
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem: (key: string) => store[key] || null,
+    getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value.toString();
     },
@@ -38,7 +45,7 @@ const localStorageMock = (() => {
     get length() {
       return Object.keys(store).length;
     },
-    key: (index: number) => Object.keys(store)[index] || null,
+    key: (index: number) => Object.keys(store)[index] ?? null,
   };
 })();
 
@@ -99,6 +106,29 @@ Object.defineProperty(window, 'crypto', {
 afterEach(() => {
   localStorageMock.clear();
 });
+
+// Mock global pour ResizeObserver
+class MockResizeObserver {
+  constructor(public callback: ResizeObserverCallback) {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// Mock global pour IntersectionObserver
+class MockIntersectionObserver {
+  constructor(
+    public callback: IntersectionObserverCallback,
+    public options?: IntersectionObserverInit
+  ) {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// Assigner les mocks aux objets globaux
+window.ResizeObserver = MockResizeObserver as any;
+window.IntersectionObserver = MockIntersectionObserver as any;
 
 // Console silencieuse pour les tests (optionnel)
 // Décommenter pour masquer les logs pendant les tests

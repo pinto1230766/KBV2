@@ -134,13 +134,24 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, o
                       Générer un message
                     </Button>
                     {visit.status === 'pending' && (
-                      <Button
-                        size='sm'
-                        variant='primary'
-                        onClick={() => onAction('confirm', visit)}
-                      >
-                        Confirmer
-                      </Button>
+                      <>
+                        <Button
+                          size='sm'
+                          variant='primary'
+                          onClick={() => onAction('confirm', visit)}
+                        >
+                          Confirmer
+                        </Button>
+                        {visit.locationType === 'physical' && (
+                          <Button
+                            size='sm'
+                            variant='outline'
+                            onClick={() => onAction('host_request', visit)}
+                          >
+                            Demander un hôte
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 </CardBody>

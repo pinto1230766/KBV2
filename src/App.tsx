@@ -60,10 +60,9 @@ function AppContent() {
     <ErrorBoundary>
       <SettingsProvider>
         <ToastProvider>
-          <ConfirmProvider>
-            <DataProvider>
-              <BrowserRouter>
-                <Suspense fallback={<PageLoader />}>
+          <DataProvider>
+            <ConfirmProvider>
+              <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path='/' element={<LayoutComponent />}>
                       <Route
@@ -111,9 +110,8 @@ function AppContent() {
                     </Route>
                   </Routes>
                 </Suspense>
-              </BrowserRouter>
-            </DataProvider>
-          </ConfirmProvider>
+            </ConfirmProvider>
+          </DataProvider>
         </ToastProvider>
       </SettingsProvider>
     </ErrorBoundary>
@@ -126,7 +124,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AccessibilityProvider>
           <PlatformProvider>
-            <AppContent />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
           </PlatformProvider>
         </AccessibilityProvider>
       </QueryClientProvider>

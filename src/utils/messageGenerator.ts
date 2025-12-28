@@ -10,6 +10,7 @@ import {
 import {
   messageTemplates,
   hostRequestMessageTemplates,
+  individualHostRequestTemplates,
   adaptMessageGender,
 } from '@/data/messageTemplates';
 import { formatFullDate } from './formatters';
@@ -122,31 +123,60 @@ export function generateHostRequestMessage(
   visits: Visit[],
   congregationProfile: CongregationProfile,
   language: Language,
-  customTemplate?: string
+  customTemplate?: string,
+  isIndividualRequest: boolean = false,
+  hostName: string = ''
 ): string {
-  // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
-  const template = customTemplate || hostRequestMessageTemplates[language];
+  // Importer le modèle de demande individuelle si nécessaire
+  const individualTemplates = isIndividualRequest ? individualHostRequestTemplates[language] : null;
 
-  if (!template) {
-    return `Modèle non trouvé pour la langue: ${language}`;
+  // Utiliser le modèle personnalisé si fourni, sinon le modèle approprié
+  let template: string;
+  
+  if (customTemplate) {
+    template = customTemplate;
+  } else if (isIndividualRequest && individualTemplates) {
+    template = individualTemplates;
+  } else {
+    template = hostRequestMessageTemplates[language];
   }
 
-  // Créer la liste des visites
-  const visitsList = visits
-    .map((visit, index) => {
-      const dateFormatted = formatFullDate(visit.visitDate, language);
-      return `${index + 1}. *${visit.nom}* (${visit.congregation}) - ${dateFormatted} à ${visit.visitTime}`;
-    })
-    .join('\n');
+  if (!template) {
+    return `Aucun modèle de demande d'accueil trouvé pour la langue: ${language}`;
+  }
 
-  // Remplacer les variables
+  // Générer la liste des visites ou traiter une seule visite pour une demande individuelle
   let message = template;
-  message = message.replace(/{visitsList}/g, visitsList);
-  message = message.replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer);
-  message = message.replace(
-    /{hospitalityOverseerPhone}/g,
-    congregationProfile.hospitalityOverseerPhone
-  );
+  
+  if (isIndividualRequest && visits.length > 0) {
+    const visit = visits[0]; // Pour une demande individuelle, on prend la première visite
+    
+    // Remplacer les variables spécifiques à la visite
+    message = message
+      .replace(/{speakerName}/g, visit.nom)
+      .replace(/{congregation}/g, visit.congregation)
+      .replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)')
+      .replace(/{visitDate}/g, formatFullDate(visit.visitDate))
+      .replace(/{visitTime}/g, visit.visitTime)
+      .replace(/{location}/g, congregationProfile.name)
+      .replace(/{talkTitle}/g, visit.talkTheme || 'une intervention')
+      .replace(/{hostName}/g, hostName);
+  } else {
+    // Générer la liste des visites pour une demande groupée
+    const visitsList = visits
+      .map(visit => {
+        return `• ${formatFullDate(visit.visitDate)} à ${visit.visitTime} - ${visit.nom} (${visit.congregation})`;
+      })
+      .join('\n\n');
+      
+    message = message.replace(/{visitsList}/g, visitsList);
+  }
+
+  // Remplacer les variables communes du modèle
+  message = message
+    .replace(/{congregationName}/g, congregationProfile.name)
+    .replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer)
+    .replace(/{hospitalityOverseerPhone}/g, congregationProfile.hospitalityOverseerPhone);
 
   return message;
 }

@@ -123,7 +123,6 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 { value: 'reminder-2', label: 'Rappel (J-2)' },
                 { value: 'thanks', label: 'Remerciements' },
                 { value: 'preparation', label: 'Préparation' },
-                { value: 'host_request', label: "Demande d'accueil" },
               ]}
               value={type}
               onChange={(e) => setType(e.target.value as MessageType)}

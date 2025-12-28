@@ -27,20 +27,35 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
   const { addToast } = useToast();
 
   const [selectedVisits, setSelectedVisits] = useState<Set<string>>(
-    new Set(visitsNeedingHost.map((v) => v.visitId))
+    new Set()
   );
   const [message, setMessage] = useState('');
+  const [isIndividualRequest, setIsIndividualRequest] = useState(false);
+  const [selectedHost, setSelectedHost] = useState('');
 
-  // Générer le message quand les visites sélectionnées changent
+  // Générer le message quand les visites sélectionnées ou les paramètres changent
   React.useEffect(() => {
     if (selectedVisits.size > 0) {
       generateMessage();
+    } else {
+      setMessage('');
     }
-  }, [selectedVisits]);
+  }, [selectedVisits, isIndividualRequest, selectedHost]);
 
   const generateMessage = () => {
     const visits = visitsNeedingHost.filter((v) => selectedVisits.has(v.visitId));
-    const generated = generateHostRequestMessage(visits, congregationProfile, settings.language);
+    
+    if (visits.length === 0) return;
+
+    const generated = generateHostRequestMessage(
+      visits,
+      congregationProfile,
+      settings.language,
+      undefined, // customTemplate
+      isIndividualRequest,
+      selectedHost
+    );
+    
     setMessage(generated);
   };
 
@@ -82,7 +97,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Demande d'accueil groupée"
+      title={isIndividualRequest ? "Demande d'accueil individuelle" : "Demande d'accueil groupée"}
       size='lg'
       footer={
         <>
@@ -93,16 +108,18 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             variant='secondary'
             onClick={handleCopy}
             leftIcon={<Copy className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0}
+            disabled={selectedVisits.size === 0 || (isIndividualRequest && !selectedHost)}
+            title={isIndividualRequest && !selectedHost ? 'Veuillez sélectionner un hôte' : ''}
           >
             Copier
           </Button>
           <Button
             onClick={handleSendWhatsApp}
             leftIcon={<Send className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0}
+            disabled={selectedVisits.size === 0 || (isIndividualRequest && !selectedHost)}
+            title={isIndividualRequest && !selectedHost ? 'Veuillez sélectionner un hôte' : ''}
           >
-            Envoyer (WhatsApp)
+            Envoyer sur WhatsApp
           </Button>
         </>
       }
@@ -124,50 +141,103 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
           </Badge>
         </div>
 
-        {/* Liste des visites avec checkboxes */}
-        <div className='space-y-2'>
-          <div className='flex items-center justify-between mb-3'>
-            <h4 className='font-medium text-gray-900 dark:text-white'>Visites</h4>
-            <button
-              onClick={toggleAll}
-              className='text-sm text-primary-600 dark:text-primary-400 hover:underline'
-            >
-              {selectedVisits.size === visitsNeedingHost.length
-                ? 'Tout désélectionner'
-                : 'Tout sélectionner'}
-            </button>
+        {/* Liste des visites */}
+        <div className="space-y-4">
+          {/* Sélecteur de type de demande */}
+          <div className="flex space-x-4 mb-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                className="form-radio"
+                checked={!isIndividualRequest}
+                onChange={() => {
+                  setIsIndividualRequest(false);
+                  setSelectedHost('');
+                }}
+              />
+              <span>Demande groupée</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                className="form-radio"
+                checked={isIndividualRequest}
+                onChange={() => setIsIndividualRequest(true)}
+              />
+              <span>Demande individuelle</span>
+            </label>
           </div>
 
-          <div className='max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3'>
-            {visitsNeedingHost.map((visit) => (
-              <label
-                key={visit.visitId}
-                className='flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors'
-              >
-                <input
-                  type='checkbox'
-                  checked={selectedVisits.has(visit.visitId)}
-                  onChange={() => toggleVisit(visit.visitId)}
-                  className='mt-1 w-4 h-4 text-primary-600 rounded focus:ring-primary-500'
-                />
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between'>
-                    <p className='font-medium text-gray-900 dark:text-white'>{visit.nom}</p>
-                    <Badge variant='default' size='sm'>
-                      {formatFullDate(visit.visitDate, settings.language)}
-                    </Badge>
-                  </div>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
-                    {visit.congregation} • {visit.visitTime}
-                  </p>
-                  {(visit.talkTheme || getTalkTitle(visit.talkNoOrType)) && (
-                    <p className='text-xs text-gray-500 dark:text-gray-500 mt-1'>
-                      N°{visit.talkNoOrType} - {visit.talkTheme || getTalkTitle(visit.talkNoOrType)}
-                    </p>
-                  )}
-                </div>
+          {isIndividualRequest && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Sélectionnez l'hôte
               </label>
-            ))}
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="Nom de l'hôte"
+                value={selectedHost}
+                onChange={(e) => setSelectedHost(e.target.value)}
+              />
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">
+                {isIndividualRequest ? 'Sélectionnez une visite' : 'Sélectionnez les visites'}
+              </h3>
+              {!isIndividualRequest && (
+                <button
+                  onClick={toggleAll}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {selectedVisits.size === visitsNeedingHost.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                </button>
+              )}
+            </div>
+
+            <div className='max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-3'>
+              {visitsNeedingHost.map((visit) => (
+                <div
+                  key={visit.visitId}
+                  className={`p-3 rounded-md cursor-pointer transition-colors ${
+                    selectedVisits.has(visit.visitId)
+                      ? 'bg-blue-50 border border-blue-200'
+                      : 'hover:bg-gray-50 border border-transparent'
+                  } ${isIndividualRequest && selectedVisits.size > 0 && !selectedVisits.has(visit.visitId) ? 'opacity-50' : ''}`}
+                  onClick={() => {
+                    if (isIndividualRequest) {
+                      const newSelected = new Set<string>();
+                      newSelected.add(visit.visitId);
+                      setSelectedVisits(newSelected);
+                    } else {
+                      toggleVisit(visit.visitId);
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{visit.nom}</p>
+                      <p className="text-sm text-gray-600">
+                        {formatFullDate(visit.visitDate)} à {visit.visitTime}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {getTalkTitle(visit.talkNoOrType || '')}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {visit.host === 'À définir' ? (
+                        <Badge variant="warning">À définir</Badge>
+                      ) : (
+                        <Badge variant="success">Défini</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

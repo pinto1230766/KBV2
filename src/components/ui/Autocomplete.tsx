@@ -33,6 +33,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOption, setSelectedOption] = useState<AutocompleteOption | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -58,6 +59,13 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
         (option.subtitle && option.subtitle.toLowerCase().includes(searchTerm.toLowerCase()))
     )
     .slice(0, maxOptions);
+
+  // Reset focused index when filtered options change
+  useEffect(() => {
+    if (isOpen) {
+      setFocusedIndex(-1);
+    }
+  }, [filteredOptions, isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -92,8 +100,21 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setIsOpen(false);
+      setFocusedIndex(-1);
     } else if (e.key === 'ArrowDown' && !isOpen) {
       setIsOpen(true);
+      setFocusedIndex(0);
+    } else if (e.key === 'ArrowDown' && isOpen) {
+      e.preventDefault();
+      setFocusedIndex(prev => 
+        prev < filteredOptions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp' && isOpen) {
+      e.preventDefault();
+      setFocusedIndex(prev => prev > 0 ? prev - 1 : -1);
+    } else if (e.key === 'Enter' && isOpen && focusedIndex >= 0) {
+      e.preventDefault();
+      handleOptionSelect(filteredOptions[focusedIndex]);
     }
   };
 

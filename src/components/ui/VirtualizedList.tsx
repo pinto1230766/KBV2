@@ -1,6 +1,6 @@
-import React, { useMemo, memo } from 'react';
+import React, { useMemo, memo, CSSProperties } from 'react';
+import { FixedSizeList as List } from 'react-window';
 import { cn } from '@/utils/cn';
-import '@/styles/VirtualizedList.css';
 
 interface VirtualizedListProps<T> {
   items: T[];
@@ -10,6 +10,7 @@ interface VirtualizedListProps<T> {
   height?: number;
   maxHeight?: number;
   overscan?: number;
+  width?: string | number;
 }
 
 function VirtualizedListInner<T>({
@@ -19,46 +20,54 @@ function VirtualizedListInner<T>({
   itemHeight = 50,
   height = 400,
   maxHeight = 400,
+  overscan = 5,
+  width = '100%',
 }: VirtualizedListProps<T>) {
   const containerHeight = useMemo(() => {
     const calculatedHeight = Math.min(height, maxHeight, items.length * itemHeight);
     return calculatedHeight > 0 ? calculatedHeight : height;
   }, [height, maxHeight, items.length, itemHeight]);
 
-  // Add a class to the document body when the component mounts
-  React.useEffect(() => {
-    document.body.classList.add('has-virtualized-list');
-    return () => {
-      document.body.classList.remove('has-virtualized-list');
-    };
-  }, []);
+  // Row renderer pour react-window
+  const Row = useMemo(
+    () =>
+      ({ index, style }: { index: number; style: CSSProperties }) => (
+        <div style={style} className="virtualized-list-row">
+          {renderItem(items[index], index)}
+        </div>
+      ),
+    [items, renderItem]
+  );
 
   if (items.length === 0) {
-    return <div className={cn('virtualized-list-empty', className)}>Aucun élément à afficher</div>;
+    return (
+      <div className={cn('flex items-center justify-center h-32 text-gray-500 dark:text-gray-400', className)}>
+        Aucun élément à afficher
+      </div>
+    );
   }
 
   return (
-    <div className={cn('virtualized-list', className)}>
-      <div className='virtualized-list-container'>
-        <div className='virtualized-list-content' data-container-height={containerHeight}>
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className='virtualized-list-row'
-              data-item-height={itemHeight}
-              data-item-top={index * itemHeight}
-            >
-              {renderItem(item, index)}
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className={cn('virtualized-list-container', className)}>
+      <List
+        height={containerHeight}
+        itemCount={items.length}
+        itemSize={itemHeight}
+        width={width}
+        overscanCount={overscan}
+        className="virtualized-list"
+      >
+        {Row}
+      </List>
     </div>
   );
 }
 
-export const VirtualizedList = memo(VirtualizedListInner);
+export const VirtualizedList = memo(VirtualizedListInner) as <T>(
+  props: VirtualizedListProps<T>
+) => JSX.Element;
 
+// MemoizedList - Version simple sans virtualisation pour petites listes
 function MemoizedListInner<T extends Record<string, any>>({
   items,
   className,

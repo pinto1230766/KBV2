@@ -3,7 +3,7 @@
 ## 🎤 Orateurs
 
 | Nom | Téléphone | Congrégation | Notes |
-|-----|-----------|--------------|-------|
+| --- | --------- | ------------ | ----- |
 | Jérémy TORRES | 06 90 12 34 56 | Lyon KBV | Allergique aux chats |
 | Valdir DIOGO | 06 77 78 88 99 | Porto KBV | |
 | Eddy SILVA | +352 691 574 935 | Ettelbruck KBV | |
@@ -39,7 +39,7 @@
 ## 🏠 Hôtes
 
 | Nom | Téléphone | Adresse | Notes |
-|-----|-----------|----------|-------|
+| --- | --------- | -------- | ----- |
 | Jean-Paul Batista | - | 182 Avenue Felix Faure, 69003 Lyon | Centre-ville, pas d'animaux |
 | Suzy | - | 14 bis Montée des Roches, 69009 Lyon | |
 | Alexis | - | 13 Avenue Debrousse, 69005 Lyon | |

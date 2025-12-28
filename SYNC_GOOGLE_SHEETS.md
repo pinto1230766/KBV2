@@ -15,7 +15,7 @@ Ce document explique comment fonctionne la synchronisation entre l'application d
 Le Google Sheet doit contenir les colonnes suivantes (l'ordre n'a pas d'importance, mais les en-têtes doivent être clairs) :
 
 | Colonne (peut varier) | Description | Format |
-|----------------------|-------------|---------|
+| -------------------- | ----------- | ------- |
 | Date | Date de la visite | JJ/MM/AAAA ou format date Excel |
 | Orador | Nom de l'orateur | Texte |
 | Kongregason | Nom de la congrégation | Texte |
@@ -87,19 +87,22 @@ L'application se connecte au Google Sheet via l'API Google Sheets en utilisant l
 L'application utilise un système avancé de détection des doublons qui s'applique à plusieurs types de données :
 
 #### 1. Orateurs (Speakers)
-- **Critères de détection** :
+
+- **Critères de détection**
   - Noms similaires (algorithme de similarité > 85%)
   - Numéros de téléphone identiques
   - Combinaison de similarité du nom et de même congrégation
 
 #### 2. Hôtes (Hosts)
-- **Critères de détection** :
+
+- **Critères de détection**
   - Noms identiques (avec normalisation)
   - Numéros de téléphone identiques
   - Adresses identiques
 
 #### 3. Visites
-- **Critères de détection** :
+
+- **Critères de détection**
   - Même orateur à la même date
   - Même numéro de discours ou thème similaire
   - Heures de visite identiques ou très proches
@@ -126,15 +129,16 @@ L'application utilise un système avancé de détection des doublons qui s'appli
    - Toutes les visites associées aux doublons sont réassignées à l'orateur conservé
    - Les informations sont fusionnées de manière intelligente (téléphone, photo, etc.)
 
-2. **Pour les hôtes** :
+2. **Pour les hôtes**
+
    - Les visites utilisant les hôtes en double sont mises à jour
    - Les informations redondantes sont supprimées
 
-3. **Pour les visites** :
+3. **Pour les visites**
    - Les doublons exacts sont supprimés
    - Les conflits de données sont signalés pour résolution manuelle si nécessaire
 
-### Bonnes pratiques
+### Bonnes Pratiques de Synchronisation
 
 1. **Avant la synchronisation** :
    - Vérifiez les doublons potentiels dans votre Google Sheet

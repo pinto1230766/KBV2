@@ -373,6 +373,69 @@ Fraternalmente,
 };
 
 // ============================================================================
+// MODÈLES DE DEMANDE D'ACCUEIL INDIVIDUELLE
+// ============================================================================
+
+export const individualHostRequestTemplates = {
+  fr: `Bonjour {hostName}, 🏠
+
+J'espère que vous allez bien.
+
+Nous avons le plaisir d'accueillir *{speakerName}* de la congrégation de *{congregation}* pour *{talkTitle}* le *{visitDate} à {visitTime}*.
+
+Seriez-vous disponible pour l'accueillir chez vous ? Voici les détails de sa visite :
+
+🗓️ Date : {visitDate} à {visitTime}
+🏛️ Salle : {location}
+👤 Orateur : {speakerName}
+📞 Contact : {speakerPhone}
+
+Merci de me faire savoir si vous êtes disponible pour ce service.
+
+Fraternellement,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+
+  cv: `Bon dia {hostName}, 🏠
+
+N ta spera ma bu sta bon.
+
+Nu ten prazer di akolhe *{speakerName}* di kongregas on di *{congregation}* pa *{talkTitle}* dia *{visitDate} na {visitTime}*.
+
+Bu ta disponivel pa akolhe-l na bu kaza ? Aki es detalhis di bu vizita :
+
+🗓️ Data : {visitDate} na {visitTime}
+🏛️ Sala : {location}
+👤 Orador : {speakerName}
+📞 Kontaktu : {speakerPhone}
+
+Favor txoma-m si bu ta disponivel pa es servisu.
+
+Fraternalmenti,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+
+  pt: `Olá {hostName}, 🏠
+
+Espero que esteja bem.
+
+Temos o prazer de receber *{speakerName}* da congregação de *{congregation}* para *{talkTitle}* no dia *{visitDate} às {visitTime}*.
+
+Estaria disponível para o acolher em sua casa? Aqui estão os detalhes da visita:
+
+🗓️ Data: {visitDate} às {visitTime}
+🏛️ Sala: {location}
+👤 Orador: {speakerName}
+📞 Contacto: {speakerPhone}
+
+Por favor, diga-me se está disponível para este serviço.
+
+Fraternalmente,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`
+};
+
+// ============================================================================
 // MODÈLES DE DEMANDE D'ACCUEIL
 // ============================================================================
 

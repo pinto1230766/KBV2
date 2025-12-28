@@ -9,7 +9,8 @@ export type MessageType =
   | 'reminder-7'
   | 'reminder-2'
   | 'thanks'
-  | 'host_request';
+  | 'host_request'
+  | 'host_request_individual';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type LocationType = 'physical' | 'zoom' | 'streaming';
