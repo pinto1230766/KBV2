@@ -66,7 +66,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
     try {
       await navigator.clipboard.writeText(message);
       addToast('Message copié dans le presse-papier', 'success');
-    } catch (error) {
+    } catch (_error) {
       addToast('Erreur lors de la copie', 'error');
     }
   };

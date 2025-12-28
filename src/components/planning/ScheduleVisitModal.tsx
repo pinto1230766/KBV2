@@ -149,7 +149,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
       await scheduleVisitReminder(newVisit);
       addToast('Visite programmée avec succès', 'success');
       onClose();
-    } catch (error) {
+    } catch (_error) {
       addToast('Erreur lors de la création', 'error');
     } finally {
       setIsLoading(false);

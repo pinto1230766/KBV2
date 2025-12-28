@@ -58,7 +58,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         language
       );
       setMessage(generated);
-    } catch (error) {
+    } catch (_error) {
       addToast('Erreur lors de la génération du message', 'error');
     } finally {
       setIsGenerating(false);
@@ -69,7 +69,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     try {
       await navigator.clipboard.writeText(message);
       addToast('Message copié dans le presse-papier', 'success');
-    } catch (error) {
+    } catch (_error) {
       addToast('Erreur lors de la copie', 'error');
     }
   };

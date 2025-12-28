@@ -277,7 +277,7 @@ export const LockScreen: React.FC<LockScreenProps> = ({ onUnlock, userName }) =>
         setError('Mot de passe incorrect');
         setPassword('');
       }
-    } catch (err) {
+    } catch (error) {
       setError('Erreur lors du déverrouillage');
     } finally {
       setIsUnlocking(false);

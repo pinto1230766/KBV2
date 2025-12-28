@@ -72,7 +72,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       await scheduleVisitReminder({ ...visit, ...formData });
       addToast('Visite mise à jour', 'success');
       onClose();
-    } catch (error) {
+    } catch (_error) {
       addToast('Erreur lors de la mise à jour', 'error');
     } finally {
       setIsLoading(false);
@@ -92,7 +92,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         await deleteVisit(visit.visitId);
         addToast('Visite supprimée', 'success');
         onClose();
-      } catch (error) {
+      } catch (_error) {
         addToast('Erreur lors de la suppression', 'error');
       } finally {
         setIsLoading(false);
@@ -111,7 +111,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         addToast('Statut mis à jour', 'success');
       }
       onClose();
-    } catch (error) {
+    } catch (_error) {
        addToast("Erreur lors de la mise à jour", "error");
     } finally {
       setIsLoading(false);
