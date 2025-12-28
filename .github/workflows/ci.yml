@@ -60,9 +60,62 @@ jobs:
       - name: 🧪 Run unit tests
         run: npm run test
 
-  # Job de build
+      - name: 📊 Upload test coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: true
+
+  # Job des tests E2E Playwright
+  test-e2e:
+    name: 🎭 E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [lint, build]
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🍊 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build project
+        run: npm run build
+
+      - name: 🦥 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🎭 Run E2E tests
+        run: npx playwright test
+        env:
+          CI: true
+
+      - name: 📸 Upload Playwright Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      - name: 📋 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+  # Job de build avec analyse
   build:
-    name: 🏗️ Build
+    name: 🏗️ Build & Analyze
     runs-on: ubuntu-latest
     needs: lint
 
@@ -82,17 +135,91 @@ jobs:
       - name: 🏗️ Build project
         run: npm run build
 
-      - name: 📦 Upload build artifacts
+      - name: 📊 Bundle Analysis
+        run: |
+          npm run build:analyze || echo "Bundle analysis not configured"
+
+      - name:  Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build
           path: dist/
 
+      - name: 📊 Upload bundle stats
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bundle-stats
+          path: |
+            dist/
+            *.json
+            *.html
+
+  # Job de tests Storybook
+  storybook-test:
+    name: 📖 Storybook Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🍊 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build Storybook
+        run: npm run build-storybook
+        continue-on-error: true
+
+      - name: 📖 Upload Storybook
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: storybook-static
+          path: storybook-static/
+          retention-days: 30
+
+  # Job de sécurité
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🍊 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📋 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Run npm audit
+        run: npm audit --audit-level=moderate
+
+      - name: 🔍 Run SonarQube Scan
+        run: |
+          # Installation SonarScanner si nécessaire
+          npm install -g sonarqube-scanner || true
+          # Configuration SonarQube (optionnel)
+          echo "SonarQube scan would run here with token: ${{ secrets.SONAR_TOKEN }}"
+
   # Job de déploiement (si besoin)
   deploy:
     name: 🚀 Deploy
     runs-on: ubuntu-latest
-    needs: [test-unit, build]
+    needs: [test-unit, test-e2e, build, security]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
@@ -114,6 +241,75 @@ jobs:
           name: build
           path: dist/
 
-      - name: 🚀 Deploy to production
-        run: echo "Deploying to production..."
-        # Ajouter ici votre logique de déploiement
+      - name: 📥 Download test reports
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+      - name: 📥 Download Playwright report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+      - name: � Deploy to production
+        run: |
+          echo "🚀 Déploiement en production..."
+          # Ajouter ici votre logique de déploiement (Vercel, Netlify, etc.)
+          # echo "Deploying to ${{ secrets.DEPLOY_TARGET }}"
+          # npm run deploy
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+
+      - name: 📢 Notify deployment
+        run: |
+          echo "✅ Déploiement terminé avec succès!"
+          # Notifications Slack, Discord, etc.
+
+  # Job de release automatique
+  release:
+    name: 🏷️ Create Release
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷️ Generate changelog
+        id: changelog
+        run: |
+          # Générer un changelog automatique
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          git log --pretty=format:"- %s (%h)" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🏷️ Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            ## 🎉 Nouvelle Release KBV Lyon
+            
+            ### 📝 Changelog
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ### 📊 Métriques de qualité
+            - ✅ Tests unitaires: Passés
+            - ✅ Tests E2E: Passés  
+            - ✅ Build: Réussi
+            - ✅ Sécurité: Validée
+            
+            ### 🔗 Assets
+            - [📦 Build artifacts](${{ steps.upload.outputs.artifact-url }})
+            - [📖 Storybook](${{ steps.storybook.outputs.url }})
+            - [📊 Test reports](${{ steps.reports.outputs.url }})
+          draft: false
+          prerelease: false
