@@ -160,7 +160,7 @@ export function generateHostRequestMessage(
       .replace(/{visitTime}/g, visit.visitTime)
       .replace(/{location}/g, congregationProfile.name)
       .replace(/{talkTitle}/g, visit.talkTheme || 'une intervention')
-      .replace(/{hostName}/g, hostName);
+      .replace(/{hostName}/g, hostName || '[NOM DE L\'HÔTE]');
   } else {
     // Générer la liste des visites pour une demande groupée
     const visitsList = visits

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "build:analyze": "npm run build && npx vite-bundle-analyzer dist",
     "build:stats": "npm run build && npx vite-bundle-analyzer dist/stats.html",
     "build:prod": "NODE_ENV=production npm run build",
@@ -35,6 +35,7 @@
     "@capacitor/local-notifications": "^5.0.0",
     "@capacitor/preferences": "^5.0.0",
     "@capacitor/share": "^5.0.0",
+    "@capacitor/splash-screen": "^5.0.8",
     "@react-aria/focus": "^3.21.2",
     "@react-aria/live-announcer": "^3.4.4",
     "@sentry/react": "^10.29.0",

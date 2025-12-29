@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Visit } from '@/types';
+import { Visit, Language } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -32,15 +32,16 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
   const [message, setMessage] = useState('');
   const [isIndividualRequest, setIsIndividualRequest] = useState(false);
   const [selectedHost, setSelectedHost] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(settings.language);
 
   // Générer le message quand les visites sélectionnées ou les paramètres changent
   React.useEffect(() => {
-    if (selectedVisits.size > 0) {
+    if (selectedVisits.size > 0 || (isIndividualRequest && selectedVisits.size > 0)) {
       generateMessage();
     } else {
       setMessage('');
     }
-  }, [selectedVisits, isIndividualRequest, selectedHost]);
+  }, [selectedVisits, isIndividualRequest, selectedHost, selectedLanguage]);
 
   const generateMessage = () => {
     const visits = visitsNeedingHost.filter((v) => selectedVisits.has(v.visitId));
@@ -50,7 +51,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
     const generated = generateHostRequestMessage(
       visits,
       congregationProfile,
-      settings.language,
+      selectedLanguage,
       undefined, // customTemplate
       isIndividualRequest,
       selectedHost
@@ -108,16 +109,16 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             variant='secondary'
             onClick={handleCopy}
             leftIcon={<Copy className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0 || (isIndividualRequest && !selectedHost)}
-            title={isIndividualRequest && !selectedHost ? 'Veuillez sélectionner un hôte' : ''}
+            disabled={selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)}
+            title={!isIndividualRequest && selectedVisits.size === 0 ? 'Sélectionnez au moins une visite' : ''}
           >
             Copier
           </Button>
           <Button
             onClick={handleSendWhatsApp}
             leftIcon={<Send className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0 || (isIndividualRequest && !selectedHost)}
-            title={isIndividualRequest && !selectedHost ? 'Veuillez sélectionner un hôte' : ''}
+            disabled={selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)}
+            title={!isIndividualRequest && selectedVisits.size === 0 ? 'Sélectionnez au moins une visite' : ''}
           >
             Envoyer sur WhatsApp
           </Button>
@@ -166,6 +167,42 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
               />
               <span>Demande individuelle</span>
             </label>
+          </div>
+
+          {/* Sélecteur de langue */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Langue du message
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  checked={selectedLanguage === 'fr'}
+                  onChange={() => setSelectedLanguage('fr')}
+                />
+                <span>🇫🇷 Français</span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  checked={selectedLanguage === 'cv'}
+                  onChange={() => setSelectedLanguage('cv')}
+                />
+                <span>🇨🇻 Capverdien</span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  className="form-radio"
+                  checked={selectedLanguage === 'pt'}
+                  onChange={() => setSelectedLanguage('pt')}
+                />
+                <span>🇵🇹 Portugais</span>
+              </label>
+            </div>
           </div>
 
           {isIndividualRequest && (
