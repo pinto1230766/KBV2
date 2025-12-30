@@ -419,10 +419,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
       </div>
 
       {/* Global Search Modal */}
-      <GlobalSearch
-        isOpen={isGlobalSearchOpen}
-        onClose={() => setIsGlobalSearchOpen(false)}
-      />
+      <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
     </Modal>
   );
 };

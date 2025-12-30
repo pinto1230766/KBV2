@@ -31,17 +31,10 @@ const HotkeysDemo = (args: any) => {
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="btn-primary"
-      >
+      <button onClick={() => setIsOpen(true)} className='btn-primary'>
         Afficher les raccourcis
       </button>
-      <HotkeysHelpModal
-        {...args}
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-      />
+      <HotkeysHelpModal {...args} isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 };

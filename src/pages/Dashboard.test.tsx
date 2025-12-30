@@ -15,25 +15,25 @@ vi.mock('@/contexts/DataContext', () => ({
         nom: 'John Doe',
         visitDate: '2025-12-30',
         visitTime: '10:00',
-        status: 'pending'
-      }
+        status: 'pending',
+      },
     ],
     speakers: [{ id: '1', nom: 'John Doe' }],
-    hosts: [{ id: '1', nom: 'Host One' }]
-  })
+    hosts: [{ id: '1', nom: 'Host One' }],
+  }),
 }));
 
 vi.mock('@/contexts/ToastContext', () => ({
   useToast: () => ({
-    addToast: vi.fn()
-  })
+    addToast: vi.fn(),
+  }),
 }));
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => vi.fn()
+    useNavigate: () => vi.fn(),
   };
 });
 
@@ -53,7 +53,7 @@ describe('Dashboard', () => {
 
   it('affiche les KPIs principaux', () => {
     renderDashboard();
-    
+
     // Vérifier la présence des KPIs
     expect(screen.getByText(/Visites ce mois/i)).toBeInTheDocument();
     expect(screen.getByText(/Orateurs actifs/i)).toBeInTheDocument();
@@ -61,9 +61,9 @@ describe('Dashboard', () => {
     expect(screen.getByText(/Hôtes dispos/i)).toBeInTheDocument();
   });
 
-  it('rend les boutons d\'action', () => {
+  it("rend les boutons d'action", () => {
     renderDashboard();
-    
+
     // Vérifier les boutons principaux
     expect(screen.getByRole('button', { name: /Nouvelle Visite/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Actions/i })).toBeInTheDocument();
@@ -74,26 +74,26 @@ describe('Dashboard', () => {
     expect(screen.getByText(/Analyse de l'activité/i)).toBeInTheDocument();
   });
 
-  it('gère l\'ouverture des modals', () => {
+  it("gère l'ouverture des modals", () => {
     renderDashboard();
-    
+
     const nouvelleVisiteButton = screen.getByRole('button', { name: /Nouvelle Visite/i });
     fireEvent.click(nouvelleVisiteButton);
-    
+
     // Le modal devrait s'ouvrir (vérifier qu'il y a un élément accessible)
     expect(screen.getByRole('button', { name: /Fermer/i })).toBeInTheDocument();
   });
 
   it('rend les liens de navigation rapide', () => {
     renderDashboard();
-    
+
     // Vérifier les sections de navigation
     expect(screen.getByText(/Messagerie/i)).toBeInTheDocument();
     expect(screen.getByText(/Orateurs/i)).toBeInTheDocument();
     expect(screen.getByText(/Rapports/i)).toBeInTheDocument();
   });
 
-  it('affiche le graphique d\'analyse', () => {
+  it("affiche le graphique d'analyse", () => {
     renderDashboard();
     expect(screen.getByText(/Fréquence des visites/i)).toBeInTheDocument();
   });
@@ -105,7 +105,7 @@ describe('Dashboard', () => {
 
   it('gère les états de chargement', () => {
     renderDashboard();
-    
+
     // Vérifier qu'il n'y a pas d'erreur de chargement
     expect(screen.queryByText(/Erreur de chargement/i)).not.toBeInTheDocument();
   });
@@ -117,16 +117,16 @@ describe('Dashboard', () => {
       configurable: true,
       value: 375,
     });
-    
+
     renderDashboard();
-    
+
     // Vérifier que le layout mobile est appliqué
     expect(screen.getByText(/Command Center/i)).toBeInTheDocument();
   });
 
   it('affiche les statistiques calculées', () => {
     renderDashboard();
-    
+
     // Les valeurs numériques des KPIs devraient être affichées
     expect(screen.getByText('1')).toBeInTheDocument(); // visitsThisMonth
     expect(screen.getByText('1')).toBeInTheDocument(); // speakers

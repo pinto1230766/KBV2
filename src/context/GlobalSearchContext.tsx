@@ -34,7 +34,7 @@ export const GlobalSearchProvider: React.FC<GlobalSearchProviderProps> = ({ chil
 
   const openGlobalSearch = () => setIsGlobalSearchOpen(true);
   const closeGlobalSearch = () => setIsGlobalSearchOpen(false);
-  const toggleGlobalSearch = () => setIsGlobalSearchOpen(prev => !prev);
+  const toggleGlobalSearch = () => setIsGlobalSearchOpen((prev) => !prev);
 
   const performSearch = async (_query: string) => {
     // Placeholder for search functionality
@@ -79,9 +79,5 @@ export const GlobalSearchProvider: React.FC<GlobalSearchProviderProps> = ({ chil
     performSearch,
   };
 
-  return (
-    <GlobalSearchContext.Provider value={value}>
-      {children}
-    </GlobalSearchContext.Provider>
-  );
+  return <GlobalSearchContext.Provider value={value}>{children}</GlobalSearchContext.Provider>;
 };

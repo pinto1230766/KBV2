@@ -12,7 +12,7 @@ describe('Card', () => {
         <CardBody>Test content</CardBody>
       </Card>
     );
-    
+
     expect(screen.getByText('Test content')).toBeInTheDocument();
   });
 
@@ -22,17 +22,17 @@ describe('Card', () => {
         <CardBody>Test</CardBody>
       </Card>
     );
-    
+
     expect(container.firstChild).toHaveClass('bg-white', 'rounded-lg', 'shadow');
   });
 
   it('accepte les classes CSS personnalisées', () => {
     const { container } = render(
-      <Card className="custom-class">
+      <Card className='custom-class'>
         <CardBody>Test</CardBody>
       </Card>
     );
-    
+
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
@@ -42,7 +42,7 @@ describe('Card', () => {
         <CardBody>Test content</CardBody>
       </Card>
     );
-    
+
     const cardBody = container.querySelector('.p-6');
     expect(cardBody).toBeInTheDocument();
     expect(cardBody).toHaveTextContent('Test content');
@@ -51,10 +51,10 @@ describe('Card', () => {
   it('accepte les props CardBody', () => {
     render(
       <Card>
-        <CardBody className="custom-body">Custom body</CardBody>
+        <CardBody className='custom-body'>Custom body</CardBody>
       </Card>
     );
-    
+
     expect(screen.getByText('Custom body')).toBeInTheDocument();
   });
 
@@ -65,7 +65,7 @@ describe('Card', () => {
         <CardBody>Clickable card</CardBody>
       </Card>
     );
-    
+
     const card = screen.getByText('Clickable card').closest('div');
     if (card) {
       fireEvent.click(card);
@@ -79,7 +79,7 @@ describe('Card', () => {
         <CardBody>Dark mode test</CardBody>
       </Card>
     );
-    
+
     expect(container.firstChild).toHaveClass('dark:bg-gray-800');
   });
 
@@ -89,7 +89,7 @@ describe('Card', () => {
         <CardBody>Hoverable card</CardBody>
       </Card>
     );
-    
+
     expect(container.firstChild).toHaveClass('hover:shadow-lg', 'transition-shadow');
   });
 });

@@ -56,16 +56,16 @@ export const WithForm: Story = {
   args: {
     title: 'Formulaire',
     children: (
-      <form className="space-y-4">
+      <form className='space-y-4'>
         <div>
-          <label className="block mb-2">Nom</label>
-          <input type="text" className="w-full p-2 border rounded" />
+          <label className='block mb-2'>Nom</label>
+          <input type='text' className='w-full p-2 border rounded' />
         </div>
         <div>
-          <label className="block mb-2">Email</label>
-          <input type="email" className="w-full p-2 border rounded" />
+          <label className='block mb-2'>Email</label>
+          <input type='email' className='w-full p-2 border rounded' />
         </div>
-        <button type="submit" className="btn-primary">
+        <button type='submit' className='btn-primary'>
           Envoyer
         </button>
       </form>

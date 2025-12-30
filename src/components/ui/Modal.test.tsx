@@ -23,7 +23,7 @@ describe('Modal', () => {
     });
 
     it('should render children correctly', () => {
-      const children = <div data-testid="custom-content">Custom Content</div>;
+      const children = <div data-testid='custom-content'>Custom Content</div>;
       render(<Modal {...defaultProps}>{children}</Modal>);
       expect(screen.getByTestId('custom-content')).toBeInTheDocument();
     });
@@ -65,17 +65,17 @@ describe('Modal', () => {
     it('should call onClose when close button is clicked', () => {
       const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
-      
+
       const closeButton = screen.getByLabelText('Fermer');
       fireEvent.click(closeButton);
-      
+
       expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     it('should call onClose when backdrop is clicked', () => {
       const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
-      
+
       // Click sur le backdrop (l'overlay noir)
       const backdrop = screen.getByRole('dialog').parentElement;
       if (backdrop) {
@@ -87,26 +87,26 @@ describe('Modal', () => {
     it('should not close when clicking inside modal content', () => {
       const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
-      
+
       const content = screen.getByText('Modal Content');
       fireEvent.click(content);
-      
+
       expect(onClose).not.toHaveBeenCalled();
     });
 
     it('should call onClose when Escape key is pressed', () => {
       const onClose = vi.fn();
       render(<Modal {...defaultProps} onClose={onClose} />);
-      
+
       fireEvent.keyDown(document, { key: 'Escape' });
-      
+
       expect(onClose).toHaveBeenCalled();
     });
   });
 
   describe('Sizes', () => {
     it('should render small size', () => {
-      const { container } = render(<Modal {...defaultProps} size="sm" />);
+      const { container } = render(<Modal {...defaultProps} size='sm' />);
       expect(container.querySelector('.modal')).toBeInTheDocument();
     });
 
@@ -116,16 +116,14 @@ describe('Modal', () => {
     });
 
     it('should render large size', () => {
-      const { container } = render(<Modal {...defaultProps} size="lg" />);
+      const { container } = render(<Modal {...defaultProps} size='lg' />);
       expect(container.querySelector('.modal')).toBeInTheDocument();
     });
   });
 
   describe('Custom styling', () => {
     it('should accept custom className', () => {
-      const { container } = render(
-        <Modal {...defaultProps} className="custom-modal" />
-      );
+      const { container } = render(<Modal {...defaultProps} className='custom-modal' />);
       expect(container.querySelector('.custom-modal')).toBeInTheDocument();
     });
   });
@@ -138,9 +136,9 @@ describe('Modal', () => {
           <button>Confirm</button>
         </div>
       );
-      
+
       render(<Modal {...defaultProps} footer={footer} />);
-      
+
       expect(screen.getByText('Cancel')).toBeInTheDocument();
       expect(screen.getByText('Confirm')).toBeInTheDocument();
     });
@@ -153,12 +151,10 @@ describe('Modal', () => {
 
   describe('Overflow behavior', () => {
     it('should handle long content with scroll', () => {
-      const longContent = Array.from({ length: 100 }, (_, i) => (
-        <p key={i}>Line {i}</p>
-      ));
-      
+      const longContent = Array.from({ length: 100 }, (_, i) => <p key={i}>Line {i}</p>);
+
       render(<Modal {...defaultProps}>{longContent}</Modal>);
-      
+
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
   });
@@ -166,16 +162,16 @@ describe('Modal', () => {
   describe('Multiple modals', () => {
     it('should handle stacked modals', () => {
       const { rerender } = render(<Modal {...defaultProps} />);
-      
+
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      
+
       rerender(
         <>
           <Modal {...defaultProps} />
-          <Modal {...defaultProps} title="Second Modal" />
+          <Modal {...defaultProps} title='Second Modal' />
         </>
       );
-      
+
       expect(screen.getAllByRole('dialog')).toHaveLength(2);
     });
   });
@@ -192,7 +188,7 @@ describe('Modal', () => {
     });
 
     it('should handle empty string title', () => {
-      render(<Modal {...defaultProps} title="" />);
+      render(<Modal {...defaultProps} title='' />);
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
   });
@@ -200,27 +196,27 @@ describe('Modal', () => {
   describe('Performance', () => {
     it('should not re-render unnecessarily', () => {
       const renderSpy = vi.fn();
-      
+
       const TestContent = () => {
         renderSpy();
         return <div>Content</div>;
       };
-      
+
       const { rerender } = render(
         <Modal {...defaultProps}>
           <TestContent />
         </Modal>
       );
-      
+
       const initialRenderCount = renderSpy.mock.calls.length;
-      
+
       // Re-render with same props
       rerender(
         <Modal {...defaultProps}>
           <TestContent />
         </Modal>
       );
-      
+
       // Should not have additional renders
       expect(renderSpy.mock.calls.length).toBe(initialRenderCount);
     });

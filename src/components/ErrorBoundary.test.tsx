@@ -43,7 +43,7 @@ describe('ErrorBoundary', () => {
     it('should catch and display errors', () => {
       render(
         <ErrorBoundary>
-          <ThrowError shouldThrow={true} error="Test Error Message" />
+          <ThrowError shouldThrow={true} error='Test Error Message' />
         </ErrorBoundary>
       );
 
@@ -79,7 +79,7 @@ describe('ErrorBoundary', () => {
 
       render(
         <ErrorBoundary>
-          <ThrowError shouldThrow={true} error="Logged Error" />
+          <ThrowError shouldThrow={true} error='Logged Error' />
         </ErrorBoundary>
       );
 
@@ -123,7 +123,7 @@ describe('ErrorBoundary', () => {
         <ErrorBoundary>
           <div>Outer Safe Content</div>
           <ErrorBoundary>
-            <ThrowError shouldThrow={true} error="Inner Error" />
+            <ThrowError shouldThrow={true} error='Inner Error' />
           </ErrorBoundary>
         </ErrorBoundary>
       );
@@ -152,7 +152,7 @@ describe('ErrorBoundary', () => {
 
       render(
         <ErrorBoundary onError={onErrorSpy}>
-          <ThrowError shouldThrow={true} error="Callback Error" />
+          <ThrowError shouldThrow={true} error='Callback Error' />
         </ErrorBoundary>
       );
 

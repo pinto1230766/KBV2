@@ -42,11 +42,9 @@ export const Default: Story = {
   args: {
     actions: sampleActions,
     children: (
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-        <h3 className="font-semibold">Glissez vers la gauche</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Pour afficher les actions
-        </p>
+      <div className='p-4 bg-white dark:bg-gray-800 rounded-lg'>
+        <h3 className='font-semibold'>Glissez vers la gauche</h3>
+        <p className='text-sm text-gray-600 dark:text-gray-400'>Pour afficher les actions</p>
       </div>
     ),
   },
@@ -56,11 +54,9 @@ export const SingleAction: Story = {
   args: {
     actions: [sampleActions[0]],
     children: (
-      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-        <h3 className="font-semibold">Action unique</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Glissez pour supprimer
-        </p>
+      <div className='p-4 bg-white dark:bg-gray-800 rounded-lg'>
+        <h3 className='font-semibold'>Action unique</h3>
+        <p className='text-sm text-gray-600 dark:text-gray-400'>Glissez pour supprimer</p>
       </div>
     ),
   },
@@ -68,11 +64,11 @@ export const SingleAction: Story = {
 
 export const WithList: Story = {
   render: () => (
-    <div className="space-y-2">
+    <div className='space-y-2'>
       {['Item 1', 'Item 2', 'Item 3'].map((item) => (
         <SwipeableRow key={item} actions={sampleActions}>
-          <div className="p-4 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="font-medium">{item}</p>
+          <div className='p-4 bg-white dark:bg-gray-800 rounded-lg'>
+            <p className='font-medium'>{item}</p>
           </div>
         </SwipeableRow>
       ))}
@@ -85,11 +81,9 @@ export const Disabled: Story = {
     actions: sampleActions,
     disabled: true,
     children: (
-      <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-        <h3 className="font-semibold text-gray-400">Désactivé</h3>
-        <p className="text-sm text-gray-500">
-          Le swipe est désactivé
-        </p>
+      <div className='p-4 bg-gray-100 dark:bg-gray-700 rounded-lg'>
+        <h3 className='font-semibold text-gray-400'>Désactivé</h3>
+        <p className='text-sm text-gray-500'>Le swipe est désactivé</p>
       </div>
     ),
   },

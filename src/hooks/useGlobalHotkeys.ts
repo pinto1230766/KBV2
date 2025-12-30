@@ -132,29 +132,41 @@ export function useGlobalHotkeys() {
 
   // Enregistrer tous les raccourcis
   hotkeys.forEach(({ key, action }) => {
-    useHotkeys(key, (event) => {
-      event.preventDefault();
-      action();
-    }, {
-      enableOnFormTags: false, // Désactiver dans les formulaires (sauf exceptions)
-    });
+    useHotkeys(
+      key,
+      (event) => {
+        event.preventDefault();
+        action();
+      },
+      {
+        enableOnFormTags: false, // Désactiver dans les formulaires (sauf exceptions)
+      }
+    );
   });
 
   // Raccourcis spéciaux qui fonctionnent même dans les formulaires
-  useHotkeys('escape', () => {
-    setShowSearchModal(false);
-    setShowHelpModal(false);
-    setShowQuickActions(false);
-  }, {
-    enableOnFormTags: true,
-  });
+  useHotkeys(
+    'escape',
+    () => {
+      setShowSearchModal(false);
+      setShowHelpModal(false);
+      setShowQuickActions(false);
+    },
+    {
+      enableOnFormTags: true,
+    }
+  );
 
-  useHotkeys('ctrl+k', (event) => {
-    event.preventDefault();
-    setShowSearchModal(true);
-  }, {
-    enableOnFormTags: true,
-  });
+  useHotkeys(
+    'ctrl+k',
+    (event) => {
+      event.preventDefault();
+      setShowSearchModal(true);
+    },
+    {
+      enableOnFormTags: true,
+    }
+  );
 
   const closeHelpModal = useCallback(() => setShowHelpModal(false), []);
   const closeSearchModal = useCallback(() => setShowSearchModal(false), []);

@@ -432,7 +432,7 @@ Por favor, diga-me se está disponível para este serviço.
 
 Fraternalmente,
 {hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`
+📞 {hospitalityOverseerPhone}`,
 };
 
 // ============================================================================

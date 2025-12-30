@@ -241,7 +241,7 @@ export const Dashboard: React.FC = () => {
             bg: 'bg-orange-50 dark:bg-orange-900/20',
           },
           {
-            label: 'Contacts d\'accueil',
+            label: "Contacts d'accueil",
             desc: 'Hôtes disponibles pour recevoir les orateurs',
             value: stats.hosts,
             icon: ShieldCheck,
@@ -356,36 +356,36 @@ export const Dashboard: React.FC = () => {
 
               <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8'>
                 {[
-                  { 
-                    label: 'Moyenne mensuelle', 
-                    value: '14.2', 
+                  {
+                    label: 'Moyenne mensuelle',
+                    value: '14.2',
                     icon: Clock,
                     hint: 'Nombre moyen de visites par mois',
-                    advanced: 'Calculé sur 12 mois glissants'
+                    advanced: 'Calculé sur 12 mois glissants',
                   },
-                  { 
-                    label: 'Pic d\'activité', 
-                    value: '18', 
+                  {
+                    label: "Pic d'activité",
+                    value: '18',
                     icon: TrendingUp,
                     hint: 'Maximum de visites en un mois',
-                    advanced: 'Record historique enregistré'
+                    advanced: 'Record historique enregistré',
                   },
-                  { 
-                    label: 'Taux confirmation', 
-                    value: '94%', 
+                  {
+                    label: 'Taux confirmation',
+                    value: '94%',
                     icon: Sparkles,
                     hint: 'Visites confirmées vs programmées',
-                    advanced: 'Indicateur de fiabilité du planning'
+                    advanced: 'Indicateur de fiabilité du planning',
                   },
-                  { 
-                    label: 'Sauvegarde auto', 
-                    value: 'Active', 
+                  {
+                    label: 'Sauvegarde auto',
+                    value: 'Active',
                     icon: ShieldCheck,
                     hint: 'Sauvegarde automatique des données',
-                    advanced: 'Backup toutes les 6 heures'
+                    advanced: 'Backup toutes les 6 heures',
                   },
                 ].map((m, i) => (
-                  <div 
+                  <div
                     key={i}
                     className='p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors relative group'
                     title={`${m.label}: ${m.hint}${i > 1 ? ` (🔧 ${m.advanced})` : ''}`}
@@ -586,10 +586,7 @@ export const Dashboard: React.FC = () => {
         }}
       />
 
-      <GlobalSearch
-        isOpen={isGlobalSearchOpen}
-        onClose={() => setIsGlobalSearchOpen(false)}
-      />
+      <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
 
       <ScheduleVisitModal
         isOpen={isScheduleModalOpen}

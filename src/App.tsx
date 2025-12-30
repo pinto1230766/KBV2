@@ -70,59 +70,59 @@ function AppContent() {
           <DataProvider>
             <ConfirmProvider>
               <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path='/' element={<LayoutComponent />}>
-                      <Route
-                        index
-                        element={
-                          <ErrorBoundary>
-                            <Dashboard />
-                          </ErrorBoundary>
-                        }
-                      />
-                      <Route
-                        path='planning'
-                        element={
-                          <ErrorBoundary>
-                            <Planning />
-                          </ErrorBoundary>
-                        }
-                      />
-                      <Route
-                        path='messages'
-                        element={
-                          <ErrorBoundary>
-                            <Messages />
-                          </ErrorBoundary>
-                        }
-                      />
-                      <Route
-                        path='speakers'
-                        element={
-                          <ErrorBoundary>
-                            <Speakers />
-                          </ErrorBoundary>
-                        }
-                      />
+                <Routes>
+                  <Route path='/' element={<LayoutComponent />}>
+                    <Route
+                      index
+                      element={
+                        <ErrorBoundary>
+                          <Dashboard />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='planning'
+                      element={
+                        <ErrorBoundary>
+                          <Planning />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='messages'
+                      element={
+                        <ErrorBoundary>
+                          <Messages />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route
+                      path='speakers'
+                      element={
+                        <ErrorBoundary>
+                          <Speakers />
+                        </ErrorBoundary>
+                      }
+                    />
 
-                      <Route
-                        path='settings'
-                        element={
-                          <ErrorBoundary>
-                            <Settings />
-                          </ErrorBoundary>
-                        }
-                      />
-                      <Route path='*' element={<Navigate to='/' replace />} />
-                    </Route>
-                  </Routes>
-                  
-                  {/* Global Search Modal - Accessible depuis Ctrl+K */}
-                  <GlobalSearch
-                    isOpen={isGlobalSearchOpen}
-                    onClose={() => setIsGlobalSearchOpen(false)}
-                  />
-                </Suspense>
+                    <Route
+                      path='settings'
+                      element={
+                        <ErrorBoundary>
+                          <Settings />
+                        </ErrorBoundary>
+                      }
+                    />
+                    <Route path='*' element={<Navigate to='/' replace />} />
+                  </Route>
+                </Routes>
+
+                {/* Global Search Modal - Accessible depuis Ctrl+K */}
+                <GlobalSearch
+                  isOpen={isGlobalSearchOpen}
+                  onClose={() => setIsGlobalSearchOpen(false)}
+                />
+              </Suspense>
             </ConfirmProvider>
           </DataProvider>
         </ToastProvider>

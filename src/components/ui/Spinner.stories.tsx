@@ -33,17 +33,17 @@ export const Large: Story = {
 
 export const WithText: Story = {
   render: () => (
-    <div className="flex flex-col items-center gap-4">
-      <Spinner size="lg" />
-      <p className="text-gray-600">Chargement en cours...</p>
+    <div className='flex flex-col items-center gap-4'>
+      <Spinner size='lg' />
+      <p className='text-gray-600'>Chargement en cours...</p>
     </div>
   ),
 };
 
 export const InButton: Story = {
   render: () => (
-    <button className="btn-primary flex items-center gap-2" disabled>
-      <Spinner size="sm" />
+    <button className='btn-primary flex items-center gap-2' disabled>
+      <Spinner size='sm' />
       Chargement...
     </button>
   ),

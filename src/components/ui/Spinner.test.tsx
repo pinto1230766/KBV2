@@ -25,17 +25,17 @@ describe('Spinner', () => {
 
   describe('Sizes', () => {
     it('should render small size', () => {
-      const { container } = render(<Spinner size="sm" />);
+      const { container } = render(<Spinner size='sm' />);
       expect(container.firstChild).toBeInTheDocument();
     });
 
     it('should render medium size', () => {
-      const { container } = render(<Spinner size="md" />);
+      const { container } = render(<Spinner size='md' />);
       expect(container.firstChild).toBeInTheDocument();
     });
 
     it('should render large size', () => {
-      const { container } = render(<Spinner size="lg" />);
+      const { container } = render(<Spinner size='lg' />);
       expect(container.firstChild).toBeInTheDocument();
     });
 
@@ -47,12 +47,12 @@ describe('Spinner', () => {
 
   describe('Props', () => {
     it('should accept custom className', () => {
-      const { container } = render(<Spinner className="custom-class" />);
+      const { container } = render(<Spinner className='custom-class' />);
       expect(container.firstChild).toHaveClass('custom-class');
     });
 
     it('should combine custom className with default classes', () => {
-      const { container } = render(<Spinner className="my-custom-class" />);
+      const { container } = render(<Spinner className='my-custom-class' />);
       const spinner = container.firstChild;
       expect(spinner).toHaveClass('my-custom-class');
     });
@@ -84,7 +84,7 @@ describe('Spinner', () => {
     it('should work inside a button', () => {
       render(
         <button>
-          <Spinner size="sm" />
+          <Spinner size='sm' />
           <span>Loading...</span>
         </button>
       );
@@ -96,7 +96,7 @@ describe('Spinner', () => {
 
     it('should work in a centered container', () => {
       render(
-        <div className="flex items-center justify-center">
+        <div className='flex items-center justify-center'>
           <Spinner />
         </div>
       );
@@ -119,9 +119,9 @@ describe('Spinner', () => {
     it('should render multiple spinners independently', () => {
       render(
         <>
-          <Spinner size="sm" />
-          <Spinner size="md" />
-          <Spinner size="lg" />
+          <Spinner size='sm' />
+          <Spinner size='md' />
+          <Spinner size='lg' />
         </>
       );
 

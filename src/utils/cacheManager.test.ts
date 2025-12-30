@@ -116,7 +116,7 @@ describe('CacheManager', () => {
 
     it('should handle query updates', () => {
       const queryKey = ['update', 'test'];
-      
+
       queryClient.setQueryData(queryKey, { version: 1 });
       expect(queryClient.getQueryData(queryKey)).toEqual({ version: 1 });
 
@@ -135,7 +135,7 @@ describe('CacheManager', () => {
     it('should handle setting undefined data', () => {
       const queryKey = ['undefined', 'data'];
       queryClient.setQueryData(queryKey, undefined);
-      
+
       expect(queryClient.getQueryData(queryKey)).toBeUndefined();
     });
   });
@@ -173,7 +173,7 @@ describe('CacheManager', () => {
   describe('Query Prefetching', () => {
     it('should support prefetch queries', async () => {
       const queryKey = ['prefetch', 'test'];
-      
+
       await queryClient.prefetchQuery({
         queryKey,
         queryFn: async () => ({ prefetched: true }),

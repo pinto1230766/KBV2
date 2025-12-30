@@ -18,17 +18,16 @@ const FileUploadWithState = (args: any) => {
   const [files, setFiles] = useState<File[]>([]);
 
   return (
-    <div className="w-96">
-      <FileUpload
-        {...args}
-        onFilesSelected={setFiles}
-      />
+    <div className='w-96'>
+      <FileUpload {...args} onFilesSelected={setFiles} />
       {files.length > 0 && (
-        <div className="mt-4">
-          <h3 className="font-semibold">Fichiers sélectionnés:</h3>
-          <ul className="list-disc pl-5">
+        <div className='mt-4'>
+          <h3 className='font-semibold'>Fichiers sélectionnés:</h3>
+          <ul className='list-disc pl-5'>
             {files.map((file, i) => (
-              <li key={i}>{file.name} ({Math.round(file.size / 1024)} KB)</li>
+              <li key={i}>
+                {file.name} ({Math.round(file.size / 1024)} KB)
+              </li>
             ))}
           </ul>
         </div>
@@ -47,7 +46,7 @@ export const Default: Story = {
 export const ImagesOnly: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Upload d\'images',
+    label: "Upload d'images",
     accept: 'image/*',
   },
 };

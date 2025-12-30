@@ -73,7 +73,7 @@ class ExportService {
           return {
             success: false,
             filename: '',
-            error: 'Type d\'export non supporté',
+            error: "Type d'export non supporté",
           };
       }
 
@@ -83,7 +83,7 @@ class ExportService {
       return {
         success: false,
         filename: '',
-        error: error instanceof Error ? error.message : 'Erreur lors de l\'export',
+        error: error instanceof Error ? error.message : "Erreur lors de l'export",
       };
     }
   }
@@ -93,19 +93,23 @@ class ExportService {
 
     // Apply filters
     if (options.filters?.dateRange) {
-      visits = visits.filter(visit => {
+      visits = visits.filter((visit) => {
         const visitDate = new Date(visit.visitDate);
-        return visitDate >= options.filters!.dateRange!.start &&
-               visitDate <= options.filters!.dateRange!.end;
+        return (
+          visitDate >= options.filters!.dateRange!.start &&
+          visitDate <= options.filters!.dateRange!.end
+        );
       });
     }
 
     if (options.filters?.status && options.filters.status.length > 0) {
-      visits = visits.filter(visit => options.filters!.status!.includes(visit.status));
+      visits = visits.filter((visit) => options.filters!.status!.includes(visit.status));
     }
 
     if (options.filters?.congregations && options.filters.congregations.length > 0) {
-      visits = visits.filter(visit => options.filters!.congregations!.includes(visit.congregation));
+      visits = visits.filter((visit) =>
+        options.filters!.congregations!.includes(visit.congregation)
+      );
     }
 
     const headers = [
@@ -126,7 +130,7 @@ class ExportService {
       'Email',
     ];
 
-    const data = visits.map(visit => [
+    const data = visits.map((visit) => [
       visit.visitId,
       visit.nom,
       visit.congregation,
@@ -164,7 +168,7 @@ class ExportService {
       'Dernière visite',
     ];
 
-    const data = speakers.map(speaker => [
+    const data = speakers.map((speaker) => [
       speaker.id,
       speaker.nom,
       speaker.congregation,
@@ -176,7 +180,9 @@ class ExportService {
       speaker.isVehiculed ? 'Oui' : 'Non',
       speaker.talkHistory.length,
       speaker.talkHistory.length > 0
-        ? speaker.talkHistory.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0].date
+        ? speaker.talkHistory.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )[0].date
         : '',
     ]);
 
@@ -201,7 +207,7 @@ class ExportService {
       'Fumeur',
     ];
 
-    const data = hosts.map(host => [
+    const data = hosts.map((host) => [
       host.nom,
       host.telephone || '',
       host.email || '',
@@ -233,7 +239,7 @@ class ExportService {
       'Statut',
     ];
 
-    const data = archives.map(visit => [
+    const data = archives.map((visit) => [
       visit.visitDate,
       visit.visitTime,
       visit.nom,
@@ -268,18 +274,22 @@ class ExportService {
 
     const headers = ['Métrique', 'Valeur'];
     const data = [
-      ['Nombre total d\'orateurs', speakers.length.toString()],
-      ['Nombre total d\'hôtes', hosts.length.toString()],
+      ["Nombre total d'orateurs", speakers.length.toString()],
+      ["Nombre total d'hôtes", hosts.length.toString()],
       ['Nombre total de visites', visits.length.toString()],
-      ['Visites confirmées', visits.filter(v => v.status === 'confirmed').length.toString()],
-      ['Visites en attente', visits.filter(v => v.status === 'pending').length.toString()],
-      ['Visites terminées', visits.filter(v => v.status === 'completed').length.toString()],
+      ['Visites confirmées', visits.filter((v) => v.status === 'confirmed').length.toString()],
+      ['Visites en attente', visits.filter((v) => v.status === 'pending').length.toString()],
+      ['Visites terminées', visits.filter((v) => v.status === 'completed').length.toString()],
     ];
 
     return { data, headers };
   }
 
-  private async generateFile(data: any[], headers: string[], options: ExportOptions): Promise<ExportResult> {
+  private async generateFile(
+    data: any[],
+    headers: string[],
+    options: ExportOptions
+  ): Promise<ExportResult> {
     const includeHeaders = options.includeHeaders !== false;
     const filename = options.filename || this.generateFilename(options);
 
@@ -297,15 +307,21 @@ class ExportService {
     }
   }
 
-  private generateCSV(data: any[], headers: string[], includeHeaders: boolean, filename: string): ExportResult {
+  private generateCSV(
+    data: any[],
+    headers: string[],
+    includeHeaders: boolean,
+    filename: string
+  ): ExportResult {
     let csvContent = '';
 
     if (includeHeaders) {
-      csvContent += headers.map(h => `"${h}"`).join(',') + '\n';
+      csvContent += headers.map((h) => `"${h}"`).join(',') + '\n';
     }
 
-    data.forEach(row => {
-      csvContent += row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
+    data.forEach((row) => {
+      csvContent +=
+        row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(',') + '\n';
     });
 
     return {
@@ -315,7 +331,12 @@ class ExportService {
     };
   }
 
-  private generateExcel(data: any[], headers: string[], includeHeaders: boolean, filename: string): ExportResult {
+  private generateExcel(
+    data: any[],
+    headers: string[],
+    includeHeaders: boolean,
+    filename: string
+  ): ExportResult {
     // For now, generate CSV as Excel-compatible format
     // In a real implementation, you'd use a library like xlsx
     const csvResult = this.generateCSV(data, headers, includeHeaders, filename);
@@ -325,7 +346,12 @@ class ExportService {
     };
   }
 
-  private generateJSON(data: any[], headers: string[], includeHeaders: boolean, filename: string): ExportResult {
+  private generateJSON(
+    data: any[],
+    headers: string[],
+    includeHeaders: boolean,
+    filename: string
+  ): ExportResult {
     const jsonData = includeHeaders ? { headers, data } : data;
     const jsonContent = JSON.stringify(jsonData, null, 2);
 
@@ -336,7 +362,12 @@ class ExportService {
     };
   }
 
-  private generatePDF(data: any[], headers: string[], includeHeaders: boolean, filename: string): ExportResult {
+  private generatePDF(
+    data: any[],
+    headers: string[],
+    includeHeaders: boolean,
+    filename: string
+  ): ExportResult {
     // For now, generate CSV as placeholder
     // In a real implementation, you'd use a PDF library
     const csvResult = this.generateCSV(data, headers, includeHeaders, filename);
@@ -356,9 +387,10 @@ class ExportService {
   download(result: ExportResult): void {
     if (!result.success || !result.data) return;
 
-    const blob = result.data instanceof Blob
-      ? result.data
-      : new Blob([result.data], { type: 'text/plain;charset=utf-8' });
+    const blob =
+      result.data instanceof Blob
+        ? result.data
+        : new Blob([result.data], { type: 'text/plain;charset=utf-8' });
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

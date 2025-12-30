@@ -56,9 +56,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const navigationHotkeys = result.current.hotkeys.filter(
-        h => h.category === 'navigation'
-      );
+      const navigationHotkeys = result.current.hotkeys.filter((h) => h.category === 'navigation');
 
       expect(navigationHotkeys.length).toBeGreaterThan(0);
     });
@@ -68,9 +66,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const actionHotkeys = result.current.hotkeys.filter(
-        h => h.category === 'actions'
-      );
+      const actionHotkeys = result.current.hotkeys.filter((h) => h.category === 'actions');
 
       expect(actionHotkeys.length).toBeGreaterThan(0);
     });
@@ -80,9 +76,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const searchHotkeys = result.current.hotkeys.filter(
-        h => h.category === 'search'
-      );
+      const searchHotkeys = result.current.hotkeys.filter((h) => h.category === 'search');
 
       expect(searchHotkeys.length).toBeGreaterThan(0);
     });
@@ -92,9 +86,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const modalHotkeys = result.current.hotkeys.filter(
-        h => h.category === 'modals'
-      );
+      const modalHotkeys = result.current.hotkeys.filter((h) => h.category === 'modals');
 
       expect(modalHotkeys.length).toBeGreaterThan(0);
     });
@@ -104,9 +96,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const generalHotkeys = result.current.hotkeys.filter(
-        h => h.category === 'general'
-      );
+      const generalHotkeys = result.current.hotkeys.filter((h) => h.category === 'general');
 
       expect(generalHotkeys.length).toBeGreaterThan(0);
     });
@@ -116,7 +106,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      result.current.hotkeys.forEach(hotkey => {
+      result.current.hotkeys.forEach((hotkey) => {
         expect(hotkey).toHaveProperty('key');
         expect(hotkey).toHaveProperty('description');
         expect(hotkey).toHaveProperty('action');
@@ -174,7 +164,7 @@ describe('useGlobalHotkeys', () => {
 
       const validCategories = ['navigation', 'actions', 'search', 'modals', 'general'];
 
-      result.current.hotkeys.forEach(hotkey => {
+      result.current.hotkeys.forEach((hotkey) => {
         expect(validCategories).toContain(hotkey.category);
       });
     });
@@ -184,7 +174,7 @@ describe('useGlobalHotkeys', () => {
         wrapper: BrowserRouter,
       });
 
-      const keys = result.current.hotkeys.map(h => h.key);
+      const keys = result.current.hotkeys.map((h) => h.key);
       const uniqueKeys = new Set(keys);
 
       // Certaines touches peuvent être intentionnellement dupliquées

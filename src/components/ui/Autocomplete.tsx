@@ -106,12 +106,10 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
       setFocusedIndex(0);
     } else if (e.key === 'ArrowDown' && isOpen) {
       e.preventDefault();
-      setFocusedIndex(prev => 
-        prev < filteredOptions.length - 1 ? prev + 1 : prev
-      );
+      setFocusedIndex((prev) => (prev < filteredOptions.length - 1 ? prev + 1 : prev));
     } else if (e.key === 'ArrowUp' && isOpen) {
       e.preventDefault();
-      setFocusedIndex(prev => prev > 0 ? prev - 1 : -1);
+      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : -1));
     } else if (e.key === 'Enter' && isOpen && focusedIndex >= 0) {
       e.preventDefault();
       handleOptionSelect(filteredOptions[focusedIndex]);

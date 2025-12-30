@@ -9,18 +9,10 @@ const TestComponent = () => {
 
   return (
     <div>
-      <button onClick={() => addToast('Success message', 'success', 3000)}>
-        Show Success
-      </button>
-      <button onClick={() => addToast('Error message', 'error', 5000)}>
-        Show Error
-      </button>
-      <button onClick={() => addToast('Warning message', 'warning', 4000)}>
-        Show Warning
-      </button>
-      <button onClick={() => addToast('Info message', 'info', 3000)}>
-        Show Info
-      </button>
+      <button onClick={() => addToast('Success message', 'success', 3000)}>Show Success</button>
+      <button onClick={() => addToast('Error message', 'error', 5000)}>Show Error</button>
+      <button onClick={() => addToast('Warning message', 'warning', 4000)}>Show Warning</button>
+      <button onClick={() => addToast('Info message', 'info', 3000)}>Show Info</button>
     </div>
   );
 };
@@ -198,11 +190,7 @@ describe('ToastContext', () => {
     it('should not crash with empty message', async () => {
       const TestEmptyMessage = () => {
         const { addToast } = useToast();
-        return (
-          <button onClick={() => addToast('', 'info', 1000)}>
-            Empty Toast
-          </button>
-        );
+        return <button onClick={() => addToast('', 'info', 1000)}>Empty Toast</button>;
       };
 
       const { getByText } = render(
@@ -222,11 +210,7 @@ describe('ToastContext', () => {
       const longMessage = 'x'.repeat(1000);
       const TestLongMessage = () => {
         const { addToast } = useToast();
-        return (
-          <button onClick={() => addToast(longMessage, 'info', 1000)}>
-            Long Toast
-          </button>
-        );
+        return <button onClick={() => addToast(longMessage, 'info', 1000)}>Long Toast</button>;
       };
 
       const { getByText } = render(

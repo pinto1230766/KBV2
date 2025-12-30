@@ -60,7 +60,7 @@ export const WithNotes: Story = {
   args: {
     visit: {
       ...mockVisit,
-      notes: 'Discours spécial sur l\'amour chrétien. Prévoir projecteur.',
+      notes: "Discours spécial sur l'amour chrétien. Prévoir projecteur.",
     },
   },
 };
@@ -82,7 +82,7 @@ export const FullDetails: Story = {
       notes: 'Discours important',
       telephone: '+33 6 12 34 56 78',
       email: 'john.doe@example.com',
-      theme: 'L\'amour de Jéhovah',
+      theme: "L'amour de Jéhovah",
       congregation: 'Lyon Sud',
     },
   },

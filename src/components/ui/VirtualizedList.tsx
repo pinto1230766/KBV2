@@ -32,7 +32,7 @@ function VirtualizedListInner<T>({
   const Row = useMemo(
     () =>
       ({ index, style }: { index: number; style: CSSProperties }) => (
-        <div style={style} className="virtualized-list-row">
+        <div style={style} className='virtualized-list-row'>
           {renderItem(items[index], index)}
         </div>
       ),
@@ -41,7 +41,12 @@ function VirtualizedListInner<T>({
 
   if (items.length === 0) {
     return (
-      <div className={cn('flex items-center justify-center h-32 text-gray-500 dark:text-gray-400', className)}>
+      <div
+        className={cn(
+          'flex items-center justify-center h-32 text-gray-500 dark:text-gray-400',
+          className
+        )}
+      >
         Aucun élément à afficher
       </div>
     );
@@ -55,7 +60,7 @@ function VirtualizedListInner<T>({
         itemSize={itemHeight}
         width={width}
         overscanCount={overscan}
-        className="virtualized-list"
+        className='virtualized-list'
       >
         {Row}
       </List>

@@ -1,14 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import {
-  Search,
-  X,
-  User,
-  Calendar,
-  Home,
-  ArrowRight,
-  Clock,
-  MapPin,
-} from 'lucide-react';
+import { Search, X, User, Calendar, Home, ArrowRight, Clock, MapPin } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -84,7 +75,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         speaker.telephone?.toLowerCase().includes(searchTerm),
         speaker.email?.toLowerCase().includes(searchTerm),
         speaker.notes?.toLowerCase().includes(searchTerm),
-        speaker.tags?.some(tag => tag.toLowerCase().includes(searchTerm)),
+        speaker.tags?.some((tag) => tag.toLowerCase().includes(searchTerm)),
       ].filter(Boolean).length;
 
       if (matches > 0) {
@@ -97,7 +88,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
             speaker.telephone && `📞 ${speaker.telephone}`,
             speaker.email && `✉️ ${speaker.email}`,
             speaker.tags && speaker.tags.length > 0 && `🏷️ ${speaker.tags.join(', ')}`,
-          ].filter(Boolean).join(' • '),
+          ]
+            .filter(Boolean)
+            .join(' • '),
           entity: speaker,
           relevanceScore: matches,
         });
@@ -112,7 +105,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         host.email?.toLowerCase().includes(searchTerm),
         host.address?.toLowerCase().includes(searchTerm),
         host.notes?.toLowerCase().includes(searchTerm),
-        host.tags?.some(tag => tag.toLowerCase().includes(searchTerm)),
+        host.tags?.some((tag) => tag.toLowerCase().includes(searchTerm)),
       ].filter(Boolean).length;
 
       if (matches > 0) {
@@ -120,12 +113,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
           id: host.nom, // hosts don't have ID, use name
           type: 'host',
           title: host.nom,
-          subtitle: 'Contact d\'accueil',
+          subtitle: "Contact d'accueil",
           description: [
             host.telephone && `📞 ${host.telephone}`,
             host.email && `✉️ ${host.email}`,
             host.address && `📍 ${host.address}`,
-          ].filter(Boolean).join(' • '),
+          ]
+            .filter(Boolean)
+            .join(' • '),
           entity: host,
           relevanceScore: matches,
         });
@@ -182,22 +177,23 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
     return grouped;
   }, [searchResults]);
 
-  const handleResultClick = useCallback((result: SearchResult) => {
-    switch (result.type) {
-      case 'speaker':
-        navigate('/speakers', { state: { selectedSpeaker: result.entity } });
-        break;
-      case 'host':
-        navigate('/speakers', { state: { selectedHost: result.entity } });
-        break;
-      case 'visit':
-        navigate('/planning', { state: { selectedVisit: result.entity } });
-        break;
-    }
-    onClose();
-  }, [navigate, onClose]);
-
-
+  const handleResultClick = useCallback(
+    (result: SearchResult) => {
+      switch (result.type) {
+        case 'speaker':
+          navigate('/speakers', { state: { selectedSpeaker: result.entity } });
+          break;
+        case 'host':
+          navigate('/speakers', { state: { selectedHost: result.entity } });
+          break;
+        case 'visit':
+          navigate('/planning', { state: { selectedVisit: result.entity } });
+          break;
+      }
+      onClose();
+    },
+    [navigate, onClose]
+  );
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -271,15 +267,21 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                     const colorClass = RESULT_COLORS[type as keyof typeof RESULT_COLORS];
 
                     return (
-                      <div key={type} className='animate-in fade-in slide-in-from-top-4 duration-300'>
+                      <div
+                        key={type}
+                        className='animate-in fade-in slide-in-from-top-4 duration-300'
+                      >
                         <div className='flex items-center gap-3 mb-4'>
                           <div className={cn('p-2 rounded-xl', colorClass)}>
                             <Icon className='w-4 h-4' />
                           </div>
                           <h4 className='text-sm font-black text-gray-400 uppercase tracking-widest'>
-                            {type === 'speaker' ? 'Orateurs' :
-                             type === 'host' ? 'Contacts d\'accueil' :
-                             'Visites'} ({results.length})
+                            {type === 'speaker'
+                              ? 'Orateurs'
+                              : type === 'host'
+                                ? "Contacts d'accueil"
+                                : 'Visites'}{' '}
+                            ({results.length})
                           </h4>
                         </div>
                         <div className='space-y-3'>
@@ -300,7 +302,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                                       <h4 className='font-bold text-gray-900 dark:text-white text-sm truncate'>
                                         {result.title}
                                       </h4>
-                                      {result.metadata?.status && getStatusBadge(result.metadata.status)}
+                                      {result.metadata?.status &&
+                                        getStatusBadge(result.metadata.status)}
                                     </div>
                                     <p className='text-xs font-bold text-gray-500 uppercase tracking-wider mb-2'>
                                       {result.subtitle}
@@ -313,7 +316,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
                                         {result.metadata.date && (
                                           <span className='flex items-center gap-1'>
                                             <Calendar className='w-3 h-3' />
-                                            {new Date(result.metadata.date).toLocaleDateString('fr-FR')}
+                                            {new Date(result.metadata.date).toLocaleDateString(
+                                              'fr-FR'
+                                            )}
                                           </span>
                                         )}
                                         {result.metadata.time && (

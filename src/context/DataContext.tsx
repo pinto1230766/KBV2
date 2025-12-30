@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useReducer, type ReactNode } from 'react';
-import type { 
-  Expense, 
-  Host, 
-  Feedback, 
-  Accommodation
-} from '../types';
+import type { Expense, Host, Feedback, Accommodation } from '../types';
 
 // Interfaces locales pour les types manquants
 interface Event {
@@ -32,11 +27,11 @@ interface AppState {
   feedback: Feedback[];
   messages: Message[];
   accommodations: Accommodation[];
-  
+
   // État de l'application
   isLoading: boolean;
   error: string | null;
-  
+
   // Configuration
   dashboardConfig: {
     currency: string;
@@ -46,7 +41,7 @@ interface AppState {
 }
 
 // Types d'actions
-type AppAction = 
+type AppAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'SET_EXPENSES'; payload: Expense[] }
@@ -92,97 +87,95 @@ function dataReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
-    
+
     case 'SET_ERROR':
       return { ...state, error: action.payload, isLoading: false };
-    
+
     case 'SET_EXPENSES':
       return { ...state, expenses: action.payload };
-    
+
     case 'ADD_EXPENSE':
       return { ...state, expenses: [...state.expenses, action.payload] };
-    
+
     case 'UPDATE_EXPENSE':
       return {
         ...state,
-        expenses: state.expenses.map(expense =>
+        expenses: state.expenses.map((expense) =>
           expense.id === action.payload.id ? action.payload : expense
         ),
       };
-    
+
     case 'DELETE_EXPENSE':
       return {
         ...state,
-        expenses: state.expenses.filter(expense => expense.id !== action.payload),
+        expenses: state.expenses.filter((expense) => expense.id !== action.payload),
       };
-    
+
     case 'SET_HOSTS':
       return { ...state, hosts: action.payload };
-    
+
     case 'ADD_HOST':
       return { ...state, hosts: [...state.hosts, action.payload] };
-    
+
     case 'UPDATE_HOST':
       return {
         ...state,
-        hosts: state.hosts.map(host =>
-          host.nom === action.payload.nom ? action.payload : host
-        ),
+        hosts: state.hosts.map((host) => (host.nom === action.payload.nom ? action.payload : host)),
       };
-    
+
     case 'DELETE_HOST':
       return {
         ...state,
-        hosts: state.hosts.filter(host => host.nom !== action.payload),
+        hosts: state.hosts.filter((host) => host.nom !== action.payload),
       };
-    
+
     case 'SET_EVENTS':
       return { ...state, events: action.payload };
-    
+
     case 'ADD_EVENT':
       return { ...state, events: [...state.events, action.payload] };
-    
+
     case 'UPDATE_EVENT':
       return {
         ...state,
-        events: state.events.map(event =>
+        events: state.events.map((event) =>
           event.id === action.payload.id ? action.payload : event
         ),
       };
-    
+
     case 'DELETE_EVENT':
       return {
         ...state,
-        events: state.events.filter(event => event.id !== action.payload),
+        events: state.events.filter((event) => event.id !== action.payload),
       };
-    
+
     case 'SET_FEEDBACK':
       return { ...state, feedback: action.payload };
-    
+
     case 'ADD_FEEDBACK':
       return { ...state, feedback: [...state.feedback, action.payload] };
-    
+
     case 'SET_MESSAGES':
       return { ...state, messages: action.payload };
-    
+
     case 'ADD_MESSAGE':
       return { ...state, messages: [...state.messages, action.payload] };
-    
+
     case 'SET_ACCOMMODATIONS':
       return { ...state, accommodations: action.payload };
-    
+
     case 'ADD_ACCOMMODATION':
       return { ...state, accommodations: [...state.accommodations, action.payload] };
-    
+
     case 'UPDATE_DASHBOARD_CONFIG':
       return {
         ...state,
         dashboardConfig: { ...state.dashboardConfig, ...action.payload },
       };
-    
+
     case 'LOAD_DATA':
       return { ...state, ...action.payload, isLoading: false };
-    
+
     default:
       return state;
   }
@@ -192,44 +185,44 @@ function dataReducer(state: AppState, action: AppAction): AppState {
 interface DataContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
-  
+
   // Actions便捷
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  
+
   // Actions pour les dépenses
   setExpenses: (expenses: Expense[]) => void;
   addExpense: (expense: Expense) => void;
   updateExpense: (expense: Expense) => void;
   deleteExpense: (id: string) => void;
-  
+
   // Actions pour les hôtes
   setHosts: (hosts: Host[]) => void;
   addHost: (host: Host) => void;
   updateHost: (host: Host) => void;
   deleteHost: (id: string) => void;
-  
+
   // Actions pour les événements
   setEvents: (events: Event[]) => void;
   addEvent: (event: Event) => void;
   updateEvent: (event: Event) => void;
   deleteEvent: (id: string) => void;
-  
+
   // Actions pour le feedback
   setFeedback: (feedback: Feedback[]) => void;
   addFeedback: (feedback: Feedback) => void;
-  
+
   // Actions pour les messages
   setMessages: (messages: Message[]) => void;
   addMessage: (message: Message) => void;
-  
+
   // Actions pour les hébergements
   setAccommodations: (accommodations: Accommodation[]) => void;
   addAccommodation: (accommodation: Accommodation) => void;
-  
+
   // Actions pour la configuration
   updateDashboardConfig: (config: Partial<AppState['dashboardConfig']>) => void;
-  
+
   // Action pour charger toutes les données
   loadData: (data: Partial<AppState>) => void;
 }
@@ -371,11 +364,7 @@ export function DataProvider({ children }: DataProviderProps) {
     loadData,
   };
 
-  return (
-    <DataContext.Provider value={contextValue}>
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={contextValue}>{children}</DataContext.Provider>;
 }
 
 // Hook pour utiliser le contexte
@@ -464,4 +453,3 @@ export function useAccommodations() {
     error: state.error,
   };
 }
-

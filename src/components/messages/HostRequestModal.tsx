@@ -26,9 +26,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
   const { settings } = useSettings();
   const { addToast } = useToast();
 
-  const [selectedVisits, setSelectedVisits] = useState<Set<string>>(
-    new Set()
-  );
+  const [selectedVisits, setSelectedVisits] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState('');
   const [isIndividualRequest, setIsIndividualRequest] = useState(false);
   const [selectedHost, setSelectedHost] = useState('');
@@ -45,7 +43,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
 
   const generateMessage = () => {
     const visits = visitsNeedingHost.filter((v) => selectedVisits.has(v.visitId));
-    
+
     if (visits.length === 0) return;
 
     const generated = generateHostRequestMessage(
@@ -56,7 +54,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
       isIndividualRequest,
       selectedHost
     );
-    
+
     setMessage(generated);
   };
 
@@ -109,16 +107,28 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             variant='secondary'
             onClick={handleCopy}
             leftIcon={<Copy className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)}
-            title={!isIndividualRequest && selectedVisits.size === 0 ? 'Sélectionnez au moins une visite' : ''}
+            disabled={
+              selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)
+            }
+            title={
+              !isIndividualRequest && selectedVisits.size === 0
+                ? 'Sélectionnez au moins une visite'
+                : ''
+            }
           >
             Copier
           </Button>
           <Button
             onClick={handleSendWhatsApp}
             leftIcon={<Send className='w-4 h-4' />}
-            disabled={selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)}
-            title={!isIndividualRequest && selectedVisits.size === 0 ? 'Sélectionnez au moins une visite' : ''}
+            disabled={
+              selectedVisits.size === 0 || (!isIndividualRequest && selectedVisits.size === 0)
+            }
+            title={
+              !isIndividualRequest && selectedVisits.size === 0
+                ? 'Sélectionnez au moins une visite'
+                : ''
+            }
           >
             Envoyer sur WhatsApp
           </Button>
@@ -143,13 +153,13 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
         </div>
 
         {/* Liste des visites */}
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {/* Sélecteur de type de demande */}
-          <div className="flex space-x-4 mb-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
+          <div className='flex space-x-4 mb-4'>
+            <label className='flex items-center space-x-2 cursor-pointer'>
               <input
-                type="radio"
-                className="form-radio"
+                type='radio'
+                className='form-radio'
                 checked={!isIndividualRequest}
                 onChange={() => {
                   setIsIndividualRequest(false);
@@ -158,10 +168,10 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
               />
               <span>Demande groupée</span>
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
+            <label className='flex items-center space-x-2 cursor-pointer'>
               <input
-                type="radio"
-                className="form-radio"
+                type='radio'
+                className='form-radio'
                 checked={isIndividualRequest}
                 onChange={() => setIsIndividualRequest(true)}
               />
@@ -170,33 +180,33 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
           </div>
 
           {/* Sélecteur de langue */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className='mb-4'>
+            <label className='block text-sm font-medium text-gray-700 mb-2'>
               Langue du message
             </label>
-            <div className="flex space-x-4">
-              <label className="flex items-center space-x-2 cursor-pointer">
+            <div className='flex space-x-4'>
+              <label className='flex items-center space-x-2 cursor-pointer'>
                 <input
-                  type="radio"
-                  className="form-radio"
+                  type='radio'
+                  className='form-radio'
                   checked={selectedLanguage === 'fr'}
                   onChange={() => setSelectedLanguage('fr')}
                 />
                 <span>🇫🇷 Français</span>
               </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
+              <label className='flex items-center space-x-2 cursor-pointer'>
                 <input
-                  type="radio"
-                  className="form-radio"
+                  type='radio'
+                  className='form-radio'
                   checked={selectedLanguage === 'cv'}
                   onChange={() => setSelectedLanguage('cv')}
                 />
                 <span>🇨🇻 Capverdien</span>
               </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
+              <label className='flex items-center space-x-2 cursor-pointer'>
                 <input
-                  type="radio"
-                  className="form-radio"
+                  type='radio'
+                  className='form-radio'
                   checked={selectedLanguage === 'pt'}
                   onChange={() => setSelectedLanguage('pt')}
                 />
@@ -206,13 +216,13 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
           </div>
 
           {isIndividualRequest && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className='mb-4'>
+              <label className='block text-sm font-medium text-gray-700 mb-1'>
                 Sélectionnez l'hôte
               </label>
               <input
-                type="text"
-                className="w-full p-2 border rounded"
+                type='text'
+                className='w-full p-2 border rounded'
                 placeholder="Nom de l'hôte"
                 value={selectedHost}
                 onChange={(e) => setSelectedHost(e.target.value)}
@@ -220,17 +230,16 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             </div>
           )}
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium">
+          <div className='space-y-2'>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium'>
                 {isIndividualRequest ? 'Sélectionnez une visite' : 'Sélectionnez les visites'}
               </h3>
               {!isIndividualRequest && (
-                <button
-                  onClick={toggleAll}
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  {selectedVisits.size === visitsNeedingHost.length ? 'Tout désélectionner' : 'Tout sélectionner'}
+                <button onClick={toggleAll} className='text-sm text-blue-600 hover:underline'>
+                  {selectedVisits.size === visitsNeedingHost.length
+                    ? 'Tout désélectionner'
+                    : 'Tout sélectionner'}
                 </button>
               )}
             </div>
@@ -254,21 +263,21 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                     }
                   }}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className='flex items-center justify-between'>
                     <div>
-                      <p className="font-medium">{visit.nom}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className='font-medium'>{visit.nom}</p>
+                      <p className='text-sm text-gray-600'>
                         {formatFullDate(visit.visitDate)} à {visit.visitTime}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className='text-xs text-gray-500 mt-1'>
                         {getTalkTitle(visit.talkNoOrType || '')}
                       </p>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className='flex items-center space-x-2'>
                       {visit.host === 'À définir' ? (
-                        <Badge variant="warning">À définir</Badge>
+                        <Badge variant='warning'>À définir</Badge>
                       ) : (
-                        <Badge variant="success">Défini</Badge>
+                        <Badge variant='success'>Défini</Badge>
                       )}
                     </div>
                   </div>

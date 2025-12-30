@@ -11,20 +11,20 @@ describe('Storage Utils', () => {
     it('should store and retrieve string data', () => {
       const key = 'testKey';
       const value = 'testValue';
-      
+
       localStorage.setItem(key, value);
       const retrieved = localStorage.getItem(key);
-      
+
       expect(retrieved).toBe(value);
     });
 
     it('should store and retrieve object data', () => {
       const key = 'testObject';
       const value = { name: 'Test', age: 25 };
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || '{}');
-      
+
       expect(retrieved).toEqual(value);
     });
 
@@ -36,9 +36,9 @@ describe('Storage Utils', () => {
     it('should handle removal of items', () => {
       const key = 'toRemove';
       localStorage.setItem(key, 'value');
-      
+
       expect(localStorage.getItem(key)).toBe('value');
-      
+
       localStorage.removeItem(key);
       expect(localStorage.getItem(key)).toBeNull();
     });
@@ -47,9 +47,9 @@ describe('Storage Utils', () => {
       localStorage.setItem('key1', 'value1');
       localStorage.setItem('key2', 'value2');
       localStorage.setItem('key3', 'value3');
-      
+
       expect(localStorage.length).toBe(3);
-      
+
       localStorage.clear();
       expect(localStorage.length).toBe(0);
     });
@@ -59,10 +59,10 @@ describe('Storage Utils', () => {
     it('should handle arrays', () => {
       const key = 'testArray';
       const value = [1, 2, 3, 4, 5];
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || '[]');
-      
+
       expect(retrieved).toEqual(value);
     });
 
@@ -77,40 +77,40 @@ describe('Storage Utils', () => {
           },
         },
       };
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || '{}');
-      
+
       expect(retrieved).toEqual(value);
     });
 
     it('should handle boolean values', () => {
       const key = 'boolValue';
       const value = true;
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || 'false');
-      
+
       expect(retrieved).toBe(value);
     });
 
     it('should handle number values', () => {
       const key = 'numberValue';
       const value = 42.5;
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || '0');
-      
+
       expect(retrieved).toBe(value);
     });
 
     it('should handle null values', () => {
       const key = 'nullValue';
       const value = null;
-      
+
       localStorage.setItem(key, JSON.stringify(value));
       const retrieved = JSON.parse(localStorage.getItem(key) || 'null');
-      
+
       expect(retrieved).toBe(value);
     });
   });
@@ -128,7 +128,7 @@ describe('Storage Utils', () => {
     it('should handle empty strings', () => {
       const key = 'emptyString';
       localStorage.setItem(key, '');
-      
+
       const retrieved = localStorage.getItem(key);
       expect(retrieved).toBe('');
     });
@@ -138,10 +138,10 @@ describe('Storage Utils', () => {
     it('should handle reasonably sized data', () => {
       const key = 'largeData';
       const value = 'x'.repeat(1000); // 1KB
-      
+
       localStorage.setItem(key, value);
       const retrieved = localStorage.getItem(key);
-      
+
       expect(retrieved).toBe(value);
       expect(retrieved?.length).toBe(1000);
     });
@@ -155,8 +155,8 @@ describe('Storage Utils', () => {
         'key.with.dots',
         'key:with:colons',
       ];
-      
-      specialKeys.forEach(key => {
+
+      specialKeys.forEach((key) => {
         localStorage.setItem(key, 'value');
         expect(localStorage.getItem(key)).toBe('value');
       });
@@ -173,11 +173,11 @@ describe('Storage Utils', () => {
       localStorage.setItem('persist1', 'value1');
       localStorage.setItem('persist2', 'value2');
       localStorage.setItem('persist3', 'value3');
-      
+
       expect(localStorage.getItem('persist1')).toBe('value1');
-      
+
       localStorage.setItem('persist4', 'value4');
-      
+
       expect(localStorage.getItem('persist1')).toBe('value1');
       expect(localStorage.getItem('persist2')).toBe('value2');
       expect(localStorage.getItem('persist3')).toBe('value3');
@@ -188,10 +188,10 @@ describe('Storage Utils', () => {
   describe('SessionStorage vs LocalStorage', () => {
     it('should be independent storage spaces', () => {
       const key = 'sameKey';
-      
+
       localStorage.setItem(key, 'local');
       sessionStorage.setItem(key, 'session');
-      
+
       expect(localStorage.getItem(key)).toBe('local');
       expect(sessionStorage.getItem(key)).toBe('session');
     });
@@ -199,7 +199,7 @@ describe('Storage Utils', () => {
     it('should not share data between storages', () => {
       localStorage.setItem('localOnly', 'value');
       sessionStorage.setItem('sessionOnly', 'value');
-      
+
       expect(sessionStorage.getItem('localOnly')).toBeNull();
       expect(localStorage.getItem('sessionOnly')).toBeNull();
     });
@@ -209,7 +209,7 @@ describe('Storage Utils', () => {
     it('should handle unicode characters', () => {
       const key = 'unicode';
       const value = '你好世界 🚀 مرحبا';
-      
+
       localStorage.setItem(key, value);
       expect(localStorage.getItem(key)).toBe(value);
     });
@@ -217,7 +217,7 @@ describe('Storage Utils', () => {
     it('should handle emoji', () => {
       const key = 'emoji';
       const value = '😀😃😄😁🎉🎊';
-      
+
       localStorage.setItem(key, value);
       expect(localStorage.getItem(key)).toBe(value);
     });

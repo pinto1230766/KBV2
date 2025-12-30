@@ -146,10 +146,13 @@ export const Planning: React.FC = () => {
         filters: {
           status: statusFilter !== 'all' ? [statusFilter] : undefined,
           congregations: undefined, // Could add congregation filter later
-          dateRange: dateRange.start && dateRange.end ? {
-            start: dateRange.start,
-            end: dateRange.end,
-          } : undefined,
+          dateRange:
+            dateRange.start && dateRange.end
+              ? {
+                  start: dateRange.start,
+                  end: dateRange.end,
+                }
+              : undefined,
         },
         filename: `planning_visites_${new Date().toISOString().slice(0, 10)}`,
       });

@@ -52,7 +52,7 @@ describe('Number Formatters', () => {
 
   describe('formatCurrency', () => {
     it('should format positive amount', () => {
-      const result = formatCurrency(100.50);
+      const result = formatCurrency(100.5);
       expect(result).toContain('100');
       expect(result).toContain('€');
     });

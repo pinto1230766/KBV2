@@ -76,8 +76,8 @@ describe('Auth Utils', () => {
   describe('User Roles and Permissions', () => {
     it('should validate user roles', () => {
       const validRoles = ['admin', 'user', 'moderator'];
-      
-      validRoles.forEach(role => {
+
+      validRoles.forEach((role) => {
         const user = {
           id: '123',
           email: 'test@test.com',
@@ -100,7 +100,7 @@ describe('Auth Utils', () => {
 
     it('should handle permissions array', () => {
       const permissions = ['read:messages', 'write:messages', 'delete:messages'];
-      
+
       expect(Array.isArray(permissions)).toBe(true);
       expect(permissions.length).toBe(3);
     });
@@ -150,7 +150,7 @@ describe('Auth Utils', () => {
     it('should have warning before timeout', () => {
       const warningBuffer = SECURITY_CONFIG.IDLE_TIMEOUT - SECURITY_CONFIG.IDLE_WARNING;
       const threeMinutes = 3 * 60 * 1000;
-      
+
       expect(warningBuffer).toBeGreaterThan(0);
       expect(warningBuffer).toBeLessThanOrEqual(threeMinutes);
     });

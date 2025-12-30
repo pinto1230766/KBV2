@@ -6,7 +6,7 @@ describe('Zod Schemas', () => {
     it('should validate valid expense', () => {
       const validExpense = {
         description: 'Test expense',
-        amount: 100.50,
+        amount: 100.5,
         category: 'Food',
         date: '2025-01-15',
       };
@@ -164,13 +164,9 @@ describe('Zod Schemas', () => {
     });
 
     it('should accept valid phone formats', () => {
-      const validPhones = [
-        '+33612345678',
-        '0612345678',
-        '+1234567890',
-      ];
+      const validPhones = ['+33612345678', '0612345678', '+1234567890'];
 
-      validPhones.forEach(phone => {
+      validPhones.forEach((phone) => {
         const speaker = {
           firstName: 'John',
           lastName: 'Doe',

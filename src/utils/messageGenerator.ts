@@ -132,7 +132,7 @@ export function generateHostRequestMessage(
 
   // Utiliser le modèle personnalisé si fourni, sinon le modèle approprié
   let template: string;
-  
+
   if (customTemplate) {
     template = customTemplate;
   } else if (isIndividualRequest && individualTemplates) {
@@ -147,10 +147,10 @@ export function generateHostRequestMessage(
 
   // Générer la liste des visites ou traiter une seule visite pour une demande individuelle
   let message = template;
-  
+
   if (isIndividualRequest && visits.length > 0) {
     const visit = visits[0]; // Pour une demande individuelle, on prend la première visite
-    
+
     // Remplacer les variables spécifiques à la visite
     message = message
       .replace(/{speakerName}/g, visit.nom)
@@ -160,15 +160,15 @@ export function generateHostRequestMessage(
       .replace(/{visitTime}/g, visit.visitTime)
       .replace(/{location}/g, congregationProfile.name)
       .replace(/{talkTitle}/g, visit.talkTheme || 'une intervention')
-      .replace(/{hostName}/g, hostName || '[NOM DE L\'HÔTE]');
+      .replace(/{hostName}/g, hostName || "[NOM DE L'HÔTE]");
   } else {
     // Générer la liste des visites pour une demande groupée
     const visitsList = visits
-      .map(visit => {
+      .map((visit) => {
         return `• ${formatFullDate(visit.visitDate)} à ${visit.visitTime} - ${visit.nom} (${visit.congregation})`;
       })
       .join('\n\n');
-      
+
     message = message.replace(/{visitsList}/g, visitsList);
   }
 

@@ -57,11 +57,7 @@ describe('cn utility', () => {
     it('should handle multiple conditional classes', () => {
       const isActive = true;
       const isDisabled = false;
-      const result = cn(
-        'base',
-        isActive && 'active',
-        isDisabled && 'disabled'
-      );
+      const result = cn('base', isActive && 'active', isDisabled && 'disabled');
       expect(result).toContain('base');
       expect(result).toContain('active');
       expect(result).not.toContain('disabled');
@@ -101,11 +97,7 @@ describe('cn utility', () => {
     it('should handle nested conditionals', () => {
       const isPrimary = true;
       const isLarge = false;
-      const result = cn(
-        'btn',
-        isPrimary && 'btn-primary',
-        isLarge && 'btn-lg'
-      );
+      const result = cn('btn', isPrimary && 'btn-primary', isLarge && 'btn-lg');
       expect(result).toContain('btn');
       expect(result).toContain('btn-primary');
       expect(result).not.toContain('btn-lg');
@@ -113,9 +105,9 @@ describe('cn utility', () => {
 
     it('should handle object syntax', () => {
       const result = cn({
-        'class1': true,
-        'class2': false,
-        'class3': true,
+        class1: true,
+        class2: false,
+        class3: true,
       });
       expect(result).toContain('class1');
       expect(result).not.toContain('class2');
@@ -179,7 +171,7 @@ describe('cn utility', () => {
     it('should handle many classes efficiently', () => {
       const classes = Array.from({ length: 100 }, (_, i) => `class${i}`);
       const result = cn(...classes);
-      
+
       expect(result).toBeDefined();
       expect(typeof result).toBe('string');
     });

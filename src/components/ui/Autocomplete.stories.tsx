@@ -33,12 +33,12 @@ export const Default: Story = {
   render: () => {
     const [value, setValue] = useState('');
     return (
-      <div className="w-80">
+      <div className='w-80'>
         <Autocomplete
           options={sampleOptions}
           value={value}
           onChange={setValue}
-          placeholder="Sélectionnez une option"
+          placeholder='Sélectionnez une option'
         />
       </div>
     );
@@ -49,13 +49,13 @@ export const WithLabel: Story = {
   render: () => {
     const [value, setValue] = useState('');
     return (
-      <div className="w-80">
+      <div className='w-80'>
         <Autocomplete
           options={sampleSpeakers}
           value={value}
           onChange={setValue}
-          placeholder="Rechercher un orateur"
-          label="Orateur"
+          placeholder='Rechercher un orateur'
+          label='Orateur'
         />
       </div>
     );
@@ -66,14 +66,14 @@ export const Required: Story = {
   render: () => {
     const [value, setValue] = useState('');
     return (
-      <div className="w-80">
+      <div className='w-80'>
         <Autocomplete
           options={sampleOptions}
           value={value}
           onChange={setValue}
-          placeholder="Champ requis"
+          placeholder='Champ requis'
           required
-          label="Selection obligatoire"
+          label='Selection obligatoire'
         />
       </div>
     );
@@ -83,13 +83,13 @@ export const Required: Story = {
 export const Disabled: Story = {
   render: () => {
     return (
-      <div className="w-80">
+      <div className='w-80'>
         <Autocomplete
           options={sampleOptions}
-          value="1"
+          value='1'
           onChange={() => {}}
           disabled
-          label="Champ désactivé"
+          label='Champ désactivé'
         />
       </div>
     );
