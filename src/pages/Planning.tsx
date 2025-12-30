@@ -1,4 +1,4 @@
-import React, { useState, useMemo, memo, useCallback, useRef } from 'react';
+import React, { useState, useMemo, memo, useCallback, useRef, useEffect } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
@@ -31,7 +31,7 @@ import { LocationType, VisitStatus, Visit } from '@/types';
 import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
 import { PlanningTimelineView } from '@/components/planning/PlanningTimelineView';
 import { FinancialDashboard } from '@/components/expenses/FinancialDashboard';
-import { useReactToPrint } from 'react-to-print';
+
 import { PlanningFilterModal } from '@/components/planning/PlanningFilterModal';
 import {
   ConflictDetectionModal,
@@ -39,6 +39,8 @@ import {
   EmergencyReplacementModal,
 } from '@/components/modals';
 import { cn } from '@/utils/cn';
+import { exportService } from '@/utils/ExportService';
+import { useToast } from '@/contexts/ToastContext';
 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
@@ -91,7 +93,9 @@ const StatCard = memo(
 );
 
 export const Planning: React.FC = () => {
-  const { visits, archivedVisits } = useData();
+  const allData = useData();
+  const { visits, archivedVisits, speakers: _speakers, hosts: _hosts } = allData;
+  const { addToast } = useToast();
   const [view, setView] = useState<ViewType>('cards');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<VisitStatus | 'all'>('all');
@@ -113,40 +117,48 @@ export const Planning: React.FC = () => {
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
 
   const componentRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: `Planning-visites-${new Date().toLocaleDateString()}`,
-  });
 
-  const handleExport = () => {
+  // Set data for export service
+  useEffect(() => {
+    exportService.setData(allData);
+  }, [allData]);
+
+  const handleExport = async () => {
     if (view === 'archives') {
-      const headers = ['Date', 'Heure', 'Orateur', 'Congrégation', 'Discours', 'Thème', 'Hôte'];
-      const csvContent = [
-        headers.join(','),
-        ...archivedVisits.map((visit) =>
-          [
-            visit.visitDate,
-            visit.visitTime,
-            `"${visit.nom}"`,
-            `"${visit.congregation}"`,
-            visit.talkNoOrType || '',
-            `"${visit.talkTheme || ''}"`,
-            `"${visit.host || ''}"`,
-          ].join(',')
-        ),
-      ].join('\n');
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `visites_archivees_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const result = await exportService.export({
+        type: 'archives',
+        format: 'csv',
+        filename: `visites_archivees_${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (result.success) {
+        exportService.download(result);
+        addToast('Export des archives terminé', 'success');
+      } else {
+        addToast(`Erreur lors de l'export: ${result.error}`, 'error');
+      }
     } else if (view === 'finance') {
       // Handled internally by component
     } else {
-      handlePrint();
+      // Export filtered visits
+      const result = await exportService.export({
+        type: 'visits',
+        format: 'csv',
+        filters: {
+          status: statusFilter !== 'all' ? [statusFilter] : undefined,
+          congregations: undefined, // Could add congregation filter later
+          dateRange: dateRange.start && dateRange.end ? {
+            start: dateRange.start,
+            end: dateRange.end,
+          } : undefined,
+        },
+        filename: `planning_visites_${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (result.success) {
+        exportService.download(result);
+        addToast('Export du planning terminé', 'success');
+      } else {
+        addToast(`Erreur lors de l'export: ${result.error}`, 'error');
+      }
     }
   };
 

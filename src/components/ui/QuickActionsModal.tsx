@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Zap,
   Calendar,
@@ -10,7 +10,6 @@ import {
   X,
   Search,
   Download,
-  TrendingUp,
   Cloud,
   ArrowRight,
   Clock,
@@ -21,6 +20,10 @@ import { Button } from '@/components/ui/Button';
 
 import { Card, CardBody } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
+import { GlobalSearch } from './GlobalSearch';
+import { exportService } from '@/utils/ExportService';
+import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface QuickActionsModalProps {
   isOpen: boolean;
@@ -39,8 +42,7 @@ export type QuickAction =
   | 'import-data'
   | 'sync-sheets'
   | 'export-all-data'
-  | 'search-entities'
-  | 'show-statistics';
+  | 'search-entities';
 
 interface ActionItem {
   id: QuickAction;
@@ -152,15 +154,6 @@ const QUICK_ACTIONS: ActionItem[] = [
     bg: 'bg-indigo-100 dark:bg-indigo-900/40',
     category: 'planning',
   },
-  {
-    id: 'show-statistics',
-    label: 'Voir Statistiques',
-    description: 'Graphiques et insights détaillés',
-    icon: TrendingUp,
-    color: 'text-purple-600',
-    bg: 'bg-purple-100 dark:bg-purple-900/40',
-    category: 'data',
-  },
 ];
 
 const CATEGORIES = [
@@ -176,13 +169,22 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
   onClose,
   onAction,
 }) => {
+  const allData = useData();
+  const { addToast } = useToast();
+
   const [selectedCategory, setSelectedCategory] = useState<ActionItem['category'] | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [recentActions, setRecentActions] = useState<QuickAction[]>([
     'schedule-visit',
-    'show-statistics',
     'sync-sheets',
+    'search-entities',
   ]);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+
+  // Set data for export service
+  useEffect(() => {
+    exportService.setData(allData);
+  }, [allData]);
 
   const filteredActions = useMemo(() => {
     return QUICK_ACTIONS.filter((action) => {
@@ -194,11 +196,51 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
     });
   }, [selectedCategory, searchTerm]);
 
-  const handleAction = (actionId: QuickAction) => {
+  const handleAction = async (actionId: QuickAction) => {
     setRecentActions((prev) => {
       const filtered = prev.filter((id) => id !== actionId);
-      return [actionId, ...filtered].slice(0, 4);
+      return [actionId, ...filtered].slice(0, 3);
     });
+
+    // Handle new unified actions
+    if (actionId === 'search-entities') {
+      setIsGlobalSearchOpen(true);
+      return;
+    }
+
+    if (actionId === 'export-all-data') {
+      const result = await exportService.export({
+        type: 'all',
+        format: 'json',
+        filename: `sauvegarde_complete_${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (result.success) {
+        exportService.download(result);
+        addToast('Sauvegarde complète exportée', 'success');
+      } else {
+        addToast(`Erreur lors de l'export: ${result.error}`, 'error');
+      }
+      onClose();
+      return;
+    }
+
+    if (actionId === 'generate-report') {
+      const result = await exportService.export({
+        type: 'report',
+        format: 'csv',
+        filename: `rapport_${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (result.success) {
+        exportService.download(result);
+        addToast('Rapport généré', 'success');
+      } else {
+        addToast(`Erreur lors de la génération: ${result.error}`, 'error');
+      }
+      onClose();
+      return;
+    }
+
+    // For other actions, delegate to parent
     onAction(actionId);
     onClose();
   };
@@ -282,7 +324,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
                 <Clock className='w-3 h-3' />
                 Récemment utilisées
               </h4>
-              <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+              <div className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
                 {recentActions.map((id) => {
                   const action = QUICK_ACTIONS.find((a) => a.id === id);
                   if (!action) return null;
@@ -375,6 +417,12 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
           </Button>
         </div>
       </div>
+
+      {/* Global Search Modal */}
+      <GlobalSearch
+        isOpen={isGlobalSearchOpen}
+        onClose={() => setIsGlobalSearchOpen(false)}
+      />
     </Modal>
   );
 };

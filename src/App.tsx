@@ -1,17 +1,18 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DataProvider } from '@/contexts/DataContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { PlatformProvider, usePlatformContext } from '@/contexts/PlatformContext';
-import { AccessibilityProvider } from '@/components/ui/Accessibility';
+import { AccessibilityProvider, useKeyboardShortcuts } from '@/components/ui/Accessibility';
 import { IOSMainLayout } from '@/components/layout/IOSMainLayout';
 import { TabletLayout } from '@/components/layout/TabletLayout';
 import { PhoneLayout } from '@/components/layout/PhoneLayout';
 import { Spinner } from '@/components/ui/Spinner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/utils/cacheManager';
+import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import '@/styles/print.css';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -45,6 +46,12 @@ function AppContent() {
   const { deviceType, isPhoneS25Ultra } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isPhone = deviceType === 'phone';
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+
+  // Configuration des raccourcis clavier
+  useKeyboardShortcuts({
+    'ctrl+k': () => setIsGlobalSearchOpen(true),
+  });
 
   // Choix du layout en fonction du type d'appareil
   let LayoutComponent;
@@ -109,6 +116,12 @@ function AppContent() {
                       <Route path='*' element={<Navigate to='/' replace />} />
                     </Route>
                   </Routes>
+                  
+                  {/* Global Search Modal - Accessible depuis Ctrl+K */}
+                  <GlobalSearch
+                    isOpen={isGlobalSearchOpen}
+                    onClose={() => setIsGlobalSearchOpen(false)}
+                  />
                 </Suspense>
             </ConfirmProvider>
           </DataProvider>

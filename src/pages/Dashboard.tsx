@@ -15,6 +15,7 @@ import {
   Search,
   Sparkles,
   LayoutGrid,
+  HelpCircle,
 } from 'lucide-react';
 import {
   XAxis,
@@ -36,6 +37,7 @@ import { cn } from '@/utils/cn';
 
 import { Visit } from '@/types';
 import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
+import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
 
@@ -87,6 +89,7 @@ export const Dashboard: React.FC = () => {
   const { addToast } = useToast();
 
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
@@ -212,7 +215,8 @@ export const Dashboard: React.FC = () => {
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-in fade-in slide-in-from-top-4 duration-500'>
         {[
           {
-            label: 'Visites ce mois',
+            label: 'Visites du mois',
+            desc: 'Toutes les visites programmées en cours',
             value: stats.visitsThisMonth,
             icon: Calendar,
             color: 'text-blue-500',
@@ -220,49 +224,61 @@ export const Dashboard: React.FC = () => {
           },
           {
             label: 'Orateurs actifs',
+            desc: 'Orateurs enregistrés dans la base de données',
             value: stats.speakers,
             icon: Users,
             color: 'text-indigo-500',
             bg: 'bg-indigo-50 dark:bg-indigo-900/20',
           },
           {
-            label: 'Validation Req.',
+            label: 'Validations en attente',
+            desc: 'Visites nécessitant une confirmation',
             value: stats.pending,
             icon: AlertCircle,
             color: 'text-orange-500',
             bg: 'bg-orange-50 dark:bg-orange-900/20',
           },
           {
-            label: 'Hôtes dispos',
+            label: 'Contacts d\'accueil',
+            desc: 'Hôtes disponibles pour recevoir les orateurs',
             value: stats.hosts,
             icon: ShieldCheck,
             color: 'text-green-500',
             bg: 'bg-green-50 dark:bg-green-900/20',
           },
         ].map((stat, i) => (
-          <Card
+          <div
             key={i}
-            className='border-none shadow-sm group hover:translate-y-[-4px] transition-all duration-300'
+            className='relative group'
+            title={`${stat.label}: ${stat.desc}${i === 2 ? ' (Cliquez pour plus de détails)' : i === 0 ? ' (Mise à jour temps réel)' : ''}`}
           >
-            <CardBody className='p-6 flex items-center justify-between'>
-              <div>
-                <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1'>
-                  {stat.label}
-                </p>
-                <p className='text-3xl font-black text-gray-900 dark:text-white tracking-tighter'>
-                  {stat.value}
-                </p>
+            {/* Tooltip hint pour Power Users */}
+            {i === 2 && (
+              <div className='absolute -top-2 -right-2 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center z-10'>
+                <span className='text-[8px] text-white font-bold'>i</span>
               </div>
-              <div
-                className={cn(
-                  'p-4 rounded-2xl transition-transform group-hover:scale-110 shadow-sm',
-                  stat.bg
-                )}
-              >
-                <stat.icon className={cn('w-6 h-6', stat.color)} />
-              </div>
-            </CardBody>
-          </Card>
+            )}
+            <Card className='border-none shadow-sm group-hover:translate-y-[-4px] transition-all duration-300 h-full'>
+              <CardBody className='p-6 flex items-center justify-between'>
+                <div>
+                  <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1'>
+                    {stat.label}
+                  </p>
+                  <p className='text-3xl font-black text-gray-900 dark:text-white tracking-tighter'>
+                    {stat.value}
+                  </p>
+                </div>
+                <div
+                  className={cn(
+                    'p-4 rounded-2xl transition-transform group-hover:scale-110 shadow-sm',
+                    stat.bg
+                  )}
+                >
+                  <stat.icon className={cn('w-6 h-6', stat.color)} />
+                </div>
+              </CardBody>
+            </Card>
+          </div>
         ))}
       </div>
 
@@ -274,10 +290,10 @@ export const Dashboard: React.FC = () => {
             <div className='p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
                 <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
-                  Analyse de l'activité
+                  Tableau de bord d'activité
                 </h3>
                 <p className='text-xs text-gray-500 font-medium'>
-                  Fréquence des visites sur les 6 derniers mois
+                  Évolution mensuelle des visites programmées
                 </p>
               </div>
               <div className='flex gap-2'>
@@ -338,15 +354,45 @@ export const Dashboard: React.FC = () => {
 
               <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8'>
                 {[
-                  { label: 'Moyenne/mois', value: '14.2', icon: Clock },
-                  { label: 'Pic observé', value: '18', icon: TrendingUp },
-                  { label: 'Taux Conf.', value: '94%', icon: Sparkles },
-                  { label: 'Récupération', value: 'Auto', icon: ShieldCheck },
+                  { 
+                    label: 'Moyenne mensuelle', 
+                    value: '14.2', 
+                    icon: Clock,
+                    hint: 'Nombre moyen de visites par mois',
+                    advanced: 'Calculé sur 12 mois glissants'
+                  },
+                  { 
+                    label: 'Pic d\'activité', 
+                    value: '18', 
+                    icon: TrendingUp,
+                    hint: 'Maximum de visites en un mois',
+                    advanced: 'Record historique enregistré'
+                  },
+                  { 
+                    label: 'Taux confirmation', 
+                    value: '94%', 
+                    icon: Sparkles,
+                    hint: 'Visites confirmées vs programmées',
+                    advanced: 'Indicateur de fiabilité du planning'
+                  },
+                  { 
+                    label: 'Sauvegarde auto', 
+                    value: 'Active', 
+                    icon: ShieldCheck,
+                    hint: 'Sauvegarde automatique des données',
+                    advanced: 'Backup toutes les 6 heures'
+                  },
                 ].map((m, i) => (
-                  <div
+                  <div 
                     key={i}
-                    className='p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-800'
+                    className='p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors relative group'
+                    title={`${m.label}: ${m.hint}${i > 1 ? ` (🔧 ${m.advanced})` : ''}`}
                   >
+                    {i > 1 && (
+                      <div className='absolute -top-1 -right-1 w-3 h-3 bg-primary-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity'>
+                        <HelpCircle className='w-2 h-2 text-white m-0.5' />
+                      </div>
+                    )}
                     <m.icon className='w-4 h-4 text-primary-500 mb-2' />
                     <p className='text-[10px] font-bold text-gray-400 uppercase tracking-tight'>
                       {m.label}
@@ -362,22 +408,22 @@ export const Dashboard: React.FC = () => {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
             {[
               {
-                title: 'Messagerie',
-                desc: 'Envoyer des rappels',
+                title: 'Centre de messagerie',
+                desc: 'Envoyer rappels et notifications aux orateurs',
                 icon: MessageSquare,
                 path: '/messages',
                 color: 'bg-blue-600',
               },
               {
-                title: 'Orateurs',
-                desc: 'Gérer les contacts',
+                title: 'Gestion des orateurs',
+                desc: 'Ajouter, modifier et organiser la base orateurs',
                 icon: Users,
                 path: '/speakers',
                 color: 'bg-green-600',
               },
               {
-                title: 'Rapports',
-                desc: 'Extractions PDF/Excel',
+                title: 'Générateur de rapports',
+                desc: 'Créer des extractions PDF, Excel et analyses',
                 icon: FileText,
                 action: () => setIsReportModalOpen(true),
                 color: 'bg-orange-600',
@@ -412,10 +458,10 @@ export const Dashboard: React.FC = () => {
             <div className='p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
                 <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
-                  Pulse Prochain
+                  Planning à venir
                 </h3>
                 <p className='text-xs text-gray-500 font-medium'>
-                  Les prochaines visites à surveiller
+                  Visites programmées nécessitant un suivi
                 </p>
               </div>
               <Button
@@ -456,14 +502,14 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className='relative z-10'>
               <h4 className='text-lg font-black uppercase tracking-tighter mb-4'>
-                Recherche instantanée
+                Recherche globale
               </h4>
               <div className='relative mb-6'>
                 <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-300' />
                 <input
                   className='w-full pl-10 pr-4 py-3 bg-white/10 dark:bg-black/20 border border-white/10 rounded-2xl text-xs backdrop-blur-md focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-primary-300/50'
                   placeholder='Trouver un orateur, une date...'
-                  onClick={() => navigate('/planning')}
+                  onClick={() => setIsGlobalSearchOpen(true)}
                   readOnly
                 />
               </div>
@@ -536,6 +582,11 @@ export const Dashboard: React.FC = () => {
           // Handle generation (this could be moved to a central utility later)
           addToast(`Génération du rapport ${config.format.toUpperCase()} lancée...`, 'info');
         }}
+      />
+
+      <GlobalSearch
+        isOpen={isGlobalSearchOpen}
+        onClose={() => setIsGlobalSearchOpen(false)}
       />
     </div>
   );
