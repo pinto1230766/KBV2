@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Host } from '@/types';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Edit, Trash2, Phone, Mail, MapPin, Search, Info } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, MapPin, Info } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 
@@ -13,29 +12,11 @@ interface HostListProps {
 }
 
 export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filteredHosts = hosts.filter(
-    (host) =>
-      host.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (host.address && host.address.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
 
   return (
     <div className='space-y-6'>
-      <div className='flex gap-4'>
-        <div className='flex-1'>
-          <Input
-            placeholder='Rechercher un contact...'
-            leftIcon={<Search className='w-4 h-4' />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
-
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        {filteredHosts.map((host) => (
+        {hosts.map((host) => (
           <Card key={host.nom} hoverable>
             <CardBody className='p-4'>
               <div className='flex justify-between items-start mb-4'>
@@ -106,7 +87,7 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
         ))}
       </div>
 
-      {filteredHosts.length === 0 && (
+      {hosts.length === 0 && (
         <div className='text-center py-12 text-gray-500 dark:text-gray-400'>
           Aucun contact trouvé
         </div>

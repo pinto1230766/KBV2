@@ -40,6 +40,7 @@ import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
+import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
 
 // Enhanced Visit Item for Dashboard 2.0
 const DashboardVisitItem = memo(({ visit, onClick }: { visit: Visit; onClick?: () => void }) => {
@@ -91,6 +92,7 @@ export const Dashboard: React.FC = () => {
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -195,7 +197,7 @@ export const Dashboard: React.FC = () => {
               <Button
                 className='h-12 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-lg'
                 leftIcon={<CalendarPlus className='w-4 h-4' />}
-                onClick={() => setIsVisitActionModalOpen(true)}
+                onClick={() => setIsScheduleModalOpen(true)}
               >
                 Nouvelle Visite
               </Button>
@@ -587,6 +589,11 @@ export const Dashboard: React.FC = () => {
       <GlobalSearch
         isOpen={isGlobalSearchOpen}
         onClose={() => setIsGlobalSearchOpen(false)}
+      />
+
+      <ScheduleVisitModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
       />
     </div>
   );

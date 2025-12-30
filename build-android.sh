@@ -1,34 +1,71 @@
 #!/bin/bash
 
-# Script de Build Android Automatique - KBV2
-# Synchronise les versions et construit l'application Android
+# Script de compilation Android pour KBVFP
+# Vérification de l'environnement
 
-echo "🚀 Début du processus de build Android automatisé..."
+echo "🔧 Vérification de l'environnement Android..."
 
-# Étape 1: Synchroniser les versions
-echo "📋 Étape 1: Synchronisation des versions..."
-node sync-versions.js
+# Vérifier si Node.js est installé
+if ! command -v node &> /dev/null; then
+    echo "❌ Node.js n'est pas installé. Veuillez l'installer d'abord."
+    exit 1
+fi
 
-# Étape 2: Installer les dépendances
-echo "📦 Étape 2: Installation des dépendances..."
-npm install
+# Vérifier si npm est installé
+if ! command -v npm &> /dev/null; then
+    echo "❌ npm n'est pas installé. Veuillez l'installer d'abord."
+    exit 1
+fi
 
-# Étape 3: Build de l'application web
-echo "🌐 Étape 3: Build de l'application web..."
+# Vérifier si Java est installé
+if ! command -v java &> /dev/null; then
+    echo "❌ Java n'est pas installé. Veuillez l'installer d'abord."
+    exit 1
+fi
+
+# Vérifier si ANDROID_HOME est défini
+if [ -z "$ANDROID_HOME" ]; then
+    echo "❌ ANDROID_HOME n'est pas défini. Veuillez configurer les variables d'environnement Android."
+    exit 1
+fi
+
+# Vérifier si JAVA_HOME est défini
+if [ -z "$JAVA_HOME" ]; then
+    echo "❌ JAVA_HOME n'est pas défini. Veuillez configurer Java."
+    exit 1
+fi
+
+echo "✅ Environnement vérifié avec succès"
+echo "📦 Node.js version: $(node --version)"
+echo "📦 npm version: $(npm --version)"
+echo "📦 Java version: $(java -version 2>&1 | head -n 1)"
+echo "📦 ANDROID_HOME: $ANDROID_HOME"
+echo "📦 JAVA_HOME: $JAVA_HOME"
+
+# Installation des dépendances npm si nécessaire
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installation des dépendances npm..."
+    npm install
+fi
+
+# Nettoyage et reconstruction du projet
+echo "🧹 Nettoyage du projet..."
+rm -rf dist/
+rm -rf build/
+
+# Construction du projet web
+echo "🌐 Construction du projet web..."
 npm run build
 
-# Étape 4: Synchroniser avec Android
-echo "📱 Étape 4: Synchronisation Android..."
+# Synchronisation avec le projet Android
+echo "📱 Synchronisation avec le projet Android..."
 npx cap sync android
 
-# Étape 5: Build Android
-echo "🤖 Étape 5: Build Android..."
+# Construction du projet Android
+echo "🏗️ Construction du projet Android..."
 cd android
-./gradlew assembleRelease
+chmod +x gradlew
+./gradlew clean build
 
-echo ""
-echo "✅ Build terminé avec succès !"
-echo "📍 APK disponible dans: android/app/build/outputs/apk/release/"
-echo ""
-echo "📱 Pour installer sur votre tablette:"
-echo "adb install -r android/app/build/outputs/apk/release/app-release.apk"
+echo "✅ Compilation terminée avec succès!"
+echo "📱 Le fichier APK se trouve dans: android/app/build/outputs/apk/debug/app-debug.apk"
