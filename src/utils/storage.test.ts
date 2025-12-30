@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('Storage Utils', () => {
   beforeEach(() => {
@@ -119,13 +119,9 @@ describe('Storage Utils', () => {
     it('should handle JSON parse errors gracefully', () => {
       const key = 'invalidJSON';
       localStorage.setItem(key, '{invalid json}');
-      
+
       expect(() => {
-        try {
-          JSON.parse(localStorage.getItem(key) || '{}');
-        } catch (e) {
-          throw e;
-        }
+        JSON.parse(localStorage.getItem(key) || '{}');
       }).toThrow();
     });
 

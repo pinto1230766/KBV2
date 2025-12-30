@@ -51,20 +51,7 @@ export const HotkeysHelpModal: React.FC<HotkeysHelpModalProps> = ({
     return acc;
   }, {} as Record<string, HotkeyAction[]>);
 
-  // Formater la touche pour l'affichage
-  const formatKey = (key: string) => {
-    return key
-      .split('+')
-      .map(k => {
-        const formatted = k.charAt(0).toUpperCase() + k.slice(1);
-        return formatted
-          .replace('Ctrl', 'Ctrl')
-          .replace('Shift', 'Shift')
-          .replace('Alt', 'Alt')
-          .replace('Escape', 'Esc');
-      })
-      .join(' + ');
-  };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
