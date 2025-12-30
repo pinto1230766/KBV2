@@ -4,9 +4,11 @@ const config: CapacitorConfig = {
   appId: 'com.kbvfp.app',
   appName: 'KBVFP',
   webDir: 'dist',
+  bundledWebRuntime: false,
   server: {
     androidScheme: 'https',
   },
+
   plugins: {
     LocalNotifications: {
       smallIcon: 'ic_stat_icon_config_sample',
