@@ -15,8 +15,8 @@ describe('Crypto Utils', () => {
       const encrypted = await encrypt(testData, password);
 
       expect(encrypted).toBeDefined();
-      expect(encrypted).not.toBe(testData);
-      expect(encrypted.length).toBeGreaterThan(0);
+      expect(encrypted.data).not.toBe(testData);
+      expect(encrypted.data.length).toBeGreaterThan(0);
 
       const decrypted = await decrypt(encrypted, password);
       expect(decrypted).toBe(testData);
@@ -57,7 +57,7 @@ describe('Crypto Utils', () => {
       const encrypted2 = await encrypt(testData, password);
 
       // Different due to random IV
-      expect(encrypted1).not.toBe(encrypted2);
+      expect(encrypted1.data).not.toBe(encrypted2.data);
 
       // But both decrypt to same data
       expect(await decrypt(encrypted1, password)).toBe(testData);
@@ -73,12 +73,12 @@ describe('Crypto Utils', () => {
     });
 
     it('should fail with invalid encrypted data', async () => {
-      await expect(decrypt('invalid-encrypted-data', password)).rejects.toThrow();
+      await expect(decrypt({ data: 'invalid', iv: 'invalid', salt: 'invalid' }, password)).rejects.toThrow();
     });
 
     it('should fail with corrupted encrypted data', async () => {
       const encrypted = await encrypt(testData, password);
-      const corrupted = encrypted.slice(0, -10) + 'corrupted';
+      const corrupted = { ...encrypted, data: encrypted.data.slice(0, -10) + 'corrupted' };
 
       await expect(decrypt(corrupted, password)).rejects.toThrow();
     });
@@ -126,8 +126,8 @@ describe('Crypto Utils', () => {
     it('encrypted data should be significantly different from original', async () => {
       const encrypted = await encrypt(testData, password);
 
-      // Check no substring of original appears in encrypted
-      expect(encrypted.toLowerCase()).not.toContain(testData.toLowerCase());
+      // Check no substring of original appears in encrypted data
+      expect(encrypted.data.toLowerCase()).not.toContain(testData.toLowerCase());
     });
 
     it('should use proper encoding (base64)', async () => {
@@ -135,7 +135,7 @@ describe('Crypto Utils', () => {
 
       // Base64 regex pattern
       const base64Pattern = /^[A-Za-z0-9+/=]+$/;
-      expect(base64Pattern.test(encrypted)).toBe(true);
+      expect(base64Pattern.test(encrypted.data)).toBe(true);
     });
 
     it('hash should be deterministic for verification', async () => {

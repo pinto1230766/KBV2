@@ -1,4 +1,5 @@
 import React, { useMemo, memo, CSSProperties } from 'react';
+// @ts-expect-error react-window types issue
 import { FixedSizeList as List } from 'react-window';
 import { cn } from '@/utils/cn';
 

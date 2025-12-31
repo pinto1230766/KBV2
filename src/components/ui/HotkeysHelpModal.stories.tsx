@@ -2,14 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { HotkeysHelpModal } from './HotkeysHelpModal';
 import { useState } from 'react';
 
-const meta = {
+const meta: Meta<typeof HotkeysHelpModal> = {
   title: 'UI/HotkeysHelpModal',
   component: HotkeysHelpModal,
   parameters: {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof HotkeysHelpModal>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

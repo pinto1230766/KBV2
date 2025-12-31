@@ -21,7 +21,7 @@ const Dashboard = React.lazy(() =>
   import('@/pages/Dashboard').then((module) => ({ default: module.Dashboard }))
 );
 const Planning = React.lazy(() =>
-  import('@/pages/Planning.tsx').then((module) => ({ default: module.Planning }))
+  import('@/pages/Planning').then((module) => ({ default: module.Planning }))
 );
 const Messages = React.lazy(() =>
   import('@/pages/Messages').then((module) => ({ default: module.Messages }))

@@ -23,9 +23,9 @@ describe('Autocomplete', () => {
       expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
     });
 
-    it('should render with label', () => {
-      render(<Autocomplete {...defaultProps} label='Select Option' />);
-      expect(screen.getByText('Select Option')).toBeInTheDocument();
+    it('should render with placeholder', () => {
+      render(<Autocomplete {...defaultProps} placeholder='Select Option' />);
+      expect(screen.getByPlaceholderText('Select Option')).toBeInTheDocument();
     });
 
     it('should show placeholder', () => {
@@ -174,17 +174,16 @@ describe('Autocomplete', () => {
       expect(input).toBeDisabled();
     });
 
-    it('should show required indicator', () => {
-      render(<Autocomplete {...defaultProps} required label='Field' />);
-      // Should show required indicator (implementation specific)
-      expect(screen.getByText('Field')).toBeInTheDocument();
+    it('should handle required prop', () => {
+      render(<Autocomplete {...defaultProps} required />);
+      const input = screen.getByPlaceholderText('Search...');
+      expect(input).toHaveAttribute('required');
     });
 
-    it('should handle loading state', () => {
-      render(<Autocomplete {...defaultProps} loading />);
-      // Should show loading indicator
+    it('should handle disabled state', () => {
+      render(<Autocomplete {...defaultProps} disabled />);
       const input = screen.getByPlaceholderText('Search...');
-      expect(input).toBeInTheDocument();
+      expect(input).toBeDisabled();
     });
   });
 

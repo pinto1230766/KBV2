@@ -2,14 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { FileUpload } from './FileUpload';
 import { useState } from 'react';
 
-const meta = {
+const meta: Meta<typeof FileUpload> = {
   title: 'UI/FileUpload',
   component: FileUpload,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof FileUpload>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -38,15 +38,11 @@ const FileUploadWithState = (args: any) => {
 
 export const Default: Story = {
   render: (args) => <FileUploadWithState {...args} />,
-  args: {
-    label: 'Upload de fichiers',
-  },
 };
 
 export const ImagesOnly: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: "Upload d'images",
     accept: 'image/*',
   },
 };
@@ -54,7 +50,6 @@ export const ImagesOnly: Story = {
 export const PDFOnly: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Upload de PDF',
     accept: '.pdf',
   },
 };
@@ -62,7 +57,6 @@ export const PDFOnly: Story = {
 export const MultipleFiles: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Fichiers multiples',
     multiple: true,
     maxFiles: 5,
   },
@@ -71,23 +65,18 @@ export const MultipleFiles: Story = {
 export const WithSizeLimit: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Taille limitée à 2 MB',
     maxSize: 2 * 1024 * 1024,
   },
 };
 
 export const Required: Story = {
   render: (args) => <FileUploadWithState {...args} />,
-  args: {
-    label: 'Upload obligatoire',
-    required: true,
-  },
+  args: {},
 };
 
 export const Disabled: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Upload désactivé',
     disabled: true,
   },
 };
@@ -95,7 +84,6 @@ export const Disabled: Story = {
 export const WithPreview: Story = {
   render: (args) => <FileUploadWithState {...args} />,
   args: {
-    label: 'Upload avec prévisualisation',
     accept: 'image/*',
     showPreview: true,
   },

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { VisitCard } from './VisitCard';
+import { Visit } from '@/types';
 
 const meta = {
   title: 'Planning/VisitCard',
@@ -13,14 +14,20 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockVisit = {
-  id: '1',
+const mockVisit: Visit = {
+  id: 'speaker-1',
+  visitId: 'visit-1',
   nom: 'John Doe',
-  date: '2025-01-20',
-  heure: '14:00',
   congregation: 'Lyon Centre',
-  statut: 'confirmed' as const,
-  type: 'discourse' as const,
+  visitDate: '2025-01-20',
+  visitTime: '14:00',
+  host: 'Marie Dupont',
+  accommodation: 'Host family',
+  meals: 'Provided',
+  status: 'confirmed' as const,
+  locationType: 'physical' as const,
+  talkNoOrType: '1',
+  talkTheme: 'Amour chrétien',
 };
 
 export const Default: Story = {
@@ -33,7 +40,7 @@ export const Confirmed: Story = {
   args: {
     visit: {
       ...mockVisit,
-      statut: 'confirmed',
+      status: 'confirmed',
     },
   },
 };
@@ -42,7 +49,7 @@ export const Pending: Story = {
   args: {
     visit: {
       ...mockVisit,
-      statut: 'pending',
+      status: 'pending',
     },
   },
 };
@@ -51,7 +58,7 @@ export const Cancelled: Story = {
   args: {
     visit: {
       ...mockVisit,
-      statut: 'cancelled',
+      status: 'cancelled',
     },
   },
 };
@@ -70,7 +77,6 @@ export const WithContactInfo: Story = {
     visit: {
       ...mockVisit,
       telephone: '+33 6 12 34 56 78',
-      email: 'john.doe@example.com',
     },
   },
 };
@@ -81,8 +87,7 @@ export const FullDetails: Story = {
       ...mockVisit,
       notes: 'Discours important',
       telephone: '+33 6 12 34 56 78',
-      email: 'john.doe@example.com',
-      theme: "L'amour de Jéhovah",
+      talkTheme: "L'amour de Jéhovah",
       congregation: 'Lyon Sud',
     },
   },

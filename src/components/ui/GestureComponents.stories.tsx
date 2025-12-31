@@ -2,14 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SwipeableRow } from './GestureComponents';
 import { Trash2, Edit, Archive } from 'lucide-react';
 
-const meta = {
+const meta: Meta<typeof SwipeableRow> = {
   title: 'UI/GestureComponents',
   component: SwipeableRow,
   parameters: {
     layout: 'padded',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof SwipeableRow>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;

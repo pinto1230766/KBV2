@@ -2,14 +2,14 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Autocomplete } from './Autocomplete';
 import { useState } from 'react';
 
-const meta = {
+const meta: Meta<typeof Autocomplete> = {
   title: 'UI/Autocomplete',
   component: Autocomplete,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof Autocomplete>;
+};
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -31,7 +31,7 @@ const sampleSpeakers = [
 
 export const Default: Story = {
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | number>('');
     return (
       <div className='w-80'>
         <Autocomplete
@@ -47,7 +47,7 @@ export const Default: Story = {
 
 export const WithLabel: Story = {
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | number>('');
     return (
       <div className='w-80'>
         <Autocomplete
@@ -55,7 +55,6 @@ export const WithLabel: Story = {
           value={value}
           onChange={setValue}
           placeholder='Rechercher un orateur'
-          label='Orateur'
         />
       </div>
     );
@@ -64,7 +63,7 @@ export const WithLabel: Story = {
 
 export const Required: Story = {
   render: () => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | number>('');
     return (
       <div className='w-80'>
         <Autocomplete
@@ -73,7 +72,6 @@ export const Required: Story = {
           onChange={setValue}
           placeholder='Champ requis'
           required
-          label='Selection obligatoire'
         />
       </div>
     );
@@ -89,7 +87,6 @@ export const Disabled: Story = {
           value='1'
           onChange={() => {}}
           disabled
-          label='Champ désactivé'
         />
       </div>
     );
