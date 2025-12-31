@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { ExpenseSchema, SpeakerSchema } from './validation';
 
 describe('Zod Schemas', () => {
@@ -258,3 +257,4 @@ describe('Zod Schemas', () => {
     });
   });
 });
+

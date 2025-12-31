@@ -2,7 +2,7 @@
  * Configuration de test Vitest pour KBV Lyon
  * Setup global pour tous les tests
  */
-import { afterEach } from 'vitest';
+/// <reference types="vitest/globals" />
 import '@testing-library/jest-dom';
 
 // Déclaration des types manquants
@@ -103,9 +103,9 @@ Object.defineProperty(window, 'crypto', {
 });
 
 // Reset des mocks après chaque test
-afterEach(() => {
-  localStorageMock.clear();
-});
+// afterEach(() => {
+//   localStorageMock.clear();
+// });
 
 // Mock global pour ResizeObserver
 class MockResizeObserver {

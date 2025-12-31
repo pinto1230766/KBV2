@@ -1,7 +1,6 @@
 /**
  * Tests unitaires pour Dashboard.tsx
  */
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Dashboard from '@/pages/Dashboard';
@@ -134,3 +133,4 @@ describe('Dashboard', () => {
     expect(screen.getByText('1')).toBeInTheDocument(); // hosts
   });
 });
+

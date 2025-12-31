@@ -1,7 +1,6 @@
 /**
  * Tests unitaires pour Planning.tsx
  */
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Planning } from '@/pages/Planning';
@@ -179,3 +178,4 @@ describe('Planning', () => {
     expect(screen.getByText(/Planning des Visites/i)).toBeInTheDocument();
   });
 });
+

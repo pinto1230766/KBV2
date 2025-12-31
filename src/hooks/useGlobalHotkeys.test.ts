@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useGlobalHotkeys } from './useGlobalHotkeys';
 import { BrowserRouter } from 'react-router-dom';
@@ -202,3 +201,4 @@ describe('useGlobalHotkeys', () => {
     });
   });
 });
+

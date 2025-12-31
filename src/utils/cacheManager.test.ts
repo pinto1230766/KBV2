@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 
 describe('CacheManager', () => {
@@ -191,3 +190,4 @@ describe('CacheManager', () => {
     });
   });
 });
+

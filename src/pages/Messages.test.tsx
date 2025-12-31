@@ -1,7 +1,6 @@
 /**
  * Tests unitaires pour Messages.tsx
  */
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Messages from '@/pages/Messages';
@@ -168,3 +167,4 @@ describe('Messages', () => {
     expect(screen.getByText(/Messagerie/i)).toBeInTheDocument();
   });
 });
+

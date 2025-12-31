@@ -1,7 +1,6 @@
 /**
  * Tests unitaires pour Card.tsx
  */
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Card, CardBody } from './Card';
 
@@ -93,3 +92,4 @@ describe('Card', () => {
     expect(container.firstChild).toHaveClass('hover:shadow-lg', 'transition-shadow');
   });
 });
+

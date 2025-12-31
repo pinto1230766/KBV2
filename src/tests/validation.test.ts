@@ -3,7 +3,6 @@
  * KBV Lyon - Vitest
  */
 
-import { describe, it, expect } from 'vitest';
 import {
   sanitizeInput,
   sanitizeFormData,
@@ -113,3 +112,4 @@ describe('Validation Utils', () => {
     });
   });
 });
+

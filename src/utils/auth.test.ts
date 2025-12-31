@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest';
 import { SECURITY_CONFIG } from './auth';
 
 describe('Auth Utils', () => {
@@ -156,3 +155,4 @@ describe('Auth Utils', () => {
     });
   });
 });
+
