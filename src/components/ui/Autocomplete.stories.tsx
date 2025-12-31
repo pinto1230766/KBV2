@@ -82,12 +82,7 @@ export const Disabled: Story = {
   render: () => {
     return (
       <div className='w-80'>
-        <Autocomplete
-          options={sampleOptions}
-          value='1'
-          onChange={() => {}}
-          disabled
-        />
+        <Autocomplete options={sampleOptions} value='1' onChange={() => {}} disabled />
       </div>
     );
   },

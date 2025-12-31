@@ -73,7 +73,9 @@ describe('Crypto Utils', () => {
     });
 
     it('should fail with invalid encrypted data', async () => {
-      await expect(decrypt({ data: 'invalid', iv: 'invalid', salt: 'invalid' }, password)).rejects.toThrow();
+      await expect(
+        decrypt({ data: 'invalid', iv: 'invalid', salt: 'invalid' }, password)
+      ).rejects.toThrow();
     });
 
     it('should fail with corrupted encrypted data', async () => {
