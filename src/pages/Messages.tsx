@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
 import { MessageThread } from '@/components/messages/MessageThread';
+import { HostMessageThread } from '@/components/messages/HostMessageThread';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { HostRequestModal } from '@/components/messages/HostRequestModal';
 import { Button } from '@/components/ui/Button';
@@ -24,10 +25,10 @@ import {
   ShieldAlert,
   Info,
 } from 'lucide-react';
-import { Speaker, Visit } from '@/types';
+import { Speaker, Visit, Host } from '@/types';
 
 export const Messages: React.FC = () => {
-  const { visits, speakers, updateVisit, refreshData } = useData();
+  const { visits, speakers, hosts, updateVisit, refreshData } = useData();
   const { deviceType } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isSamsungTablet = isTablet && window.innerWidth >= 1200;
@@ -37,11 +38,15 @@ export const Messages: React.FC = () => {
   }, []);
 
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
+  const [selectedHost, setSelectedHost] = useState<Host | null>(null);
+  const [activeTab, setActiveTab] = useState<'speakers' | 'hosts'>('speakers');
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'needs_host'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'needs_host' | 'available' | 'hosting'>('all');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
   const [isHostRequestModalOpen, setIsHostRequestModalOpen] = useState(false);
   const [generatorVisit, setGeneratorVisit] = useState<Visit | null>(null);
+  const [generatorHost, setGeneratorHost] = useState<Host | null>(null);
+  const [isGroupMessage, setIsGroupMessage] = useState(false);
 
   // Group visits by speaker
   const conversations = useMemo(() => {
@@ -102,6 +107,53 @@ export const Messages: React.FC = () => {
     });
   }, [conversations, searchTerm, activeFilter]);
 
+  // Group hosts with their upcoming visits
+  const hostConversations = useMemo(() => {
+    const hostConvos: { host: Host; upcomingVisits: Visit[]; nextVisitDate: string | null }[] = [];
+
+    hosts.forEach((host) => {
+      const hostVisits = visits.filter((v) => v.host === host.nom && v.status !== 'cancelled');
+
+      const sortedVisits = [...hostVisits].sort(
+        (a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
+      );
+      const upcomingVisits = sortedVisits.filter(
+        (v) => new Date(v.visitDate) >= new Date(new Date().setHours(0, 0, 0, 0))
+      );
+
+      hostConvos.push({
+        host,
+        upcomingVisits,
+        nextVisitDate: upcomingVisits.length > 0 ? upcomingVisits[0].visitDate : null,
+      });
+    });
+
+    return hostConvos.sort((a, b) => {
+      if (a.nextVisitDate && b.nextVisitDate) {
+        return new Date(a.nextVisitDate).getTime() - new Date(b.nextVisitDate).getTime();
+      }
+      if (a.nextVisitDate) return -1;
+      if (b.nextVisitDate) return 1;
+      return a.host.nom.localeCompare(b.host.nom);
+    });
+  }, [visits, hosts]);
+
+  // Filtered hosts
+  const filteredHosts = useMemo(() => {
+    return hostConversations.filter((hostConvo) => {
+      const matchesSearch =
+        hostConvo.host.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (hostConvo.host.address || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesFilter =
+        activeFilter === 'all' ||
+        (activeFilter === 'available' && hostConvo.upcomingVisits.length === 0) ||
+        (activeFilter === 'hosting' && hostConvo.upcomingVisits.length > 0);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [hostConversations, searchTerm, activeFilter]);
+
   const stats = useMemo(() => {
     const pendingTotal = visits.filter((v) => v.status === 'pending').length;
     const confirmedTotal = visits.filter((v) => v.status === 'confirmed').length;
@@ -116,7 +168,7 @@ export const Messages: React.FC = () => {
     };
   }, [visits, conversations]);
 
-  const handleMessageAction = (action: string, visit?: Visit) => {
+  const handleMessageAction = (action: string, visit?: Visit, host?: Host) => {
     if ((action === 'whatsapp' || action === 'email') && visit && selectedSpeaker) {
       setGeneratorVisit(visit);
       setIsGeneratorModalOpen(true);
@@ -125,6 +177,9 @@ export const Messages: React.FC = () => {
     } else if (action === 'host_request' && visit) {
       setGeneratorVisit(visit);
       setIsHostRequestModalOpen(true);
+    } else if (action === 'message_host' && host) {
+      setGeneratorHost(host);
+      setIsGeneratorModalOpen(true);
     }
   };
 
@@ -141,7 +196,7 @@ export const Messages: React.FC = () => {
             Messages & Suivi
           </h2>
           <p className='text-gray-500 dark:text-gray-400 mt-2 max-w-2xl text-sm'>
-            Gérez vos échanges avec les orateurs, confirmez les visites et organisez l'accueil en un
+            Gérez vos échanges avec les orateurs et hôtes, confirmez les visites et organisez l'accueil en un
             seul endroit.
           </p>
         </div>
@@ -156,11 +211,25 @@ export const Messages: React.FC = () => {
               Retour
             </Button>
           )}
+          {activeTab === 'hosts' && (
+            <Button
+              variant='outline'
+              leftIcon={<Users className='w-4 h-4' />}
+              onClick={() => {
+                setGeneratorHost(null);
+                setIsGroupMessage(true);
+                setIsGeneratorModalOpen(true);
+              }}
+            >
+              Message Groupé
+            </Button>
+          )}
           <Button
             className='shadow-lg shadow-primary-200 dark:shadow-none'
             leftIcon={<Plus className='w-4 h-4' />}
             onClick={() => {
               setGeneratorVisit(null);
+              setGeneratorHost(null);
               setIsGeneratorModalOpen(true);
             }}
           >
@@ -169,13 +238,47 @@ export const Messages: React.FC = () => {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className='flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl w-fit'>
+        <button
+          onClick={() => {
+            setActiveTab('speakers');
+            setSelectedSpeaker(null);
+            setSelectedHost(null);
+          }}
+          className={cn(
+            'px-6 py-2 rounded-xl text-sm font-bold transition-all',
+            activeTab === 'speakers'
+              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+          )}
+        >
+          Orateurs
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab('hosts');
+            setSelectedSpeaker(null);
+            setSelectedHost(null);
+          }}
+          className={cn(
+            'px-6 py-2 rounded-xl text-sm font-bold transition-all',
+            activeTab === 'hosts'
+              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+          )}
+        >
+          Hôtes
+        </button>
+      </div>
+
       {/* Landing / Stats Layer */}
-      {(!selectedSpeaker || !isTablet) && (
+      {((!selectedSpeaker && !selectedHost) || !isTablet) && (
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in duration-500'>
           {[
             {
-              label: 'Conversations',
-              value: stats.totalConversations,
+              label: activeTab === 'speakers' ? 'Conversations' : 'Hôtes actifs',
+              value: activeTab === 'speakers' ? stats.totalConversations : hosts.length,
               icon: MessageSquare,
               color: 'text-blue-600',
               bg: 'bg-blue-50 dark:bg-blue-900/20',
@@ -240,18 +343,22 @@ export const Messages: React.FC = () => {
                     <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
                     <input
                       className='w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500 transition-all'
-                      placeholder='Rechercher un orateur...'
+                      placeholder={activeTab === 'speakers' ? 'Rechercher un orateur...' : 'Rechercher un hôte...'}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
 
                   <div className='flex gap-1 overflow-x-auto pb-1 scrollbar-none'>
-                    {[
+                    {(activeTab === 'speakers' ? [
                       { id: 'all', label: 'Tout' },
                       { id: 'pending', label: 'En attente' },
                       { id: 'needs_host', label: 'Sans accueil' },
-                    ].map((f) => (
+                    ] : [
+                      { id: 'all', label: 'Tous' },
+                      { id: 'available', label: 'Disponibles' },
+                      { id: 'hosting', label: 'En accueil' },
+                    ]).map((f) => (
                       <button
                         key={f.id}
                         onClick={() => setActiveFilter(f.id as any)}
@@ -271,97 +378,186 @@ export const Messages: React.FC = () => {
 
               {/* Conversations Scroller */}
               <div className='space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700'>
-                {filteredConversations.length > 0 ? (
-                  filteredConversations.map(({ speaker, visits: speakerVisits, nextVisitDate }) => {
-                    const isSelected = selectedSpeaker?.id === speaker.id;
-                    const hasPending = speakerVisits.some((v) => v.status === 'pending');
-                    const needsHost = speakerVisits.some(
-                      (v) => (!v.host || v.host === 'À définir') && v.locationType === 'physical'
-                    );
+                {activeTab === 'speakers' ? (
+                  filteredConversations.length > 0 ? (
+                    filteredConversations.map(({ speaker, visits: speakerVisits, nextVisitDate }) => {
+                      const isSelected = selectedSpeaker?.id === speaker.id;
+                      const hasPending = speakerVisits.some((v) => v.status === 'pending');
+                      const needsHost = speakerVisits.some(
+                        (v) => (!v.host || v.host === 'À définir') && v.locationType === 'physical'
+                      );
 
-                    return (
-                      <button
-                        key={speaker.id}
-                        onClick={() => setSelectedSpeaker(speaker)}
-                        className={cn(
-                          'w-full flex items-start gap-3 p-4 rounded-2xl text-left transition-all duration-200 group relative',
-                          isSelected
-                            ? 'bg-white dark:bg-gray-800 shadow-xl border-l-[6px] border-primary-500 translate-x-1'
-                            : 'hover:bg-white/50 dark:hover:bg-white/5'
-                        )}
-                      >
-                        <div
+                      return (
+                        <button
+                          key={speaker.id}
+                          onClick={() => setSelectedSpeaker(speaker)}
                           className={cn(
-                            'relative w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 transition-transform group-hover:scale-105',
+                            'w-full flex items-start gap-3 p-4 rounded-2xl text-left transition-all duration-200 group relative',
                             isSelected
-                              ? 'bg-primary-600 text-white shadow-lg'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                              ? 'bg-white dark:bg-gray-800 shadow-xl border-l-[6px] border-primary-500 translate-x-1'
+                              : 'hover:bg-white/50 dark:hover:bg-white/5'
                           )}
                         >
-                          {speaker.nom.charAt(0).toUpperCase()}
-                          {(hasPending || needsHost) && (
-                            <div className='absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse' />
-                          )}
-                        </div>
+                          <div
+                            className={cn(
+                              'relative w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 transition-transform group-hover:scale-105',
+                              isSelected
+                                ? 'bg-primary-600 text-white shadow-lg'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                            )}
+                          >
+                            {speaker.nom.charAt(0).toUpperCase()}
+                            {(hasPending || needsHost) && (
+                              <div className='absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse' />
+                            )}
+                          </div>
 
-                        <div className='flex-1 min-w-0'>
-                          <div className='flex items-center justify-between mb-1'>
-                            <h4
-                              className={cn(
-                                'font-bold truncate text-sm uppercase tracking-tight',
-                                isSelected
-                                  ? 'text-gray-900 dark:text-white'
-                                  : 'text-gray-600 dark:text-gray-400'
+                          <div className='flex-1 min-w-0'>
+                            <div className='flex items-center justify-between mb-1'>
+                              <h4
+                                className={cn(
+                                  'font-bold truncate text-sm uppercase tracking-tight',
+                                  isSelected
+                                    ? 'text-gray-900 dark:text-white'
+                                    : 'text-gray-600 dark:text-gray-400'
+                                )}
+                              >
+                                {speaker.nom}
+                              </h4>
+                              <span className='text-[10px] text-gray-400 font-bold uppercase'>
+                                {new Date(nextVisitDate).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                })}
+                              </span>
+                            </div>
+                            <p className='text-[11px] text-gray-500 truncate mb-2'>
+                              {speaker.congregation}
+                            </p>
+
+                            <div className='flex gap-1.5'>
+                              {hasPending && (
+                                <Badge variant='danger' className='text-[9px] px-1.5 py-0'>
+                                  À CONFIRMER
+                                </Badge>
                               )}
-                            >
-                              {speaker.nom}
-                            </h4>
-                            <span className='text-[10px] text-gray-400 font-bold uppercase'>
-                              {new Date(nextVisitDate).toLocaleDateString('fr-FR', {
-                                day: '2-digit',
-                                month: 'short',
-                              })}
-                            </span>
+                              {needsHost && (
+                                <Badge variant='warning' className='text-[9px] px-1.5 py-0'>
+                                  SANS ACCUEIL
+                                </Badge>
+                              )}
+                              {!hasPending && !needsHost && (
+                                <Badge variant='success' className='text-[9px] px-1.5 py-0'>
+                                  OK
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                          <p className='text-[11px] text-gray-500 truncate mb-2'>
-                            {speaker.congregation}
-                          </p>
 
-                          <div className='flex gap-1.5'>
-                            {hasPending && (
-                              <Badge variant='danger' className='text-[9px] px-1.5 py-0'>
-                                À CONFIRMER
-                              </Badge>
+                          <ChevronRight
+                            className={cn(
+                              'w-4 h-4 mt-1 transition-all',
+                              isSelected
+                                ? 'opacity-100 text-primary-500'
+                                : 'opacity-0 group-hover:opacity-100 text-gray-300'
                             )}
-                            {needsHost && (
-                              <Badge variant='warning' className='text-[9px] px-1.5 py-0'>
-                                SANS ACCUEIL
-                              </Badge>
-                            )}
-                            {!hasPending && !needsHost && (
-                              <Badge variant='success' className='text-[9px] px-1.5 py-0'>
-                                OK
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <ChevronRight
-                          className={cn(
-                            'w-4 h-4 mt-1 transition-all',
-                            isSelected
-                              ? 'opacity-100 text-primary-500'
-                              : 'opacity-0 group-hover:opacity-100 text-gray-300'
-                          )}
-                        />
-                      </button>
-                    );
-                  })
+                          />
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className='py-20 text-center opacity-40'>
+                      <Info className='w-8 h-8 mx-auto mb-3' />
+                      <p className='text-xs font-bold uppercase tracking-widest'>Aucun résultat</p>
+                    </div>
+                  )
                 ) : (
-                  <div className='py-20 text-center opacity-40'>
-                    <Info className='w-8 h-8 mx-auto mb-3' />
-                    <p className='text-xs font-bold uppercase tracking-widest'>Aucun résultat</p>
-                  </div>
+                  // Hosts tab
+                  filteredHosts.length > 0 ? (
+                    filteredHosts.map(({ host, upcomingVisits, nextVisitDate }) => {
+                      const isSelected = selectedHost?.nom === host.nom;
+                      const isHosting = upcomingVisits.length > 0;
+
+                      return (
+                        <button
+                          key={host.nom}
+                          onClick={() => setSelectedHost(host)}
+                          className={cn(
+                            'w-full flex items-start gap-3 p-4 rounded-2xl text-left transition-all duration-200 group relative',
+                            isSelected
+                              ? 'bg-white dark:bg-gray-800 shadow-xl border-l-[6px] border-primary-500 translate-x-1'
+                              : 'hover:bg-white/50 dark:hover:bg-white/5'
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              'relative w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shrink-0 transition-transform group-hover:scale-105',
+                              isSelected
+                                ? 'bg-primary-600 text-white shadow-lg'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400'
+                            )}
+                          >
+                            {host.nom.charAt(0).toUpperCase()}
+                            {isHosting && (
+                              <div className='absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full' />
+                            )}
+                          </div>
+
+                          <div className='flex-1 min-w-0'>
+                            <div className='flex items-center justify-between mb-1'>
+                              <h4
+                                className={cn(
+                                  'font-bold truncate text-sm uppercase tracking-tight',
+                                  isSelected
+                                    ? 'text-gray-900 dark:text-white'
+                                    : 'text-gray-600 dark:text-gray-400'
+                                )}
+                              >
+                                {host.nom}
+                              </h4>
+                              {isHosting && nextVisitDate && (
+                                <span className='text-[10px] text-gray-400 font-bold uppercase'>
+                                  {new Date(nextVisitDate).toLocaleDateString('fr-FR', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                            <p className='text-[11px] text-gray-500 truncate mb-2'>
+                              {host.address || 'Adresse non spécifiée'}
+                            </p>
+
+                            <div className='flex gap-1.5'>
+                              {isHosting ? (
+                                <Badge variant='success' className='text-[9px] px-1.5 py-0'>
+                                  EN ACCUEIL ({upcomingVisits.length})
+                                </Badge>
+                              ) : (
+                                <Badge variant='info' className='text-[9px] px-1.5 py-0'>
+                                  DISPONIBLE
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <ChevronRight
+                            className={cn(
+                              'w-4 h-4 mt-1 transition-all',
+                              isSelected
+                                ? 'opacity-100 text-primary-500'
+                                : 'opacity-0 group-hover:opacity-100 text-gray-300'
+                            )}
+                          />
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className='py-20 text-center opacity-40'>
+                      <Info className='w-8 h-8 mx-auto mb-3' />
+                      <p className='text-xs font-bold uppercase tracking-widest'>Aucun résultat</p>
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -369,7 +565,7 @@ export const Messages: React.FC = () => {
         )}
 
         {/* Right Pane: Message Thread / Dashboard Overview */}
-        {(selectedSpeaker || isTablet) && (
+        {(selectedSpeaker || selectedHost || isTablet) && (
           <div className='flex-1 w-full min-h-[600px]'>
             {selectedSpeaker ? (
               <div className='animate-in fade-in slide-in-from-right-4 duration-300 h-full'>
@@ -377,6 +573,16 @@ export const Messages: React.FC = () => {
                   <MessageThread
                     speaker={selectedSpeaker}
                     visits={visits.filter((v) => v.id === selectedSpeaker.id)}
+                    onAction={handleMessageAction}
+                  />
+                </Card>
+              </div>
+            ) : selectedHost ? (
+              <div className='animate-in fade-in slide-in-from-right-4 duration-300 h-full'>
+                <Card className='border-none shadow-xl h-full flex flex-col bg-gray-50 dark:bg-gray-900/40 rounded-3xl overflow-hidden'>
+                  <HostMessageThread
+                    host={selectedHost}
+                    visits={visits.filter((v) => v.host === selectedHost.nom)}
                     onAction={handleMessageAction}
                   />
                 </Card>
@@ -394,16 +600,21 @@ export const Messages: React.FC = () => {
                   Prêt à communiquer ?
                 </h3>
                 <p className='text-gray-500 max-w-sm mb-12 text-sm leading-relaxed'>
-                  Sélectionnez un orateur dans la liste de gauche pour préparer son arrivée, gérer
-                  l'accueil ou simplement lui envoyer un message de confirmation.
+                  {activeTab === 'speakers'
+                    ? 'Sélectionnez un orateur dans la liste de gauche pour préparer son arrivée, gérer l\'accueil ou simplement lui envoyer un message de confirmation.'
+                    : 'Sélectionnez un hôte dans la liste de gauche pour consulter ses informations et lui envoyer un message.'}
                 </p>
 
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-2xl'>
-                  {[
+                  {(activeTab === 'speakers' ? [
                     { icon: Mail, label: 'Modèles SMS', desc: 'Gagnez du temps' },
                     { icon: UserCheck, label: 'Suivi Précis', desc: 'Statut en direct' },
                     { icon: ShieldAlert, label: 'Gestion Hosting', desc: 'Alertes accueil' },
-                  ].map((feat, i) => (
+                  ] : [
+                    { icon: Mail, label: 'Messages directs', desc: 'Communication rapide' },
+                    { icon: UserCheck, label: 'Info complètes', desc: 'Tous les détails' },
+                    { icon: ShieldAlert, label: 'Suivi visites', desc: 'Historique accueil' },
+                  ]).map((feat, i) => (
                     <div
                       key={i}
                       className='p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md transition-all'
@@ -429,9 +640,13 @@ export const Messages: React.FC = () => {
           onClose={() => {
             setIsGeneratorModalOpen(false);
             setGeneratorVisit(null);
+            setGeneratorHost(null);
+            setIsGroupMessage(false);
           }}
-          speaker={selectedSpeaker || speakers[0]}
-          visit={generatorVisit || visits.find((v) => v.id === selectedSpeaker?.id) || visits[0]}
+          speaker={selectedSpeaker}
+          visit={generatorVisit}
+          host={generatorHost}
+          isGroupMessage={isGroupMessage}
         />
       )}
 

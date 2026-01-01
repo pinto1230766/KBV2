@@ -5,15 +5,17 @@ import { Select } from '@/components/ui/Select';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit, Speaker, MessageType, CommunicationChannel } from '@/types';
+import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
 import { generateMessage } from '@/utils/messageGenerator';
 import { Copy, RefreshCw, Send } from 'lucide-react';
 
 interface MessageGeneratorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  speaker: Speaker;
-  visit: Visit;
+  speaker?: Speaker | null;
+  visit?: Visit | null;
+  host?: Host | null;
+  isGroupMessage?: boolean;
   initialChannel?: CommunicationChannel;
   initialType?: MessageType;
 }
@@ -23,16 +25,23 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   onClose,
   speaker,
   visit,
+  host,
+  isGroupMessage = false,
   initialChannel = 'whatsapp',
   initialType = 'reminder-7',
 }) => {
   const { settings } = useSettings();
-  const { hosts, congregationProfile } = useData();
+  const { hosts: allHosts, congregationProfile } = useData();
   const { addToast } = useToast();
+
+  // Déterminer si on envoie à un hôte ou à un orateur
+  const isHostMessage = !!host || isGroupMessage;
+  const targetEntity = host || speaker;
+  const targetName = isGroupMessage ? `${allHosts.length} hôtes` : targetEntity?.nom || '';
 
   const [message, setMessage] = useState('');
   const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
-  const [type, setType] = useState<MessageType>(initialType);
+  const [type, setType] = useState<MessageType | 'host_request_message' | 'free_message'>(initialType);
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -46,17 +55,55 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const host = hosts.find((h) => h.nom === visit.host);
+      let generated = '';
 
-      const generated = generateMessage(
-        visit,
-        speaker,
-        host,
-        congregationProfile,
-        type,
-        'speaker', // On écrit à l'orateur par défaut
-        language
-      );
+      if (isHostMessage) {
+        // Messages spécifiques aux hôtes
+        if (isGroupMessage) {
+          // Message groupé - générique
+          switch (type) {
+            case 'thanks':
+              generated = `Chers frères et sœurs,\n\nNous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.\n\nQue Dieu vous bénisse,\nL'assemblée de Lyon`;
+              break;
+            case 'host_request_message':
+              generated = `Chers frères et sœurs,\n\nL'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.\n\nAuriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.\n\nCordialement,\nL'équipe d'accueil`;
+              break;
+            case 'free_message':
+              generated = `Bonjour à tous,\n\n[Votre message personnalisé ici]\n\nCordialement,\nL'assemblée de Lyon`;
+              break;
+            default:
+              generated = `Bonjour à tous,\n\nCeci est un message de l'assemblée de Lyon.\n\nCordialement,\nL'équipe d'accueil`;
+          }
+        } else if (host) {
+          // Message individuel à un hôte spécifique
+          switch (type) {
+            case 'thanks':
+              generated = `Cher/Chère ${host.nom},\n\nNous tenons à vous remercier chaleureusement pour votre accueil lors de notre visite. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.\n\nQue Dieu vous bénisse,\nL'assemblée de Lyon`;
+              break;
+            case 'host_request_message':
+              generated = `Cher/Chère ${host.nom},\n\nL'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.\n\nAuriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.\n\nCordialement,\nL'équipe d'accueil`;
+              break;
+            case 'free_message':
+              generated = `Bonjour ${host.nom},\n\n[Votre message personnalisé ici]\n\nCordialement,\nL'assemblée de Lyon`;
+              break;
+            default:
+              generated = `Bonjour ${host.nom},\n\nCeci est un message de l'assemblée de Lyon.\n\nCordialement,\nL'équipe d'accueil`;
+          }
+        }
+      } else if (speaker && visit) {
+        // Message à un orateur
+        const visitHost = allHosts.find((h) => h.nom === visit.host);
+        generated = generateMessage(
+          visit,
+          speaker,
+          visitHost,
+          congregationProfile,
+          type as MessageType,
+          'speaker',
+          language
+        );
+      }
+
       setMessage(generated);
     } catch (_error) {
       addToast('Erreur lors de la génération du message', 'error');
@@ -74,28 +121,70 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     }
   };
 
-  const handleSend = () => {
-    if (channel === 'whatsapp') {
-      const encodedMessage = encodeURIComponent(message);
-      const phone = speaker.telephone?.replace(/\D/g, '') || '';
-      window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
-    } else if (channel === 'email') {
-      const subject = encodeURIComponent(`Visite à KBV Lyon - ${visit.talkTheme}`);
-      const body = encodeURIComponent(message);
-      window.open(`mailto:${speaker.email}?subject=${subject}&body=${body}`, '_blank');
+  const handleSend = async () => {
+    const recipients = isGroupMessage && isHostMessage ? allHosts : [isHostMessage ? host : speaker].filter(Boolean);
+
+    if (!recipients.length) return;
+
+    const subject = encodeURIComponent(
+      isHostMessage
+        ? `Message de l'assemblée de Lyon`
+        : `Visite à KBV Lyon - ${visit?.talkTheme || ''}`
+    );
+    const body = encodeURIComponent(message);
+
+    if (isGroupMessage) {
+      // Envoi groupé avec délai pour éviter les blocages
+      addToast(`Envoi groupé à ${recipients.length} destinataires...`, 'info');
+
+      for (let i = 0; i < recipients.length; i++) {
+        const recipient = recipients[i];
+        if (!recipient) continue;
+
+        if (channel === 'whatsapp' && recipient.telephone) {
+          const encodedMessage = encodeURIComponent(message);
+          const phone = recipient.telephone.replace(/\D/g, '');
+          setTimeout(() => {
+            window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+          }, i * 1000); // Délai de 1 seconde entre chaque ouverture
+        } else if (channel === 'email' && recipient.email) {
+          setTimeout(() => {
+            window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, '_blank');
+          }, i * 500); // Délai de 0.5 seconde pour les emails
+        }
+      }
+
+      setTimeout(() => {
+        addToast(`Messages envoyés à ${recipients.length} destinataires`, 'success');
+        onClose();
+      }, recipients.length * 1000 + 1000);
+
     } else {
-      // SMS
-      const body = encodeURIComponent(message);
-      window.open(`sms:${speaker.telephone}?body=${body}`, '_blank');
+      // Envoi individuel
+      const recipient = recipients[0];
+      if (!recipient) return;
+
+      if (channel === 'whatsapp' && recipient.telephone) {
+        const encodedMessage = encodeURIComponent(message);
+        const phone = recipient.telephone.replace(/\D/g, '');
+        window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+      } else if (channel === 'email' && recipient.email) {
+        window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, '_blank');
+      } else if (recipient.telephone) {
+        // SMS
+        const smsBody = encodeURIComponent(message);
+        window.open(`sms:${recipient.telephone}?body=${smsBody}`, '_blank');
+      }
+
+      onClose();
     }
-    onClose();
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Message pour ${speaker.nom}`}
+      title={`Message pour ${targetName}`}
       size='lg'
       footer={
         <>
@@ -117,7 +206,11 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           <div className='w-full sm:w-auto min-w-[150px]'>
             <Select
               label='Type'
-              options={[
+              options={isHostMessage ? [
+                { value: 'host_request_message', label: 'Demande d\'accueil' },
+                { value: 'thanks', label: 'Remerciements' },
+                { value: 'free_message', label: 'Message libre' },
+              ] : [
                 { value: 'confirmation', label: 'Confirmation' },
                 { value: 'reminder-7', label: 'Rappel (J-7)' },
                 { value: 'reminder-2', label: 'Rappel (J-2)' },
@@ -125,7 +218,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 { value: 'preparation', label: 'Préparation' },
               ]}
               value={type}
-              onChange={(e) => setType(e.target.value as MessageType)}
+              onChange={(e) => setType(e.target.value as MessageType | 'host_request_message' | 'free_message')}
             />
           </div>
 
