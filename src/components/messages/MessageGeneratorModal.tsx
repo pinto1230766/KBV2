@@ -5,6 +5,7 @@ import { Select } from '@/components/ui/Select';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
 import { generateMessage } from '@/utils/messageGenerator';
 import { Copy, RefreshCw, Send, Save, BookOpen } from 'lucide-react';
@@ -33,6 +34,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const { settings } = useSettings();
   const { hosts: allHosts, congregationProfile } = useData();
   const { addToast } = useToast();
+  const { t } = useTranslation();
 
   // Déterminer si on envoie à un hôte ou à un orateur
   const isHostMessage = !!host || isGroupMessage;
@@ -97,31 +99,31 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           // Message groupé - générique
           switch (type) {
             case 'thanks':
-              generated = `Chers frères et sœurs,\n\nNous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.\n\nQue Dieu vous bénisse,\nL'assemblée de Lyon`;
+              generated = `${t('Chers frères et sœurs,')}\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
               break;
             case 'host_request_message':
-              generated = `Chers frères et sœurs,\n\nL'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.\n\nAuriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.\n\nCordialement,\nL'équipe d'accueil`;
+              generated = `${t('Chers frères et sœurs,')}\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t('Auriez-vous la possibilité d\'accueillir des visiteurs ? Votre aide serait très appréciée.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
               break;
             case 'free_message':
-              generated = `Bonjour à tous,\n\n[Votre message personnalisé ici]\n\nCordialement,\nL'assemblée de Lyon`;
+              generated = `${t('Bonjour à tous,')}\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
               break;
             default:
-              generated = `Bonjour à tous,\n\nCeci est un message de l'assemblée de Lyon.\n\nCordialement,\nL'équipe d'accueil`;
+              generated = `${t('Bonjour à tous,')}\n\n${t('Ceci est un message de l\'assemblée de Lyon.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
           }
         } else if (host) {
           // Message individuel à un hôte spécifique
           switch (type) {
             case 'thanks':
-              generated = `Cher/Chère ${host.nom},\n\nNous tenons à vous remercier chaleureusement pour votre accueil lors de notre visite. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.\n\nQue Dieu vous bénisse,\nL'assemblée de Lyon`;
+              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
               break;
             case 'host_request_message':
-              generated = `Cher/Chère ${host.nom},\n\nL'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.\n\nAuriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.\n\nCordialement,\nL'équipe d'accueil`;
+              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t('Auriez-vous la possibilité d\'accueillir des visiteurs ? Votre aide serait très appréciée.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
               break;
             case 'free_message':
-              generated = `Bonjour ${host.nom},\n\n[Votre message personnalisé ici]\n\nCordialement,\nL'assemblée de Lyon`;
+              generated = `${t('Bonjour')} ${host.nom},\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
               break;
             default:
-              generated = `Bonjour ${host.nom},\n\nCeci est un message de l'assemblée de Lyon.\n\nCordialement,\nL'équipe d'accueil`;
+              generated = `${t('Bonjour')} ${host.nom},\n\n${t('Ceci est un message de l\'assemblée de Lyon.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
           }
         }
       } else if (speaker && visit) {
@@ -140,7 +142,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
       setMessage(generated);
     } catch (_error) {
-      addToast('Erreur lors de la génération du message', 'error');
+      addToast(t('Erreur lors de la génération du message'), 'error');
     } finally {
       setIsGenerating(false);
     }
@@ -149,15 +151,15 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(message);
-      addToast('Message copié dans le presse-papier', 'success');
+      addToast(t('Message copié dans le presse-papier'), 'success');
     } catch (_error) {
-      addToast('Erreur lors de la copie', 'error');
+      addToast(t('Erreur lors de la copie'), 'error');
     }
   };
 
   const handleSaveTemplate = async () => {
     if (!templateName.trim() || !message.trim()) {
-      addToast('Veuillez saisir un nom pour le modèle et un message', 'warning');
+      addToast(t('Veuillez saisir un nom pour le modèle et un message'), 'warning');
       return;
     }
 
@@ -180,9 +182,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       localStorage.setItem('kbv_message_templates', JSON.stringify(updatedTemplates));
 
       setTemplateName('');
-      addToast('Modèle de message sauvegardé', 'success');
+      addToast(t('Modèle de message sauvegardé'), 'success');
     } catch (_error) {
-      addToast('Erreur lors de la sauvegarde du modèle', 'error');
+      addToast(t('Erreur lors de la sauvegarde du modèle'), 'error');
     } finally {
       setIsSavingTemplate(false);
     }
@@ -194,14 +196,14 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     setLanguage(template.language as 'fr' | 'cv' | 'pt');
     setChannel(template.channel);
     setShowTemplates(false);
-    addToast(`Modèle "${template.name}" chargé`, 'info');
+    addToast(`${t('Modèle')} "${template.name}" ${t('chargé')}`, 'info');
   };
 
   const handleDeleteTemplate = (templateId: string) => {
     const updatedTemplates = messageTemplates.filter((t) => t.id !== templateId);
     setMessageTemplates(updatedTemplates);
     localStorage.setItem('kbv_message_templates', JSON.stringify(updatedTemplates));
-    addToast('Modèle supprimé', 'success');
+    addToast(t('Modèle supprimé'), 'success');
   };
 
   const handleSend = async () => {
@@ -270,18 +272,18 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Message pour ${targetName}`}
+      title={`${t('Message pour')} ${targetName}`}
       size='lg'
       footer={
         <>
           <Button variant='ghost' onClick={onClose}>
-            Annuler
+            {t('Annuler')}
           </Button>
           <Button variant='secondary' onClick={handleCopy} leftIcon={<Copy className='w-4 h-4' />}>
-            Copier
+            {t('Copier')}
           </Button>
           <Button onClick={handleSend} leftIcon={<Send className='w-4 h-4' />}>
-            Envoyer ({channel === 'whatsapp' ? 'WhatsApp' : channel === 'email' ? 'Email' : 'SMS'})
+            {t('Envoyer')} ({channel === 'whatsapp' ? t('WhatsApp') : channel === 'email' ? t('Email') : t('SMS')})
           </Button>
         </>
       }
@@ -291,20 +293,20 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         <div className='flex flex-wrap gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700'>
           <div className='w-full sm:w-auto min-w-[150px]'>
             <Select
-              label='Type'
+              label={t('Type')}
               options={
                 isHostMessage
                   ? [
-                      { value: 'host_request_message', label: "Demande d'accueil" },
-                      { value: 'thanks', label: 'Remerciements' },
-                      { value: 'free_message', label: 'Message libre' },
+                      { value: 'host_request_message', label: t("Demande d'accueil") },
+                      { value: 'thanks', label: t('Remerciements') },
+                      { value: 'free_message', label: t('Message libre') },
                     ]
                   : [
-                      { value: 'confirmation', label: 'Confirmation' },
-                      { value: 'reminder-7', label: 'Rappel (J-7)' },
-                      { value: 'reminder-2', label: 'Rappel (J-2)' },
-                      { value: 'thanks', label: 'Remerciements' },
-                      { value: 'preparation', label: 'Préparation' },
+                      { value: 'confirmation', label: t('Confirmation') },
+                      { value: 'reminder-7', label: t('Rappel (J-7)') },
+                      { value: 'reminder-2', label: t('Rappel (J-2)') },
+                      { value: 'thanks', label: t('Remerciements') },
+                      { value: 'preparation', label: t('Préparation') },
                     ]
               }
               value={type}
@@ -316,11 +318,11 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
           <div className='w-full sm:w-auto min-w-[150px]'>
             <Select
-              label='Langue'
+              label={t('Langue')}
               options={[
-                { value: 'fr', label: 'Français' },
-                { value: 'cv', label: 'Capverdien' },
-                { value: 'pt', label: 'Português' },
+                { value: 'fr', label: t('Français') },
+                { value: 'cv', label: t('Capverdien') },
+                { value: 'pt', label: t('Português') },
               ]}
               value={language}
               onChange={(e) => setLanguage(e.target.value as 'fr' | 'cv' | 'pt')}
@@ -329,11 +331,11 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
           <div className='w-full sm:w-auto min-w-[150px]'>
             <Select
-              label='Canal'
+              label={t('Canal')}
               options={[
-                { value: 'whatsapp', label: 'WhatsApp' },
-                { value: 'sms', label: 'SMS' },
-                { value: 'email', label: 'Email' },
+                { value: 'whatsapp', label: t('WhatsApp') },
+                { value: 'sms', label: t('SMS') },
+                { value: 'email', label: t('Email') },
               ]}
               value={channel}
               onChange={(e) => setChannel(e.target.value as CommunicationChannel)}
@@ -356,7 +358,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             <div className='flex gap-2'>
               <input
                 type='text'
-                placeholder='Nom du modèle...'
+                placeholder={t('Nom du modèle...')}
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
                 className='px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800'
@@ -368,7 +370,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 isLoading={isSavingTemplate}
                 leftIcon={<Save className='w-4 h-4' />}
               >
-                Sauvegarder
+                {t('Sauvegarder')}
               </Button>
             </div>
           )}
@@ -377,7 +379,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         {/* Templates List */}
         {showTemplates && messageTemplates.length > 0 && (
           <div className='border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50 max-h-48 overflow-y-auto'>
-            <h4 className='font-semibold text-sm mb-3'>Modèles sauvegardés:</h4>
+            <h4 className='font-semibold text-sm mb-3'>{t('Modèles sauvegardés:')}</h4>
             <div className='space-y-2'>
               {messageTemplates.map((template) => (
                 <div
@@ -393,7 +395,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                   </div>
                   <div className='flex gap-2'>
                     <Button variant='ghost' size='sm' onClick={() => handleLoadTemplate(template)}>
-                      Charger
+                      {t('Charger')}
                     </Button>
                     <Button
                       variant='ghost'
@@ -401,7 +403,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       onClick={() => handleDeleteTemplate(template.id)}
                       className='text-red-600 hover:text-red-700'
                     >
-                      Suppr
+                      {t('Suppr')}
                     </Button>
                   </div>
                 </div>
@@ -416,7 +418,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             className='w-full h-64 p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder='Le message généré apparaîtra ici...'
+            placeholder={t('Le message généré apparaîtra ici...')}
           />
 
           <div className='absolute bottom-4 right-4 flex gap-2'>
@@ -427,7 +429,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               isLoading={isGenerating}
               leftIcon={<RefreshCw className='w-4 h-4' />}
             >
-              Régénérer
+              {t('Régénérer')}
             </Button>
           </div>
         </div>
