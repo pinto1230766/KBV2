@@ -2,9 +2,16 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
+/**
+ * Configuration Vite optimisée pour KBV Lyon
+ */
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react({
+      jsxRuntime: 'automatic',
+    }),
+  ],
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -16,21 +23,51 @@ export default defineConfig({
       '@/data': path.resolve(__dirname, './src/data'),
     },
   },
+
   build: {
     outDir: 'dist',
-    sourcemap: true,
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          charts: ['recharts'],
-          utils: ['date-fns', 'idb'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['lucide-react', 'clsx', 'tailwind-merge', 'date-fns'],
+          'data-vendor': ['zustand', 'immer', 'idb'],
+          'charts-vendor': ['recharts'],
+          'utils-vendor': ['zod', 'uuid'],
         },
       },
     },
+
+    assetsInlineLimit: 4096,
+    sourcemap: mode !== 'production',
+    minify: mode === 'production',
+    chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
+    cssMinify: mode === 'production',
   },
+
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'zustand',
+      'immer',
+      'lucide-react',
+      'clsx',
+      'tailwind-merge',
+      'date-fns',
+    ],
+  },
+
   server: {
     port: 5173,
     host: true,
   },
-});
+
+  define: {
+    __DEV__: mode === 'development',
+    __PROD__: mode === 'production',
+    __VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
+}));
