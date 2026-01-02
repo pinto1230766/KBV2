@@ -96,35 +96,40 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       if (isHostMessage) {
         // Messages spécifiques aux hôtes
         if (isGroupMessage) {
-          // Message groupé - générique
-          switch (type) {
-            case 'thanks':
-              generated = `${t('Chers frères et sœurs,')}\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
-              break;
-            case 'host_request_message':
-              generated = `${t('Chers frères et sœurs,')}\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t("Auriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
-              break;
-            case 'free_message':
-              generated = `${t('Bonjour à tous,')}\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
-              break;
-            default:
-              generated = `${t('Bonjour à tous,')}\n\n${t("Ceci est un message de l'assemblée de Lyon.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
-          }
+          // Message groupé - utiliser les modèles traduits
+          generated = generateMessage(
+            null,
+            null,
+            null,
+            congregationProfile,
+            type as MessageType,
+            'host',
+            language,
+            true // isGroupMessage
+          );
+        } else if (host && visit) {
+          // Message individuel à un hôte avec visite
+          const visitSpeaker = speaker || { nom: visit.nom, congregation: visit.congregation, telephone: visit.telephone };
+          generated = generateMessage(
+            visit,
+            visitSpeaker as Speaker,
+            host,
+            congregationProfile,
+            type as MessageType,
+            'host',
+            language
+          );
         } else if (host) {
-          // Message individuel à un hôte spécifique
-          switch (type) {
-            case 'thanks':
-              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
-              break;
-            case 'host_request_message':
-              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t("Auriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
-              break;
-            case 'free_message':
-              generated = `${t('Bonjour')} ${host.nom},\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
-              break;
-            default:
-              generated = `${t('Bonjour')} ${host.nom},\n\n${t("Ceci est un message de l'assemblée de Lyon.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
-          }
+          // Message individuel à un hôte sans visite spécifique
+          generated = generateMessage(
+            null,
+            null,
+            host,
+            congregationProfile,
+            type as MessageType,
+            'host',
+            language
+          );
         }
       } else if (speaker && visit) {
         // Message à un orateur

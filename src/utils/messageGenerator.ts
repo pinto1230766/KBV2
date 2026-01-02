@@ -20,13 +20,14 @@ import { formatFullDate } from './formatters';
 // ============================================================================
 
 export function generateMessage(
-  visit: Visit,
-  speaker: Speaker | undefined,
-  host: Host | undefined,
+  visit: Visit | null,
+  speaker: Speaker | null | undefined,
+  host: Host | null | undefined,
   congregationProfile: CongregationProfile,
   messageType: MessageType,
   role: MessageRole,
   language: Language,
+  isGroupMessage: boolean = false,
   customTemplate?: string
 ): string {
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
@@ -37,7 +38,7 @@ export function generateMessage(
   }
 
   // Remplacer les variables
-  let message = replaceVariables(template, visit, host, congregationProfile, language);
+  let message = replaceVariables(template, visit, host, congregationProfile, language, isGroupMessage);
 
   // Adapter selon le genre
   message = adaptMessageGender(message, speaker?.gender, host?.gender);
@@ -51,52 +52,63 @@ export function generateMessage(
 
 function replaceVariables(
   template: string,
-  visit: Visit,
-  host: Host | undefined,
+  visit: Visit | null,
+  host: Host | null | undefined,
   congregationProfile: CongregationProfile,
-  language: Language
+  language: Language,
+  isGroupMessage: boolean = false
 ): string {
   let message = template;
 
-  // Variables de l'orateur
-  message = message.replace(/{speakerName}/g, visit.nom);
-  message = message.replace(/{congregation}/g, visit.congregation);
-  message = message.replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)');
+  // Variables de l'orateur (si visite fournie)
+  if (visit) {
+    message = message.replace(/{speakerName}/g, visit.nom);
+    message = message.replace(/{congregation}/g, visit.congregation);
+    message = message.replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)');
 
-  // Variables du contact d'accueil
-  const hostName = visit.host !== 'À définir' ? visit.host : '(non assigné)';
-  message = message.replace(/{hostName}/g, hostName);
-  message = message.replace(/{hostPhone}/g, host?.telephone || '(non renseigné)');
-  message = message.replace(/{hostAddress}/g, host?.address || '(non renseignée)');
+    // Variables du contact d'accueil
+    const hostName = visit.host !== 'À définir' ? visit.host : '(non assigné)';
+    message = message.replace(/{hostName}/g, hostName);
 
-  // Variables de la visite
-  message = message.replace(/{visitDate}/g, formatFullDate(visit.visitDate));
-  message = message.replace(/{visitTime}/g, visit.visitTime);
+    // Variables de la visite
+    message = message.replace(/{visitDate}/g, formatFullDate(visit.visitDate));
+    message = message.replace(/{visitTime}/g, visit.visitTime);
 
-  // Variables du discours
-  if (visit.talkNoOrType && visit.talkTheme) {
-    message = message.replace(/{talkNo}/g, String(visit.talkNoOrType));
-    message = message.replace(/{talkTheme}/g, visit.talkTheme);
+    // Variables du discours
+    if (visit.talkNoOrType && visit.talkTheme) {
+      message = message.replace(/{talkNo}/g, String(visit.talkNoOrType));
+      message = message.replace(/{talkTheme}/g, visit.talkTheme);
+    }
+
+    // Introduction pour premier contact
+    const isFirstContact =
+      !visit.communicationStatus || Object.keys(visit.communicationStatus).length === 0;
+
+    if (isFirstContact) {
+      const intro = getFirstTimeIntroduction(congregationProfile.name, language);
+      message = message.replace(/{firstTimeIntroduction}/g, intro);
+    } else {
+      message = message.replace(/{firstTimeIntroduction}/g, '');
+    }
+  } else {
+    // Pas de visite - nettoyer les variables non utilisées
+    message = message.replace(/{firstTimeIntroduction}/g, '');
   }
 
-  // Variables de la congrégation
+  // Variables de l'hôte (toujours disponibles)
+  if (host) {
+    message = message.replace(/{hostName}/g, host.nom);
+    message = message.replace(/{hostPhone}/g, host.telephone || '(non renseigné)');
+    message = message.replace(/{hostAddress}/g, host.address || '(non renseignée)');
+  }
+
+  // Variables de la congrégation (toujours disponibles)
   message = message.replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer);
   message = message.replace(
     /{hospitalityOverseerPhone}/g,
     congregationProfile.hospitalityOverseerPhone
   );
   message = message.replace(/{congregationName}/g, congregationProfile.name);
-
-  // Introduction pour premier contact
-  const isFirstContact =
-    !visit.communicationStatus || Object.keys(visit.communicationStatus).length === 0;
-
-  if (isFirstContact) {
-    const intro = getFirstTimeIntroduction(congregationProfile.name, language);
-    message = message.replace(/{firstTimeIntroduction}/g, intro);
-  } else {
-    message = message.replace(/{firstTimeIntroduction}/g, '');
-  }
 
   return message;
 }
