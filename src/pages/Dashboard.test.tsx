@@ -16,12 +16,42 @@ vi.mock('@/contexts/DataContext', () => ({
     ],
     speakers: [{ id: '1', nom: 'John Doe' }],
     hosts: [{ id: '1', nom: 'Host One' }],
+    congregationProfile: {
+      name: 'Test Congregation',
+      hospitalityOverseer: 'Test Overseer',
+      hospitalityOverseerPhone: '123456789',
+      meetingTime: '14:30',
+    },
+    publicTalks: [],
   }),
 }));
 
 vi.mock('@/contexts/ToastContext', () => ({
   useToast: () => ({
     addToast: vi.fn(),
+  }),
+}));
+
+vi.mock('@/contexts/SettingsContext', () => ({
+  useSettings: () => ({
+    settings: {
+      theme: 'light',
+      language: 'fr',
+      notifications: {
+        enabled: true,
+        reminderDays: [7, 2],
+        sound: true,
+        vibration: true,
+      },
+      encryptionEnabled: false,
+      sessionTimeout: 30,
+      autoArchiveDays: 90,
+    },
+    updateSettings: vi.fn().mockResolvedValue(undefined),
+    setTheme: vi.fn(),
+    setLanguage: vi.fn(),
+    setNotifications: vi.fn(),
+    resetSettings: vi.fn().mockResolvedValue(undefined),
   }),
 }));
 
