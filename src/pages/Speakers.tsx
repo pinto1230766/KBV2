@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { SpeakerList } from '@/components/speakers/SpeakerList';
 import { SpeakerFormModal } from '@/components/speakers/SpeakerFormModal';
 import { HostList } from '@/components/hosts/HostList';
@@ -48,6 +49,7 @@ export const Speakers: React.FC = () => {
   const { speakers, deleteSpeaker, hosts, deleteHost } = useData();
   const location = useLocation();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const [activeTab, setActiveTab] = useState<Tab>('speakers');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -92,7 +94,14 @@ export const Speakers: React.FC = () => {
   };
 
   const handleDeleteSpeaker = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet orateur ?')) {
+    const isConfirmed = await confirm({
+      title: 'Supprimer l\'orateur',
+      message: 'Êtes-vous sûr de vouloir supprimer cet orateur ? Cette action est irréversible.',
+      confirmText: 'Supprimer',
+      confirmVariant: 'danger',
+    });
+
+    if (isConfirmed) {
       deleteSpeaker(id);
       addToast('Orateur supprimé', 'success');
     }
@@ -104,7 +113,14 @@ export const Speakers: React.FC = () => {
   };
 
   const handleDeleteHost = async (name: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce contact ?')) {
+    const isConfirmed = await confirm({
+      title: 'Supprimer le contact',
+      message: 'Êtes-vous sûr de vouloir supprimer ce contact d\'hébergement ?',
+      confirmText: 'Supprimer',
+      confirmVariant: 'danger',
+    });
+
+    if (isConfirmed) {
       deleteHost(name);
       addToast('Contact supprimé', 'success');
     }

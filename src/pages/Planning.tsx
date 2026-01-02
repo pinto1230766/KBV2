@@ -1,5 +1,5 @@
 import React, { useState, useMemo, memo, useCallback, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
@@ -129,6 +129,7 @@ export const Planning: React.FC = () => {
   const componentRef = useRef<HTMLDivElement>(null);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Set data for export service
   useEffect(() => {
@@ -138,13 +139,19 @@ export const Planning: React.FC = () => {
   // Handle initial state from navigation (e.g. from Quick Actions)
   useEffect(() => {
     const state = location.state as { openConflicts?: boolean; openSchedule?: boolean };
-    if (state?.openConflicts) {
+    if (!state) return;
+
+    if (state.openConflicts) {
       setIsConflictModalOpen(true);
+      // Clean up state to prevent re-opening
+      navigate(location.pathname, { replace: true, state: {} });
     }
-    if (state?.openSchedule) {
+    if (state.openSchedule) {
       setIsModalOpen(true);
+      // Clean up state to prevent re-opening
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.state, navigate, location.pathname]);
 
   const handleExport = async () => {
     if (view === 'archives') {

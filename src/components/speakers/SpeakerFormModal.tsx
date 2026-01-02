@@ -5,8 +5,9 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Speaker, Gender } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useConfirm } from '@/contexts/ConfirmContext';
 import { v4 as uuidv4 } from 'uuid';
-import { User, Phone, Mail, FileText, CheckCircle2, Car, Users } from 'lucide-react';
+import { User, Phone, Mail, FileText, CheckCircle2, Car, Users, Trash2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface SpeakerFormModalProps {
@@ -16,8 +17,9 @@ interface SpeakerFormModalProps {
 }
 
 export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onClose, speaker }) => {
-  const { addSpeaker, updateSpeaker, speakers } = useData();
+  const { addSpeaker, updateSpeaker, speakers, deleteSpeaker } = useData();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState<Partial<Speaker>>({
@@ -50,6 +52,23 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
       });
     }
   }, [speaker, isOpen]);
+
+  const handleDelete = async () => {
+    if (!speaker) return;
+
+    const isConfirmed = await confirm({
+      title: "Supprimer l'orateur",
+      message: `Êtes-vous sûr de vouloir supprimer ${speaker.nom} ? Cette action est irréversible.`,
+      confirmText: 'Supprimer',
+      confirmVariant: 'danger',
+    });
+
+    if (isConfirmed) {
+      deleteSpeaker(speaker.id);
+      addToast('Orateur supprimé avec succès', 'success');
+      onClose();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,10 +122,12 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
           <Users className='absolute right-[-10px] top-[-10px] w-32 h-32 opacity-10 rotate-12' />
           <div className='relative z-10'>
             <h2 className='text-2xl font-black tracking-tighter mb-1'>
-              {speaker ? "Modifier l'orateur" : 'Nouvel Orateur'}
+              {speaker ? `Modifier ${speaker.nom}` : 'Nouvel Orateur'}
             </h2>
             <p className='text-emerald-100 text-sm'>
-              Ajoutez les coordonnées d'un frère qualifié pour les discours.
+              {speaker 
+                ? "Mettez à jour les informations et coordonnées de l'orateur."
+                : "Ajoutez les coordonnées d'un frère qualifié pour les discours."}
             </p>
           </div>
         </div>
@@ -283,18 +304,32 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
         </div>
 
         {/* Footer */}
-        <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0'>
-          <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-            Annuler
-          </Button>
-          <Button
-            type='submit'
-            form='speaker-form'
-            isLoading={isLoading}
-            className='bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg shadow-emerald-200 dark:shadow-none'
-          >
-            Enregistrer
-          </Button>
+        <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-3 shrink-0'>
+          <div>
+            {speaker && (
+              <Button
+                variant='ghost'
+                onClick={handleDelete}
+                className='text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20'
+                leftIcon={<Trash2 className='w-4 h-4' />}
+              >
+                Supprimer
+              </Button>
+            )}
+          </div>
+          <div className='flex gap-2'>
+            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
+              Annuler
+            </Button>
+            <Button
+              type='submit'
+              form='speaker-form'
+              isLoading={isLoading}
+              className='bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-lg shadow-emerald-200 dark:shadow-none'
+            >
+              Enregistrer
+            </Button>
+          </div>
         </div>
       </div>
     </Modal>
