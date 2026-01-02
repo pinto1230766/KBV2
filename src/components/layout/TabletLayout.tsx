@@ -382,13 +382,13 @@ export const TabletLayout: React.FC = () => {
             setIsQuickActionsOpen(false);
             switch (action) {
               case 'schedule-visit':
-                navigate('/planning');
+                navigate('/planning', { state: { openSchedule: true } });
                 break;
               case 'add-speaker':
-                navigate('/speakers');
+                navigate('/speakers', { state: { activeTab: 'speakers', openForm: true } });
                 break;
               case 'add-host':
-                navigate('/speakers');
+                navigate('/speakers', { state: { activeTab: 'hosts', openForm: true } });
                 break;
               case 'send-message':
                 navigate('/messages');
@@ -397,10 +397,19 @@ export const TabletLayout: React.FC = () => {
                 setIsReportModalOpen(true);
                 break;
               case 'check-conflicts':
-                navigate('/planning');
+                navigate('/planning', { state: { openConflicts: true } });
                 break;
               case 'backup-data':
-                navigate('/settings');
+                navigate('/settings', { state: { activeTab: 'data' } });
+                break;
+              case 'import-data':
+                navigate('/settings', { state: { activeTab: 'data' } });
+                break;
+              case 'sync-sheets':
+                navigate('/settings', { state: { activeTab: 'data' } });
+                break;
+              case 'export-all-data':
+                navigate('/settings', { state: { activeTab: 'data' } });
                 break;
             }
           }}

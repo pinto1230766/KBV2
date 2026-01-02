@@ -2,14 +2,24 @@ import React from 'react';
 import { Visit } from '@/types';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
-import { Edit, Trash2, MessageSquare } from 'lucide-react';
+import { Edit, Trash2, MessageSquare, AlertTriangle, UserPlus, XCircle } from 'lucide-react';
 
 interface PlanningListViewProps {
   visits: Visit[];
   onVisitClick?: (visit: Visit) => void;
   onVisitAction?: (
     visit: Visit,
-    action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+    action:
+      | 'edit'
+      | 'delete'
+      | 'status'
+      | 'message'
+      | 'feedback'
+      | 'expenses'
+      | 'logistics'
+      | 'cancel'
+      | 'replace'
+      | 'conflict'
   ) => void;
 }
 
@@ -172,6 +182,36 @@ export const PlanningListView: React.FC<PlanningListViewProps> = ({
                       title='Message'
                     >
                       <MessageSquare className='w-4 h-4' />
+                    </button>
+                    <button
+                      className='text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 p-1'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onVisitAction?.(visit, 'conflict');
+                      }}
+                      title='Conflits'
+                    >
+                      <AlertTriangle className='w-4 h-4' />
+                    </button>
+                    <button
+                      className='text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onVisitAction?.(visit, 'replace');
+                      }}
+                      title='Remplacer'
+                    >
+                      <UserPlus className='w-4 h-4' />
+                    </button>
+                    <button
+                      className='text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1'
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onVisitAction?.(visit, 'cancel');
+                      }}
+                      title='Annuler'
+                    >
+                      <XCircle className='w-4 h-4' />
                     </button>
                     <button
                       className='text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1'

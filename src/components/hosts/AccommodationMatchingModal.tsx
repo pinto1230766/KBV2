@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Visit, Host, Speaker } from '@/types';
 import { useData } from '@/contexts/DataContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface AccommodationMatchingModalProps {
   isOpen: boolean;
@@ -78,6 +79,7 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
   onSelectHost,
 }) => {
   const { hosts, visits } = useData();
+  const { t } = useTranslation();
   const [selectedHost, setSelectedHost] = useState<Host | null>(null);
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(true);
 
@@ -98,12 +100,12 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       if (isAvailable) {
         score += AVAILABILITY; // Utilisation de la constante
         compatibility.push({
-          factor: 'Disponible à cette date',
+          factor: t('Disponible à cette date'),
           score: AVAILABILITY,
           positive: true,
         });
       } else {
-        warnings.push('Indisponible à cette date');
+        warnings.push(t('Indisponible à cette date'));
         if (showOnlyAvailable) return; // Exclure si filtre activé
       }
 
@@ -112,21 +114,21 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         if (speaker.gender === 'couple' && host.gender === 'couple') {
           score += SCORE_WEIGHTS.GENDER_COUPLE_COUPLE;
           compatibility.push({
-            factor: 'Couple accueille couple',
+            factor: t('Couple accueille couple'),
             score: SCORE_WEIGHTS.GENDER_COUPLE_COUPLE,
             positive: true,
           });
         } else if (speaker.gender === host.gender) {
           score += SCORE_WEIGHTS.GENDER_SAME;
           compatibility.push({
-            factor: 'Genre compatible',
+            factor: t('Genre compatible'),
             score: SCORE_WEIGHTS.GENDER_SAME,
             positive: true,
           });
         } else if (speaker.gender === 'couple' || host.gender === 'couple') {
           score += SCORE_WEIGHTS.GENDER_PARTIAL;
           compatibility.push({
-            factor: 'Genre partiellement compatible',
+            factor: t('Genre partiellement compatible'),
             score: SCORE_WEIGHTS.GENDER_PARTIAL,
             positive: true,
           });
@@ -138,13 +140,13 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         if (host.capacity >= SCORE_WEIGHTS.MIN_CAPACITY) {
           score += SCORE_WEIGHTS.CAPACITY_GOOD;
           compatibility.push({
-            factor: `Capacité: ${host.capacity} personne(s)`,
+            factor: `${t('Capacité:')} ${host.capacity} ${t('personne(s)')}`,
             score: SCORE_WEIGHTS.CAPACITY_GOOD,
             positive: true,
           });
         } else {
           compatibility.push({
-            factor: 'Capacité limitée (1 personne)',
+            factor: t('Capacité limitée (1 personne)'),
             score: SCORE_WEIGHTS.CAPACITY_LIMITED,
             positive: false,
           });
@@ -155,7 +157,7 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       if (host.hasParking) {
         score += SCORE_WEIGHTS.EQUIPMENT_PARKING;
         compatibility.push({
-          factor: 'Parking disponible',
+          factor: t('Parking disponible'),
           score: SCORE_WEIGHTS.EQUIPMENT_PARKING,
           positive: true,
         });
@@ -164,7 +166,7 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
       if (host.hasElevator) {
         score += SCORE_WEIGHTS.EQUIPMENT_ELEVATOR;
         compatibility.push({
-          factor: 'Ascenseur disponible',
+          factor: t('Ascenseur disponible'),
           score: SCORE_WEIGHTS.EQUIPMENT_ELEVATOR,
           positive: true,
         });
@@ -172,18 +174,18 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
 
       // 5. Préférences spéciales
       if (speaker?.isVehiculed && !host.hasParking) {
-        warnings.push('Orateur véhiculé mais pas de parking');
+        warnings.push(t('Orateur véhiculé mais pas de parking'));
         score -= SCORE_WEIGHTS.PREFERENCE_PENALTY;
       }
 
       // 6. Animaux
       if (host.hasPets) {
         compatibility.push({
-          factor: 'Animaux de compagnie',
+          factor: t('Animaux de compagnie'),
           score: 0,
           positive: false,
         });
-        warnings.push("Présence d'animaux");
+        warnings.push(t("Présence d'animaux"));
       }
 
       // 8. Historique d'accueil
@@ -198,7 +200,7 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         );
         score += experienceScore;
         compatibility.push({
-          factor: `${previousAccommodations.length} accueil(s) réussi(s)`,
+          factor: `${previousAccommodations.length} ${t('accueil(s) réussi(s)')}`,
           score: experienceScore,
           positive: true,
         });
@@ -216,12 +218,12 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         );
 
         if (daysSince < SCORE_WEIGHTS.DAYS_RECENT) {
-          warnings.push('A accueilli récemment');
+          warnings.push(t('A accueilli récemment'));
           score -= SCORE_WEIGHTS.RECENT_HOST_PENALTY;
         } else if (daysSince > SCORE_WEIGHTS.DAYS_LONG_TIME) {
           score += SCORE_WEIGHTS.LONG_TIME_AVAILABLE;
           compatibility.push({
-            factor: 'Disponible depuis longtemps',
+            factor: t('Disponible depuis longtemps'),
             score: SCORE_WEIGHTS.LONG_TIME_AVAILABLE,
             positive: true,
           });
@@ -256,14 +258,14 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
   };
 
   const getScoreLabel = (score: number) => {
-    if (score >= SCORE_WEIGHTS.SCORE_EXCELLENT) return 'Excellent match';
-    if (score >= SCORE_WEIGHTS.SCORE_GOOD) return 'Bon match';
-    if (score >= SCORE_WEIGHTS.SCORE_ACCEPTABLE) return 'Match acceptable';
-    return 'Match faible';
+    if (score >= SCORE_WEIGHTS.SCORE_EXCELLENT) return t('Excellent match');
+    if (score >= SCORE_WEIGHTS.SCORE_GOOD) return t('Bon match');
+    if (score >= SCORE_WEIGHTS.SCORE_ACCEPTABLE) return t('Match acceptable');
+    return t('Match faible');
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Matching intelligent hôte/orateur' size='xl'>
+    <Modal isOpen={isOpen} onClose={onClose} title={t('Matching intelligent hôte/orateur')} size='xl'>
       <div className='space-y-6'>
         {/* Informations de la visite */}
         <div className='p-4 bg-gradient-to-r from-primary-50 to-purple-50 dark:from-primary-900/20 dark:to-purple-900/20 rounded-lg'>
@@ -282,12 +284,12 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
             <div className='mt-2 flex gap-2'>
               <Badge variant='default'>
                 {speaker.gender === 'male'
-                  ? 'Homme'
+                  ? t('Homme')
                   : speaker.gender === 'female'
-                    ? 'Femme'
-                    : 'Couple'}
+                    ? t('Femme')
+                    : t('Couple')}
               </Badge>
-              {speaker.isVehiculed && <Badge variant='default'>Véhiculé</Badge>}
+              {speaker.isVehiculed && <Badge variant='default'>{t('Véhiculé')}</Badge>}
             </div>
           )}
         </div>
@@ -302,10 +304,10 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
               className='w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500'
             />
             <span className='text-sm text-gray-700 dark:text-gray-300'>
-              Afficher uniquement les hôtes disponibles
+              {t('Afficher uniquement les hôtes disponibles')}
             </span>
           </label>
-          <Badge variant='default'>{matchedHosts.length} hôte(s) trouvé(s)</Badge>
+          <Badge variant='default'>{matchedHosts.length} {t('hôte(s) trouvé(s)')}</Badge>
         </div>
 
         {/* Liste des hôtes */}
@@ -314,10 +316,10 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
             <div className='text-center py-12'>
               <Home className='w-16 h-16 mx-auto mb-4 text-gray-400' />
               <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>
-                Aucun hôte trouvé
+                {t('Aucun hôte trouvé')}
               </h3>
               <p className='text-gray-600 dark:text-gray-400'>
-                Essayez de désactiver le filtre de disponibilité
+                {t('Essayez de désactiver le filtre de disponibilité')}
               </p>
             </div>
           ) : (
@@ -422,11 +424,11 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
             <div className='flex items-start gap-3'>
               <Home className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
               <div className='text-sm text-blue-800 dark:text-blue-300'>
-                <strong>Hôte sélectionné :</strong> {selectedHost.nom}
+                <strong>{t('Hôte sélectionné :')}</strong> {selectedHost.nom}
                 {selectedHost.telephone && (
-                  <div className='mt-1'>Téléphone : {selectedHost.telephone}</div>
+                  <div className='mt-1'>{t('Téléphone :')} {selectedHost.telephone}</div>
                 )}
-                {selectedHost.email && <div className='mt-1'>Email : {selectedHost.email}</div>}
+                {selectedHost.email && <div className='mt-1'>{t('Email :')} {selectedHost.email}</div>}
               </div>
             </div>
           </div>
@@ -435,11 +437,11 @@ export const AccommodationMatchingModal: React.FC<AccommodationMatchingModalProp
         {/* Actions */}
         <div className='flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700'>
           <Button variant='secondary' onClick={onClose}>
-            Annuler
+            {t('Annuler')}
           </Button>
           <Button variant='primary' onClick={handleSelectHost} disabled={!selectedHost}>
             <Home className='w-4 h-4 mr-2' />
-            Sélectionner cet hôte
+            {t('Sélectionner cet hôte')}
           </Button>
         </div>
       </div>

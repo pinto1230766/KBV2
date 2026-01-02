@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { SpeakerList } from '@/components/speakers/SpeakerList';
@@ -45,9 +46,25 @@ const StatCard = ({ icon: Icon, value, label, colorClasses }: any) => (
 
 export const Speakers: React.FC = () => {
   const { speakers, deleteSpeaker, hosts, deleteHost } = useData();
+  const location = useLocation();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('speakers');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Handle initial state from navigation
+  useEffect(() => {
+    const state = location.state as { activeTab?: Tab; openForm?: boolean };
+    if (state?.activeTab) {
+      setActiveTab(state.activeTab);
+    }
+    if (state?.openForm) {
+      if (state.activeTab === 'hosts' || activeTab === 'hosts') {
+        setIsHostModalOpen(true);
+      } else {
+        setIsSpeakerModalOpen(true);
+      }
+    }
+  }, [location.state]);
 
   // Modal states
   const [isSpeakerModalOpen, setIsSpeakerModalOpen] = useState(false);

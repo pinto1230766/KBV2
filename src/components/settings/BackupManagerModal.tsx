@@ -9,12 +9,15 @@ import {
   CheckCircle,
   AlertTriangle,
   Trash2,
+  FolderOpen,
+  Share2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { useToast } from '@/contexts/ToastContext';
+import { fileSystemService } from '@/utils/FileSystemService';
 
 interface BackupManagerModalProps {
   isOpen: boolean;
@@ -55,17 +58,27 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
   const [isCreating, setIsCreating] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [backupHistory, setBackupHistory] = useState<BackupHistory[]>([]);
+  const [kbvFolderPath, setKbvFolderPath] = useState<string>('Documents/KBV');
+  const [savedFiles, setSavedFiles] = useState<string[]>([]);
   const { addToast } = useToast();
 
-  // Charger l'historique des sauvegardes depuis localStorage
+  // Charger l'historique des sauvegardes et le chemin du dossier
   useEffect(() => {
-    const loadBackupHistory = () => {
+    const loadBackupHistory = async () => {
       try {
         const stored = localStorage.getItem('kbv_backup_history');
         if (stored) {
           const history = JSON.parse(stored);
           setBackupHistory(history);
         }
+
+        // Obtenir le chemin du dossier KBV
+        const path = await fileSystemService.getKBVFolderPath();
+        setKbvFolderPath(path);
+
+        // Lister les fichiers dans le dossier KBV
+        const files = await fileSystemService.listKBVFiles();
+        setSavedFiles(files.filter(f => f.endsWith('.json')));
       } catch (error) {
         console.error("Erreur lors du chargement de l'historique:", error);
       }
@@ -109,17 +122,16 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
       const newBackup: BackupHistory = {
         id: Date.now().toString(),
         date: new Date().toISOString(),
-        size: 0, // Sera mis à jour quand on aura accès au fichier
-        itemsCount: 0, // Sera estimé
+        size: 0,
+        itemsCount: 0,
         encrypted: encrypt,
       };
 
-      const updatedHistory = [newBackup, ...backupHistory].slice(0, 10); // Garder seulement les 10 dernières
+      const updatedHistory = [newBackup, ...backupHistory].slice(0, 10);
       saveBackupHistory(updatedHistory);
 
-      addToast("Sauvegarde créée et ajoutée à l'historique", 'success');
+      addToast(`Sauvegarde créée dans ${kbvFolderPath}`, 'success');
 
-      // Réinitialiser le formulaire
       setPassword('');
       setConfirmPassword('');
       setIsCreating(false);
@@ -156,6 +168,17 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error);
       addToast('Erreur lors du téléchargement de la sauvegarde', 'error');
+    }
+  };
+
+  // Partager un fichier de sauvegarde
+  const handleShareBackup = async (filename: string) => {
+    try {
+      await fileSystemService.shareFile(filename, 'Partager la sauvegarde KBV');
+      addToast('Fichier partagé', 'success');
+    } catch (error) {
+      console.error('Erreur partage:', error);
+      addToast('Erreur lors du partage', 'error');
     }
   };
 
@@ -249,11 +272,13 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
           <div className='space-y-6'>
             <div className='p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
               <div className='flex items-start gap-3'>
-                <HardDrive className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
+                <FolderOpen className='w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5' />
                 <div className='text-sm text-blue-800 dark:text-blue-300'>
-                  <strong>Sauvegarde locale :</strong> Les données seront exportées dans un fichier
-                  JSON téléchargeable. Conservez ce fichier en lieu sûr pour pouvoir restaurer vos
-                  données en cas de besoin.
+                  <strong>Emplacement de sauvegarde :</strong> Les fichiers seront enregistrés dans<br/>
+                  <code className='bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs font-mono mt-1 inline-block'>
+                    {kbvFolderPath}
+                  </code>
+                  <p className='mt-2'>Vous pourrez les retrouver facilement dans l'application Fichiers de votre tablette.</p>
                 </div>
               </div>
             </div>
@@ -366,15 +391,20 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
               )}
             </div>
 
-            <Button
-              variant='primary'
-              onClick={handleCreateBackup}
-              disabled={isCreating || (encrypt && (!password || password !== confirmPassword))}
-              className='w-full'
-            >
-              <Download className='w-4 h-4 mr-2' />
-              {isCreating ? 'Création en cours...' : 'Créer et télécharger la sauvegarde'}
-            </Button>
+            <div className='space-y-3'>
+              <Button
+                variant='primary'
+                onClick={handleCreateBackup}
+                disabled={isCreating || (encrypt && (!password || password !== confirmPassword))}
+                className='w-full'
+              >
+                <Save className='w-4 h-4 mr-2' />
+                {isCreating ? 'Création en cours...' : 'Créer la sauvegarde'}
+              </Button>
+              <p className='text-xs text-center text-gray-500'>
+                Le fichier sera enregistré dans Documents/KBV/
+              </p>
+            </div>
           </div>
         )}
 
@@ -441,7 +471,72 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
         {/* Contenu - Historique */}
         {activeTab === 'history' && (
           <div className='space-y-4'>
-            {backupHistory.length === 0 ? (
+            {/* Fichiers sauvegardés dans Documents/KBV */}
+            {savedFiles.length > 0 && (
+              <div className='mb-6'>
+                <div className='flex items-center gap-2 mb-3'>
+                  <FolderOpen className='w-4 h-4 text-primary-600' />
+                  <h4 className='font-semibold text-gray-900 dark:text-white'>
+                    Sauvegardes dans {kbvFolderPath}
+                  </h4>
+                </div>
+                <div className='space-y-2'>
+                  {savedFiles.map((filename) => (
+                    <Card key={filename} className='bg-green-50 dark:bg-green-900/10'>
+                      <CardBody>
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-4'>
+                            <div className='p-3 bg-green-100 dark:bg-green-900 rounded-lg'>
+                              <Save className='w-6 h-6 text-green-600' />
+                            </div>
+                            <div>
+                              <div className='font-medium text-gray-900 dark:text-white'>
+                                {filename}
+                              </div>
+                              <div className='text-xs text-gray-600 dark:text-gray-400'>
+                                Sauvegardé dans Documents/KBV
+                              </div>
+                            </div>
+                          </div>
+                          <div className='flex gap-2'>
+                            <Button
+                              variant='outline'
+                              size='sm'
+                              onClick={() => handleShareBackup(filename)}
+                              title='Partager cette sauvegarde'
+                            >
+                              <Share2 className='w-4 h-4' />
+                            </Button>
+                            <Button
+                              variant='outline'
+                              size='sm'
+                              onClick={async () => {
+                                if (confirm('Supprimer ce fichier ?')) {
+                                  try {
+                                    await fileSystemService.deleteFromDocuments(filename);
+                                    setSavedFiles(savedFiles.filter(f => f !== filename));
+                                    addToast('Fichier supprimé', 'success');
+                                  } catch (error) {
+                                    addToast('Erreur lors de la suppression', 'error');
+                                  }
+                                }
+                              }}
+                              title='Supprimer'
+                              className='text-red-600 hover:text-red-700 hover:border-red-300'
+                            >
+                              <Trash2 className='w-4 h-4' />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Historique local */}
+            {backupHistory.length === 0 && savedFiles.length === 0 ? (
               <div className='text-center py-12'>
                 <Clock className='w-16 h-16 mx-auto mb-4 text-gray-400' />
                 <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-2'>

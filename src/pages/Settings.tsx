@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -38,6 +39,7 @@ import { PhoneNumberImportModal } from '@/components/settings/PhoneNumberImportM
 import { cn } from '@/utils/cn';
 import { useVisitNotifications } from '@/hooks/useVisitNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { fileSystemService } from '@/utils/FileSystemService';
 
 interface BackupOptions {
   includeArchived: boolean;
@@ -103,6 +105,7 @@ export const Settings: React.FC = () => {
     }
   };
 
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<
     | 'overview'
     | 'profile'
@@ -113,6 +116,14 @@ export const Settings: React.FC = () => {
     | 'duplicates'
     | 'about'
   >('overview');
+
+  // Handle initial state from navigation
+  useEffect(() => {
+    const state = location.state as { activeTab?: typeof activeTab };
+    if (state?.activeTab) {
+      setActiveTab(state.activeTab);
+    }
+  }, [location.state]);
   const [profileForm, setProfileForm] = useState<CongregationProfile>(congregationProfile);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -215,21 +226,29 @@ export const Settings: React.FC = () => {
       .finally(() => setIsSyncing(false));
   };
 
-  const handleBackupAdapter = (_options: BackupOptions): Promise<void> =>
-    new Promise((resolve) => {
+  const handleBackupAdapter = async (_options: BackupOptions): Promise<void> => {
+    try {
       const json = exportData();
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      addToast('Sauvegarde effectuée avec succès', 'success');
-      resolve();
-    });
+      const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      
+      // Utiliser le service de fichiers pour sauvegarder
+      const result = await fileSystemService.saveToDocuments({
+        filename,
+        data: json,
+        mimeType: 'application/json',
+      });
+
+      if (result.success) {
+        addToast(`Sauvegarde créée : ${result.path}`, 'success');
+      } else {
+        throw new Error(result.error || 'Erreur inconnue');
+      }
+    } catch (error) {
+      console.error('Erreur sauvegarde:', error);
+      addToast('Erreur lors de la sauvegarde', 'error');
+      throw error;
+    }
+  };
 
   const handleRestoreAdapter = (file: File) =>
     new Promise<void>((resolve, reject) => {

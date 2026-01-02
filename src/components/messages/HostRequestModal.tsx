@@ -6,6 +6,7 @@ import { Visit, Language } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { generateHostRequestMessage } from '@/utils/messageGenerator';
 import { Send, Copy, Check } from 'lucide-react';
 import { formatFullDate } from '@/utils/formatters';
@@ -25,6 +26,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
   const { congregationProfile } = useData();
   const { settings } = useSettings();
   const { addToast } = useToast();
+  const { t } = useTranslation();
 
   const [selectedVisits, setSelectedVisits] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState('');
@@ -79,9 +81,9 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(message);
-      addToast('Message copié dans le presse-papier', 'success');
+      addToast(t('Message copié dans le presse-papier'), 'success');
     } catch (_error) {
-      addToast('Erreur lors de la copie', 'error');
+      addToast(t('Erreur lors de la copie'), 'error');
     }
   };
 
@@ -96,12 +98,12 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isIndividualRequest ? "Demande d'accueil individuelle" : "Demande d'accueil groupée"}
+      title={isIndividualRequest ? t("Demande d'accueil individuelle") : t("Demande d'accueil groupée")}
       size='lg'
       footer={
         <>
           <Button variant='ghost' onClick={onClose}>
-            Annuler
+            {t('Annuler')}
           </Button>
           <Button
             variant='secondary'
@@ -112,11 +114,11 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             }
             title={
               !isIndividualRequest && selectedVisits.size === 0
-                ? 'Sélectionnez au moins une visite'
+                ? t('Sélectionnez au moins une visite')
                 : ''
             }
           >
-            Copier
+            {t('Copier')}
           </Button>
           <Button
             onClick={handleSendWhatsApp}
@@ -126,11 +128,11 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
             }
             title={
               !isIndividualRequest && selectedVisits.size === 0
-                ? 'Sélectionnez au moins une visite'
+                ? t('Sélectionnez au moins une visite')
                 : ''
             }
           >
-            Envoyer sur WhatsApp
+            {t('Envoyer sur WhatsApp')}
           </Button>
         </>
       }
@@ -140,15 +142,14 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
         <div className='flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg'>
           <div>
             <h3 className='font-semibold text-orange-900 dark:text-orange-300'>
-              {visitsNeedingHost.length} visite{visitsNeedingHost.length > 1 ? 's' : ''} sans
-              contact d'accueil
+              {visitsNeedingHost.length} {visitsNeedingHost.length > 1 ? t('visites sans contact d\'accueil') : t('visite sans contact d\'accueil')}
             </h3>
             <p className='text-sm text-orange-700 dark:text-orange-400 mt-1'>
-              Sélectionnez les visites pour lesquelles demander un contact
+              {t('Sélectionnez les visites pour lesquelles demander un contact')}
             </p>
           </div>
           <Badge variant='warning' size='md'>
-            {selectedVisits.size} sélectionnée{selectedVisits.size > 1 ? 's' : ''}
+            {selectedVisits.size} {selectedVisits.size > 1 ? t('sélectionnées') : t('sélectionnée')}
           </Badge>
         </div>
 
@@ -166,7 +167,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                   setSelectedHost('');
                 }}
               />
-              <span>Demande groupée</span>
+              <span>{t('Demande groupée')}</span>
             </label>
             <label className='flex items-center space-x-2 cursor-pointer'>
               <input
@@ -175,14 +176,14 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                 checked={isIndividualRequest}
                 onChange={() => setIsIndividualRequest(true)}
               />
-              <span>Demande individuelle</span>
+              <span>{t('Demande individuelle')}</span>
             </label>
           </div>
 
           {/* Sélecteur de langue */}
           <div className='mb-4'>
             <label className='block text-sm font-medium text-gray-700 mb-2'>
-              Langue du message
+              {t('Langue du message')}
             </label>
             <div className='flex space-x-4'>
               <label className='flex items-center space-x-2 cursor-pointer'>
@@ -192,7 +193,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                   checked={selectedLanguage === 'fr'}
                   onChange={() => setSelectedLanguage('fr')}
                 />
-                <span>🇫🇷 Français</span>
+                <span>{t('🇫🇷 Français')}</span>
               </label>
               <label className='flex items-center space-x-2 cursor-pointer'>
                 <input
@@ -201,7 +202,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                   checked={selectedLanguage === 'cv'}
                   onChange={() => setSelectedLanguage('cv')}
                 />
-                <span>🇨🇻 Capverdien</span>
+                <span>{t('🇨🇻 Capverdien')}</span>
               </label>
               <label className='flex items-center space-x-2 cursor-pointer'>
                 <input
@@ -210,7 +211,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                   checked={selectedLanguage === 'pt'}
                   onChange={() => setSelectedLanguage('pt')}
                 />
-                <span>🇵🇹 Portugais</span>
+                <span>{t('🇵🇹 Portugais')}</span>
               </label>
             </div>
           </div>
@@ -218,12 +219,12 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
           {isIndividualRequest && (
             <div className='mb-4'>
               <label className='block text-sm font-medium text-gray-700 mb-1'>
-                Sélectionnez l'hôte
+                {t('Sélectionnez l\'hôte')}
               </label>
               <input
                 type='text'
                 className='w-full p-2 border rounded'
-                placeholder="Nom de l'hôte"
+                placeholder={t("Nom de l'hôte")}
                 value={selectedHost}
                 onChange={(e) => setSelectedHost(e.target.value)}
               />
@@ -233,13 +234,13 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
           <div className='space-y-2'>
             <div className='flex items-center justify-between'>
               <h3 className='text-sm font-medium'>
-                {isIndividualRequest ? 'Sélectionnez une visite' : 'Sélectionnez les visites'}
+                {isIndividualRequest ? t('Sélectionnez une visite') : t('Sélectionnez les visites')}
               </h3>
               {!isIndividualRequest && (
                 <button onClick={toggleAll} className='text-sm text-blue-600 hover:underline'>
                   {selectedVisits.size === visitsNeedingHost.length
-                    ? 'Tout désélectionner'
-                    : 'Tout sélectionner'}
+                    ? t('Tout désélectionner')
+                    : t('Tout sélectionner')}
                 </button>
               )}
             </div>
@@ -275,9 +276,9 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                     </div>
                     <div className='flex items-center space-x-2'>
                       {visit.host === 'À définir' ? (
-                        <Badge variant='warning'>À définir</Badge>
+                        <Badge variant='warning'>{t('À définir')}</Badge>
                       ) : (
-                        <Badge variant='success'>Défini</Badge>
+                        <Badge variant='success'>{t('Défini')}</Badge>
                       )}
                     </div>
                   </div>
@@ -289,7 +290,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
 
         {/* Aperçu du message */}
         <div>
-          <h4 className='font-medium text-gray-900 dark:text-white mb-2'>Aperçu du message</h4>
+          <h4 className='font-medium text-gray-900 dark:text-white mb-2'>{t('Aperçu du message')}</h4>
           <div className='relative'>
             <textarea
               className='w-full h-64 p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
@@ -297,8 +298,8 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
               onChange={(e) => setMessage(e.target.value)}
               placeholder={
                 selectedVisits.size === 0
-                  ? 'Sélectionnez au moins une visite pour générer le message...'
-                  : 'Génération du message...'
+                  ? t('Sélectionnez au moins une visite pour générer le message...')
+                  : t('Génération du message...')
               }
               disabled={selectedVisits.size === 0}
             />
@@ -306,13 +307,13 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
               <div className='absolute top-2 right-2'>
                 <Badge variant='success' size='sm'>
                   <Check className='w-3 h-3 mr-1' />
-                  Message prêt
+                  {t('Message prêt')}
                 </Badge>
               </div>
             )}
           </div>
           <p className='text-xs text-gray-500 dark:text-gray-400 mt-2'>
-            💡 Vous pouvez modifier le message avant de l'envoyer
+            💡 {t('Vous pouvez modifier le message avant de l\'envoyer')}
           </p>
         </div>
       </div>

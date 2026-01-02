@@ -35,7 +35,17 @@ interface VisitActionModalProps {
   isOpen: boolean;
   onClose: () => void;
   visit: Visit | null;
-  action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics';
+  action:
+    | 'edit'
+    | 'delete'
+    | 'status'
+    | 'message'
+    | 'feedback'
+    | 'expenses'
+    | 'logistics'
+    | 'cancel'
+    | 'replace'
+    | 'conflict';
 }
 
 export const VisitActionModal: React.FC<VisitActionModalProps> = ({

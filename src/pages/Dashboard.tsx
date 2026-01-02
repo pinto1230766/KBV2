@@ -538,16 +538,15 @@ export const Dashboard: React.FC = () => {
         isOpen={isQuickActionsOpen}
         onClose={() => setIsQuickActionsOpen(false)}
         onAction={(action) => {
-          // Reuse existing Logic from old Dashboard
           switch (action) {
             case 'schedule-visit':
-              navigate('/planning');
+              setIsScheduleModalOpen(true);
               break;
             case 'add-speaker':
-              navigate('/speakers');
+              navigate('/speakers', { state: { activeTab: 'speakers', openForm: true } });
               break;
             case 'add-host':
-              navigate('/speakers');
+              navigate('/speakers', { state: { activeTab: 'hosts', openForm: true } });
               break;
             case 'send-message':
               navigate('/messages');
@@ -556,22 +555,22 @@ export const Dashboard: React.FC = () => {
               setIsReportModalOpen(true);
               break;
             case 'check-conflicts':
-              navigate('/planning');
+              navigate('/planning', { state: { openConflicts: true } });
               break;
             case 'backup-data':
-              navigate('/settings');
+              navigate('/settings', { state: { activeTab: 'data' } });
               break;
             case 'import-data':
-              navigate('/settings');
+              navigate('/settings', { state: { activeTab: 'data' } });
               break;
             case 'sync-sheets':
-              navigate('/settings');
+              navigate('/settings', { state: { activeTab: 'data' } });
               break;
             case 'export-all-data':
-              navigate('/settings');
+              navigate('/settings', { state: { activeTab: 'data' } });
               break;
             case 'search-entities':
-              navigate('/planning');
+              setIsGlobalSearchOpen(true);
               break;
           }
         }}

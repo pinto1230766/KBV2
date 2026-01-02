@@ -13,6 +13,9 @@ import {
   Star,
   CreditCard,
   Truck,
+  AlertTriangle,
+  XCircle,
+  UserPlus,
 } from 'lucide-react';
 import { Visit } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -26,7 +29,17 @@ interface VisitCardProps {
   onClick?: () => void;
   onAction?: (
     visit: Visit,
-    action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+    action:
+      | 'edit'
+      | 'delete'
+      | 'status'
+      | 'message'
+      | 'feedback'
+      | 'expenses'
+      | 'logistics'
+      | 'cancel'
+      | 'replace'
+      | 'conflict'
   ) => void;
 }
 
@@ -70,7 +83,17 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
   };
 
   const handleActionClick = (
-    action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses',
+    action:
+      | 'edit'
+      | 'delete'
+      | 'status'
+      | 'message'
+      | 'feedback'
+      | 'expenses'
+      | 'logistics'
+      | 'cancel'
+      | 'replace'
+      | 'conflict',
     e: React.MouseEvent
   ) => {
     e.stopPropagation();
@@ -91,6 +114,9 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
     { action: 'expenses', label: 'Dépenses', icon: CreditCard, color: 'text-purple-600' },
     { action: 'logistics', label: 'Logistique', icon: Truck, color: 'text-blue-500' },
     { action: 'status', label: 'Changer le statut', icon: CheckCircle, color: 'text-orange-600' },
+    { action: 'conflict', label: 'Conflits', icon: AlertTriangle, color: 'text-amber-600' },
+    { action: 'replace', label: 'Remplacer l\'orateur', icon: UserPlus, color: 'text-indigo-600' },
+    { action: 'cancel', label: 'Annuler la visite', icon: XCircle, color: 'text-red-500' },
     { action: 'feedback', label: 'Bilan', icon: Star, color: 'text-yellow-500' },
     { action: 'delete', label: 'Supprimer', icon: Trash2, color: 'text-red-600' },
   ];
@@ -220,8 +246,6 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
           </div>
         </div>
       </CardBody>
-
-      {/* Overlay to close menu when clicking outside */}
     </Card>
   );
 };

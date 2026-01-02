@@ -7,7 +7,17 @@ interface PlanningCardsViewProps {
   onVisitClick?: (visit: Visit) => void;
   onVisitAction?: (
     visit: Visit,
-    action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+    action:
+      | 'edit'
+      | 'delete'
+      | 'status'
+      | 'message'
+      | 'feedback'
+      | 'expenses'
+      | 'logistics'
+      | 'cancel'
+      | 'replace'
+      | 'conflict'
   ) => void;
 }
 

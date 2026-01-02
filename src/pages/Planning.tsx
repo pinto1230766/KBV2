@@ -1,4 +1,5 @@
 import React, { useState, useMemo, memo, useCallback, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
@@ -109,7 +110,16 @@ export const Planning: React.FC = () => {
   });
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [selectedAction, setSelectedAction] = useState<
-    'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+    | 'edit'
+    | 'delete'
+    | 'status'
+    | 'message'
+    | 'feedback'
+    | 'expenses'
+    | 'logistics'
+    | 'cancel'
+    | 'replace'
+    | 'conflict'
   >('edit');
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
@@ -118,10 +128,23 @@ export const Planning: React.FC = () => {
 
   const componentRef = useRef<HTMLDivElement>(null);
 
+  const location = useLocation();
+
   // Set data for export service
   useEffect(() => {
     exportService.setData(allData);
   }, [allData]);
+
+  // Handle initial state from navigation (e.g. from Quick Actions)
+  useEffect(() => {
+    const state = location.state as { openConflicts?: boolean; openSchedule?: boolean };
+    if (state?.openConflicts) {
+      setIsConflictModalOpen(true);
+    }
+    if (state?.openSchedule) {
+      setIsModalOpen(true);
+    }
+  }, [location.state]);
 
   const handleExport = async () => {
     if (view === 'archives') {
@@ -168,11 +191,30 @@ export const Planning: React.FC = () => {
   const handleVisitAction = useCallback(
     (
       visit: Visit,
-      action: 'edit' | 'delete' | 'status' | 'message' | 'feedback' | 'expenses' | 'logistics'
+      action:
+        | 'edit'
+        | 'delete'
+        | 'status'
+        | 'message'
+        | 'feedback'
+        | 'expenses'
+        | 'logistics'
+        | 'cancel'
+        | 'replace'
+        | 'conflict'
     ) => {
       setSelectedVisit(visit);
       setSelectedAction(action);
-      setIsActionModalOpen(true);
+
+      if (action === 'cancel') {
+        setIsCancellationModalOpen(true);
+      } else if (action === 'replace') {
+        setIsReplacementModalOpen(true);
+      } else if (action === 'conflict') {
+        setIsConflictModalOpen(true);
+      } else {
+        setIsActionModalOpen(true);
+      }
     },
     []
   );

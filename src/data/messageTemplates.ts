@@ -148,7 +148,7 @@ Fraternalmenti,
 
 N ta spera ma bu sta bon. 🏠
 
-Nu ten prazer di akolhe *{speakerName}* di kongregas on di *{congregation}* dia *{visitDate}*.
+Nu ten prazer di akolhe *{speakerName}* di kongregason di *{congregation}* dia *{visitDate}*.
 
 Bu pode inkarga-u di akolhimentu? Favor konfirma-m.
 
@@ -159,9 +159,9 @@ Fraternalmenti,
 
     preparation: {
       speaker: `Bon dia Mon *{speakerName}*,
-
-Obrigadu pa bu konfirmas on! 😊
-
+ 
+Obrigadu pa bu konfirmasón! 😊
+ 
 Aki es detalhis pa bu bizita dia *{visitDate} na {visitTime}* :
 
 🏠 *Kontaktu di akolhimentu* : {hostName}
@@ -182,7 +182,7 @@ Obrigadu pa bu dizponibilidadi! 🙏
 Aki es kontaktu di nu orador kombidadu pa dia *{visitDate}* :
 
 👤 *Orador* : {speakerName}
-🏛️ *Kongregas on* : {congregation}
+🏛️ *Kongregason* : {congregation}
 📞 *Telefone* : {speakerPhone}
 
 Favor kontakta-l pa kordina akolhimentu.
@@ -193,8 +193,8 @@ Fraternalmenti,
 
     'reminder-7': {
       speaker: `Bon dia Mon *{speakerName}*,
-
-Limbrans a di amisti: nu ta spera bu bizita ku alegria dento di *7 dia*, dia *{visitDate} na {visitTime}*! 🎉
+ 
+Limbransá di amizadi: nu ta spera bu bizita ku alegria dento di *7 dia*, dia *{visitDate} na {visitTime}*! 🎉
 
 📍 Morada : {hostAddress}
 📞 Kontaktu : {hostName} - {hostPhone}
@@ -205,8 +205,8 @@ Fraternalmenti,
 {hospitalityOverseer}`,
 
       host: `Bon dia Mon *{hostName}*,
-
-Limbrans a : bu ta akolhe *{speakerName}* dento di *7 dia*, dia *{visitDate}*! 🏠
+ 
+Limbransá : bu ta akolhe *{speakerName}* dento di *7 dia*, dia *{visitDate}*! 🏠
 
 Obrigadu pa bu ospitalidadi!
 
@@ -216,8 +216,8 @@ Fraternalmenti,
 
     'reminder-2': {
       speaker: `Bon dia Mon *{speakerName}*,
-
-Ultimu limbrans a : nu ta sperá-u *dizpois di manha*, dia *{visitDate} na {visitTime}*! 😊
+ 
+Últimu limbransá : nu ta sperá-u *dizpois di manhã*, dia *{visitDate} na {visitTime}*! 😊
 
 📍 {hostAddress}
 📞 {hostName} : {hostPhone}
@@ -352,9 +352,9 @@ Fraternalmente,
 
     thanks: {
       speaker: `Olá Irmão *{speakerName}*,
-
-Muito obrigado pela tua visita e pelo teu discurso encorajador! 🙏✨
-
+ 
+Muito obrigado pela tua visita e pelo teu discurso edificante! 🙏✨
+ 
 Foi um verdadeiro prazer receber-te entre nós. Esperamos ver-te novamente em breve!
 
 Fraternalmente,
@@ -397,10 +397,10 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
 
   cv: `Bon dia {hostName}, 🏠
-
+ 
 N ta spera ma bu sta bon.
-
-Nu ten prazer di akolhe *{speakerName}* di kongregas on di *{congregation}* pa *{talkTitle}* dia *{visitDate} na {visitTime}*.
+ 
+Nu ten prazer di akolhe *{speakerName}* di kongregason di *{congregation}* pa *{talkTitle}* dia *{visitDate} na {visitTime}*.
 
 Bu ta disponivel pa akolhe-l na bu kaza ? Aki es detalhis di bu vizita :
 
@@ -455,14 +455,14 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
 
   cv: `Bon dia tudu! 🏠
-
-Nu ta busca voluntariuoppa akolhe nu oradorisvizitantis na es datas li :
-
+ 
+Nu ta buska voluntáriu pa akolhe nu oradoris vizitantis na es datas li :
+ 
 {visitsList}
+ 
+Si bu sta disponivel pa akolhe un ô más di es oradoris, favor kontakta-m.
 
-Si bu sta dizponivel pa akolhe un o mas di es oradaris, favor kontakta-m.
-
-Ma Jeova abensoa-bu!
+Ma Jeová abensoa-bu!
 
 Fraternalmenti,
 {hospitalityOverseer}
