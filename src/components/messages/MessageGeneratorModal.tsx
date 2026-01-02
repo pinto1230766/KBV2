@@ -102,13 +102,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               generated = `${t('Chers frères et sœurs,')}\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
               break;
             case 'host_request_message':
-              generated = `${t('Chers frères et sœurs,')}\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t('Auriez-vous la possibilité d\'accueillir des visiteurs ? Votre aide serait très appréciée.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
+              generated = `${t('Chers frères et sœurs,')}\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t("Auriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
               break;
             case 'free_message':
               generated = `${t('Bonjour à tous,')}\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
               break;
             default:
-              generated = `${t('Bonjour à tous,')}\n\n${t('Ceci est un message de l\'assemblée de Lyon.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
+              generated = `${t('Bonjour à tous,')}\n\n${t("Ceci est un message de l'assemblée de Lyon.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
           }
         } else if (host) {
           // Message individuel à un hôte spécifique
@@ -117,13 +117,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               generated = `${t('Cher/Chère')} ${host.nom},\n\n${t('Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.')}\n\n${t('Que Dieu vous bénisse,')}\n${t("L'assemblée de Lyon")}`;
               break;
             case 'host_request_message':
-              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t('Auriez-vous la possibilité d\'accueillir des visiteurs ? Votre aide serait très appréciée.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
+              generated = `${t('Cher/Chère')} ${host.nom},\n\n${t("L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.")}\n\n${t("Auriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
               break;
             case 'free_message':
               generated = `${t('Bonjour')} ${host.nom},\n\n${t('[Votre message personnalisé ici]')}\n\n${t('Cordialement,')}\n${t("L'assemblée de Lyon")}`;
               break;
             default:
-              generated = `${t('Bonjour')} ${host.nom},\n\n${t('Ceci est un message de l\'assemblée de Lyon.')}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
+              generated = `${t('Bonjour')} ${host.nom},\n\n${t("Ceci est un message de l'assemblée de Lyon.")}\n\n${t('Cordialement,')}\n${t("L'équipe d'accueil")}`;
           }
         }
       } else if (speaker && visit) {
@@ -221,7 +221,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
     if (isGroupMessage) {
       // Envoi groupé avec délai pour éviter les blocages
-      addToast(`Envoi groupé à ${recipients.length} destinataires...`, 'info');
+      addToast(`${t('Envoi groupé à')} ${recipients.length} ${t('destinataires...')}`, 'info');
 
       for (let i = 0; i < recipients.length; i++) {
         const recipient = recipients[i];
@@ -242,7 +242,10 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
       setTimeout(
         () => {
-          addToast(`Messages envoyés à ${recipients.length} destinataires`, 'success');
+          addToast(
+            `${t('Messages envoyés à')} ${recipients.length} ${t('destinataires...').replace('...', '')}`,
+            'success'
+          );
           onClose();
         },
         recipients.length * 1000 + 1000
@@ -283,7 +286,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             {t('Copier')}
           </Button>
           <Button onClick={handleSend} leftIcon={<Send className='w-4 h-4' />}>
-            {t('Envoyer')} ({channel === 'whatsapp' ? t('WhatsApp') : channel === 'email' ? t('Email') : t('SMS')})
+            {t('Envoyer')} (
+            {channel === 'whatsapp' ? t('WhatsApp') : channel === 'email' ? t('Email') : t('SMS')})
           </Button>
         </>
       }
@@ -351,7 +355,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             onClick={() => setShowTemplates(!showTemplates)}
             leftIcon={<BookOpen className='w-4 h-4' />}
           >
-            Modèles ({messageTemplates.length})
+            {t('Modèles')} ({messageTemplates.length})
           </Button>
 
           {showTemplates && (

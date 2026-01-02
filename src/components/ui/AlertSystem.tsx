@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, X, Settings, AlertTriangle, Info, CheckCircle, Clock } from 'lucide-react';
+import { Bell, X, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { Button } from './Button';
 import { useToast } from '@/contexts/ToastContext';
 import { useData } from '@/contexts/DataContext';
@@ -27,7 +27,7 @@ interface AlertSystemProps {
 
 export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
   const { visits, speakers, hosts } = useData();
-  const { addToast } = useToast();
+  const { addToast: _addToast } = useToast();
 
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [showPanel, setShowPanel] = useState(false);
@@ -261,6 +261,8 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
               <button
                 onClick={() => setShowPanel(false)}
                 className='p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded'
+                aria-label='Fermer le panneau des alertes'
+                title='Fermer le panneau des alertes'
               >
                 <X className='w-4 h-4' />
               </button>
@@ -308,6 +310,8 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
                             <button
                               onClick={() => deleteAlert(alert.id)}
                               className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                              aria-label='Supprimer cette alerte'
+                              title='Supprimer cette alerte'
                             >
                               <X className='w-3 h-3' />
                             </button>
@@ -354,7 +358,7 @@ export const useAlerts = () => {
       type: Alert['type'],
       title: string,
       message: string,
-      options?: {
+      _options?: {
         actionUrl?: string;
         actionLabel?: string;
         autoExpire?: number;

@@ -110,7 +110,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
               {host ? t('Modifier le foyer') : t('Nouveau Foyer')}
             </h2>
             <p className='text-teal-100 text-sm'>
-              {t('Gérez les capacités d\'accueil de la congrégation.')}
+              {t("Gérez les capacités d'accueil de la congrégation.")}
             </p>
           </div>
         </div>
@@ -252,6 +252,8 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
                       setFormData((p) => ({ ...p, capacity: parseInt(e.target.value) }))
                     }
                     className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500'
+                    placeholder={t('Capacité (personnes)')}
+                    title={t("Capacité d'accueil de l'hôtes")}
                   />
                 </div>
 
