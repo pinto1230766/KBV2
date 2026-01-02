@@ -5,6 +5,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { Host, Gender } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Home, Users, MapPin, Phone, Mail, FileText, Dog } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
@@ -17,6 +18,7 @@ interface HostFormModalProps {
 export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, host }) => {
   const { addHost, updateHost, hosts } = useData();
   const { addToast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
   const DEFAULT_CAPACITY = 2;
@@ -63,10 +65,10 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
     setIsLoading(true);
 
     try {
-      if (!formData.nom) throw new Error('Le nom est obligatoire');
+      if (!formData.nom) throw new Error(t('Le nom est obligatoire'));
 
       if (!host && hosts.some((h) => h.nom.toLowerCase() === formData.nom?.toLowerCase())) {
-        throw new Error('Un contact avec ce nom existe déjà');
+        throw new Error(t('Un contact avec ce nom existe déjà'));
       }
 
       const hostData: Host = {
@@ -76,14 +78,14 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
 
       if (host) {
         updateHost(host.nom, hostData);
-        addToast('Contact mis à jour avec succès', 'success');
+        addToast(t('Contact mis à jour avec succès'), 'success');
       } else {
         addHost(hostData);
-        addToast('Contact ajouté avec succès', 'success');
+        addToast(t('Contact ajouté avec succès'), 'success');
       }
       onClose();
     } catch (error) {
-      addToast(error instanceof Error ? error.message : 'Erreur', 'error');
+      addToast(error instanceof Error ? error.message : t('Erreur'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -105,10 +107,10 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
           <Home className='absolute right-[-10px] top-[-10px] w-32 h-32 opacity-10 rotate-12' />
           <div className='relative z-10'>
             <h2 className='text-2xl font-black tracking-tighter mb-1'>
-              {host ? 'Modifier le foyer' : 'Nouveau Foyer'}
+              {host ? t('Modifier le foyer') : t('Nouveau Foyer')}
             </h2>
             <p className='text-teal-100 text-sm'>
-              Gérez les capacités d'accueil de la congrégation.
+              {t('Gérez les capacités d\'accueil de la congrégation.')}
             </p>
           </div>
         </div>
@@ -135,33 +137,33 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
               <div className='flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 mb-4'>
                 <Users className='w-4 h-4 text-teal-500' />
                 <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider'>
-                  Le Foyer
+                  {t('Le Foyer')}
                 </h3>
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div className='space-y-1'>
                   <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                    Nom du foyer
+                    {t('Nom du foyer')}
                   </label>
                   <input
                     required
                     value={formData.nom}
                     onChange={(e) => setFormData((p) => ({ ...p, nom: e.target.value }))}
-                    placeholder='Ex: Famille Martin'
+                    placeholder={t('Ex: Famille Martin')}
                     className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500 transition-all'
                   />
                 </div>
 
                 <div className='space-y-1'>
                   <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                    Type
+                    {t('Type')}
                   </label>
                   <div className='flex bg-gray-50 dark:bg-gray-800 rounded-xl p-1'>
                     {[
-                      { id: 'couple', label: 'Couple' },
-                      { id: 'male', label: 'Frère' },
-                      { id: 'female', label: 'Sœur' },
+                      { id: 'couple', label: t('Couple') },
+                      { id: 'male', label: t('Frère') },
+                      { id: 'female', label: t('Sœur') },
                     ].map((g) => (
                       <button
                         key={g.id}
@@ -183,14 +185,14 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
 
               <div className='space-y-1'>
                 <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                  Adresse
+                  {t('Adresse')}
                 </label>
                 <div className='relative'>
                   <MapPin className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
                   <input
                     value={formData.address}
                     onChange={(e) => setFormData((p) => ({ ...p, address: e.target.value }))}
-                    placeholder='12 rue de la Paix, Lyon'
+                    placeholder={t('12 rue de la Paix, Lyon')}
                     className='w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500 transition-all'
                   />
                 </div>
@@ -202,7 +204,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
               <div className='flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 mb-4'>
                 <Phone className='w-4 h-4 text-teal-500' />
                 <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider'>
-                  Contact
+                  {t('Contact')}
                 </h3>
               </div>
 
@@ -212,7 +214,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
                   <input
                     value={formData.telephone}
                     onChange={(e) => setFormData((p) => ({ ...p, telephone: e.target.value }))}
-                    placeholder='06 12 34 56 78'
+                    placeholder={t('06 12 34 56 78')}
                     className='w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500'
                   />
                 </div>
@@ -221,7 +223,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
                   <input
                     value={formData.email}
                     onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                    placeholder='famille@example.com'
+                    placeholder={t('famille@example.com')}
                     className='w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500'
                   />
                 </div>
@@ -233,14 +235,14 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
               <div className='flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 mb-4'>
                 <FileText className='w-4 h-4 text-teal-500' />
                 <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider'>
-                  Capacité & Particularités
+                  {t('Capacité & Particularités')}
                 </h3>
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div className='space-y-1'>
                   <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                    Capacité (personnes)
+                    {t('Capacité (personnes)')}
                   </label>
                   <input
                     type='number'
@@ -266,7 +268,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
                   >
                     <div className='flex items-center gap-2'>
                       <Dog className='w-4 h-4' />
-                      <span className='text-sm font-bold'>Animaux</span>
+                      <span className='text-sm font-bold'>{t('Animaux')}</span>
                     </div>
                     <div
                       className={cn(
@@ -280,13 +282,13 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
 
               <div className='space-y-1 pt-2'>
                 <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                  Contraintes / Préférences
+                  {t('Contraintes / Préférences')}
                 </label>
                 <textarea
                   rows={3}
                   value={formData.notes}
                   onChange={(e) => setFormData((p) => ({ ...p, notes: e.target.value }))}
-                  placeholder='Allergies, escaliers, régimes particuliers...'
+                  placeholder={t('Allergies, escaliers, régimes particuliers...')}
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500 resize-none'
                 />
               </div>
@@ -297,7 +299,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
         {/* Footer */}
         <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0'>
           <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-            Annuler
+            {t('Annuler')}
           </Button>
           <Button
             type='submit'
@@ -305,7 +307,7 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
             isLoading={isLoading}
             className='bg-teal-600 hover:bg-teal-700 text-white border-none shadow-lg shadow-teal-200 dark:shadow-none'
           >
-            Enregistrer
+            {t('Enregistrer')}
           </Button>
         </div>
       </div>

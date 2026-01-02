@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Edit, Trash2, Phone, Mail, MapPin, Info } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface HostListProps {
   hosts: Host[];
@@ -12,6 +13,8 @@ interface HostListProps {
 }
 
 export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) => {
+  const { t } = useTranslation();
+
   return (
     <div className='space-y-6'>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
@@ -29,7 +32,7 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
                   <div>
                     <h3 className='font-semibold text-gray-900 dark:text-white'>{host.nom}</h3>
                     <p className='text-sm text-gray-500 dark:text-gray-400'>
-                      Capacité: {host.capacity} pers.
+                      {t('Capacité:')} {host.capacity} {t('pers.')}
                     </p>
                   </div>
                 </div>
@@ -71,7 +74,7 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
               <div className='mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-2'>
                 {host.hasPets && (
                   <span className='px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium'>
-                    Animaux
+                    {t('Animaux')}
                   </span>
                 )}
                 {host.notes && (
@@ -88,7 +91,7 @@ export const HostList: React.FC<HostListProps> = ({ hosts, onEdit, onDelete }) =
 
       {hosts.length === 0 && (
         <div className='text-center py-12 text-gray-500 dark:text-gray-400'>
-          Aucun contact trouvé
+          {t('Aucun contact trouvé')}
         </div>
       )}
     </div>
