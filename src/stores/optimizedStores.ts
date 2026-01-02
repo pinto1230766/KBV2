@@ -148,10 +148,11 @@ export const useAppStore = create<AppStore>()(
       addNotification: (notification) =>
         _set((state) => {
           state.notifications.push({
-            ...notification,
             id: `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             timestamp: Date.now(),
-          });
+            type: notification.type || 'info',
+            message: notification.message || '',
+          } as any);
         }),
 
       removeNotification: (id) =>

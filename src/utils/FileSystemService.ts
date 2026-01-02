@@ -59,7 +59,7 @@ class FileSystemService {
         path: `${this.KBV_FOLDER}/${options.filename}`,
         data: options.data,
         directory: Directory.Documents,
-        encoding: 'utf8',
+        encoding: 'utf8' as any,
       });
 
       return {
@@ -126,7 +126,7 @@ class FileSystemService {
       const result = await Filesystem.readFile({
         path: `${this.KBV_FOLDER}/${filename}`,
         directory: Directory.Documents,
-        encoding: 'utf8',
+        encoding: 'utf8' as any,
       });
 
       return result.data as string;

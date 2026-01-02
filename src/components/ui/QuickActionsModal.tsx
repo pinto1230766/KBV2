@@ -407,7 +407,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
         <div className='p-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center'>
           <div className='flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest'>
             <Zap className='w-3 h-3 text-amber-500' />
-            KBV Manager • Core OS
+            KBV Manager • © 2025-2026 Pinto Francisco
           </div>
           <Button
             variant='ghost'

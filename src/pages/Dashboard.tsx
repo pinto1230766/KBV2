@@ -38,6 +38,7 @@ import { cn } from '@/utils/cn';
 import { Visit } from '@/types';
 import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
+import { generateReport } from '@/utils/reportGenerator';
 import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
@@ -84,7 +85,7 @@ const DashboardVisitItem = memo(({ visit, onClick }: { visit: Visit; onClick?: (
 });
 
 export const Dashboard: React.FC = () => {
-  const { visits, speakers, hosts } = useData();
+  const { visits, speakers, hosts, congregationProfile } = useData();
 
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -142,79 +143,56 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className='max-w-[1600px] mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-6'>
+    <div className='max-w-[1600px] mx-auto space-y-4 px-4 sm:px-6 lg:px-8 py-3'>
       {/* 1. Immersive Command Center Header */}
-      <div className='relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-indigo-700 p-4 sm:p-6 text-white shadow-2xl shadow-blue-500/20'>
-        <div className='absolute top-0 right-0 p-8 opacity-10'>
-          <Sparkles className='w-64 h-64 rotate-12' />
+      <div className='relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-xl shadow-blue-500/20'>
+        <div className='absolute top-0 right-0 p-4 opacity-10'>
+          <Sparkles className='w-32 h-32 rotate-12' />
         </div>
 
-        <div className='relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
-          <div className='space-y-3'>
-            <div className='flex items-center gap-3'>
-              <Badge className='bg-white/20 hover:bg-white/30 text-white border-none py-1.5 px-4 backdrop-blur-md font-bold text-[10px] tracking-[0.2em] uppercase'>
+        <div className='relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4'>
+          <div className='space-y-2'>
+            <div className='flex items-center gap-2'>
+              <Badge className='bg-white/20 hover:bg-white/30 text-white border-none py-1 px-3 backdrop-blur-md font-bold text-[9px] tracking-[0.2em] uppercase'>
                 GROUPE DE LYON
               </Badge>
-              <div className='flex items-center gap-1.5 text-blue-200'>
-                <ShieldCheck className='w-3 h-3' />
-                <span className='text-[10px] font-bold tracking-widest uppercase opacity-80'>
-                  Système Sécurisé
-                </span>
-              </div>
             </div>
 
             <div>
-              <h1 className='text-4xl sm:text-5xl font-black tracking-tighter leading-[0.9] text-white'>
-                Bonjour,
+              <h1 className='text-2xl sm:text-3xl font-black tracking-tighter leading-tight text-white'>
+                Bonjour Francis,
               </h1>
-              <h1 className='text-4xl sm:text-5xl font-black tracking-tighter text-blue-100'>
+              <h2 className='text-xl sm:text-2xl font-bold tracking-tight text-blue-100'>
                 Command Center.
-              </h1>
+              </h2>
             </div>
 
-            <p className='text-blue-100/90 text-sm font-medium leading-relaxed max-w-md'>
-              Tout est prêt pour la gestion de vos orateurs. Vous avez{' '}
-              <span className='text-white font-bold'>{stats.pending} validations</span> en attente
-              d'action.
+            <p className='text-blue-100/90 text-xs font-medium leading-relaxed max-w-md'>
+              Vous avez <span className='text-white font-bold'>{stats.pending} validations</span> en attente.
             </p>
           </div>
 
-          <div className='flex flex-col items-end gap-4'>
-            <div className='text-right hidden lg:block'>
-              <div className='text-5xl font-black tracking-tighter leading-none mb-1'>
-                {currentTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-              </div>
-              <div className='text-blue-200 text-xs font-bold uppercase tracking-widest'>
-                {currentTime.toLocaleDateString('fr-FR', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                })}
-              </div>
-            </div>
-
-            <div className='flex gap-3'>
-              <Button
-                className='h-12 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-lg'
-                leftIcon={<CalendarPlus className='w-4 h-4' />}
-                onClick={() => setIsScheduleModalOpen(true)}
-              >
-                Nouvelle Visite
-              </Button>
-              <Button
-                className='h-12 bg-blue-500/30 hover:bg-blue-500/40 text-white border-none backdrop-blur-md font-bold'
-                leftIcon={<Zap className='w-4 h-4 text-amber-300 fill-amber-300' />}
-                onClick={() => setIsQuickActionsOpen(true)}
-              >
-                Actions
-              </Button>
-            </div>
+          <div className='flex gap-2'>
+            <Button
+              className='h-10 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-lg text-sm'
+              leftIcon={<CalendarPlus className='w-4 h-4' />}
+              onClick={() => setIsScheduleModalOpen(true)}
+            >
+              Nouvelle Visite
+            </Button>
+            <Button
+              className='h-10 bg-blue-500/30 hover:bg-blue-500/40 text-white border-none backdrop-blur-md font-bold text-sm'
+              leftIcon={<Zap className='w-4 h-4 text-amber-300 fill-amber-300' />}
+              onClick={() => setIsQuickActionsOpen(true)}
+            >
+              Actions
+            </Button>
           </div>
         </div>
       </div>
 
       {/* 2. Global Insight Grid */}
-      <div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 animate-in fade-in slide-in-from-top-4 duration-500'>
+      <div className='grid grid-cols-2 lg:grid-cols-4 gap-3 animate-in fade-in slide-in-from-top-4 duration-500'>
         {[
           {
             label: 'Visites du mois',
@@ -261,7 +239,7 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
             <Card className='border-none shadow-sm group-hover:translate-y-[-4px] transition-all duration-300 h-full'>
-              <CardBody className='p-6 flex items-center justify-between'>
+              <CardBody className='p-4 flex items-center justify-between'>
                 <div>
                   <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1'>
                     {stat.label}
@@ -285,11 +263,11 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* 3. Main Operational View */}
-      <div className='grid grid-cols-1 xl:grid-cols-12 gap-8 items-start'>
+      <div className='grid grid-cols-1 xl:grid-cols-12 gap-4 items-start'>
         {/* Left Side: Analytics & Metrics (8/12) */}
-        <div className='xl:col-span-8 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700'>
-          <Card className='border-none shadow-sm overflow-hidden bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-[2.5rem]'>
-            <div className='p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
+        <div className='xl:col-span-8 space-y-4 animate-in fade-in slide-in-from-left-4 duration-700'>
+          <Card className='border-none shadow-sm overflow-hidden bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl'>
+            <div className='p-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
                 <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
                   Tableau de bord d'activité
@@ -310,8 +288,8 @@ export const Dashboard: React.FC = () => {
                 </Button>
               </div>
             </div>
-            <CardBody className='p-8'>
-              <div className='h-64 sm:h-80 w-full pr-4'>
+            <CardBody className='p-4'>
+              <div className='h-48 w-full pr-4'>
                 <ResponsiveContainer width='100%' height='100%'>
                   <AreaChart data={chartData}>
                     <defs>
@@ -354,7 +332,7 @@ export const Dashboard: React.FC = () => {
                 </ResponsiveContainer>
               </div>
 
-              <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8'>
+              <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4'>
                 {[
                   {
                     label: 'Moyenne mensuelle',
@@ -387,7 +365,7 @@ export const Dashboard: React.FC = () => {
                 ].map((m, i) => (
                   <div
                     key={i}
-                    className='p-4 bg-gray-50 dark:bg-gray-900/40 rounded-2xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors relative group'
+                    className='p-3 bg-gray-50 dark:bg-gray-900/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors relative group'
                     title={`${m.label}: ${m.hint}${i > 1 ? ` (🔧 ${m.advanced})` : ''}`}
                   >
                     {i > 1 && (
@@ -407,7 +385,7 @@ export const Dashboard: React.FC = () => {
           </Card>
 
           {/* Launcher / Shortcuts Section */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             {[
               {
                 title: 'Centre de messagerie',
@@ -434,15 +412,15 @@ export const Dashboard: React.FC = () => {
               <button
                 key={i}
                 onClick={item.action || (() => navigate(item.path!))}
-                className='group p-6 bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 text-left border border-transparent hover:border-primary-500/20'
+                className='group p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 text-left border border-transparent hover:border-primary-500/20'
               >
                 <div
                   className={cn(
-                    'w-14 h-14 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg transition-transform group-hover:scale-110',
+                    'w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-white shadow-lg transition-transform group-hover:scale-110',
                     item.color
                   )}
                 >
-                  <item.icon className='w-7 h-7' />
+                  <item.icon className='w-6 h-6' />
                 </div>
                 <h4 className='font-black text-sm uppercase tracking-tighter text-gray-900 dark:text-white mb-1'>
                   {item.title}
@@ -455,9 +433,9 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Right Side: Activity Heartbeat (4/12) */}
-        <div className='xl:col-span-4 space-y-8 animate-in fade-in slide-in-from-right-4 duration-700'>
-          <Card className='border-none shadow-sm bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-[2.5rem] overflow-hidden'>
-            <div className='p-8 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
+        <div className='xl:col-span-4 space-y-4 animate-in fade-in slide-in-from-right-4 duration-700'>
+          <Card className='border-none shadow-sm bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl overflow-hidden'>
+            <div className='p-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
                 <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
                   Planning à venir
@@ -475,9 +453,9 @@ export const Dashboard: React.FC = () => {
                 Voir tout
               </Button>
             </div>
-            <CardBody className='p-6'>
+            <CardBody className='p-4'>
               {upcomingVisits.length > 0 ? (
-                <div className='space-y-4'>
+                <div className='space-y-3'>
                   {upcomingVisits.map((v) => (
                     <DashboardVisitItem key={v.id} visit={v} onClick={() => handleVisitClick(v)} />
                   ))}
@@ -498,15 +476,15 @@ export const Dashboard: React.FC = () => {
             </CardBody>
           </Card>
 
-          <Card className='border-none shadow-sm bg-gradient-to-br from-indigo-900 to-primary-900 p-8 rounded-[2.5rem] text-white overflow-hidden relative'>
+          <Card className='border-none shadow-sm bg-gradient-to-br from-indigo-900 to-primary-900 p-6 rounded-3xl text-white overflow-hidden relative'>
             <div className='absolute top-[-20%] right-[-10%] opacity-20'>
               <LayoutGrid className='w-48 h-48' />
             </div>
             <div className='relative z-10'>
-              <h4 className='text-lg font-black uppercase tracking-tighter mb-4'>
+              <h4 className='text-base font-black uppercase tracking-tighter mb-3'>
                 Recherche globale
               </h4>
-              <div className='relative mb-6'>
+              <div className='relative mb-4'>
                 <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-300' />
                 <input
                   className='w-full pl-10 pr-4 py-3 bg-white/10 dark:bg-black/20 border border-white/10 rounded-2xl text-xs backdrop-blur-md focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-primary-300/50'
@@ -579,9 +557,14 @@ export const Dashboard: React.FC = () => {
       <ReportGeneratorModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
-        onGenerate={(config) => {
-          // Handle generation (this could be moved to a central utility later)
-          addToast(`Génération du rapport ${config.format.toUpperCase()} lancée...`, 'info');
+        onGenerate={async (config) => {
+          try {
+            await generateReport(config, visits, speakers, hosts, congregationProfile);
+            addToast(`Rapport ${config.format.toUpperCase()} généré avec succès`, 'success');
+            setIsReportModalOpen(false);
+          } catch (error) {
+            addToast('Erreur lors de la génération du rapport', 'error');
+          }
         }}
       />
 

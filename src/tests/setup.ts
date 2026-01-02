@@ -11,7 +11,10 @@ declare global {
     ResizeObserver: typeof ResizeObserver;
     IntersectionObserver: typeof IntersectionObserver;
   }
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
 }
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Mock des APIs navigateur non disponibles dans jsdom
 Object.defineProperty(window, 'matchMedia', {

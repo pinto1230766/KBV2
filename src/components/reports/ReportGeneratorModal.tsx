@@ -392,7 +392,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
                 Prêt pour l'exportation
               </p>
               <p className='text-[10px] text-gray-400'>
-                Cliquez pour générer votre {selectedFormat.toUpperCase()}
+                © 2025-2026 Pinto Francisco
               </p>
             </div>
           </div>

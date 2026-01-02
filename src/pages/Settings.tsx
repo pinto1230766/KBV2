@@ -328,7 +328,7 @@ export const Settings: React.FC = () => {
   };
 
   return (
-    <div className='max-w-[1600px] mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-4'>
+    <div className='max-w-[1600px] mx-auto space-y-4 px-4 sm:px-6 lg:px-8 py-3'>
       {/* Header Page */}
       <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-6'>
         <div>
@@ -356,7 +356,7 @@ export const Settings: React.FC = () => {
         )}
       </div>
 
-      <div className='flex flex-col lg:flex-row gap-8 items-start'>
+      <div className='flex flex-col lg:flex-row gap-4 items-start'>
         {/* Navigation Mobile/Desktop Sidebar */}
         <div className='w-full lg:w-72 shrink-0'>
           <Card className='overflow-hidden border-none shadow-md'>
@@ -396,7 +396,7 @@ export const Settings: React.FC = () => {
 
           {/* Quick Stats Sidebar (Only if not in overview) */}
           {activeTab !== 'overview' && (
-            <div className='mt-8 space-y-4 hidden lg:block'>
+            <div className='mt-4 space-y-3 hidden lg:block'>
               <h4 className='text-xs font-bold text-gray-400 uppercase tracking-widest px-4'>
                 État du système
               </h4>
@@ -431,9 +431,9 @@ export const Settings: React.FC = () => {
         {/* Content Area */}
         <div className='flex-1 w-full min-h-[700px]'>
           {activeTab === 'overview' && (
-            <div className='space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500'>
+            <div className='space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500'>
               {/* Stats Bar */}
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
                 {[
                   {
                     label: 'Orateurs',
@@ -483,7 +483,7 @@ export const Settings: React.FC = () => {
               </div>
 
               {/* Category Grid */}
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 {tabs
                   .filter((t) => t.id !== 'overview')
                   .map((tab) => (
@@ -1217,12 +1217,22 @@ export const Settings: React.FC = () => {
                   <div className='pt-4 border-t border-gray-50 dark:border-gray-700 grid grid-cols-2 gap-4 text-left'>
                     <div>
                       <p className='text-[10px] text-gray-400 font-bold uppercase'>Développeur</p>
-                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Internal IT</p>
+                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Pinto Francisco</p>
                     </div>
                     <div>
                       <p className='text-[10px] text-gray-400 font-bold uppercase'>Dernière MAJ</p>
-                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Dec 2025</p>
+                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Jan 2026</p>
                     </div>
+                  </div>
+                  
+                  {/* Copyright */}
+                  <div className='pt-4 border-t border-gray-50 dark:border-gray-700'>
+                    <p className='text-xs text-gray-400 text-center'>
+                      © 2025-2026 Pinto Francisco
+                    </p>
+                    <p className='text-[10px] text-gray-400 text-center mt-1'>
+                      Tous droits réservés
+                    </p>
                   </div>
                 </div>
 

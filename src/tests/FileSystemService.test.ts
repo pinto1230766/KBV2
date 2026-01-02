@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { fileSystemService } from '@/utils/FileSystemService';
 
-// Mock Capacitor
-const mockFilesystem = {
-  writeFile: vi.fn(),
-  readFile: vi.fn(),
-  readdir: vi.fn(),
-  deleteFile: vi.fn(),
-  mkdir: vi.fn(),
-  getUri: vi.fn(),
-};
-
-const mockShare = {
-  canShare: vi.fn(),
-  share: vi.fn(),
-};
+// Define mocks first to avoid hoisting issues
+const { mockFilesystem, mockShare } = vi.hoisted(() => ({
+  mockFilesystem: {
+    writeFile: vi.fn(),
+    readFile: vi.fn(),
+    readdir: vi.fn(),
+    deleteFile: vi.fn(),
+    mkdir: vi.fn(),
+    getUri: vi.fn(),
+  },
+  mockShare: {
+    canShare: vi.fn(),
+    share: vi.fn(),
+  },
+}));
 
 vi.mock('@capacitor/filesystem', () => ({
   Filesystem: mockFilesystem,
@@ -80,17 +81,17 @@ describe('FileSystemService', () => {
         isNativePlatform: () => false,
       };
 
-      // Mock DOM APIs
       const mockCreateElement = vi.spyOn(document, 'createElement');
       const mockAppendChild = vi.spyOn(document.body, 'appendChild');
       const mockRemoveChild = vi.spyOn(document.body, 'removeChild');
-      const mockClick = vi.fn();
       
-      mockCreateElement.mockReturnValue({
-        click: mockClick,
-        href: '',
-        download: '',
-      } as any);
+      const mockA = document.createElement('a');
+      const mockClick = vi.fn();
+      mockA.click = mockClick;
+      
+      mockCreateElement.mockReturnValue(mockA as any);
+      mockAppendChild.mockImplementation((node) => node);
+      mockRemoveChild.mockImplementation((node) => node);
 
       const result = await fileSystemService.saveToDocuments({
         filename: 'test.json',
