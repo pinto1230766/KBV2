@@ -138,22 +138,22 @@ const translations = {
     'Aucun contact trouvé': 'Nenhum kontaktu atxadu',
 
     // Messages pour les hôtes (modèles)
-    'Chers frères et sœurs,': 'Queridos irmãos e irmãs,',
+    'Chers frères et sœurs,': 'Kumésheru irmanu i irmañan,',
     'Nous tenons à vous remercier chaleureusement pour votre accueil lors de nos visites. Votre hospitalité et votre disponibilité ont beaucoup compté pour nous.':
-      'Nós queremos agradecer-vos calorosamente pelo acolhimento durante as nossas visitas. A vossa hospitalidade e disponibilidade contaram muito para nós.',
-    'Que Dieu vous bénisse,': 'Que Deus vos abençoe,',
-    "L'assemblée de Lyon": 'A assembleia de Lyon',
+      'Nhos ta kontenti pa skase-mos obridju ku kredu di bu kontribuidu duranti nhos visita. Bu hospitalidadi i bu disponibilidade ta konta mutchu pa nhos.',
+    'Que Dieu vous bénisse,': 'Deus ta da-mosibu bençan,',
+    "L'assemblée de Lyon": 'Asembria di Lyon',
     "L'assemblée de Lyon recherche des frères et sœurs disponibles pour accueillir des visiteurs lors de nos réunions.":
-      'A assembleia de Lyon está à procura de irmãos e irmãs disponíveis para acolher visitantes durante as nossas reuniões.',
+      'Asembria di Lyon ta buksa irmanu i irmañan di dispunibilidade pa akodja ospitanti duranti nhos reunionan.',
     "Auriez-vous la possibilité d'accueillir des visiteurs ? Votre aide serait très appréciée.":
-      'Teriam a possibilidade de acolher visitantes? A vossa ajuda seria muito apreciada.',
-    'Cordialement,': 'Atenciosamente,',
-    "L'équipe d'accueil": 'A equipa de acolhimento',
-    '[Votre message personnalisé ici]': '[A vossa mensagem personalizada aqui]',
-    'Bonjour à tous,': 'Bom dia a todos,',
-    "Ceci est un message de l'assemblée de Lyon.": 'Esta é uma mensagem da assembleia de Lyon.',
-    'Cher/Chère': 'Querido/Querida',
-    Bonjour: 'Bom dia',
+      'Ta ten bu posibilidadi pa akodja ospitanti? Bu ajudu ta sê very estimadu.',
+    'Cordialement,': 'Ku korden,',
+    "L'équipe d'accueil": 'Ekipa di akodjamentu',
+    '[Votre message personnalisé ici]': '[Bu mensagem personalisadu aki]',
+    'Bonjour à tous,': 'Bons dia pa tur,',
+    "Ceci est un message de l'assemblée de Lyon.": 'Es un mensagem di Asembria di Lyon.',
+    'Cher/Chère': 'Kumer/ Kumera',
+    Bonjour: 'Bons dia',
 
     // Interface des modèles de messages
     'Modèles sauvegardés:': 'Modelos guardados:',
