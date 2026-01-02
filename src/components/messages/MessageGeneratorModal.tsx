@@ -48,15 +48,17 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Gestion des templates
-  const [messageTemplates, setMessageTemplates] = useState<Array<{
-    id: string;
-    name: string;
-    content: string;
-    type: MessageType | 'host_request_message' | 'free_message';
-    language: string;
-    channel: CommunicationChannel;
-    createdAt: Date;
-  }>>([]);
+  const [messageTemplates, setMessageTemplates] = useState<
+    Array<{
+      id: string;
+      name: string;
+      content: string;
+      type: MessageType | 'host_request_message' | 'free_message';
+      language: string;
+      channel: CommunicationChannel;
+      createdAt: Date;
+    }>
+  >([]);
   const [showTemplates, setShowTemplates] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
@@ -68,7 +70,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       try {
         const parsed = JSON.parse(saved).map((t: any) => ({
           ...t,
-          createdAt: new Date(t.createdAt)
+          createdAt: new Date(t.createdAt),
         }));
         setMessageTemplates(parsed);
       } catch (_error) {
@@ -186,7 +188,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     }
   };
 
-  const handleLoadTemplate = (template: typeof messageTemplates[0]) => {
+  const handleLoadTemplate = (template: (typeof messageTemplates)[0]) => {
     setMessage(template.content);
     setType(template.type);
     setLanguage(template.language as 'fr' | 'cv' | 'pt');
@@ -196,7 +198,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   };
 
   const handleDeleteTemplate = (templateId: string) => {
-    const updatedTemplates = messageTemplates.filter(t => t.id !== templateId);
+    const updatedTemplates = messageTemplates.filter((t) => t.id !== templateId);
     setMessageTemplates(updatedTemplates);
     localStorage.setItem('kbv_message_templates', JSON.stringify(updatedTemplates));
     addToast('Modèle supprimé', 'success');
@@ -385,15 +387,12 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                   <div className='flex-1'>
                     <div className='font-medium text-sm'>{template.name}</div>
                     <div className='text-xs text-gray-500'>
-                      {template.type} • {template.language} • {template.channel} • {template.createdAt.toLocaleDateString()}
+                      {template.type} • {template.language} • {template.channel} •{' '}
+                      {template.createdAt.toLocaleDateString()}
                     </div>
                   </div>
                   <div className='flex gap-2'>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleLoadTemplate(template)}
-                    >
+                    <Button variant='ghost' size='sm' onClick={() => handleLoadTemplate(template)}>
                       Charger
                     </Button>
                     <Button

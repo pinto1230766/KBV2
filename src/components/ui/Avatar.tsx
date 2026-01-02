@@ -41,14 +41,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   if (src) {
     if (zoomable) {
       return (
-        <div
-          className={cn(
-            'rounded-full overflow-hidden',
-            sizeClass,
-            className
-          )}
-          {...props}
-        >
+        <div className={cn('rounded-full overflow-hidden', sizeClass, className)} {...props}>
           <LazyImage
             src={src}
             alt={alt || name || 'Avatar'}

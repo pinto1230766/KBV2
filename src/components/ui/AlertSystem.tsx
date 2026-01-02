@@ -39,14 +39,19 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
     const now = new Date();
 
     // 1. Visites sans accueil dans moins de 7 jours
-    const upcomingVisits = visits.filter(visit => {
+    const upcomingVisits = visits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
       const daysDiff = Math.ceil((visitDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      return daysDiff <= 7 && daysDiff >= 0 && (!visit.host || visit.host === 'À définir') && visit.locationType === 'physical';
+      return (
+        daysDiff <= 7 &&
+        daysDiff >= 0 &&
+        (!visit.host || visit.host === 'À définir') &&
+        visit.locationType === 'physical'
+      );
     });
 
-    upcomingVisits.forEach(visit => {
-      const speaker = speakers.find(s => s.id === visit.id);
+    upcomingVisits.forEach((visit) => {
+      const speaker = speakers.find((s) => s.id === visit.id);
       if (speaker) {
         newAlerts.push({
           id: `no-host-${visit.id}`,
@@ -57,20 +62,21 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
           read: false,
           actionUrl: `/messages?speaker=${speaker.id}`,
           actionLabel: 'Gérer accueil',
-          autoExpire: 60 // 1 heure
+          autoExpire: 60, // 1 heure
         });
       }
     });
 
     // 2. Rappels pour confirmations en attente
-    const pendingConfirmations = visits.filter(visit =>
-      visit.status === 'pending' &&
-      new Date(visit.visitDate) > now
+    const pendingConfirmations = visits.filter(
+      (visit) => visit.status === 'pending' && new Date(visit.visitDate) > now
     );
 
-    pendingConfirmations.forEach(visit => {
-      const speaker = speakers.find(s => s.id === visit.id);
-      const daysUntilVisit = Math.ceil((new Date(visit.visitDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    pendingConfirmations.forEach((visit) => {
+      const speaker = speakers.find((s) => s.id === visit.id);
+      const daysUntilVisit = Math.ceil(
+        (new Date(visit.visitDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
       if (speaker && daysUntilVisit <= 3) {
         newAlerts.push({
@@ -82,19 +88,19 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
           read: false,
           actionUrl: `/messages?speaker=${speaker.id}`,
           actionLabel: 'Confirmer',
-          autoExpire: 120 // 2 heures
+          autoExpire: 120, // 2 heures
         });
       }
     });
 
     // 3. Hôtes avec visites rapprochées
-    const busyHosts = hosts.filter(host => {
-      const hostVisits = visits.filter(v => v.host === host.nom && new Date(v.visitDate) > now);
+    const busyHosts = hosts.filter((host) => {
+      const hostVisits = visits.filter((v) => v.host === host.nom && new Date(v.visitDate) > now);
       return hostVisits.length >= 2;
     });
 
-    busyHosts.forEach(host => {
-      const hostVisits = visits.filter(v => v.host === host.nom && new Date(v.visitDate) > now);
+    busyHosts.forEach((host) => {
+      const hostVisits = visits.filter((v) => v.host === host.nom && new Date(v.visitDate) > now);
       newAlerts.push({
         id: `busy-host-${host.nom}`,
         type: 'info',
@@ -104,18 +110,20 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
         read: false,
         actionUrl: `/messages?host=${encodeURIComponent(host.nom)}`,
         actionLabel: 'Voir planning',
-        autoExpire: 1440 // 24 heures
+        autoExpire: 1440, // 24 heures
       });
     });
 
     // 4. Rappels pour visites dans 1 semaine
-    const weekAheadVisits = visits.filter(visit => {
-      const daysDiff = Math.ceil((new Date(visit.visitDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const weekAheadVisits = visits.filter((visit) => {
+      const daysDiff = Math.ceil(
+        (new Date(visit.visitDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      );
       return daysDiff === 7;
     });
 
-    weekAheadVisits.forEach(visit => {
-      const speaker = speakers.find(s => s.id === visit.id);
+    weekAheadVisits.forEach((visit) => {
+      const speaker = speakers.find((s) => s.id === visit.id);
       if (speaker) {
         newAlerts.push({
           id: `week-reminder-${visit.id}`,
@@ -126,15 +134,15 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
           read: false,
           actionUrl: `/messages?speaker=${speaker.id}`,
           actionLabel: 'Préparer',
-          autoExpire: 1440 // 24 heures
+          autoExpire: 1440, // 24 heures
         });
       }
     });
 
     // Éviter les doublons
-    setAlerts(prevAlerts => {
-      const existingIds = new Set(prevAlerts.map(a => a.id));
-      const uniqueNewAlerts = newAlerts.filter(a => !existingIds.has(a.id));
+    setAlerts((prevAlerts) => {
+      const existingIds = new Set(prevAlerts.map((a) => a.id));
+      const uniqueNewAlerts = newAlerts.filter((a) => !existingIds.has(a.id));
       return [...prevAlerts, ...uniqueNewAlerts];
     });
   }, [visits, speakers, hosts]);
@@ -148,14 +156,14 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
 
   // Calculer le nombre d'alertes non lues
   useEffect(() => {
-    setUnreadCount(alerts.filter(a => !a.read).length);
+    setUnreadCount(alerts.filter((a) => !a.read).length);
   }, [alerts]);
 
   // Supprimer les alertes expirées
   useEffect(() => {
     const interval = setInterval(() => {
-      setAlerts(prevAlerts =>
-        prevAlerts.filter(alert => {
+      setAlerts((prevAlerts) =>
+        prevAlerts.filter((alert) => {
           if (!alert.autoExpire) return true;
           const age = (Date.now() - alert.timestamp.getTime()) / (1000 * 60); // minutes
           return age < alert.autoExpire;
@@ -167,21 +175,17 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
   }, []);
 
   const markAsRead = (alertId: string) => {
-    setAlerts(prevAlerts =>
-      prevAlerts.map(alert =>
-        alert.id === alertId ? { ...alert, read: true } : alert
-      )
+    setAlerts((prevAlerts) =>
+      prevAlerts.map((alert) => (alert.id === alertId ? { ...alert, read: true } : alert))
     );
   };
 
   const markAllAsRead = () => {
-    setAlerts(prevAlerts =>
-      prevAlerts.map(alert => ({ ...alert, read: true }))
-    );
+    setAlerts((prevAlerts) => prevAlerts.map((alert) => ({ ...alert, read: true })));
   };
 
   const deleteAlert = (alertId: string) => {
-    setAlerts(prevAlerts => prevAlerts.filter(a => a.id !== alertId));
+    setAlerts((prevAlerts) => prevAlerts.filter((a) => a.id !== alertId));
   };
 
   const handleAlertAction = (alert: Alert) => {
@@ -194,19 +198,27 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
 
   const getAlertIcon = (type: Alert['type']) => {
     switch (type) {
-      case 'urgent': return <AlertTriangle className='w-4 h-4 text-red-500' />;
-      case 'warning': return <AlertTriangle className='w-4 h-4 text-orange-500' />;
-      case 'success': return <CheckCircle className='w-4 h-4 text-green-500' />;
-      default: return <Info className='w-4 h-4 text-blue-500' />;
+      case 'urgent':
+        return <AlertTriangle className='w-4 h-4 text-red-500' />;
+      case 'warning':
+        return <AlertTriangle className='w-4 h-4 text-orange-500' />;
+      case 'success':
+        return <CheckCircle className='w-4 h-4 text-green-500' />;
+      default:
+        return <Info className='w-4 h-4 text-blue-500' />;
     }
   };
 
   const getAlertStyle = (type: Alert['type']) => {
     switch (type) {
-      case 'urgent': return 'border-l-red-500 bg-red-50 dark:bg-red-900/20';
-      case 'warning': return 'border-l-orange-500 bg-orange-50 dark:bg-orange-900/20';
-      case 'success': return 'border-l-green-500 bg-green-50 dark:bg-green-900/20';
-      default: return 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/20';
+      case 'urgent':
+        return 'border-l-red-500 bg-red-50 dark:bg-red-900/20';
+      case 'warning':
+        return 'border-l-orange-500 bg-orange-50 dark:bg-orange-900/20';
+      case 'success':
+        return 'border-l-green-500 bg-green-50 dark:bg-green-900/20';
+      default:
+        return 'border-l-blue-500 bg-blue-50 dark:bg-blue-900/20';
     }
   };
 
@@ -242,12 +254,7 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
             </div>
             <div className='flex gap-2'>
               {unreadCount > 0 && (
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={markAllAsRead}
-                  className='text-xs'
-                >
+                <Button variant='ghost' size='sm' onClick={markAllAsRead} className='text-xs'>
                   Tout marquer lu
                 </Button>
               )}
@@ -285,9 +292,7 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
                     } hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors`}
                   >
                     <div className='flex items-start gap-3'>
-                      <div className='flex-shrink-0 mt-0.5'>
-                        {getAlertIcon(alert.type)}
-                      </div>
+                      <div className='flex-shrink-0 mt-0.5'>{getAlertIcon(alert.type)}</div>
                       <div className='flex-1 min-w-0'>
                         <div className='flex items-center justify-between'>
                           <h4 className='font-semibold text-sm text-gray-900 dark:text-white truncate'>
@@ -297,7 +302,7 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
                             <span className='text-xs text-gray-500'>
                               {alert.timestamp.toLocaleTimeString('fr-FR', {
                                 hour: '2-digit',
-                                minute: '2-digit'
+                                minute: '2-digit',
                               })}
                             </span>
                             <button
@@ -344,20 +349,26 @@ export const AlertSystem: React.FC<AlertSystemProps> = ({ className }) => {
 export const useAlerts = () => {
   const { addToast } = useToast();
 
-  const createCustomAlert = useCallback((
-    type: Alert['type'],
-    title: string,
-    message: string,
-    options?: {
-      actionUrl?: string;
-      actionLabel?: string;
-      autoExpire?: number;
-    }
-  ) => {
-    // Pour les alertes personnalisées, on utilise le système de toast existant
-    // Les vraies alertes intelligentes sont gérées par le composant AlertSystem
-    addToast(`${title}: ${message}`, type === 'urgent' ? 'error' : type === 'warning' ? 'warning' : 'info');
-  }, [addToast]);
+  const createCustomAlert = useCallback(
+    (
+      type: Alert['type'],
+      title: string,
+      message: string,
+      options?: {
+        actionUrl?: string;
+        actionLabel?: string;
+        autoExpire?: number;
+      }
+    ) => {
+      // Pour les alertes personnalisées, on utilise le système de toast existant
+      // Les vraies alertes intelligentes sont gérées par le composant AlertSystem
+      addToast(
+        `${title}: ${message}`,
+        type === 'urgent' ? 'error' : type === 'warning' ? 'warning' : 'info'
+      );
+    },
+    [addToast]
+  );
 
   return { createCustomAlert };
 };

@@ -10,7 +10,8 @@ export const completeSpeakers: Speaker[] = [
     talkHistory: [],
     telephone: '33644556677',
     gender: 'male',
-    photoUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+    photoUrl:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
   },
   {
     id: 'e57d2815-9243-43dc-8c30-2c005bb634b6',

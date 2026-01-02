@@ -67,7 +67,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
           setBackupHistory(history);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement de l\'historique:', error);
+        console.error("Erreur lors du chargement de l'historique:", error);
       }
     };
 
@@ -82,7 +82,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
       localStorage.setItem('kbv_backup_history', JSON.stringify(history));
       setBackupHistory(history);
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de l\'historique:', error);
+      console.error("Erreur lors de la sauvegarde de l'historique:", error);
     }
   };
 
@@ -117,7 +117,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
       const updatedHistory = [newBackup, ...backupHistory].slice(0, 10); // Garder seulement les 10 dernières
       saveBackupHistory(updatedHistory);
 
-      addToast('Sauvegarde créée et ajoutée à l\'historique', 'success');
+      addToast("Sauvegarde créée et ajoutée à l'historique", 'success');
 
       // Réinitialiser le formulaire
       setPassword('');
@@ -161,12 +161,12 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
 
   // Supprimer une sauvegarde de l'historique
   const handleDeleteBackup = (backupId: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette sauvegarde de l\'historique ?')) {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cette sauvegarde de l'historique ?")) {
       try {
-        const updatedHistory = backupHistory.filter(b => b.id !== backupId);
+        const updatedHistory = backupHistory.filter((b) => b.id !== backupId);
         saveBackupHistory(updatedHistory);
         localStorage.removeItem(`backup_${backupId}`);
-        addToast('Sauvegarde supprimée de l\'historique', 'success');
+        addToast("Sauvegarde supprimée de l'historique", 'success');
       } catch (error) {
         console.error('Erreur lors de la suppression:', error);
         addToast('Erreur lors de la suppression', 'error');
