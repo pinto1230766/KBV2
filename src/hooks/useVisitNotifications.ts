@@ -9,8 +9,13 @@ export function useVisitNotifications() {
   const { settings } = useSettings();
 
   const requestPermissions = useCallback(async () => {
-    const result = await LocalNotifications.requestPermissions();
-    return result.display === 'granted';
+    try {
+      const result = await LocalNotifications.requestPermissions();
+      return result.display === 'granted';
+    } catch (error) {
+      console.error('Erreur lors de la demande de permissions:', error);
+      return false;
+    }
   }, []);
 
   const scheduleVisitReminder = useCallback(

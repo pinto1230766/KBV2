@@ -78,30 +78,35 @@ export const Settings: React.FC = () => {
   const { requestPermissions } = useVisitNotifications();
 
   const handleTestNotification = async () => {
-    const granted = await requestPermissions();
-    if (granted) {
-      try {
-        await LocalNotifications.schedule({
-          notifications: [
-            {
-              title: 'Test Notification',
-              body: 'Ceci est une notification de test pour KBV Lyon.',
-              id: Math.floor(Math.random() * 100000),
-              schedule: { at: new Date(Date.now() + 1000) }, // 1 second delay
-              sound: 'default',
-              attachments: [],
-              actionTypeId: '',
-              extra: null,
-            },
-          ],
-        });
-        addToast('Notification de test envoyée (dans 1s)', 'success');
-      } catch (error) {
-        console.error('Erreur notification:', error);
-        addToast('Erreur technique notification', 'error');
+    try {
+      const granted = await requestPermissions();
+      if (granted) {
+        try {
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                title: 'Test Notification',
+                body: 'Ceci est une notification de test pour KBV Lyon.',
+                id: Math.floor(Math.random() * 100000),
+                schedule: { at: new Date(Date.now() + 1000) }, // 1 second delay
+                sound: 'default',
+                attachments: [],
+                actionTypeId: '',
+                extra: null,
+              },
+            ],
+          });
+          addToast('Notification de test envoyée (dans 1s)', 'success');
+        } catch (error) {
+          console.error('Erreur notification:', error);
+          addToast('Erreur technique notification', 'error');
+        }
+      } else {
+        addToast('Permissions refusées', 'error');
       }
-    } else {
-      addToast('Permissions refusées', 'error');
+    } catch (error) {
+      console.error('Erreur lors de la demande de permissions:', error);
+      addToast('Erreur lors de la demande de permissions', 'error');
     }
   };
 
@@ -227,24 +232,35 @@ export const Settings: React.FC = () => {
   };
 
   const handleBackupAdapter = async (_options: BackupOptions): Promise<void> => {
+    console.log('[DEBUG] handleBackupAdapter called with options:', _options);
     try {
+      console.log('[DEBUG] Calling exportData()...');
       const json = exportData();
+      console.log('[DEBUG] exportData() completed, JSON length:', json.length);
+      console.log('[DEBUG] First 200 chars of JSON:', json.substring(0, 200));
+
       const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      
+      console.log('[DEBUG] Generated filename:', filename);
+
       // Utiliser le service de fichiers pour sauvegarder
+      console.log('[DEBUG] Calling fileSystemService.saveToDocuments...');
       const result = await fileSystemService.saveToDocuments({
         filename,
         data: json,
         mimeType: 'application/json',
       });
+      console.log('[DEBUG] fileSystemService.saveToDocuments result:', result);
 
       if (result.success) {
+        console.log('[DEBUG] Backup successful, showing success toast');
         addToast(`Sauvegarde créée : ${result.path}`, 'success');
       } else {
+        console.log('[DEBUG] Backup failed, result:', result);
         throw new Error(result.error || 'Erreur inconnue');
       }
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      console.error('[DEBUG] Erreur sauvegarde in handleBackupAdapter:', error);
+      console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack available');
       addToast('Erreur lors de la sauvegarde', 'error');
       throw error;
     }

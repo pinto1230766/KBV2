@@ -278,7 +278,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                   <code className='bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded text-xs font-mono mt-1 inline-block'>
                     {kbvFolderPath}
                   </code>
-                  <p className='mt-2'>Vous pourrez les retrouver facilement dans l'application Fichiers de votre tablette.</p>
+                  <p className='mt-2'>Vous pourrez les retrouver facilement dans le dossier Documents de votre tablette.</p>
                 </div>
               </div>
             </div>
