@@ -102,6 +102,42 @@ Object.defineProperty(window, 'crypto', {
   writable: true,
 });
 
+// Mock d'IndexedDB pour les tests
+const mockIndexedDB = {
+  open: () => ({
+    onsuccess: null,
+    onerror: null,
+    onupgradeneeded: null,
+    result: {
+      createObjectStore: () => ({
+        createIndex: () => {},
+      }),
+      transaction: () => ({
+        objectStore: () => ({
+          get: () => ({
+            onsuccess: null,
+            onerror: null,
+            result: null,
+          }),
+          put: () => ({
+            onsuccess: null,
+            onerror: null,
+          }),
+          delete: () => ({
+            onsuccess: null,
+            onerror: null,
+          }),
+        }),
+      }),
+    },
+  }),
+};
+
+Object.defineProperty(window, 'indexedDB', {
+  value: mockIndexedDB,
+  writable: true,
+});
+
 // Reset des mocks après chaque test
 // afterEach(() => {
 //   localStorageMock.clear();

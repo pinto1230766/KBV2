@@ -67,5 +67,4 @@ module.exports = {
 
   // Règles de formatage spécifiques
   singleAttributePerLine: false,
-
-  };
+};

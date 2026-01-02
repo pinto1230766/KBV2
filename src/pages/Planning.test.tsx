@@ -2,63 +2,15 @@
  * Tests unitaires pour Planning.tsx
  */
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { TestWrapper } from '@/utils/TestWrapper';
 import { Planning } from '@/pages/Planning';
-
-// Mock des hooks nécessaires
-vi.mock('@/contexts/DataContext', () => ({
-  useData: () => ({
-    visits: [
-      {
-        id: '1',
-        nom: 'John Doe',
-        visitDate: '2025-12-30',
-        visitTime: '10:00',
-        status: 'pending',
-        speaker: { id: '1', nom: 'John Doe', email: 'john@example.com' },
-        host: { id: '1', nom: 'Host One' },
-      },
-      {
-        id: '2',
-        nom: 'Jane Smith',
-        visitDate: '2025-12-31',
-        visitTime: '14:00',
-        status: 'confirmed',
-        speaker: { id: '2', nom: 'Jane Smith', email: 'jane@example.com' },
-        host: { id: '2', nom: 'Host Two' },
-      },
-    ],
-    speakers: [
-      { id: '1', nom: 'John Doe', email: 'john@example.com' },
-      { id: '2', nom: 'Jane Smith', email: 'jane@example.com' },
-    ],
-    hosts: [
-      { id: '1', nom: 'Host One' },
-      { id: '2', nom: 'Host Two' },
-    ],
-  }),
-}));
-
-vi.mock('@/contexts/ToastContext', () => ({
-  useToast: () => ({
-    addToast: vi.fn(),
-  }),
-}));
-
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => vi.fn(),
-  };
-});
 
 describe('Planning', () => {
   const renderPlanning = () => {
     return render(
-      <BrowserRouter>
+      <TestWrapper>
         <Planning />
-      </BrowserRouter>
+      </TestWrapper>
     );
   };
 
@@ -178,4 +130,3 @@ describe('Planning', () => {
     expect(screen.getByText(/Planning des Visites/i)).toBeInTheDocument();
   });
 });
-

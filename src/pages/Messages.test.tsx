@@ -2,54 +2,15 @@
  * Tests unitaires pour Messages.tsx
  */
 import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { TestWrapper } from '@/utils/TestWrapper';
 import Messages from '@/pages/Messages';
-
-// Mock des hooks nécessaires
-vi.mock('@/contexts/DataContext', () => ({
-  useData: () => ({
-    visits: [
-      {
-        id: '1',
-        nom: 'John Doe',
-        visitDate: '2025-12-30',
-        visitTime: '10:00',
-        status: 'confirmed',
-        speaker: { id: '1', nom: 'John Doe', email: 'john@example.com' },
-        host: { id: '1', nom: 'Host One' },
-      },
-    ],
-    conversations: [
-      {
-        id: '1',
-        participantName: 'John Doe',
-        lastMessage: 'Bonjour, confirmation de la visite',
-        timestamp: '2025-12-28T10:00:00Z',
-        unreadCount: 2,
-        type: 'visit_confirmation',
-      },
-    ],
-  }),
-}));
-
-vi.mock('@/contexts/ToastContext', () => ({
-  useToast: () => ({
-    addToast: vi.fn(),
-  }),
-}));
-
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { id: '1', name: 'Test User' },
-  }),
-}));
 
 describe('Messages', () => {
   const renderMessages = () => {
     return render(
-      <BrowserRouter>
+      <TestWrapper>
         <Messages />
-      </BrowserRouter>
+      </TestWrapper>
     );
   };
 
@@ -167,4 +128,3 @@ describe('Messages', () => {
     expect(screen.getByText(/Messagerie/i)).toBeInTheDocument();
   });
 });
-

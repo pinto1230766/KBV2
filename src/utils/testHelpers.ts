@@ -2,6 +2,13 @@
  * Helpers de test simplifiés pour KBV Lyon
  * Fonctions utilitaires pour les tests sans dépendances externes
  */
+/// <reference types="vitest/globals" />
+import '@testing-library/jest-dom';
+
+/**
+ * Helpers de test simplifiés pour KBV Lyon
+ * Fonctions utilitaires pour les tests sans dépendances externes
+ */
 
 // Types pour les tests
 export interface TestResult {

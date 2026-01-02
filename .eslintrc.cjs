@@ -67,7 +67,7 @@ module.exports = {
         'src/components/planning/*',
         'src/contexts/AuthContext.tsx',
         'src/utils/messageGenerator.ts',
-        'src/utils/testHelpers.ts'
+        'src/utils/testHelpers.ts',
       ],
       rules: {
         '@typescript-eslint/no-unused-vars': ['off'], // Désactiver pour ces fichiers

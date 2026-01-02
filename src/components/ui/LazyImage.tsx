@@ -19,6 +19,8 @@ interface LazyImageProps {
   onError?: () => void;
   aspectRatio?: string;
   priority?: boolean;
+  zoomable?: boolean;
+  zoomScale?: number;
 }
 
 interface ImageFormats {
@@ -77,11 +79,15 @@ export const LazyImage: React.FC<LazyImageProps> = ({
   onError,
   aspectRatio,
   priority = false,
+  zoomable = false,
+  zoomScale = 2,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(!priority && loading === 'lazy');
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(placeholder);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -151,24 +157,53 @@ export const LazyImage: React.FC<LazyImageProps> = ({
 
   const finalSrc = isLoaded ? getResponsiveSrc() : placeholder;
 
+  // Gestion du zoom
+  const handleZoomToggle = () => {
+    if (!zoomable || !isLoaded) return;
+    setIsZoomed(!isZoomed);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isZoomed || !containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    setZoomPosition({ x, y });
+  };
+
   return (
     <div
       ref={containerRef}
       className={cn(
         'relative overflow-hidden bg-gray-100',
         aspectRatio && `aspect-[${aspectRatio}]`,
+        zoomable && 'cursor-zoom-in',
+        isZoomed && 'cursor-grab',
         className
       )}
+      onClick={handleZoomToggle}
+      onMouseMove={handleMouseMove}
     >
-      {/* Image placeholder/loading */}
+      {/* Image principale */}
       <img
         ref={imgRef}
         src={finalSrc}
         alt={alt}
         className={cn(
-          'absolute inset-0 h-full w-full object-cover transition-opacity duration-300',
-          isLoaded ? 'opacity-100' : 'opacity-0'
+          'absolute inset-0 h-full w-full object-cover transition-all duration-300',
+          isLoaded ? 'opacity-100' : 'opacity-0',
+          isZoomed && `scale-[${zoomScale}]`
         )}
+        style={
+          isZoomed
+            ? {
+                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                transform: `scale(${zoomScale})`,
+              }
+            : undefined
+        }
         loading={priority ? 'eager' : loading}
         sizes={sizes}
         decoding='async'
@@ -200,6 +235,33 @@ export const LazyImage: React.FC<LazyImageProps> = ({
             </svg>
             <p className='text-sm'>Image non disponible</p>
           </div>
+        </div>
+      )}
+
+      {/* Indicateur de zoom */}
+      {zoomable && isLoaded && !hasError && (
+        <div className='absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs flex items-center gap-1'>
+          <svg
+            className='w-3 h-3'
+            fill='none'
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+            />
+          </svg>
+          {isZoomed ? `Zoom ${zoomScale}x` : 'Cliquer pour zoomer'}
+        </div>
+      )}
+
+      {/* Instructions de zoom */}
+      {isZoomed && (
+        <div className='absolute bottom-2 left-2 bg-black/50 text-white px-3 py-2 rounded text-xs'>
+          Déplacez la souris pour explorer • Clic pour quitter
         </div>
       )}
     </div>

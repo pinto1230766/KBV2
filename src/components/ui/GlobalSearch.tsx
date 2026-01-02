@@ -238,6 +238,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
             <button
               onClick={onClose}
               className='p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-colors'
+              aria-label='Fermer la recherche'
+              title='Fermer la recherche'
             >
               <X className='w-6 h-6' />
             </button>

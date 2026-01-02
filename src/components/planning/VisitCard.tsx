@@ -133,7 +133,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </span>
           </div>
 
-          {visit.host && (
+          {visit.host && !visit.congregation?.includes('Lyon') && (
             <div className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
               <User className='w-4 h-4 mr-2 text-gray-400' />
               <span className='line-clamp-1'>Chez {visit.host}</span>

@@ -7,7 +7,7 @@ import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
 import { generateMessage } from '@/utils/messageGenerator';
-import { Copy, RefreshCw, Send } from 'lucide-react';
+import { Copy, RefreshCw, Send, Save, BookOpen } from 'lucide-react';
 
 interface MessageGeneratorModalProps {
   isOpen: boolean;
@@ -41,9 +41,41 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   const [message, setMessage] = useState('');
   const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
-  const [type, setType] = useState<MessageType | 'host_request_message' | 'free_message'>(initialType);
+  const [type, setType] = useState<MessageType | 'host_request_message' | 'free_message'>(
+    initialType
+  );
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Gestion des templates
+  const [messageTemplates, setMessageTemplates] = useState<Array<{
+    id: string;
+    name: string;
+    content: string;
+    type: MessageType | 'host_request_message' | 'free_message';
+    language: string;
+    channel: CommunicationChannel;
+    createdAt: Date;
+  }>>([]);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+
+  // Charger les templates depuis localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('kbv_message_templates');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved).map((t: any) => ({
+          ...t,
+          createdAt: new Date(t.createdAt)
+        }));
+        setMessageTemplates(parsed);
+      } catch (_error) {
+        // Ignore erreurs de parsing
+      }
+    }
+  }, []);
 
   // Générer le message initial lors de l'ouverture ou du changement de paramètres
   useEffect(() => {
@@ -121,8 +153,58 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     }
   };
 
+  const handleSaveTemplate = async () => {
+    if (!templateName.trim() || !message.trim()) {
+      addToast('Veuillez saisir un nom pour le modèle et un message', 'warning');
+      return;
+    }
+
+    setIsSavingTemplate(true);
+    try {
+      const newTemplate = {
+        id: Date.now().toString(),
+        name: templateName.trim(),
+        content: message,
+        type,
+        language,
+        channel,
+        createdAt: new Date(),
+      };
+
+      const updatedTemplates = [...messageTemplates, newTemplate];
+      setMessageTemplates(updatedTemplates);
+
+      // Sauvegarder dans localStorage
+      localStorage.setItem('kbv_message_templates', JSON.stringify(updatedTemplates));
+
+      setTemplateName('');
+      addToast('Modèle de message sauvegardé', 'success');
+    } catch (_error) {
+      addToast('Erreur lors de la sauvegarde du modèle', 'error');
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
+
+  const handleLoadTemplate = (template: typeof messageTemplates[0]) => {
+    setMessage(template.content);
+    setType(template.type);
+    setLanguage(template.language as 'fr' | 'cv' | 'pt');
+    setChannel(template.channel);
+    setShowTemplates(false);
+    addToast(`Modèle "${template.name}" chargé`, 'info');
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    const updatedTemplates = messageTemplates.filter(t => t.id !== templateId);
+    setMessageTemplates(updatedTemplates);
+    localStorage.setItem('kbv_message_templates', JSON.stringify(updatedTemplates));
+    addToast('Modèle supprimé', 'success');
+  };
+
   const handleSend = async () => {
-    const recipients = isGroupMessage && isHostMessage ? allHosts : [isHostMessage ? host : speaker].filter(Boolean);
+    const recipients =
+      isGroupMessage && isHostMessage ? allHosts : [isHostMessage ? host : speaker].filter(Boolean);
 
     if (!recipients.length) return;
 
@@ -154,11 +236,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         }
       }
 
-      setTimeout(() => {
-        addToast(`Messages envoyés à ${recipients.length} destinataires`, 'success');
-        onClose();
-      }, recipients.length * 1000 + 1000);
-
+      setTimeout(
+        () => {
+          addToast(`Messages envoyés à ${recipients.length} destinataires`, 'success');
+          onClose();
+        },
+        recipients.length * 1000 + 1000
+      );
     } else {
       // Envoi individuel
       const recipient = recipients[0];
@@ -206,19 +290,25 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           <div className='w-full sm:w-auto min-w-[150px]'>
             <Select
               label='Type'
-              options={isHostMessage ? [
-                { value: 'host_request_message', label: 'Demande d\'accueil' },
-                { value: 'thanks', label: 'Remerciements' },
-                { value: 'free_message', label: 'Message libre' },
-              ] : [
-                { value: 'confirmation', label: 'Confirmation' },
-                { value: 'reminder-7', label: 'Rappel (J-7)' },
-                { value: 'reminder-2', label: 'Rappel (J-2)' },
-                { value: 'thanks', label: 'Remerciements' },
-                { value: 'preparation', label: 'Préparation' },
-              ]}
+              options={
+                isHostMessage
+                  ? [
+                      { value: 'host_request_message', label: "Demande d'accueil" },
+                      { value: 'thanks', label: 'Remerciements' },
+                      { value: 'free_message', label: 'Message libre' },
+                    ]
+                  : [
+                      { value: 'confirmation', label: 'Confirmation' },
+                      { value: 'reminder-7', label: 'Rappel (J-7)' },
+                      { value: 'reminder-2', label: 'Rappel (J-2)' },
+                      { value: 'thanks', label: 'Remerciements' },
+                      { value: 'preparation', label: 'Préparation' },
+                    ]
+              }
               value={type}
-              onChange={(e) => setType(e.target.value as MessageType | 'host_request_message' | 'free_message')}
+              onChange={(e) =>
+                setType(e.target.value as MessageType | 'host_request_message' | 'free_message')
+              }
             />
           </div>
 
@@ -248,6 +338,78 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             />
           </div>
         </div>
+
+        {/* Template Actions */}
+        <div className='flex gap-2'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setShowTemplates(!showTemplates)}
+            leftIcon={<BookOpen className='w-4 h-4' />}
+          >
+            Modèles ({messageTemplates.length})
+          </Button>
+
+          {showTemplates && (
+            <div className='flex gap-2'>
+              <input
+                type='text'
+                placeholder='Nom du modèle...'
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                className='px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800'
+              />
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={handleSaveTemplate}
+                isLoading={isSavingTemplate}
+                leftIcon={<Save className='w-4 h-4' />}
+              >
+                Sauvegarder
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Templates List */}
+        {showTemplates && messageTemplates.length > 0 && (
+          <div className='border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50 max-h-48 overflow-y-auto'>
+            <h4 className='font-semibold text-sm mb-3'>Modèles sauvegardés:</h4>
+            <div className='space-y-2'>
+              {messageTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  className='flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border'
+                >
+                  <div className='flex-1'>
+                    <div className='font-medium text-sm'>{template.name}</div>
+                    <div className='text-xs text-gray-500'>
+                      {template.type} • {template.language} • {template.channel} • {template.createdAt.toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className='flex gap-2'>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => handleLoadTemplate(template)}
+                    >
+                      Charger
+                    </Button>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => handleDeleteTemplate(template.id)}
+                      className='text-red-600 hover:text-red-700'
+                    >
+                      Suppr
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Message Area */}
         <div className='relative'>

@@ -485,7 +485,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
                 visitTime: prev.congregationProfile.meetingTime || '14:30',
                 host:
                   congregation.toLowerCase().includes('zoom') ||
-                  congregation.toLowerCase().includes('streaming')
+                  congregation.toLowerCase().includes('streaming') ||
+                  congregation.toLowerCase().includes('lyon')
                     ? NA_HOST
                     : UNASSIGNED_HOST,
                 accommodation: '',

@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { IOSTabBar } from '@/components/navigation/IOSTabBar';
 import { SPenCursor } from '@/components/spen/SPenCursor';
 import { usePlatformContext } from '@/contexts/PlatformContext';
+import { AlertSystem } from '@/components/ui/AlertSystem';
 
 export const IOSMainLayout: React.FC = () => {
   const location = useLocation();
@@ -13,6 +14,11 @@ export const IOSMainLayout: React.FC = () => {
   return (
     <SPenCursor>
       <div className='flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden samsung-optimized'>
+        {/* Alert System - Position fixe en haut à droite */}
+        <div className='fixed top-4 right-4 z-50'>
+          <AlertSystem />
+        </div>
+
         {/* Main Content - Plein écran sur tablette, pas de scroll si Dashboard tablette */}
         <main
           className={`flex-1 ${isTablet && isDashboard ? 'overflow-hidden' : 'overflow-y-auto'} pb-[83px] pt-4 ${isTablet ? 'w-full px-0' : 'px-4'}`}

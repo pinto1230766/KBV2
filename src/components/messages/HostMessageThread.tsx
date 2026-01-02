@@ -36,20 +36,12 @@ export const HostMessageThread: React.FC<HostMessageThreadProps> = ({ host, visi
         </div>
         <div className='flex gap-2'>
           {host.telephone && (
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => window.open(`tel:${host.telephone}`)}
-            >
+            <Button variant='ghost' size='sm' onClick={() => window.open(`tel:${host.telephone}`)}>
               <Phone className='w-4 h-4' />
             </Button>
           )}
           {host.email && (
-            <Button
-              variant='ghost'
-              size='sm'
-              onClick={() => window.open(`mailto:${host.email}`)}
-            >
+            <Button variant='ghost' size='sm' onClick={() => window.open(`mailto:${host.email}`)}>
               <Mail className='w-4 h-4' />
             </Button>
           )}
@@ -63,7 +55,9 @@ export const HostMessageThread: React.FC<HostMessageThreadProps> = ({ host, visi
           <CardBody className='p-4'>
             <div className='flex items-center gap-2 mb-3'>
               <Home className='w-5 h-5 text-green-600' />
-              <h3 className='font-semibold text-gray-900 dark:text-white'>Informations sur l'hôte</h3>
+              <h3 className='font-semibold text-gray-900 dark:text-white'>
+                Informations sur l'hôte
+              </h3>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
@@ -99,9 +93,7 @@ export const HostMessageThread: React.FC<HostMessageThreadProps> = ({ host, visi
 
               {host.notes && (
                 <div className='col-span-full mt-2'>
-                  <p className='text-xs text-gray-500 dark:text-gray-400 italic'>
-                    "{host.notes}"
-                  </p>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 italic'>"{host.notes}"</p>
                 </div>
               )}
             </div>

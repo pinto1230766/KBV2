@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   Download,
@@ -8,11 +8,13 @@ import {
   Shield,
   CheckCircle,
   AlertTriangle,
+  Trash2,
 } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
+import { useToast } from '@/contexts/ToastContext';
 
 interface BackupManagerModalProps {
   isOpen: boolean;
@@ -52,21 +54,41 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [backupHistory, setBackupHistory] = useState<BackupHistory[]>([]);
+  const { addToast } = useToast();
 
-  // Simuler l'historique des sauvegardes (à remplacer par les vraies données)
-  const backupHistory: BackupHistory[] = [
-    {
-      id: '1',
-      date: new Date().toISOString(),
-      size: 2048576,
-      itemsCount: 150,
-      encrypted: true,
-    },
-  ];
+  // Charger l'historique des sauvegardes depuis localStorage
+  useEffect(() => {
+    const loadBackupHistory = () => {
+      try {
+        const stored = localStorage.getItem('kbv_backup_history');
+        if (stored) {
+          const history = JSON.parse(stored);
+          setBackupHistory(history);
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement de l\'historique:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadBackupHistory();
+    }
+  }, [isOpen]);
+
+  // Sauvegarder l'historique dans localStorage
+  const saveBackupHistory = (history: BackupHistory[]) => {
+    try {
+      localStorage.setItem('kbv_backup_history', JSON.stringify(history));
+      setBackupHistory(history);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde de l\'historique:', error);
+    }
+  };
 
   const handleCreateBackup = async () => {
     if (encrypt && password !== confirmPassword) {
-      alert('Les mots de passe ne correspondent pas');
+      addToast('Les mots de passe ne correspondent pas', 'error');
       return;
     }
 
@@ -80,7 +102,22 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
         password: encrypt ? password : undefined,
       };
 
+      // Créer la sauvegarde
       await onBackup(options);
+
+      // Ajouter à l'historique
+      const newBackup: BackupHistory = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        size: 0, // Sera mis à jour quand on aura accès au fichier
+        itemsCount: 0, // Sera estimé
+        encrypted: encrypt,
+      };
+
+      const updatedHistory = [newBackup, ...backupHistory].slice(0, 10); // Garder seulement les 10 dernières
+      saveBackupHistory(updatedHistory);
+
+      addToast('Sauvegarde créée et ajoutée à l\'historique', 'success');
 
       // Réinitialiser le formulaire
       setPassword('');
@@ -88,7 +125,52 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
       setIsCreating(false);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
+      addToast('Erreur lors de la création de la sauvegarde', 'error');
       setIsCreating(false);
+    }
+  };
+
+  // Télécharger une sauvegarde depuis l'historique
+  const handleDownloadFromHistory = async (backup: BackupHistory) => {
+    try {
+      // Essayer de récupérer la sauvegarde depuis localStorage
+      const backupData = localStorage.getItem(`backup_${backup.id}`);
+
+      if (backupData) {
+        // Si on a les données en cache, les télécharger directement
+        const blob = new Blob([backupData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kbv-backup-${new Date(backup.date).toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        addToast('Sauvegarde téléchargée', 'success');
+      } else {
+        // Sinon, recréer la sauvegarde
+        addToast('Recréation de la sauvegarde...', 'info');
+        await handleCreateBackup();
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error);
+      addToast('Erreur lors du téléchargement de la sauvegarde', 'error');
+    }
+  };
+
+  // Supprimer une sauvegarde de l'historique
+  const handleDeleteBackup = (backupId: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette sauvegarde de l\'historique ?')) {
+      try {
+        const updatedHistory = backupHistory.filter(b => b.id !== backupId);
+        saveBackupHistory(updatedHistory);
+        localStorage.removeItem(`backup_${backupId}`);
+        addToast('Sauvegarde supprimée de l\'historique', 'success');
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        addToast('Erreur lors de la suppression', 'error');
+      }
     }
   };
 
@@ -399,9 +481,25 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                           </div>
                         </div>
                       </div>
-                      <Button variant='outline' size='sm'>
-                        <Download className='w-4 h-4' />
-                      </Button>
+                      <div className='flex gap-2'>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => handleDownloadFromHistory(backup)}
+                          title='Télécharger cette sauvegarde'
+                        >
+                          <Download className='w-4 h-4' />
+                        </Button>
+                        <Button
+                          variant='outline'
+                          size='sm'
+                          onClick={() => handleDeleteBackup(backup.id)}
+                          title="Supprimer de l'historique"
+                          className='text-red-600 hover:text-red-700 hover:border-red-300'
+                        >
+                          <Trash2 className='w-4 h-4' />
+                        </Button>
+                      </div>
                     </div>
                   </CardBody>
                 </Card>

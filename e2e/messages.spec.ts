@@ -41,7 +41,7 @@ test.describe('Messages - Interface de messagerie', () => {
   test('Devrait permettre de sélectionner une conversation', async ({ page }: { page: Page }) => {
     // Cliquer sur une conversation
     const firstConversation = page.locator('[data-testid="conversation-item"]').first();
-    
+
     if (await firstConversation.isVisible()) {
       await firstConversation.click();
 
@@ -53,7 +53,7 @@ test.describe('Messages - Interface de messagerie', () => {
     }
   });
 
-  test('Devrait permettre d\'envoyer un nouveau message', async ({ page }: { page: Page }) => {
+  test("Devrait permettre d'envoyer un nouveau message", async ({ page }: { page: Page }) => {
     // Sélectionner une conversation ou en créer une
     const messageInput = page.locator('[data-testid="message-input"]');
     await messageInput.fill(TEST_MESSAGE);
@@ -102,10 +102,16 @@ test.describe('Messages - Interface de messagerie', () => {
     await expect(page.locator('[data-testid="avg-response-time"]')).toBeVisible();
   });
 
-  test('Devrait permettre de marquer des messages comme lus/non lus', async ({ page }: { page: Page }) => {
+  test('Devrait permettre de marquer des messages comme lus/non lus', async ({
+    page,
+  }: {
+    page: Page;
+  }) => {
     // Cliquer sur une conversation non lue
-    const unreadConversation = page.locator('[data-testid="conversation-item"][data-unread="true"]').first();
-    
+    const unreadConversation = page
+      .locator('[data-testid="conversation-item"][data-unread="true"]')
+      .first();
+
     if (await unreadConversation.isVisible()) {
       await unreadConversation.click();
 
@@ -117,7 +123,7 @@ test.describe('Messages - Interface de messagerie', () => {
   test('Devrait permettre de supprimer une conversation', async ({ page }: { page: Page }) => {
     // Ouvrir le menu d'actions d'une conversation
     const conversation = page.locator('[data-testid="conversation-item"]').first();
-    
+
     if (await conversation.isVisible()) {
       await conversation.hover();
       await page.click('[data-testid="conversation-actions"]');
@@ -157,15 +163,15 @@ test.describe('Messages - Interface de messagerie', () => {
     await expect(messageInput).toContainText(/confirmation/i);
   });
 
-  test('Devrait permettre l\'envoi de fichiers', async ({ page }: { page: Page }) => {
+  test("Devrait permettre l'envoi de fichiers", async ({ page }: { page: Page }) => {
     // Simuler l'upload d'un fichier
-    
+
     // Créer un fichier factice pour le test
     await page.evaluate(() => {
       const file = new File(['test content'], 'test.txt', { type: 'text/plain' });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      
+
       const input = document.querySelector('[data-testid="file-upload"]') as HTMLInputElement;
       if (input) {
         input.files = dataTransfer.files;
@@ -195,15 +201,15 @@ test.describe('Messages - Interface de messagerie', () => {
     await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
   });
 
-  test('Devrait être accessible aux lecteurs d\'écran', async ({ page }: { page: Page }) => {
+  test("Devrait être accessible aux lecteurs d'écran", async ({ page }: { page: Page }) => {
     // Vérifier les attributs ARIA
-    await expect(page.locator('[data-testid="messages-main"]')).toHaveAttribute(
-      'role',
-      /main/
-    );
+    await expect(page.locator('[data-testid="messages-main"]')).toHaveAttribute('role', /main/);
 
     // Vérifier les listes avec les bons rôles
-    await expect(page.locator('[data-testid="conversations-list"]')).toHaveAttribute('role', 'list');
+    await expect(page.locator('[data-testid="conversations-list"]')).toHaveAttribute(
+      'role',
+      'list'
+    );
     await expect(page.locator('[data-testid="message-thread"]')).toHaveAttribute('role', 'log');
 
     // Vérifier les boutons avec aria-label
@@ -224,7 +230,9 @@ test.describe('Messages - Navigation et interactions', () => {
     await page.keyboard.press('Enter');
 
     // Vérifier qu'une conversation est sélectionnée
-    const selectedConversation = page.locator('[data-testid="conversation-item"][data-selected="true"]');
+    const selectedConversation = page.locator(
+      '[data-testid="conversation-item"][data-selected="true"]'
+    );
     await expect(selectedConversation).toBeVisible();
   });
 
@@ -238,7 +246,7 @@ test.describe('Messages - Navigation et interactions', () => {
     await expect(page.locator('[data-testid="new-conversation-modal"]')).toBeVisible();
   });
 
-  test('Devrait permettre l\'envoi avec Ctrl+Enter', async ({ page }: { page: Page }) => {
+  test("Devrait permettre l'envoi avec Ctrl+Enter", async ({ page }: { page: Page }) => {
     // Sélectionner une conversation
     const conversation = page.locator('[data-testid="conversation-item"]').first();
     if (await conversation.isVisible()) {
@@ -310,7 +318,9 @@ test.describe('Messages - Performance et données temps réel', () => {
     await page.waitForTimeout(1000);
 
     // Vérifier que le nouveau message apparaît
-    await expect(page.locator('[data-testid="message-content"]')).toContainText('Nouveau message temps réel');
+    await expect(page.locator('[data-testid="message-content"]')).toContainText(
+      'Nouveau message temps réel'
+    );
   });
 
   test('Devrait rester fluide avec beaucoup de conversations', async ({ page }: { page: Page }) => {
@@ -321,7 +331,11 @@ test.describe('Messages - Performance et données temps réel', () => {
     await page.evaluate(() => {
       window.dispatchEvent(
         new CustomEvent('kbv:mock-conversations', {
-          detail: { conversations: Array(50).fill({}).map((_, i) => ({ id: i })) },
+          detail: {
+            conversations: Array(50)
+              .fill({})
+              .map((_, i) => ({ id: i })),
+          },
         })
       );
     });

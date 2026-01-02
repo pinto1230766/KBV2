@@ -1,9 +1,6 @@
 /**
  * Tests unitaires pour Dashboard.tsx
  */
-import { render, screen, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import Dashboard from '@/pages/Dashboard';
 
 // Mock des hooks nécessaires
 vi.mock('@/contexts/DataContext', () => ({
@@ -35,6 +32,10 @@ vi.mock('react-router-dom', async () => {
     useNavigate: () => vi.fn(),
   };
 });
+
+import { render, screen, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import Dashboard from '@/pages/Dashboard';
 
 describe('Dashboard', () => {
   const renderDashboard = () => {
@@ -133,4 +134,3 @@ describe('Dashboard', () => {
     expect(screen.getByText('1')).toBeInTheDocument(); // hosts
   });
 });
-

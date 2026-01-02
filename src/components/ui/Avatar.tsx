@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/utils/cn';
+import { LazyImage } from './LazyImage';
 
 interface AvatarProps {
   src?: string;
@@ -8,6 +9,7 @@ interface AvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   fallbackClassName?: string;
+  zoomable?: boolean;
 }
 
 const sizeClasses = {
@@ -30,12 +32,40 @@ export const Avatar: React.FC<AvatarProps> = ({
   size = 'md',
   className,
   fallbackClassName,
+  zoomable = false,
   ...props
 }) => {
   const sizeClass = sizeClasses[size];
   const fallbackColor = fallbackClassName || fallbackColors.default;
 
   if (src) {
+    if (zoomable) {
+      return (
+        <div
+          className={cn(
+            'rounded-full overflow-hidden',
+            sizeClass,
+            className
+          )}
+          {...props}
+        >
+          <LazyImage
+            src={src}
+            alt={alt || name || 'Avatar'}
+            zoomable={true}
+            zoomScale={2}
+            aspectRatio='1'
+            fallback='/avatar-placeholder.jpg'
+            className='w-full h-full'
+            onError={() => {
+              // Fallback to letter avatar if image fails to load
+              // This would be handled by parent component
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
       <div
         className={cn(

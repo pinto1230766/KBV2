@@ -375,6 +375,8 @@ export const Planning: React.FC = () => {
                     ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 )}
+                aria-label={`Vue ${v.id}`}
+                title={`Vue ${v.id}`}
               >
                 <v.icon className='w-4 h-4' />
               </button>
@@ -446,6 +448,8 @@ export const Planning: React.FC = () => {
               <button
                 onClick={() => setStatusFilter('all')}
                 className='p-0.5 hover:bg-white/20 rounded-full'
+                aria-label='Supprimer le filtre de statut'
+                title='Supprimer le filtre de statut'
               >
                 <X className='w-3 h-3' />
               </button>
@@ -460,6 +464,8 @@ export const Planning: React.FC = () => {
               <button
                 onClick={() => setTypeFilter('all')}
                 className='p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full'
+                aria-label='Supprimer le filtre de type'
+                title='Supprimer le filtre de type'
               >
                 <X className='w-3 h-3' />
               </button>

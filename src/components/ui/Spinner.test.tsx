@@ -84,13 +84,13 @@ describe('Spinner', () => {
       render(
         <button>
           <Spinner size='sm' />
-          <span>Loading...</span>
+          <span>Processing...</span>
         </button>
       );
 
       expect(screen.getByRole('button')).toBeInTheDocument();
       expect(screen.getByRole('status')).toBeInTheDocument();
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByText('Processing...')).toBeInTheDocument();
     });
 
     it('should work in a centered container', () => {
@@ -129,4 +129,3 @@ describe('Spinner', () => {
     });
   });
 });
-

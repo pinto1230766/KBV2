@@ -267,6 +267,8 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
               <button
                 onClick={onClose}
                 className='p-2 hover:bg-white/10 rounded-full transition-colors'
+                aria-label='Fermer les actions rapides'
+                title='Fermer les actions rapides'
               >
                 <X className='w-6 h-6' />
               </button>

@@ -97,7 +97,7 @@ test.describe('Planning - Gestion des visites', () => {
     await expect(page.locator('[data-testid="success-toast"]')).toBeVisible();
   });
 
-  test('Devrait permettre d\'éditer une visite existante', async ({ page }: { page: Page }) => {
+  test("Devrait permettre d'éditer une visite existante", async ({ page }: { page: Page }) => {
     // Cliquer sur une visite existante
     const firstVisit = page.locator('[data-testid="visit-item"]').first();
     await firstVisit.click();
@@ -141,7 +141,7 @@ test.describe('Planning - Gestion des visites', () => {
     await expect(page.locator('[data-testid="view-menu"]')).toBeVisible();
   });
 
-  test('Devrait permettre l\'export des données', async ({ page }: { page: Page }) => {
+  test("Devrait permettre l'export des données", async ({ page }: { page: Page }) => {
     // Tester l'export CSV
     await page.click('[data-testid="export-button"]');
     await page.click('[data-testid="export-csv-option"]');
@@ -169,12 +169,9 @@ test.describe('Planning - Gestion des visites', () => {
     await expect(page.locator('[data-testid="error-message"]')).toBeVisible();
   });
 
-  test('Devrait être accessible aux lecteurs d\'écran', async ({ page }: { page: Page }) => {
+  test("Devrait être accessible aux lecteurs d'écran", async ({ page }: { page: Page }) => {
     // Vérifier les attributs ARIA
-    await expect(page.locator('[data-testid="planning-main"]')).toHaveAttribute(
-      'role',
-      /main/
-    );
+    await expect(page.locator('[data-testid="planning-main"]')).toHaveAttribute('role', /main/);
 
     // Vérifier les landmarks
     await expect(page.locator('main')).toBeVisible();
@@ -254,7 +251,11 @@ test.describe('Planning - Performance', () => {
       // Ajouter des visites factices pour le test
       window.dispatchEvent(
         new CustomEvent('kbv:mock-data', {
-          detail: { visits: Array(100).fill({}).map((_, i) => ({ id: i })) },
+          detail: {
+            visits: Array(100)
+              .fill({})
+              .map((_, i) => ({ id: i })),
+          },
         })
       );
     });

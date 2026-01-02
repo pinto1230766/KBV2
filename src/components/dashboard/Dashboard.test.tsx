@@ -76,4 +76,3 @@ describe('Dashboard', () => {
     expect(dashboardElement).toHaveClass('mobile-layout');
   });
 });
-

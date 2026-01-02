@@ -92,4 +92,3 @@ describe('Card', () => {
     expect(container.firstChild).toHaveClass('hover:shadow-lg', 'transition-shadow');
   });
 });
-
