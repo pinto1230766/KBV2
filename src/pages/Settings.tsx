@@ -256,6 +256,38 @@ export const Settings: React.FC = () => {
         addToast(`Sauvegarde créée : ${result.path}`, 'success');
       } else {
         console.log('[DEBUG] Backup failed, result:', result);
+        
+        // Fallback: essayer de partager le fichier directement
+        console.log('[DEBUG] Trying to share file as fallback...');
+        try {
+          const blob = new Blob([json], { type: 'application/json' });
+          const file = new File([blob], filename, { type: 'application/json' });
+          
+          if (navigator.share && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'Sauvegarde KBV',
+              text: 'Sauvegarde des données KBV'
+            });
+            addToast('Sauvegarde partagée avec succès', 'success');
+            return;
+          } else {
+            // Fallback final: téléchargement
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            addToast('Sauvegarde téléchargée', 'success');
+            return;
+          }
+        } catch (shareError) {
+          console.error('[DEBUG] Share fallback also failed:', shareError);
+        }
+        
         throw new Error(result.error || 'Erreur inconnue');
       }
     } catch (error) {

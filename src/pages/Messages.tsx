@@ -26,7 +26,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Speaker, Visit, Host } from '@/types';
-import { getPrimaryHostName, hasHostAssigned, needsHost } from '@/utils/hostUtils';
+import { getPrimaryHostName, needsHost } from '@/utils/hostUtils';
 
 export const Messages: React.FC = () => {
   const { visits, speakers, hosts, updateVisit, refreshData } = useData();
