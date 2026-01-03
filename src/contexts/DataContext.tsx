@@ -92,27 +92,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // utiliser uniquement completeData pour forcer le rechargement complet
         const shouldForceReload =
           !saved?.dataVersion ||
-          saved.dataVersion < '1.2.1' ||
+          saved.dataVersion < '1.3.0' ||
           !saved.speakers ||
           saved.speakers.length < 50;
 
         let mergedData;
         if (shouldForceReload) {
-          console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.2.1)');
+          console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.3.0)');
           mergedData = {
             ...completeData,
-            dataVersion: '1.2.1', // Forcer la nouvelle version
+            dataVersion: '1.3.0', // Forcer la nouvelle version
           };
         } else {
+          // FUSION INTELLIGENTE: Préserver les hostAssignments et autres données utilisateur
+          const mergedVisits = visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits;
+
+          // Si nous avons des visites sauvegardées avec hostAssignments, les préserver
+          const visitsWithHostAssignments = mergedVisits.map((visit) => {
+            // Chercher la visite correspondante dans les données sauvegardées
+            const savedVisit = saved?.visits?.find((sv) => sv.visitId === visit.visitId);
+            if (savedVisit?.hostAssignments && savedVisit.hostAssignments.length > 0) {
+              console.log(`🔄 Préservation hostAssignments pour ${visit.nom}:`, savedVisit.hostAssignments);
+              return {
+                ...visit,
+                hostAssignments: savedVisit.hostAssignments,
+                // Garder aussi l'ancien champ host pour compatibilité
+                host: savedVisit.host || visit.host,
+              };
+            }
+            return visit;
+          });
+
           mergedData = {
             ...completeData, // BASE = Données complètes intégrées
             ...saved, // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
-            visits: visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits,
+            visits: visitsWithHostAssignments,
             // Préserver les hôtes personnalisés mais ajouter ceux manquants
             hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter(
               (host, index, arr) => arr.findIndex((h) => h.nom === host.nom) === index
             ),
-            dataVersion: '1.2.1', // Mettre à jour la version
+            dataVersion: '1.3.0', // Mettre à jour la version
           };
         }
 
@@ -628,10 +647,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         // 1. Mettre à jour toutes les visites utilisant les noms en doublon
         newState.visits = prev.visits.map((v) => {
+          let updated = false;
+
+          // Mettre à jour l'ancien champ host
           if (duplicateIds.includes(v.host)) {
-            updates.push(`Visite ${v.visitDate} hôte mis à jour: ${v.host} -> ${keepHostName}`);
-            return { ...v, host: keepHostName };
+            updated = true;
+            v = { ...v, host: keepHostName };
           }
+
+          // Mettre à jour les hostAssignments
+          if (v.hostAssignments && v.hostAssignments.length > 0) {
+            const updatedAssignments = v.hostAssignments.map((assignment) => {
+              if (duplicateIds.includes(assignment.hostName)) {
+                updated = true;
+                return { ...assignment, hostName: keepHostName, hostId: keepHostName };
+              }
+              return assignment;
+            });
+            v = { ...v, hostAssignments: updatedAssignments };
+          }
+
+          if (updated) {
+            updates.push(`Visite ${v.visitDate} hôte mis à jour -> ${keepHostName}`);
+          }
+
           return v;
         });
 
