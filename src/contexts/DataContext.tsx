@@ -80,6 +80,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
         await storage.migrateToCapacitor();
 
         const saved = await storage.get<AppData>('kbv-app-data');
+        const lastRestoreTimestamp = localStorage.getItem('last-data-restore');
+
+        // Vérifier si une restauration a été faite récemment (dans les 5 dernières minutes)
+        const isRecentRestore = lastRestoreTimestamp &&
+          (Date.now() - parseInt(lastRestoreTimestamp)) < (5 * 60 * 1000); // 5 minutes
+
+        if (isRecentRestore) {
+          console.log('🔄 RECENT RESTORE DETECTED: Using saved data without fusion');
+          // Utiliser directement les données sauvegardées sans fusion
+          const dataToUse = saved || completeData;
+          setData({
+            ...dataToUse,
+            dataVersion: '1.3.0', // S'assurer d'avoir la bonne version
+          });
+          // Nettoyer le flag de restauration
+          localStorage.removeItem('last-data-restore');
+          setTimeout(() => addToast('Restauration appliquée avec succès !', 'success'), 0);
+          setLoaded(true);
+          return;
+        }
 
         // SOLUTION: Toujours utiliser completeData comme base, puis fusionner avec les sauvegardes
         // Cela garantit que la tablette aura TOUTES les données complètes

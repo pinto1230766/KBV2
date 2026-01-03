@@ -332,6 +332,9 @@ export const Settings: React.FC = () => {
         if (e.target?.result) {
           try {
             importData(e.target.result as string);
+            // Marquer qu'une restauration vient d'être faite
+            localStorage.setItem('last-data-restore', Date.now().toString());
+            console.log('🔄 RESTORE MARKED: Next app load will use restored data without fusion');
             resolve();
           } catch (err) {
             reject(err);
