@@ -26,6 +26,7 @@ import {
   Info,
 } from 'lucide-react';
 import { Speaker, Visit, Host } from '@/types';
+import { getPrimaryHostName, hasHostAssigned, needsHost } from '@/utils/hostUtils';
 
 export const Messages: React.FC = () => {
   const { visits, speakers, hosts, updateVisit, refreshData } = useData();
@@ -103,7 +104,7 @@ export const Messages: React.FC = () => {
         activeFilter === 'all' ||
         (activeFilter === 'pending' && convo.visits.some((v) => v.status === 'pending')) ||
         (activeFilter === 'needs_host' &&
-          convo.visits.some((v) => !v.host || v.host === 'À définir'));
+          convo.visits.some((v) => needsHost(v)));
 
       return matchesSearch && matchesFilter;
     });
@@ -114,7 +115,7 @@ export const Messages: React.FC = () => {
     const hostConvos: { host: Host; upcomingVisits: Visit[]; nextVisitDate: string | null }[] = [];
 
     hosts.forEach((host) => {
-      const hostVisits = visits.filter((v) => v.host === host.nom && v.status !== 'cancelled');
+      const hostVisits = visits.filter((v) => getPrimaryHostName(v) === host.nom && v.status !== 'cancelled');
 
       const sortedVisits = [...hostVisits].sort(
         (a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
@@ -159,9 +160,7 @@ export const Messages: React.FC = () => {
   const stats = useMemo(() => {
     const pendingTotal = visits.filter((v) => v.status === 'pending').length;
     const confirmedTotal = visits.filter((v) => v.status === 'confirmed').length;
-    const needingHostTotal = visits.filter(
-      (v) => (!v.host || v.host === 'À définir') && v.locationType === 'physical'
-    ).length;
+    const needingHostTotal = visits.filter((v) => needsHost(v)).length;
     return {
       pendingTotal,
       confirmedTotal,
@@ -393,10 +392,7 @@ export const Messages: React.FC = () => {
                       ({ speaker, visits: speakerVisits, nextVisitDate }) => {
                         const isSelected = selectedSpeaker?.id === speaker.id;
                         const hasPending = speakerVisits.some((v) => v.status === 'pending');
-                        const needsHost = speakerVisits.some(
-                          (v) =>
-                            (!v.host || v.host === 'À définir') && v.locationType === 'physical'
-                        );
+                        const speakerNeedsHost = speakerVisits.some((v) => needsHost(v));
 
                         return (
                           <button
@@ -418,7 +414,7 @@ export const Messages: React.FC = () => {
                               )}
                             >
                               {speaker.nom.charAt(0).toUpperCase()}
-                              {(hasPending || needsHost) && (
+                              {(hasPending || speakerNeedsHost) && (
                                 <div className='absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse' />
                               )}
                             </div>
@@ -452,12 +448,12 @@ export const Messages: React.FC = () => {
                                     À CONFIRMER
                                   </Badge>
                                 )}
-                                {needsHost && (
+                                {speakerNeedsHost && (
                                   <Badge variant='warning' className='text-[9px] px-1.5 py-0'>
                                     SANS ACCUEIL
                                   </Badge>
                                 )}
-                                {!hasPending && !needsHost && (
+                                {!hasPending && !speakerNeedsHost && (
                                   <Badge variant='success' className='text-[9px] px-1.5 py-0'>
                                     OK
                                   </Badge>
@@ -592,7 +588,7 @@ export const Messages: React.FC = () => {
                 <Card className='border-none shadow-xl h-full flex flex-col bg-gray-50 dark:bg-gray-900/40 rounded-3xl overflow-hidden'>
                   <HostMessageThread
                     host={selectedHost}
-                    visits={visits.filter((v) => v.host === selectedHost.nom)}
+                    visits={visits.filter((v) => getPrimaryHostName(v) === selectedHost.nom)}
                     onAction={handleMessageAction}
                   />
                 </Card>
@@ -667,9 +663,7 @@ export const Messages: React.FC = () => {
         <HostRequestModal
           isOpen={isHostRequestModalOpen}
           onClose={() => setIsHostRequestModalOpen(false)}
-          visitsNeedingHost={visits.filter(
-            (v) => (!v.host || v.host === 'À définir') && v.locationType === 'physical'
-          )}
+          visitsNeedingHost={visits.filter((v) => needsHost(v))}
         />
       )}
     </div>

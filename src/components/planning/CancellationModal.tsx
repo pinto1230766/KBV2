@@ -3,6 +3,7 @@ import { XCircle, Calendar, MessageSquare, RotateCcw, Send, AlertTriangle } from
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Visit } from '@/types';
+import { getPrimaryHostName } from '@/utils/hostUtils';
 
 interface CancellationModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
               </div>
               <ul className='text-sm text-blue-800 dark:text-blue-300 space-y-1'>
                 {notifySpeaker && <li>• Notification à l'orateur ({visit.nom})</li>}
-                {notifyHost && <li>• Notification à l'hôte ({visit.host})</li>}
+                {notifyHost && <li>• Notification à l'hôte ({getPrimaryHostName(visit) || 'Non assigné'})</li>}
               </ul>
             </div>
           )}
@@ -177,7 +178,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
             </div>
             <div>
               <span className='text-gray-500 dark:text-gray-400'>Hôte :</span>
-              <span className='ml-2 text-gray-900 dark:text-white'>{visit.host}</span>
+              <span className='ml-2 text-gray-900 dark:text-white'>{getPrimaryHostName(visit) || 'Non assigné'}</span>
             </div>
           </div>
         </div>
@@ -256,7 +257,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
                 Notifier l'hôte
               </span>
               <p className='text-xs text-gray-500 dark:text-gray-400'>
-                Envoyer un message d'annulation à {visit.host}
+                Envoyer un message d'annulation à {getPrimaryHostName(visit) || 'l\'hôte'}
               </p>
             </div>
           </label>

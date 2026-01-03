@@ -1,5 +1,6 @@
 import React from 'react';
 import { Visit } from '@/types';
+import { getPrimaryHostName, hasHostAssigned } from '@/utils/hostUtils';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
 import { Edit, Trash2, MessageSquare, AlertTriangle, UserPlus, XCircle } from 'lucide-react';
@@ -154,9 +155,9 @@ export const PlanningListView: React.FC<PlanningListViewProps> = ({
                   <div className='text-sm text-gray-900 dark:text-white'>
                     {visit.locationType === 'physical' ? 'Salle du Royaume' : 'Visioconférence'}
                   </div>
-                  {visit.host && (
+                  {hasHostAssigned(visit) && (
                     <div className='text-sm text-gray-500 dark:text-gray-400'>
-                      Chez {visit.host}
+                      Chez {getPrimaryHostName(visit)}
                     </div>
                   )}
                 </td>

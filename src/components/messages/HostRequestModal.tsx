@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Visit, Language } from '@/types';
 import { useData } from '@/contexts/DataContext';
+import { hasHostAssigned } from '@/utils/hostUtils';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -275,10 +276,10 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
                       </p>
                     </div>
                     <div className='flex items-center space-x-2'>
-                      {visit.host === 'À définir' ? (
-                        <Badge variant='warning'>{t('À définir')}</Badge>
-                      ) : (
+                      {hasHostAssigned(visit) ? (
                         <Badge variant='success'>{t('Défini')}</Badge>
+                      ) : (
+                        <Badge variant='warning'>{t('À définir')}</Badge>
                       )}
                     </div>
                   </div>

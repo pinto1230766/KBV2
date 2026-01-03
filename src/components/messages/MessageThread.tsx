@@ -1,5 +1,6 @@
 import React from 'react';
 import { Speaker, Visit } from '@/types';
+import { getPrimaryHostName, hasHostAssigned } from '@/utils/hostUtils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/Button';
@@ -111,10 +112,10 @@ export const MessageThread: React.FC<MessageThreadProps> = ({ speaker, visits, o
                       <MapPin className='w-4 h-4 text-gray-400' />
                       {visit.locationType === 'physical' ? 'Salle du Royaume' : 'Zoom'}
                     </div>
-                    {visit.host && (
+                    {hasHostAssigned(visit) && (
                       <div className='flex items-center gap-2 col-span-2'>
                         <User className='w-4 h-4 text-gray-400' />
-                        Hébergé par {visit.host}
+                        Hébergé par {getPrimaryHostName(visit)}
                       </div>
                     )}
                   </div>

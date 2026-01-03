@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useEffect } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import {
   Users,
   Calendar,
@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
 
 import { Visit } from '@/types';
+import { getActiveHostsCount } from '@/utils/hostUtils';
 import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import { generateReport } from '@/utils/reportGenerator';
@@ -96,19 +97,13 @@ export const Dashboard: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   // Memoized Data
   const stats = useMemo(() => {
     const pendingTotal = visits.filter((v) => v.status === 'pending').length;
     return {
       speakers: speakers.length,
-      hosts: hosts.length,
+      hosts: getActiveHostsCount(visits),
       visitsThisMonth: visits.filter((v) => {
         const d = new Date(v.visitDate);
         const now = new Date();

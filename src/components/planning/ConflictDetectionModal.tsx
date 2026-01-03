@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Visit, Speaker, Host } from '@/types';
 import { useData } from '@/contexts/DataContext';
+import { getPrimaryHostName } from '@/utils/hostUtils';
 
 interface ConflictDetectionModalProps {
   isOpen: boolean;
@@ -88,7 +89,8 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
     }
 
     // 2. Conflit d'hôte - Hôte indisponible
-    const hostData = hosts.find((h) => h.nom === visit.host);
+    const primaryHostName = getPrimaryHostName(visit);
+    const hostData = hosts.find((h) => h.nom === primaryHostName);
     if (hostData?.unavailableDates?.includes(visit.visitDate)) {
       const availableHosts = hosts.filter(
         (h) => !h.unavailableDates?.includes(visit.visitDate) && h.gender === visit.congregation // Exemple de matching
@@ -99,7 +101,7 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
         type: 'host',
         severity: 'warning',
         message: 'Hôte indisponible',
-        details: `${visit.host} n'est pas disponible le ${new Date(visit.visitDate).toLocaleDateString('fr-FR')}`,
+        details: `${primaryHostName} n'est pas disponible le ${new Date(visit.visitDate).toLocaleDateString('fr-FR')}`,
         suggestions: availableHosts.slice(0, 3).map((h, idx) => ({
           id: `suggest-host-${idx}`,
           type: 'change_host',

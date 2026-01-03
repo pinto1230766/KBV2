@@ -7,6 +7,7 @@ import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
+import { getPrimaryHostName } from '@/utils/hostUtils';
 import { generateMessage } from '@/utils/messageGenerator';
 import { Copy, RefreshCw, Send, Save, BookOpen } from 'lucide-react';
 
@@ -133,7 +134,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         }
       } else if (speaker && visit) {
         // Message à un orateur
-        const visitHost = allHosts.find((h) => h.nom === visit.host);
+        const visitHost = allHosts.find((h) => h.nom === getPrimaryHostName(visit));
         generated = generateMessage(
           visit,
           speaker,
