@@ -55,6 +55,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
     host: '',
     congregation: '',
     hostAssignments: [],
+    notes: '',
   });
 
   // Reset step on open
@@ -214,7 +215,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
         </div>
 
         {/* 2. Content */}
-        <div className='flex-1 overflow-y-auto p-6 md:p-8 space-y-8'>
+        <div className='flex-1 p-6 md:p-8 space-y-8'>
           {/* STEP 1: DATE & SPEAKER */}
           {currentStep === 1 && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-8 duration-300'>
@@ -365,11 +366,28 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                 </div>
               </div>
 
+              {/* Notes générales pour la visite */}
+              <div className='space-y-2'>
+                <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                  Notes générales (optionnel)
+                </label>
+                <textarea
+                  value={formData.notes || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, notes: e.target.value }))}
+                  placeholder='Ajouter des notes générales pour cette visite...'
+                  className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 resize-none'
+                  rows={3}
+                />
+              </div>
+
               {formData.locationType === 'physical' && !isLocalSpeaker && (
                 <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in fade-in duration-300'>
                   <div className='flex items-center gap-2'>
                     <Users className='w-4 h-4 text-teal-500' />
                     <h4 className='text-sm font-bold text-gray-900 dark:text-white'>Hospitalité</h4>
+                    <span className='text-xs text-gray-500 ml-auto'>
+                      {formData.hostAssignments?.length || 0} assignation(s)
+                    </span>
                   </div>
 
                   {/* Host Assignments */}
@@ -420,13 +438,17 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                       </div>
                     ))}
 
-                    {/* Add new assignment form */}
-                    <div className='p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl'>
-                      <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                    {/* Add new assignment form - Amélioré pour permettre plusieurs rôles par hôte */}
+                    <div className='p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl space-y-4'>
+                      {/* Sélection de l'hôte */}
+                      <div>
+                        <label className='block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2'>
+                          Sélectionner un hôte
+                        </label>
                         <select
                           className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
                           aria-label='Sélectionner un hôte'
-                          title='Choisir l&apos;hôte pour cette assignation'
+                          title="Choisir l'hôte pour cette assignation"
                           onChange={(e) => {
                             const hostId = e.target.value;
                             if (hostId) {
@@ -434,7 +456,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                               if (host) {
                                 const newAssignment: HostAssignment = {
                                   id: uuidv4(),
-                                  hostId: host.nom, // Using name as ID for simplicity
+                                  hostId: host.nom,
                                   hostName: host.nom,
                                   role: 'accommodation',
                                   createdAt: new Date().toISOString(),
@@ -442,14 +464,14 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                                 setFormData((p) => ({
                                   ...p,
                                   hostAssignments: [...(p.hostAssignments || []), newAssignment],
-                                  host: p.host || host.nom, // Keep legacy field for backward compatibility
+                                  host: p.host || host.nom,
                                 }));
                               }
                             }
                             e.target.value = '';
                           }}
                         >
-                          <option value=''>Sélectionner un hôte...</option>
+                          <option value=''>Choisir un hôte...</option>
                           {hosts
                             .filter(h => !(formData.hostAssignments || []).some(a => a.hostId === h.nom))
                             .map((h) => (
@@ -458,57 +480,112 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                               </option>
                             ))}
                         </select>
-
-                        <select
-                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
-                          aria-label='Sélectionner un rôle'
-                          title='Choisir le rôle de l&apos;hôte'
-                          onChange={(e) => {
-                            const role = e.target.value as HostAssignment['role'];
-                            if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
-                              const lastIndex = formData.hostAssignments.length - 1;
-                              const updatedAssignments = [...formData.hostAssignments];
-                              updatedAssignments[lastIndex] = {
-                                ...updatedAssignments[lastIndex],
-                                role,
-                              };
-                              setFormData((p) => ({
-                                ...p,
-                                hostAssignments: updatedAssignments,
-                              }));
-                            }
-                            e.target.value = '';
-                          }}
-                        >
-                          <option value=''>Rôle...</option>
-                          <option value='accommodation'>Hébergement</option>
-                          <option value='pickup'>Ramassage gare</option>
-                          <option value='meals'>Repas</option>
-                          <option value='transport'>Transport</option>
-                          <option value='other'>Autre</option>
-                        </select>
-
-                        <input
-                          type='text'
-                          placeholder='Notes (optionnel)'
-                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
-                          onChange={(e) => {
-                            const notes = e.target.value;
-                            if (formData.hostAssignments && formData.hostAssignments.length > 0) {
-                              const lastIndex = formData.hostAssignments.length - 1;
-                              const updatedAssignments = [...formData.hostAssignments];
-                              updatedAssignments[lastIndex] = {
-                                ...updatedAssignments[lastIndex],
-                                notes: notes || undefined,
-                              };
-                              setFormData((p) => ({
-                                ...p,
-                                hostAssignments: updatedAssignments,
-                              }));
-                            }
-                          }}
-                        />
                       </div>
+
+                      {/* Si un hôte est sélectionné, permettre d'ajouter plusieurs rôles */}
+                      {(formData.hostAssignments || []).length > 0 && (
+                        <div className='space-y-3'>
+                          <label className='block text-xs font-bold text-gray-500 uppercase tracking-widest'>
+                            Ajouter des tâches pour cet hôte
+                          </label>
+                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                            <select
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                              aria-label='Sélectionner un rôle'
+                              title='Ajouter un rôle pour cet hôte'
+                              onChange={(e) => {
+                                const role = e.target.value as HostAssignment['role'];
+                                if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
+                                  const lastIndex = formData.hostAssignments.length - 1;
+                                  const lastAssignment = formData.hostAssignments[lastIndex];
+
+                                  // Vérifier si ce rôle existe déjà pour cet hôte
+                                  const existingRoleIndex = formData.hostAssignments.findIndex(
+                                    a => a.hostId === lastAssignment.hostId && a.role === role
+                                  );
+
+                                  if (existingRoleIndex === -1) {
+                                    // Ajouter un nouveau rôle pour le même hôte
+                                    const newRoleAssignment: HostAssignment = {
+                                      id: uuidv4(),
+                                      hostId: lastAssignment.hostId,
+                                      hostName: lastAssignment.hostName,
+                                      role,
+                                      createdAt: new Date().toISOString(),
+                                    };
+                                    setFormData((p) => ({
+                                      ...p,
+                                      hostAssignments: [...(p.hostAssignments || []), newRoleAssignment],
+                                    }));
+                                  } else {
+                                    // Modifier le rôle existant
+                                    const updatedAssignments = [...formData.hostAssignments];
+                                    updatedAssignments[existingRoleIndex] = {
+                                      ...updatedAssignments[existingRoleIndex],
+                                      role,
+                                    };
+                                    setFormData((p) => ({
+                                      ...p,
+                                      hostAssignments: updatedAssignments,
+                                    }));
+                                  }
+                                }
+                                e.target.value = '';
+                              }}
+                            >
+                              <option value=''>Ajouter un rôle...</option>
+                              <option value='accommodation'>🏠 Hébergement</option>
+                              <option value='pickup'>🚗 Ramassage gare</option>
+                              <option value='meals'>🍽️ Repas</option>
+                              <option value='transport'>🚌 Transport</option>
+                              <option value='other'>📋 Autre</option>
+                            </select>
+
+                            <input
+                              type='text'
+                              placeholder='Notes pour ce rôle...'
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                              onChange={(e) => {
+                                const notes = e.target.value;
+                                if (formData.hostAssignments && formData.hostAssignments.length > 0) {
+                                  const lastIndex = formData.hostAssignments.length - 1;
+                                  const updatedAssignments = [...formData.hostAssignments];
+                                  updatedAssignments[lastIndex] = {
+                                    ...updatedAssignments[lastIndex],
+                                    notes: notes || undefined,
+                                  };
+                                  setFormData((p) => ({
+                                    ...p,
+                                    hostAssignments: updatedAssignments,
+                                  }));
+                                }
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Résumé des hôtes utilisés */}
+                      {(formData.hostAssignments || []).length > 0 && (
+                        <div className='pt-3 border-t border-gray-200 dark:border-gray-700'>
+                          <div className='text-xs font-bold text-gray-500 uppercase tracking-widest mb-2'>
+                            Hôtes assignés
+                          </div>
+                          <div className='flex flex-wrap gap-2'>
+                            {Array.from(new Set((formData.hostAssignments || []).map(a => a.hostName))).map(hostName => {
+                              const hostAssignments = (formData.hostAssignments || []).filter(a => a.hostName === hostName);
+                              return (
+                                <div key={hostName} className='flex items-center gap-1 px-2 py-1 bg-teal-100 dark:bg-teal-900/30 rounded-full text-xs'>
+                                  <span className='font-medium'>{hostName}</span>
+                                  <span className='text-gray-600 dark:text-gray-400'>
+                                    ({hostAssignments.length})
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

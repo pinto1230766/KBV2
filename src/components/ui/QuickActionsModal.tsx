@@ -318,7 +318,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className='flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800'>
+        <div className='flex-1 p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800'>
           {/* Recents - Only if no search */}
           {!searchTerm && selectedCategory === 'all' && recentActions.length > 0 && (
             <div className='animate-in fade-in slide-in-from-top-4 duration-300'>

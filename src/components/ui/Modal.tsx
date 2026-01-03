@@ -90,7 +90,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
 
         <div
-          className={`${padding === 'none' ? 'p-0' : 'px-6 py-4'} overflow-y-auto custom-scrollbar grow`}
+          className={`${padding === 'none' ? 'p-0' : 'px-6 py-4'} grow`}
         >
           {children}
         </div>
