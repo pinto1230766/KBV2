@@ -121,6 +121,15 @@ export interface Logistics {
   checklist?: ChecklistItem[];
 }
 
+export interface HostAssignment {
+  id: string;
+  hostId: string; // ID de l'hôte
+  hostName: string; // Nom de l'hôte
+  role: 'accommodation' | 'pickup' | 'meals' | 'transport' | 'other';
+  notes?: string;
+  createdAt?: string; // ISO date
+}
+
 export interface Visit {
   id: string; // ID de l'orateur
   visitId: string; // ID unique de la visite
@@ -130,9 +139,10 @@ export interface Visit {
   photoUrl?: string;
   visitDate: string; // Format: YYYY-MM-DD
   visitTime: string; // Format: HH:MM
-  host: string; // Nom du contact d'accueil
-  accommodation: string;
-  meals: string;
+  host: string; // Nom du contact d'accueil (legacy - pour compatibilité)
+  accommodation: string; // Hébergement (legacy)
+  meals: string; // Repas (legacy)
+  hostAssignments?: HostAssignment[]; // Nouveaux hôtes avec rôles spécifiques
   status: VisitStatus;
   locationType: LocationType;
   talkNoOrType: string | null;

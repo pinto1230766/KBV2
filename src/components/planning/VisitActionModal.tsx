@@ -19,6 +19,7 @@ import {
   Clock,
   Send,
   FileText,
+  X,
 } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
@@ -210,6 +211,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   value={formData.visitDate}
                   onChange={(e) => setFormData({ ...formData, visitDate: e.target.value })}
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500'
+                  aria-label='Date de visite'
+                  placeholder='JJ/MM/AAAA'
                 />
               </div>
               <div className='space-y-1'>
@@ -221,6 +224,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   value={formData.visitTime}
                   onChange={(e) => setFormData({ ...formData, visitTime: e.target.value })}
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500'
+                  aria-label='Heure de visite'
+                  placeholder='HH:MM'
                 />
               </div>
             </div>
@@ -255,7 +260,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, locationType: e.target.value as any })
                   }
-                  className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500'
+                  className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 appearance-none'
+                  aria-label='Type de lieu'
+                  title='Choisir le type de lieu'
                 >
                   <option value='physical'>Présentiel</option>
                   <option value='zoom'>Zoom</option>
@@ -264,24 +271,181 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               </div>
 
               {formData.locationType === 'physical' && !formData.congregation?.includes('Lyon') && (
-                <div className='space-y-1'>
+                <div className='space-y-4'>
                   <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                    Hôte
+                    Hôtes
                   </label>
-                  <select
-                    value={formData.host}
-                    onChange={(e) => setFormData({ ...formData, host: e.target.value })}
-                    className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500'
-                  >
-                    <option value=''>-- Sélectionner --</option>
-                    <option value='Hôtel'>Hôtel</option>
-                    <option value='Pas besoin'>Pas besoin</option>
-                    {hosts.map((h) => (
-                      <option key={h.nom} value={h.nom}>
-                        {h.nom}
-                      </option>
+
+                  {/* Existing host assignments */}
+                  <div className='space-y-3'>
+                    {(formData.hostAssignments || []).map((assignment, index) => (
+                      <div
+                        key={assignment.id}
+                        className='flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl'
+                      >
+                        <div className='flex-1'>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                              {assignment.hostName}
+                            </span>
+                            <Badge
+                              variant='default'
+                              className='text-[10px] px-2 py-0.5 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
+                            >
+                              {assignment.role === 'accommodation' && 'Hébergement'}
+                              {assignment.role === 'pickup' && 'Ramassage'}
+                              {assignment.role === 'meals' && 'Repas'}
+                              {assignment.role === 'transport' && 'Transport'}
+                              {assignment.role === 'other' && 'Autre'}
+                            </Badge>
+                          </div>
+                          {assignment.notes && (
+                            <p className='text-xs text-gray-500 mt-1'>{assignment.notes}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newAssignments = (formData.hostAssignments || []).filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData({ ...formData, hostAssignments: newAssignments });
+                          }}
+                          className='text-red-500 hover:text-red-700 p-1'
+                          aria-label='Supprimer l&apos;assignation'
+                          title='Supprimer cette assignation'
+                        >
+                          <X className='w-4 h-4' />
+                        </button>
+                      </div>
                     ))}
-                  </select>
+
+                    {/* Legacy host field for backward compatibility */}
+                    {formData.host && !formData.hostAssignments?.length && (
+                      <div className='p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800'>
+                        <div className='flex items-center justify-between'>
+                          <div>
+                            <span className='text-sm font-medium text-yellow-800 dark:text-yellow-200'>
+                              Hôte (ancien système): {formData.host}
+                            </span>
+                            <p className='text-xs text-yellow-600 dark:text-yellow-300 mt-1'>
+                              Cliquez pour migrer vers le nouveau système d'assignation multiple
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (formData.host) {
+                                const legacyAssignment = {
+                                  id: generateUUID(),
+                                  hostId: formData.host,
+                                  hostName: formData.host,
+                                  role: 'accommodation' as const,
+                                  createdAt: new Date().toISOString(),
+                                };
+                                setFormData((p) => ({
+                                  ...p,
+                                  hostAssignments: [...(p.hostAssignments || []), legacyAssignment],
+                                }));
+                              }
+                            }}
+                            className='px-3 py-1 text-xs bg-yellow-600 text-white rounded-lg hover:bg-yellow-700'
+                          >
+                            Migrer
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Add new assignment form */}
+                  <div className='p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl'>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                      <select
+                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                        aria-label='Sélectionner un hôte'
+                        title='Choisir l&apos;hôte pour cette assignation'
+                        onChange={(e) => {
+                          const hostId = e.target.value;
+                          if (hostId) {
+                            const host = hosts.find(h => h.nom === hostId);
+                            if (host) {
+                              const newAssignment = {
+                                id: generateUUID(),
+                                hostId: host.nom,
+                                hostName: host.nom,
+                                role: 'accommodation' as const,
+                                createdAt: new Date().toISOString(),
+                              };
+                              setFormData((p) => ({
+                                ...p,
+                                hostAssignments: [...(p.hostAssignments || []), newAssignment],
+                                host: p.host || host.nom,
+                              }));
+                            }
+                          }
+                          e.target.value = '';
+                        }}
+                      >
+                        <option value=''>Sélectionner un hôte...</option>
+                        {hosts
+                          .filter(h => !(formData.hostAssignments || []).some(a => a.hostId === h.nom))
+                          .map((h) => (
+                            <option key={h.nom} value={h.nom}>
+                              {h.nom}
+                            </option>
+                          ))}
+                      </select>
+
+                      <select
+                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                        aria-label='Sélectionner un rôle'
+                        title='Choisir le rôle de l&apos;hôte'
+                        onChange={(e) => {
+                          const role = e.target.value as any;
+                          if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
+                            const lastIndex = formData.hostAssignments.length - 1;
+                            const updatedAssignments = [...formData.hostAssignments];
+                            updatedAssignments[lastIndex] = {
+                              ...updatedAssignments[lastIndex],
+                              role,
+                            };
+                            setFormData((p) => ({
+                              ...p,
+                              hostAssignments: updatedAssignments,
+                            }));
+                          }
+                          e.target.value = '';
+                        }}
+                      >
+                        <option value=''>Rôle...</option>
+                        <option value='accommodation'>Hébergement</option>
+                        <option value='pickup'>Ramassage gare</option>
+                        <option value='meals'>Repas</option>
+                        <option value='transport'>Transport</option>
+                        <option value='other'>Autre</option>
+                      </select>
+
+                      <input
+                        type='text'
+                        placeholder='Notes (optionnel)'
+                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                        onChange={(e) => {
+                          const notes = e.target.value;
+                          if (formData.hostAssignments && formData.hostAssignments.length > 0) {
+                            const lastIndex = formData.hostAssignments.length - 1;
+                            const updatedAssignments = [...formData.hostAssignments];
+                            updatedAssignments[lastIndex] = {
+                              ...updatedAssignments[lastIndex],
+                              notes: notes || undefined,
+                            };
+                            setFormData((p) => ({
+                              ...p,
+                              hostAssignments: updatedAssignments,
+                            }));
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

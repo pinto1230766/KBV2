@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit } from '@/types';
+import { Visit, HostAssignment } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import {
   AlertTriangle,
@@ -12,10 +12,11 @@ import {
   User,
   MapPin,
   BookOpen,
-  Home,
   CheckCircle2,
   ChevronRight,
   Info,
+  X,
+  Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
@@ -53,6 +54,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
     id: '',
     host: '',
     congregation: '',
+    hostAssignments: [],
   });
 
   // Reset step on open
@@ -234,6 +236,8 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                           ? 'focus:ring-red-500 bg-red-50 dark:bg-red-900/20'
                           : 'focus:ring-indigo-500'
                       )}
+                      aria-label='Date de visite'
+                      placeholder='JJ/MM/AAAA'
                     />
                   </div>
                   {dateError && (
@@ -251,6 +255,8 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                       value={formData.visitTime}
                       onChange={(e) => setFormData((p) => ({ ...p, visitTime: e.target.value }))}
                       className='w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500'
+                      aria-label='Heure de visite'
+                      placeholder='HH:MM'
                     />
                   </div>
                 </div>
@@ -281,6 +287,8 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                     value={formData.id || ''}
                     onChange={(e) => handleSpeakerChange(e.target.value)}
                     className='w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 appearance-none'
+                    aria-label='Sélectionner un orateur'
+                    title='Choisir l&apos;orateur pour la visite'
                   >
                     <option value=''>Sélectionner un orateur...</option>
                     {speakers.map((s) => (
@@ -360,31 +368,154 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
               {formData.locationType === 'physical' && !isLocalSpeaker && (
                 <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in fade-in duration-300'>
                   <div className='flex items-center gap-2'>
-                    <Home className='w-4 h-4 text-teal-500' />
+                    <Users className='w-4 h-4 text-teal-500' />
                     <h4 className='text-sm font-bold text-gray-900 dark:text-white'>Hospitalité</h4>
                   </div>
 
-                  <div className='relative'>
-                    <select
-                      value={formData.host || ''}
-                      onChange={(e) => setFormData((p) => ({ ...p, host: e.target.value }))}
-                      className='w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-teal-500 appearance-none'
-                    >
-                      <option value=''>Sélectionner un hôte...</option>
-                      {hosts.map((h, index) => (
-                        <option key={index} value={h.nom}>
-                          {h.nom}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronRight className='absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 rotate-90 pointer-events-none' />
+                  {/* Host Assignments */}
+                  <div className='space-y-3'>
+                    {/* Existing assignments */}
+                    {(formData.hostAssignments || []).map((assignment, index) => (
+                      <div
+                        key={assignment.id}
+                        className='flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl'
+                      >
+                        <div className='flex-1'>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                              {assignment.hostName}
+                            </span>
+                            <Badge
+                              variant='default'
+                              className='text-[10px] px-2 py-0.5 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
+                            >
+                              {assignment.role === 'accommodation' && 'Hébergement'}
+                              {assignment.role === 'pickup' && 'Ramassage'}
+                              {assignment.role === 'meals' && 'Repas'}
+                              {assignment.role === 'transport' && 'Transport'}
+                              {assignment.role === 'other' && 'Autre'}
+                            </Badge>
+                          </div>
+                          {assignment.notes && (
+                            <p className='text-xs text-gray-500 mt-1'>{assignment.notes}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newAssignments = (formData.hostAssignments || []).filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData((p) => ({
+                              ...p,
+                              hostAssignments: newAssignments,
+                              host: newAssignments.find(a => a.role === 'accommodation')?.hostName || '',
+                            }));
+                          }}
+                          className='text-red-500 hover:text-red-700 p-1'
+                          aria-label='Supprimer l&apos;assignation'
+                          title='Supprimer cette assignation'
+                        >
+                          <X className='w-4 h-4' />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Add new assignment form */}
+                    <div className='p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl'>
+                      <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                        <select
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          aria-label='Sélectionner un hôte'
+                          title='Choisir l&apos;hôte pour cette assignation'
+                          onChange={(e) => {
+                            const hostId = e.target.value;
+                            if (hostId) {
+                              const host = hosts.find(h => h.nom === hostId);
+                              if (host) {
+                                const newAssignment: HostAssignment = {
+                                  id: uuidv4(),
+                                  hostId: host.nom, // Using name as ID for simplicity
+                                  hostName: host.nom,
+                                  role: 'accommodation',
+                                  createdAt: new Date().toISOString(),
+                                };
+                                setFormData((p) => ({
+                                  ...p,
+                                  hostAssignments: [...(p.hostAssignments || []), newAssignment],
+                                  host: p.host || host.nom, // Keep legacy field for backward compatibility
+                                }));
+                              }
+                            }
+                            e.target.value = '';
+                          }}
+                        >
+                          <option value=''>Sélectionner un hôte...</option>
+                          {hosts
+                            .filter(h => !(formData.hostAssignments || []).some(a => a.hostId === h.nom))
+                            .map((h) => (
+                              <option key={h.nom} value={h.nom}>
+                                {h.nom}
+                              </option>
+                            ))}
+                        </select>
+
+                        <select
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          aria-label='Sélectionner un rôle'
+                          title='Choisir le rôle de l&apos;hôte'
+                          onChange={(e) => {
+                            const role = e.target.value as HostAssignment['role'];
+                            if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
+                              const lastIndex = formData.hostAssignments.length - 1;
+                              const updatedAssignments = [...formData.hostAssignments];
+                              updatedAssignments[lastIndex] = {
+                                ...updatedAssignments[lastIndex],
+                                role,
+                              };
+                              setFormData((p) => ({
+                                ...p,
+                                hostAssignments: updatedAssignments,
+                              }));
+                            }
+                            e.target.value = '';
+                          }}
+                        >
+                          <option value=''>Rôle...</option>
+                          <option value='accommodation'>Hébergement</option>
+                          <option value='pickup'>Ramassage gare</option>
+                          <option value='meals'>Repas</option>
+                          <option value='transport'>Transport</option>
+                          <option value='other'>Autre</option>
+                        </select>
+
+                        <input
+                          type='text'
+                          placeholder='Notes (optionnel)'
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          onChange={(e) => {
+                            const notes = e.target.value;
+                            if (formData.hostAssignments && formData.hostAssignments.length > 0) {
+                              const lastIndex = formData.hostAssignments.length - 1;
+                              const updatedAssignments = [...formData.hostAssignments];
+                              updatedAssignments[lastIndex] = {
+                                ...updatedAssignments[lastIndex],
+                                notes: notes || undefined,
+                              };
+                              setFormData((p) => ({
+                                ...p,
+                                hostAssignments: updatedAssignments,
+                              }));
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className='p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl flex gap-3 text-blue-700 dark:text-blue-300 text-xs leading-relaxed'>
                     <Info className='w-4 h-4 shrink-0 mt-0.5' />
                     <p>
-                      L'orateur vient d'une autre congrégation. Pensez à vérifier ses besoins en
-                      matière de repas ou d'hébergement.
+                      L'orateur vient d'une autre congrégation. Vous pouvez assigner plusieurs hôtes pour différentes tâches : hébergement, ramassage à la gare, repas, etc.
                     </p>
                   </div>
                 </div>
@@ -440,9 +571,30 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                 </div>
                 <div className='flex justify-between items-center'>
                   <span className='text-xs font-bold text-gray-400 uppercase'>Logistique</span>
-                  <Badge variant='default' className='text-xs'>
-                    {formData.host || 'Aucun hôte'}
-                  </Badge>
+                  <div className='text-right'>
+                    {(formData.hostAssignments && formData.hostAssignments.length > 0) ? (
+                      <div className='space-y-1'>
+                        {formData.hostAssignments.slice(0, 2).map((assignment) => (
+                          <Badge key={assignment.id} variant='default' className='text-xs block'>
+                            {assignment.role === 'accommodation' && `🏠 ${assignment.hostName}`}
+                            {assignment.role === 'pickup' && `🚗 ${assignment.hostName}`}
+                            {assignment.role === 'meals' && `🍽️ ${assignment.hostName}`}
+                            {assignment.role === 'transport' && `🚌 ${assignment.hostName}`}
+                            {assignment.role === 'other' && `📋 ${assignment.hostName}`}
+                          </Badge>
+                        ))}
+                        {formData.hostAssignments.length > 2 && (
+                          <Badge variant='default' className='text-xs'>
+                            +{formData.hostAssignments.length - 2} autres
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <Badge variant='default' className='text-xs'>
+                        {formData.host || 'Aucun hôte'}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

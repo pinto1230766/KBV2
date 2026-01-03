@@ -159,7 +159,28 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </span>
           </div>
 
-          {visit.host && !visit.congregation?.includes('Lyon') && (
+          {/* Host Assignments */}
+          {visit.hostAssignments && visit.hostAssignments.length > 0 && !visit.congregation?.includes('Lyon') && (
+            <div className='space-y-1'>
+              {visit.hostAssignments.map((assignment) => (
+                <div key={assignment.id} className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
+                  <User className='w-4 h-4 mr-2 text-gray-400 flex-shrink-0' />
+                  <div className='flex-1 min-w-0'>
+                    <span className='line-clamp-1'>
+                      {assignment.role === 'accommodation' && `Chez ${assignment.hostName}`}
+                      {assignment.role === 'pickup' && `Ramassage: ${assignment.hostName}`}
+                      {assignment.role === 'meals' && `Repas: ${assignment.hostName}`}
+                      {assignment.role === 'transport' && `Transport: ${assignment.hostName}`}
+                      {assignment.role === 'other' && `${assignment.hostName}`}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Legacy host display for backward compatibility */}
+          {visit.host && !visit.hostAssignments?.length && !visit.congregation?.includes('Lyon') && (
             <div className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
               <User className='w-4 h-4 mr-2 text-gray-400' />
               <span className='line-clamp-1'>Chez {visit.host}</span>
