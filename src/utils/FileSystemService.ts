@@ -78,7 +78,15 @@ class FileSystemService {
           console.log('[DEBUG] Permission request result:', requestResult);
 
           if (!requestResult.publicStorage) {
-            throw new Error('Permissions de stockage refusées par l\'utilisateur');
+            // Pour Android 11+, expliquer à l'utilisateur comment accorder l'accès
+            const androidVersion = this.getAndroidVersion();
+            console.log('[DEBUG] Android version detected:', androidVersion);
+
+            if (androidVersion >= 30) { // Android 11+
+              throw new Error('PERMISSION_MANUAL_REQUIRED: Pour Android 11+, vous devez accorder l\'accès à tous les fichiers manuellement dans les paramètres de l\'application. Allez dans Paramètres > Applications > KBVFP > Permissions > Accès à tous les fichiers.');
+            } else {
+              throw new Error('Permissions de stockage refusées par l\'utilisateur. Veuillez accorder les permissions de stockage dans les paramètres de l\'application.');
+            }
           }
         }
       } catch (permError) {
@@ -303,6 +311,25 @@ class FileSystemService {
     } catch (error) {
       console.error('Erreur partage fichier:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Obtenir la version d'Android
+   */
+  private getAndroidVersion(): number {
+    try {
+      // Essayer d'obtenir la version depuis Capacitor
+      const platformInfo = (window as any).Capacitor?.getPlatform?.();
+      if (platformInfo) {
+        // Pour Android, on peut essayer d'obtenir la version via les APIs du device
+        // En attendant, retourner une valeur par défaut qui déclenche le message d'aide
+        return 30; // Considérer Android 11+ par défaut pour la sécurité
+      }
+      return 29; // Android 10 par défaut
+    } catch (error) {
+      console.log('[DEBUG] Could not detect Android version, assuming Android 11+');
+      return 30; // Par défaut, considérer Android 11+
     }
   }
 

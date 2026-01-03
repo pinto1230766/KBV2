@@ -798,6 +798,7 @@ export const Settings: React.FC = () => {
                       </Button>
                     </div>
                     <label className='relative inline-flex items-center cursor-pointer'>
+                      <span className='sr-only'>Activer les notifications</span>
                       <input
                         type='checkbox'
                         className='sr-only peer'
@@ -808,6 +809,7 @@ export const Settings: React.FC = () => {
                             notifications: { ...settings.notifications, enabled: e.target.checked },
                           })
                         }
+                        aria-label='Activer les notifications push'
                       />
                       <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
                     </label>
@@ -916,6 +918,8 @@ export const Settings: React.FC = () => {
                                   })
                                 }
                                 className='w-5 h-5 rounded text-primary-600 focus:ring-primary-500'
+                                aria-label={opt.label}
+                                id={`notification-${opt.id}`}
                               />
                             </div>
                           ))}
@@ -971,6 +975,8 @@ export const Settings: React.FC = () => {
                           updateSettings({ ...settings, encryptionEnabled: e.target.checked })
                         }
                         className='w-6 h-6 rounded-lg text-green-600 focus:ring-green-500'
+                        aria-label='Activer le chiffrement de la base de données'
+                        id='encryption-toggle'
                       />
                     </div>
 
