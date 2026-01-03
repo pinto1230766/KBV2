@@ -242,58 +242,85 @@ export const Settings: React.FC = () => {
       const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
       console.log('[DEBUG] Generated filename:', filename);
 
-      // Utiliser le service de fichiers pour sauvegarder
-      console.log('[DEBUG] Calling fileSystemService.saveToDocuments...');
-      const result = await fileSystemService.saveToDocuments({
-        filename,
-        data: json,
-        mimeType: 'application/json',
-      });
-      console.log('[DEBUG] fileSystemService.saveToDocuments result:', result);
+      // 1. Essayer le FileSystemService (Documents/KBV)
+      try {
+        console.log('[DEBUG] Trying FileSystemService backup...');
+        const result = await fileSystemService.saveToDocuments({
+          filename,
+          data: json,
+          mimeType: 'application/json',
+        });
+        console.log('[DEBUG] FileSystemService result:', result);
 
-      if (result.success) {
-        console.log('[DEBUG] Backup successful, showing success toast');
-        addToast(`Sauvegarde créée : ${result.path}`, 'success');
-      } else {
-        console.log('[DEBUG] Backup failed, result:', result);
-        
-        // Fallback: essayer de partager le fichier directement
-        console.log('[DEBUG] Trying to share file as fallback...');
-        try {
-          const blob = new Blob([json], { type: 'application/json' });
-          const file = new File([blob], filename, { type: 'application/json' });
-          
-          if (navigator.share && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: 'Sauvegarde KBV',
-              text: 'Sauvegarde des données KBV'
-            });
-            addToast('Sauvegarde partagée avec succès', 'success');
-            return;
-          } else {
-            // Fallback final: téléchargement
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            addToast('Sauvegarde téléchargée', 'success');
-            return;
-          }
-        } catch (shareError) {
-          console.error('[DEBUG] Share fallback also failed:', shareError);
+        if (result.success) {
+          addToast(`Sauvegarde créée dans Documents/KBV`, 'success');
+          return;
         }
-        
-        throw new Error(result.error || 'Erreur inconnue');
+      } catch (fsError) {
+        console.log('[DEBUG] FileSystemService failed, trying next method:', fsError);
       }
+
+      // 2. Fallback: Partage de fichier (si disponible)
+      try {
+        console.log('[DEBUG] Trying file sharing fallback...');
+        const blob = new Blob([json], { type: 'application/json' });
+        const file = new File([blob], filename, { type: 'application/json' });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          console.log('[DEBUG] Sharing file...');
+          await navigator.share({
+            files: [file],
+            title: 'Sauvegarde KBV',
+            text: 'Sauvegarde des données KBV Lyon'
+          });
+          addToast('Sauvegarde partagée avec succès', 'success');
+          return;
+        }
+      } catch (shareError) {
+        console.log('[DEBUG] Share fallback failed:', shareError);
+      }
+
+      // 3. Fallback: Téléchargement direct (toujours fonctionne)
+      try {
+        console.log('[DEBUG] Using download fallback...');
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        addToast('Sauvegarde téléchargée dans vos téléchargements', 'success');
+        return;
+      } catch (downloadError) {
+        console.log('[DEBUG] Download fallback failed:', downloadError);
+      }
+
+      // 4. Sauvegarde d'urgence dans localStorage (si tout échoue)
+      try {
+        console.log('[DEBUG] Using emergency localStorage backup...');
+        const backupKey = `kbv-emergency-backup-${Date.now()}`;
+        localStorage.setItem(backupKey, json);
+        localStorage.setItem('last-emergency-backup', backupKey);
+        addToast('Sauvegarde temporaire créée (localStorage)', 'warning');
+        return;
+      } catch (storageError) {
+        console.log('[DEBUG] Emergency storage failed:', storageError);
+      }
+
+      // Si tout échoue
+      throw new Error('Toutes les méthodes de sauvegarde ont échoué');
+
     } catch (error) {
       console.error('[DEBUG] Erreur sauvegarde in handleBackupAdapter:', error);
       console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack available');
-      addToast('Erreur lors de la sauvegarde', 'error');
+
+      // Message d'erreur informatif
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue lors de la sauvegarde';
+      addToast(`Erreur sauvegarde: ${errorMessage}. Essayez de redémarrer l'application.`, 'error');
       throw error;
     }
   };

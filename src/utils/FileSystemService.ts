@@ -78,65 +78,88 @@ class FileSystemService {
           console.log('[DEBUG] Permission request result:', requestResult);
 
           if (!requestResult.publicStorage) {
-            throw new Error('Permissions de stockage refusées par l\'utilisateur');
+            console.log('[DEBUG] Permissions refused, will try fallback methods');
+            // Ne pas throw ici, continuer avec les fallbacks
           }
         }
       } catch (permError) {
         console.error('[DEBUG] Permission error:', permError);
-        throw new Error('Impossible d\'obtenir les permissions de stockage: ' + (permError instanceof Error ? permError.message : 'Erreur inconnue'));
+        console.log('[DEBUG] Continuing with fallback methods despite permission error');
+        // Ne pas throw ici, continuer avec les fallbacks
       }
 
-      // Créer le dossier KBV s'il n'existe pas
-      console.log('[DEBUG] Ensuring KBV folder exists...');
-      await this.ensureKBVFolderExists();
-      console.log('[DEBUG] KBV folder ensured');
-
-      // Sauvegarder le fichier avec une approche plus robuste
-      console.log('[DEBUG] Writing file to:', `${this.KBV_FOLDER}/${options.filename}`);
-      console.log('[DEBUG] Using directory:', this.DEFAULT_DIRECTORY);
-
-      // Essayer d'abord avec le dossier Documents
-      try {
-        const writeOptions = {
-          path: `${this.KBV_FOLDER}/${options.filename}`,
-          data: options.data,
-          directory: this.DEFAULT_DIRECTORY,
-          encoding: 'utf8' as any,
-        };
-        console.log('[DEBUG] Write options:', writeOptions);
-
-        const result = await Filesystem.writeFile(writeOptions);
-        console.log('[DEBUG] File written successfully, URI:', result.uri);
-
-        return {
-          success: true,
-          path: result.uri,
-        };
-      } catch (writeError) {
-        console.error('[DEBUG] Failed to write to Documents, trying alternative approach:', writeError);
-
-        // Si l'écriture dans Documents échoue, essayer avec le stockage externe
-        try {
-          console.log('[DEBUG] Trying alternative storage location...');
-          const alternativeOptions = {
+      // Essayer plusieurs stratégies de sauvegarde
+      const saveStrategies = [
+        {
+          name: 'Documents/KBV',
+          options: {
+            path: `${this.KBV_FOLDER}/${options.filename}`,
+            data: options.data,
+            directory: this.DEFAULT_DIRECTORY,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {
+            try {
+              await this.ensureKBVFolderExists();
+            } catch (e) {
+              console.log('[DEBUG] Could not create KBV folder, trying without it');
+            }
+          }
+        },
+        {
+          name: 'Documents direct',
+          options: {
+            path: options.filename,
+            data: options.data,
+            directory: this.DEFAULT_DIRECTORY,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {} // No preparation needed
+        },
+        {
+          name: 'ExternalStorage/KBV',
+          options: {
             path: `${this.KBV_FOLDER}/${options.filename}`,
             data: options.data,
             directory: Directory.ExternalStorage,
             encoding: 'utf8' as any,
-          };
+          },
+          prepare: async () => {} // External storage might not need folder creation
+        },
+        {
+          name: 'ExternalStorage direct',
+          options: {
+            path: options.filename,
+            data: options.data,
+            directory: Directory.ExternalStorage,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {} // No preparation needed
+        }
+      ];
 
-          const alternativeResult = await Filesystem.writeFile(alternativeOptions);
-          console.log('[DEBUG] File written to alternative location, URI:', alternativeResult.uri);
+      for (const strategy of saveStrategies) {
+        try {
+          console.log(`[DEBUG] Trying ${strategy.name} strategy...`);
+          await strategy.prepare();
+
+          console.log('[DEBUG] Write options:', strategy.options);
+          const result = await Filesystem.writeFile(strategy.options);
+          console.log(`[DEBUG] File written successfully with ${strategy.name}, URI:`, result.uri);
 
           return {
             success: true,
-            path: alternativeResult.uri,
+            path: result.uri,
           };
-        } catch (alternativeError) {
-          console.error('[DEBUG] Alternative write also failed:', alternativeError);
-          throw alternativeError;
+        } catch (strategyError) {
+          console.log(`[DEBUG] ${strategy.name} strategy failed:`, strategyError);
+          // Continue to next strategy
         }
       }
+
+      // Si toutes les stratégies ont échoué, throw l'erreur
+      throw new Error('Toutes les méthodes de sauvegarde ont échoué');
+
     } catch (error) {
       console.error('[DEBUG] Erreur sauvegarde native:', error);
       console.error('[DEBUG] Error details:', {
