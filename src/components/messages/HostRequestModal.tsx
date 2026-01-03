@@ -101,6 +101,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
       onClose={onClose}
       title={isIndividualRequest ? t("Demande d'accueil individuelle") : t("Demande d'accueil groupée")}
       size='lg'
+      className='max-h-[90vh] overflow-hidden'
       footer={
         <>
           <Button variant='ghost' onClick={onClose}>
@@ -138,7 +139,7 @@ export const HostRequestModal: React.FC<HostRequestModalProps> = ({
         </>
       }
     >
-      <div className='space-y-6'>
+      <div className='space-y-6 max-h-[calc(90vh-12rem)] overflow-y-auto'>
         {/* Header avec compteur */}
         <div className='flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg'>
           <div>

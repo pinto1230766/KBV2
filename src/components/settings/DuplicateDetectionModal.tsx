@@ -291,8 +291,8 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={_onClose} title='Détection de doublons' size='xl'>
-      <div className='space-y-6'>
+    <Modal isOpen={isOpen} onClose={_onClose} title='Détection de doublons' size='xl' className='max-h-[90vh] overflow-hidden'>
+      <div className='space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto'>
         {/* Statistiques */}
         <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
           <div className='p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>

@@ -129,8 +129,8 @@ export const ImportWizardModal: React.FC<ImportWizardModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Assistant d'importation" size='xl'>
-      <div className='space-y-6'>
+    <Modal isOpen={isOpen} onClose={onClose} title="Assistant d'importation" size='xl' className='max-h-[90vh] overflow-hidden'>
+      <div className='space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto'>
         {/* Indicateur de progression */}
         <div className='flex items-center justify-between'>
           {['upload', 'mapping', 'preview', 'import', 'result'].map((step, index) => (

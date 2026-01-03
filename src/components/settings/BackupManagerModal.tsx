@@ -228,8 +228,8 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Gestion des sauvegardes' size='lg'>
-      <div className='space-y-6'>
+    <Modal isOpen={isOpen} onClose={onClose} title='Gestion des sauvegardes' size='lg' className='max-h-[90vh] overflow-hidden'>
+      <div className='space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto'>
         {/* Onglets */}
         <div className='flex gap-2 border-b border-gray-200 dark:border-gray-700'>
           <button

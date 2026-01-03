@@ -283,6 +283,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       onClose={onClose}
       title={`${t('Message pour')} ${targetName}`}
       size='lg'
+      className='max-h-[90vh] overflow-hidden'
       footer={
         <>
           <Button variant='ghost' onClick={onClose}>

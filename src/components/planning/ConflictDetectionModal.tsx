@@ -223,8 +223,8 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Détection de Conflits' size='lg'>
-      <div className='space-y-6'>
+    <Modal isOpen={isOpen} onClose={onClose} title='Détection de Conflits' size='lg' className='max-h-[90vh] overflow-hidden'>
+      <div className='space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto'>
         {/* En-tête */}
         <div className='flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg'>
           <Calendar className='w-6 h-6 text-primary-600' />

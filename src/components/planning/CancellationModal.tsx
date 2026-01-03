@@ -88,7 +88,7 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
 
   if (showConfirmation) {
     return (
-      <Modal isOpen={isOpen} onClose={onClose} title="Confirmer l'annulation" size='md'>
+      <Modal isOpen={isOpen} onClose={onClose} title="Confirmer l'annulation" size='md' className='max-h-[90vh] overflow-hidden'>
         <div className='space-y-6'>
           <div className='flex items-start gap-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg'>
             <AlertTriangle className='w-6 h-6 text-red-600 flex-shrink-0 mt-1' />
@@ -152,8 +152,8 @@ export const CancellationModal: React.FC<CancellationModalProps> = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Annuler une visite' size='lg'>
-      <div className='space-y-6'>
+    <Modal isOpen={isOpen} onClose={onClose} title='Annuler une visite' size='lg' className='max-h-[90vh] overflow-hidden'>
+      <div className='space-y-6 max-h-[calc(90vh-8rem)] overflow-y-auto'>
         {/* Informations de la visite */}
         <div className='p-4 bg-gray-50 dark:bg-gray-800 rounded-lg'>
           <div className='flex items-center gap-3 mb-3'>
