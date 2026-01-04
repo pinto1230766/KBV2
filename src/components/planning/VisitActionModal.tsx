@@ -293,16 +293,31 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                               variant='default'
                               className='text-[10px] px-2 py-0.5 bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300'
                             >
-                              {assignment.role === 'accommodation' && 'Hébergement'}
-                              {assignment.role === 'pickup' && 'Ramassage'}
-                              {assignment.role === 'meals' && 'Repas'}
-                              {assignment.role === 'transport' && 'Transport'}
-                              {assignment.role === 'other' && 'Autre'}
+                              {assignment.role === 'accommodation' && '🏠 Hébergement'}
+                              {assignment.role === 'pickup' && '🚗 Ramassage'}
+                              {assignment.role === 'meals' && '🍽️ Repas'}
+                              {assignment.role === 'transport' && '🚌 Transport'}
+                              {assignment.role === 'other' && '📋 Autre'}
                             </Badge>
                           </div>
-                          {assignment.notes && (
-                            <p className='text-xs text-gray-500 mt-1'>{assignment.notes}</p>
-                          )}
+                          {/* Notes modifiables pour chaque rôle */}
+                          <div className='mt-2'>
+                            <input
+                              type='text'
+                              value={assignment.notes || ''}
+                              onChange={(e) => {
+                                const newNotes = e.target.value;
+                                const updatedAssignments = [...(formData.hostAssignments || [])];
+                                updatedAssignments[index] = {
+                                  ...updatedAssignments[index],
+                                  notes: newNotes || undefined,
+                                };
+                                setFormData({ ...formData, hostAssignments: updatedAssignments });
+                              }}
+                              placeholder='Notes spécifiques pour ce rôle...'
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                            />
+                          </div>
                         </div>
                         <button
                           onClick={() => {
@@ -312,8 +327,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                             setFormData({ ...formData, hostAssignments: newAssignments });
                           }}
                           className='text-red-500 hover:text-red-700 p-1'
-                          aria-label='Supprimer l&apos;assignation'
-                          title='Supprimer cette assignation'
+                          aria-label="Supprimer l'assignation"
+                          title="Supprimer cette assignation"
                         >
                           <X className='w-4 h-4' />
                         </button>
@@ -387,13 +402,28 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                         }}
                       >
                         <option value=''>Sélectionner un hôte...</option>
-                        {hosts
-                          .filter(h => !(formData.hostAssignments || []).some(a => a.hostId === h.nom))
-                          .map((h) => (
+                        {hosts.map((h) => {
+                          const isAlreadyAssigned = (formData.hostAssignments || []).some(a => a.hostId === h.nom);
+                          const assignedRoles = (formData.hostAssignments || [])
+                            .filter(a => a.hostId === h.nom)
+                            .map(a => {
+                              switch (a.role) {
+                                case 'accommodation': return '🏠';
+                                case 'pickup': return '🚗';
+                                case 'meals': return '🍽️';
+                                case 'transport': return '🚌';
+                                case 'other': return '📋';
+                                default: return '❓';
+                              }
+                            })
+                            .join(' ');
+
+                          return (
                             <option key={h.nom} value={h.nom}>
-                              {h.nom}
+                              {h.nom} {isAlreadyAssigned ? `(${assignedRoles})` : ''}
                             </option>
-                          ))}
+                          );
+                        })}
                       </select>
 
                       <select
@@ -670,7 +700,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         isOpen={isOpen}
         onClose={onClose}
         title=''
-        size={['logistics', 'message'].includes(action) ? 'xl' : 'md'}
+        size={['logistics', 'message', 'edit'].includes(action) ? 'xl' : 'md'}
         padding='none'
         hideCloseButton={true}
         className='overflow-hidden'
