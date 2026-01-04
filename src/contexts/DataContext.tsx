@@ -19,6 +19,20 @@ import { useSyncQueue } from '@/hooks/useSyncQueue';
 import { useOfflineMode } from '@/hooks/useOfflineMode';
 import { getTalkTitle } from '@/data/talkTitles';
 
+// Import des données réelles
+const _importRealData = async (): Promise<AppData | null> => {
+  try {
+    const response = await fetch('/data/real-data.json');
+    if (response.ok) {
+      return await response.json();
+    }
+    return null;
+  } catch (error) {
+    console.error('Erreur import données réelles:', error);
+    return null;
+  }
+};
+
 // Types condensés pour le context
 interface DataContextValue extends AppData {
   addSpeaker: (speaker: Speaker) => void;
