@@ -215,7 +215,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
         </div>
 
         {/* 2. Content */}
-        <div className='flex-1 p-6 md:p-8 space-y-8'>
+        <div className='flex-1 overflow-y-auto p-6 md:p-8 space-y-8'>
           {/* STEP 1: DATE & SPEAKER */}
           {currentStep === 1 && (
             <div className='space-y-6 animate-in fade-in slide-in-from-right-8 duration-300'>
@@ -448,7 +448,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                         <select
                           className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
                           aria-label='Sélectionner un hôte'
-                          title="Choisir l'hôte pour cette assignation"
+                          title='Choisir l&apos;hôte pour cette assignation'
                           onChange={(e) => {
                             const hostId = e.target.value;
                             if (hostId) {

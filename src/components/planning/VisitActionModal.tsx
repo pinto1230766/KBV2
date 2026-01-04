@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
-import { Visit, Expense, MessageType } from '@/types';
+import { Visit, Expense, MessageType, HostAssignment } from '@/types';
 import {
   Edit2,
   Trash2,
@@ -20,6 +20,7 @@ import {
   Send,
   FileText,
   X,
+  Users,
 } from 'lucide-react';
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
@@ -450,15 +451,17 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               )}
             </div>
 
-            <div className='space-y-1'>
+            {/* Notes générales pour la visite */}
+            <div className='space-y-2'>
               <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
-                Notes
+                Notes générales (optionnel)
               </label>
               <textarea
-                value={formData.notes}
+                value={formData.notes || ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-indigo-500 min-h-[100px]'
-                placeholder='Notes privées...'
+                placeholder='Ajouter des notes générales pour cette visite...'
+                className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 resize-none'
+                rows={3}
               />
             </div>
           </div>
