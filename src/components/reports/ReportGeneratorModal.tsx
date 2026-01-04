@@ -172,6 +172,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
               </div>
               <button
                 onClick={onClose}
+                title='Fermer le rapport'
                 className='p-2 hover:bg-white/10 rounded-full transition-colors -mr-2 -mt-2'
               >
                 <X className='w-5 h-5' />
@@ -262,6 +263,8 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
                     type='date'
                     value={customDateRange.start}
                     onChange={(e) => setCustomDateRange((p) => ({ ...p, start: e.target.value }))}
+                    title='Date de début'
+                    placeholder='JJ/MM/AAAA'
                     className='w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xs py-2.5 focus:ring-2 focus:ring-indigo-500'
                   />
                 </div>
@@ -271,6 +274,8 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
                     type='date'
                     value={customDateRange.end}
                     onChange={(e) => setCustomDateRange((p) => ({ ...p, end: e.target.value }))}
+                    title='Date de fin'
+                    placeholder='JJ/MM/AAAA'
                     className='w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-xs py-2.5 focus:ring-2 focus:ring-indigo-500'
                   />
                 </div>

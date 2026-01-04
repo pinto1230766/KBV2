@@ -227,10 +227,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateVisit = (visit: Visit) => {
-    setData((d) => ({
-      ...d,
-      visits: d.visits.map((v) => (v.visitId === visit.visitId ? visit : v)),
-    }));
+    console.log('🔄 UPDATE VISIT CALLED:', visit.visitId, 'New speaker:', visit.nom, 'ID:', visit.id);
+    setData((d) => {
+      const updatedVisits = d.visits.map((v) => {
+        if (v.visitId === visit.visitId) {
+          console.log('🔄 UPDATING VISIT:', v.nom, '->', visit.nom);
+          return visit;
+        }
+        return v;
+      });
+      console.log('🔄 VISITS UPDATED, new count:', updatedVisits.length);
+      return {
+        ...d,
+        visits: updatedVisits,
+      };
+    });
     addToSyncQueue('UPDATE_VISIT', visit);
   };
 
@@ -261,6 +272,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           : v
       ),
     }));
+    addToSyncQueue('CANCEL_VISIT', { visitId: visit.visitId, cancellationData });
   };
 
   // Hosts

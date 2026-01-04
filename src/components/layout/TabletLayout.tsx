@@ -312,6 +312,7 @@ export const TabletLayout: React.FC = () => {
               )}
               <button
                 onClick={toggleTheme}
+                title={isDarkMode ? 'Désactiver le mode clair' : 'Activer le mode sombre'}
                 className={cn(
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900',
                   isDarkMode ? 'bg-blue-600' : 'bg-slate-700'
@@ -332,6 +333,7 @@ export const TabletLayout: React.FC = () => {
                 <button
                   onClick={goToPrevious}
                   disabled={!canGoBack}
+                  title='Page précédente'
                   className={cn(
                     'p-2 rounded-lg transition-colors',
                     canGoBack
@@ -347,6 +349,7 @@ export const TabletLayout: React.FC = () => {
                 <button
                   onClick={goToNext}
                   disabled={!canGoForward}
+                  title='Page suivante'
                   className={cn(
                     'p-2 rounded-lg transition-colors',
                     canGoForward

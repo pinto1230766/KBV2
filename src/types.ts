@@ -484,6 +484,7 @@ export type SyncActionType =
   | 'UPDATE_VISIT'
   | 'DELETE_VISIT'
   | 'COMPLETE_VISIT'
+  | 'CANCEL_VISIT'
   | 'ADD_HOST'
   | 'UPDATE_HOST'
   | 'DELETE_HOST';

@@ -190,6 +190,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
                     key={star}
                     onClick={() => handleStarClick(star, 'speaker')}
                     className='group relative focus:outline-none transition-transform hover:scale-110 active:scale-95'
+                    title={`Note ${star} sur 5`}
                   >
                     <Star
                       className={`w-12 h-12 transition-all duration-300 ${
@@ -227,6 +228,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
                             ? 'bg-blue-500'
                             : 'bg-slate-200 dark:bg-slate-600'
                         } hover:bg-blue-400 transition-colors`}
+                        title={`Note ${s} sur 5 pour ${category.label}`}
                       />
                     ))}
                   </div>
@@ -252,6 +254,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
                       key={star}
                       onClick={() => handleStarClick(star, 'host')}
                       className='transition-transform hover:scale-110'
+                      title={`Note ${star} sur 5 pour l'hôte`}
                     >
                       <Star
                         className={`w-8 h-8 ${star <= hostRating ? 'fill-green-400 text-green-400' : 'text-slate-200 dark:text-slate-600'}`}
@@ -277,6 +280,7 @@ export const FeedbackFormModal: React.FC<FeedbackFormModalProps> = ({
                       key={star}
                       onClick={() => handleStarClick(star, 'organization')}
                       className='transition-transform hover:scale-110'
+                      title={`Note ${star} sur 5 pour l'organisation`}
                     >
                       <Star
                         className={`w-8 h-8 ${star <= organizationRating ? 'fill-purple-400 text-purple-400' : 'text-slate-200 dark:text-slate-600'}`}

@@ -274,6 +274,7 @@ export const PhoneLayout: React.FC = () => {
                   </span>
                   <button
                     onClick={toggleTheme}
+                    title={isDarkMode ? 'Désactiver le mode clair' : 'Activer le mode sombre'}
                     className={cn(
                       'relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900',
                       isDarkMode ? 'bg-blue-600' : 'bg-slate-700'

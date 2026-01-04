@@ -28,7 +28,7 @@ import {
   Sparkles,
   ChevronDown,
 } from 'lucide-react';
-import { LocationType, VisitStatus, Visit } from '@/types';
+import { LocationType, VisitStatus, Visit, Speaker } from '@/types';
 import { PlanningWorkloadView } from '@/components/planning/PlanningWorkloadView';
 import { PlanningTimelineView } from '@/components/planning/PlanningTimelineView';
 import { FinancialDashboard } from '@/components/expenses/FinancialDashboard';
@@ -42,6 +42,7 @@ import {
 import { cn } from '@/utils/cn';
 import { exportService } from '@/utils/ExportService';
 import { useToast } from '@/contexts/ToastContext';
+import { generateMessage, generateWhatsAppUrl } from '@/utils/messageGenerator';
 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
@@ -95,7 +96,7 @@ const StatCard = memo(
 
 export const Planning: React.FC = () => {
   const allData = useData();
-  const { visits, archivedVisits, speakers: _speakers, hosts: _hosts } = allData;
+  const { visits, archivedVisits, speakers: _speakers, hosts, updateVisit, congregationProfile } = allData;
   const { addToast } = useToast();
   const [view, setView] = useState<ViewType>('cards');
   const [searchTerm, setSearchTerm] = useState('');
@@ -231,6 +232,73 @@ export const Planning: React.FC = () => {
     setSelectedVisit(null);
   }, []);
 
+  const handleReplacement = useCallback(
+    (speaker: Speaker, sendNotification: boolean) => {
+      if (!selectedVisit) return;
+
+      const updatedVisit: Visit = {
+        ...selectedVisit,
+        id: speaker.id,
+        nom: speaker.nom,
+        congregation: speaker.congregation,
+        telephone: speaker.telephone,
+
+        photoUrl: speaker.photoUrl,
+      };
+
+      console.log('🔄 Performing replacement:', updatedVisit);
+      updateVisit(updatedVisit);
+
+      if (sendNotification) {
+        if (speaker.telephone) {
+          const host = hosts.find((h) => h.nom === updatedVisit.host);
+          
+          try {
+            const message = generateMessage(
+              updatedVisit,
+              speaker,
+              host,
+              congregationProfile,
+              'confirmation',
+              'speaker',
+              'fr' // TODO: Get from settings
+            );
+            
+            const url = generateWhatsAppUrl(speaker.telephone, message);
+            window.open(url, '_blank');
+            addToast(`Remplacement effectué. WhatsApp ouvert pour notifier ${speaker.nom}`, 'success');
+          } catch (e) {
+            console.error('Error generating notification:', e);
+            addToast(`Remplacement effectué mais erreur lors de la génération du message`, 'warning');
+          }
+        } else {
+          addToast(`Remplacement effectué. Impossible de notifier : pas de numéro pour ${speaker.nom}`, 'warning');
+        }
+      } else {
+        addToast(`Remplacement effectué : ${speaker.nom}`, 'success');
+      }
+
+      setIsReplacementModalOpen(false);
+      setSelectedVisit(null);
+    },
+    [selectedVisit, updateVisit, addToast]
+  );
+
+  const handleCancellation = useCallback(
+    (cancellationData: any) => {
+      // Logique existante dans cancelVisit du DataContext utilisée via allData.cancelVisit
+      if (!selectedVisit) return;
+
+      console.log('🔄 Performing cancellation:', cancellationData);
+      allData.cancelVisit(selectedVisit, cancellationData);
+
+      addToast('Visite annulée avec succès', 'success');
+      setIsCancellationModalOpen(false);
+      setSelectedVisit(null);
+    },
+    [selectedVisit, allData, addToast]
+  );
+
   const filteredVisits = useMemo(
     () =>
       visits
@@ -273,6 +341,7 @@ export const Planning: React.FC = () => {
   const SpecializedViewOption = ({ id, label, icon: Icon, desc }: any) => (
     <button
       onClick={() => {
+        console.log('🔄 VIEW CHANGE: From', view, 'to', id);
         setView(id as ViewType);
         setIsViewMenuOpen(false);
       }}
@@ -390,7 +459,8 @@ export const Planning: React.FC = () => {
           />
         </div>
 
-        <div className='flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none'>
+        <div className='flex items-center gap-2 min-w-0'>
+          <div className='flex-1 flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none'>
           {/* Filter Toggle */}
           <button
             onClick={() => setIsFilterModalOpen(true)}
@@ -431,9 +501,10 @@ export const Planning: React.FC = () => {
               </button>
             ))}
           </div>
+          </div>
 
           {/* Specialized Views Dropdown */}
-          <div className='relative'>
+          <div className='relative shrink-0'>
             <button
               onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
               className={cn(
@@ -563,13 +634,26 @@ export const Planning: React.FC = () => {
           </div>
         )}
 
-        {view === 'timeline' && <PlanningTimelineView visits={filteredVisits} />}
-        {view === 'workload' && <PlanningWorkloadView />}
+        {view === 'timeline' && (
+          <>
+            {console.log('🔄 Rendering timeline view with visits:', filteredVisits.length)}
+            <PlanningTimelineView visits={filteredVisits} />
+          </>
+        )}
+        {view === 'workload' && (
+          <>
+            {console.log('🔄 Rendering workload view')}
+            <PlanningWorkloadView />
+          </>
+        )}
         {/* Finance Dashboard handles its own layout */}
         {view === 'finance' && (
-          <div className='rounded-3xl overflow-hidden'>
-            <FinancialDashboard />
-          </div>
+          <>
+            {console.log('🔄 Rendering finance view')}
+            <div className='rounded-3xl overflow-hidden'>
+              <FinancialDashboard />
+            </div>
+          </>
         )}
 
         {view === 'archives' && (
@@ -683,26 +767,30 @@ export const Planning: React.FC = () => {
       />
 
       {selectedVisit && (
-        <>
-          <ConflictDetectionModal
-            isOpen={isConflictModalOpen}
-            onClose={() => setIsConflictModalOpen(false)}
-            visit={selectedVisit}
-            onResolve={(_resolution) => setIsConflictModalOpen(false)}
-          />
-          <CancellationModal
-            isOpen={isCancellationModalOpen}
-            onClose={() => setIsCancellationModalOpen(false)}
-            visit={selectedVisit}
-            onCancel={() => setIsCancellationModalOpen(false)}
-          />
-          <EmergencyReplacementModal
-            isOpen={isReplacementModalOpen}
-            onClose={() => setIsReplacementModalOpen(false)}
-            visit={selectedVisit}
-            onSelectReplacement={() => setIsReplacementModalOpen(false)}
-          />
-        </>
+        <ConflictDetectionModal
+          isOpen={isConflictModalOpen}
+          onClose={() => setIsConflictModalOpen(false)}
+          visit={selectedVisit}
+          onResolve={(_resolution) => setIsConflictModalOpen(false)}
+        />
+      )}
+
+      {selectedVisit && (
+        <CancellationModal
+          isOpen={isCancellationModalOpen}
+          onClose={() => setIsCancellationModalOpen(false)}
+          visit={selectedVisit}
+          onCancel={handleCancellation}
+        />
+      )}
+
+      {selectedVisit && (
+        <EmergencyReplacementModal
+          isOpen={isReplacementModalOpen}
+          onClose={() => setIsReplacementModalOpen(false)}
+          visit={selectedVisit}
+          onSelectReplacement={handleReplacement}
+        />
       )}
     </div>
   );

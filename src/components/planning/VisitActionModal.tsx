@@ -28,7 +28,6 @@ import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
-import { CancellationModal } from '@/components/planning/CancellationModal';
 import { generateUUID } from '@/utils/uuid';
 import { cn } from '@/utils/cn';
 import { Badge } from '@/components/ui/Badge';
@@ -69,14 +68,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     isOpen: false,
     type: 'confirmation',
   });
-  const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
+  const [selectedSpeakerId, setSelectedSpeakerId] = useState<string>('');
 
   useEffect(() => {
     if (visit) {
       setFormData(visit);
-      // Ouvrir automatiquement CancellationModal pour l'action 'cancel'
-      if (action === 'cancel') {
-        setIsCancellationModalOpen(true);
+      // Reset selectedSpeakerId quand on change de visite
+      if (action === 'replace') {
+        setSelectedSpeakerId('');
       }
     }
   }, [visit, action]);
@@ -89,16 +88,49 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     try {
       if (action === 'replace') {
         // Pour le remplacement d'orateur
+        if (!selectedSpeakerId) {
+          addToast('Veuillez sélectionner un nouvel orateur', 'error');
+          setIsLoading(false);
+          return;
+        }
+
+        const newSpeaker = speakers.find((s) => s.id === selectedSpeakerId);
+        console.log('Found new speaker:', newSpeaker);
+        if (!newSpeaker) {
+          addToast('Orateur non trouvé', 'error');
+          setIsLoading(false);
+          return;
+        }
+
         await cancelVisitReminder(visit.visitId);
-        const updatedVisit = { ...visit, ...formData };
+
+        // Créer la visite mise à jour avec le nouvel orateur
+        const updatedVisit = {
+          ...visit,
+          id: newSpeaker.id,
+          nom: newSpeaker.nom,
+          congregation: newSpeaker.congregation,
+          telephone: newSpeaker.telephone,
+          photoUrl: newSpeaker.photoUrl,
+        };
+
+        console.log('Updated visit object:', updatedVisit);
         await updateVisit(updatedVisit);
+        console.log('updateVisit called successfully');
         await scheduleVisitReminder(updatedVisit);
+        console.log('scheduleVisitReminder called successfully');
 
         addToast('Orateur remplacé avec succès', 'success');
-        // Ouvrir la modale de message pour le nouvel orateur
-        setGeneratorParams({ isOpen: true, type: 'confirmation' });
-        // Ne pas fermer la modale principale immédiatement pour permettre l'envoi du message
+
+        // Ouvrir la modale de message pour le nouvel orateur APRÈS un petit délai
+        setTimeout(() => {
+          console.log('Opening message modal for new speaker');
+          setGeneratorParams({ isOpen: true, type: 'confirmation' });
+        }, 500);
+
+        // Fermer la modale principale immédiatement après la mise à jour
         setIsLoading(false);
+        onClose();
         return;
       } else {
         // Pour les autres actions (edit, logistics)
@@ -747,36 +779,35 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   Nouveau orateur
                 </label>
                 <select
-                  value={formData.id || ''}
+                  value={selectedSpeakerId}
                   onChange={(e) => {
-                    const speakerId = e.target.value;
-                    const speaker = speakers.find((s) => s.id === speakerId);
-                    if (speaker) {
-                      setFormData({
-                        ...formData,
-                        id: speaker.id,
-                        nom: speaker.nom,
-                        congregation: speaker.congregation,
-                        telephone: speaker.telephone,
-                        photoUrl: speaker.photoUrl,
-                      });
-                    }
+                    console.log('🔄 SELECT CHANGE: New value:', e.target.value);
+                    setSelectedSpeakerId(e.target.value);
                   }}
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:ring-2 focus:ring-blue-500'
                   aria-label='Sélectionner le nouvel orateur'
                 >
-                  <option value=''>Choisir un orateur...</option>
+                  <option value=''>🔽 CHOISISSEZ un orateur dans la liste...</option>
                   {speakers
-                    .filter((s) => s.id !== visit.id) // Exclure l'orateur actuel
+                    .filter((s) => {
+                      const shouldInclude = s.id !== visit.id;
+                      console.log('🔄 FILTERING SPEAKER:', s.nom, 'id:', s.id, 'visit.id:', visit.id, 'include:', shouldInclude);
+                      return shouldInclude;
+                    })
                     .map((speaker) => (
                       <option key={speaker.id} value={speaker.id}>
                         {speaker.nom} ({speaker.congregation})
                       </option>
                     ))}
                 </select>
+                {!selectedSpeakerId && (
+                  <p className='text-xs text-red-500 mt-1 font-medium'>
+                    ⚠️ Sélectionnez d'abord un orateur pour activer le bouton
+                  </p>
+                )}
               </div>
 
-              {formData.id && formData.id !== visit.id && (
+              {selectedSpeakerId && (
                 <div className='p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800'>
                   <div className='flex items-start gap-3'>
                     <CheckCircle className='w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0' />
@@ -784,9 +815,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                       <h4 className='font-medium text-blue-900 dark:text-blue-100 mb-1'>
                         Orateur sélectionné
                       </h4>
-                      <p className='text-sm text-blue-800 dark:text-blue-200'>
-                        <strong>{formData.nom}</strong> ({formData.congregation})
-                      </p>
+                      {(() => {
+                        const speaker = speakers.find((s) => s.id === selectedSpeakerId);
+                        return speaker ? (
+                          <p className='text-sm text-blue-800 dark:text-blue-200'>
+                            <strong>{speaker.nom}</strong> ({speaker.congregation})
+                          </p>
+                        ) : null;
+                      })()}
                       <p className='text-xs text-blue-600 dark:text-blue-300 mt-2'>
                         Après validation, un message de confirmation sera automatiquement envoyé à ce nouvel orateur.
                       </p>
@@ -858,33 +894,6 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           speaker={speakers.find((s) => s.id === visit.id)!}
           visit={visit}
           initialType={generatorParams.type}
-        />
-      )}
-
-      {isCancellationModalOpen && (
-        <CancellationModal
-          isOpen={isCancellationModalOpen}
-          onClose={() => {
-            setIsCancellationModalOpen(false);
-            onClose();
-          }}
-          visit={visit}
-          onCancel={async (cancellationData) => {
-            try {
-              // Annuler les rappels pour cette visite
-              await cancelVisitReminder(visit.visitId);
-
-              // Annuler la visite avec les données d'annulation
-              await cancelVisit(visit, cancellationData);
-
-              addToast('Visite annulée avec succès', 'success');
-              setIsCancellationModalOpen(false);
-              onClose();
-            } catch (error) {
-              console.error('Erreur lors de l\'annulation:', error);
-              addToast('Erreur lors de l\'annulation de la visite', 'error');
-            }
-          }}
         />
       )}
     </>
