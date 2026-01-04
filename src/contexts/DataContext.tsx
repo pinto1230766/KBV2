@@ -29,6 +29,7 @@ interface DataContextValue extends AppData {
   updateVisit: (visit: Visit) => void;
   deleteVisit: (visitId: string) => void;
   completeVisit: (visit: Visit) => void;
+  cancelVisit: (visit: Visit, cancellationData?: any) => void;
 
   addHost: (host: Host) => void;
   updateHost: (name: string, data: Partial<Host>) => void;
@@ -50,7 +51,7 @@ interface DataContextValue extends AppData {
   isOnline: boolean;
   clearSyncQueue: () => void;
   mergeDuplicates: (
-    type: 'speaker' | 'host' | 'visit' | 'message',
+    type: 'speaker' | 'host' | 'visit' | 'message' | 'archivedVisit',
     keepId: string,
     duplicateIds: string[]
   ) => void;
@@ -243,6 +244,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
       ...d,
       visits: d.visits.filter((v) => v.visitId !== visit.visitId),
       archivedVisits: [...d.archivedVisits, { ...visit, status: 'completed' }],
+    }));
+  };
+
+  const cancelVisit = (visit: Visit, cancellationData?: any) => {
+    setData((d) => ({
+      ...d,
+      visits: d.visits.map((v) =>
+        v.visitId === visit.visitId
+          ? {
+              ...v,
+              status: 'cancelled' as const,
+              cancellationData,
+              cancelledAt: new Date().toISOString(),
+            }
+          : v
+      ),
     }));
   };
 
@@ -752,6 +769,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         updateVisit,
         deleteVisit,
         completeVisit,
+        cancelVisit,
         addHost,
         updateHost,
         deleteHost,

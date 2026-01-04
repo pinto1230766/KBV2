@@ -29,7 +29,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
   onClose: _onClose,
   onMerge: _onMerge,
 }) => {
-  const { speakers, hosts, visits, speakerMessages, archivedVisits } = useData();
+  const { speakers, hosts, visits, speakerMessages, archivedVisits, mergeDuplicates } = useData();
   const [selectedGroups, setSelectedGroups] = useState<Set<number>>(new Set());
   const [mergeStrategy, setMergeStrategy] = useState<'keep-first' | 'keep-recent' | 'manual'>(
     'keep-recent'
@@ -243,8 +243,55 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
   };
 
   const handleMerge = () => {
-    const selectedDuplicates = Array.from(selectedGroups).map((idx) => duplicateGroups[idx]);
-    _onMerge(selectedDuplicates, 'merge', mergeStrategy);
+    const selectedGroupsArray = Array.from(selectedGroups);
+
+    selectedGroupsArray.forEach((groupIndex) => {
+      const group = duplicateGroups[groupIndex];
+      if (!group || group.items.length < 2) return;
+
+      // Trier les éléments par date pour déterminer lequel garder
+      const sortedItems = [...group.items].sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.receivedAt || 0);
+        const dateB = new Date(b.createdAt || b.receivedAt || 0);
+        return dateA.getTime() - dateB.getTime(); // Plus ancien d'abord
+      });
+
+      let keepItem;
+      let duplicateIds: string[] = [];
+
+      if (mergeStrategy === 'keep-recent') {
+        // Garder le plus récent, supprimer les autres
+        keepItem = sortedItems[sortedItems.length - 1];
+        duplicateIds = sortedItems.slice(0, -1).map(item =>
+          group.type === 'speaker' ? item.id :
+          group.type === 'host' ? item.nom :
+          group.type === 'visit' ? item.visitId :
+          group.type === 'message' ? item.id :
+          group.type === 'archivedVisit' ? item.visitId : item.id
+        );
+      } else if (mergeStrategy === 'keep-first') {
+        // Garder le plus ancien, supprimer les autres
+        keepItem = sortedItems[0];
+        duplicateIds = sortedItems.slice(1).map(item =>
+          group.type === 'speaker' ? item.id :
+          group.type === 'host' ? item.nom :
+          group.type === 'visit' ? item.visitId :
+          group.type === 'message' ? item.id :
+          group.type === 'archivedVisit' ? item.visitId : item.id
+        );
+      }
+
+      if (keepItem && duplicateIds.length > 0) {
+        const keepId = group.type === 'speaker' ? keepItem.id :
+                      group.type === 'host' ? keepItem.nom :
+                      group.type === 'visit' ? keepItem.visitId :
+                      group.type === 'message' ? keepItem.id :
+                      group.type === 'archivedVisit' ? keepItem.visitId : keepItem.id;
+
+        mergeDuplicates(group.type, keepId, duplicateIds);
+      }
+    });
+
     setSelectedGroups(new Set());
   };
 
@@ -465,126 +512,154 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
 
                       {/* Items en double */}
                       <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-                        {group.items.map((item: any, itemIdx) => {
-                          // Déterminer si cet élément sera conservé selon la stratégie
-                          let willBeKept = false;
+                        {(() => {
+                          // Pré-calculer lequel sera conservé pour ce groupe
+                          let itemToKeep = null;
                           if (selectedGroups.has(index)) {
                             if (mergeStrategy === 'keep-first') {
-                              willBeKept = itemIdx === 0; // Premier élément
+                              itemToKeep = group.items[0]; // Premier élément
                             } else if (mergeStrategy === 'keep-recent') {
-                              // Essayer de trouver par date, sinon prendre le dernier
-                              const hasDates = group.items.some(i => i.createdAt || i.receivedAt);
-                              if (hasDates) {
-                                const sortedByDate = [...group.items].sort((a, b) => {
-                                  const dateA = new Date(a.createdAt || a.receivedAt || 0);
-                                  const dateB = new Date(b.createdAt || b.receivedAt || 0);
-                                  return dateB.getTime() - dateA.getTime(); // Plus récent d'abord
-                                });
-                                willBeKept = item === sortedByDate[0];
+                              // Pour archivedVisit, prioriser les visites actuelles sur les archivées
+                              if (group.type === 'archivedVisit') {
+                                // Chercher d'abord une visite actuelle (sans _source ou _source='current')
+                                const currentVisit = group.items.find(item =>
+                                  !item._source || item._source === 'current'
+                                );
+                                if (currentVisit) {
+                                  itemToKeep = currentVisit;
+                                } else {
+                                  // Si pas de visite actuelle, prendre la plus récente des archives
+                                  const archivedOnly = group.items.filter(item => item._source === 'archived');
+                                  if (archivedOnly.length > 0) {
+                                    const sortedByDate = archivedOnly.sort((a, b) => {
+                                      const dateA = new Date(a.createdAt || a.updatedAt || 0);
+                                      const dateB = new Date(b.createdAt || b.updatedAt || 0);
+                                      return dateB.getTime() - dateA.getTime(); // Plus récent d'abord
+                                    });
+                                    itemToKeep = sortedByDate[0];
+                                  } else {
+                                    itemToKeep = group.items[0]; // Fallback
+                                  }
+                                }
                               } else {
-                                willBeKept = itemIdx === group.items.length - 1; // Dernier élément si pas de dates
+                                // Pour les autres types, trier par date
+                                const hasDates = group.items.some(i => i.createdAt || i.receivedAt);
+                                if (hasDates) {
+                                  const sortedByDate = [...group.items].sort((a, b) => {
+                                    const dateA = new Date(a.createdAt || a.receivedAt || 0);
+                                    const dateB = new Date(b.createdAt || b.receivedAt || 0);
+                                    return dateB.getTime() - dateA.getTime(); // Plus récent d'abord
+                                  });
+                                  itemToKeep = sortedByDate[0];
+                                } else {
+                                  itemToKeep = group.items[group.items.length - 1]; // Dernier élément si pas de dates
+                                }
                               }
                             }
                           }
 
-                          return (
-                            <div
-                              key={itemIdx}
-                              className={`p-3 rounded-lg relative ${
-                                willBeKept
-                                  ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800'
-                                  : 'bg-gray-50 dark:bg-gray-800'
-                              }`}
-                            >
-                              {willBeKept && (
-                                <div className='absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold'>
-                                  ✓ Conservé
+                          return group.items.map((item: any, itemIdx) => {
+                            const willBeKept = item === itemToKeep;
+
+                            return (
+                              <div
+                                key={itemIdx}
+                                className={`p-3 rounded-lg relative ${
+                                  willBeKept
+                                    ? 'bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800'
+                                    : 'bg-gray-50 dark:bg-gray-800'
+                                }`}
+                              >
+                                {willBeKept && (
+                                  <div className='absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold'>
+                                    ✓ Conservé
+                                  </div>
+                                )}
+                                <div className='font-medium text-gray-900 dark:text-white mb-2'>
+                                  {group.type === 'message'
+                                    ? item.subject || 'Message sans sujet'
+                                    : item.nom || `Visite ${itemIdx + 1}`}
                                 </div>
-                              )}
-                              <div className='font-medium text-gray-900 dark:text-white mb-2'>
-                                {group.type === 'message'
-                                  ? item.subject || 'Message sans sujet'
-                                  : item.nom || `Visite ${itemIdx + 1}`}
+                                <div className='space-y-1 text-sm text-gray-600 dark:text-gray-400'>
+                                  {group.type === 'speaker' && (
+                                    <>
+                                      <div>Congrégation : {item.congregation}</div>
+                                      {item.telephone && <div>Tél : {item.telephone}</div>}
+                                      {item.email && <div>Email : {item.email}</div>}
+                                      <div>
+                                        Visites : {visits.filter((v) => v.id === item.id).length}
+                                      </div>
+                                      <div>
+                                        Messages :{' '}
+                                        {
+                                          visits.filter(
+                                            (v) => v.id === item.id && v.communicationStatus
+                                          ).length
+                                        }
+                                      </div>
+                                      {item.createdAt && (
+                                        <div className='text-xs'>
+                                          Créé : {new Date(item.createdAt).toLocaleDateString('fr-FR')}
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                  {group.type === 'host' && (
+                                    <>
+                                      {item.telephone && <div>Tél : {item.telephone}</div>}
+                                      {item.address && <div>Adresse : {item.address}</div>}
+                                      {item.createdAt && (
+                                        <div className='text-xs'>
+                                          Créé : {new Date(item.createdAt).toLocaleDateString('fr-FR')}
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                  {group.type === 'visit' && (
+                                    <>
+                                      <div>
+                                        Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}
+                                      </div>
+                                      <div>Heure : {item.visitTime}</div>
+                                      <div>Statut : {item.status}</div>
+                                    </>
+                                  )}
+                                  {group.type === 'archivedVisit' && (
+                                    <>
+                                      <div>
+                                        Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}
+                                      </div>
+                                      <div>Heure : {item.visitTime || 'N/A'}</div>
+                                      <div>Statut : {item.status}</div>
+                                      {item._source && (
+                                        <div className='mt-1'>
+                                          <Badge
+                                            variant={
+                                              item._source === 'archived' ? 'warning' : 'success'
+                                            }
+                                            className='text-xs'
+                                          >
+                                            {item._source === 'archived' ? 'Archivée' : 'Actuelle'}
+                                          </Badge>
+                                        </div>
+                                      )}
+                                    </>
+                                  )}
+                                  {group.type === 'message' && (
+                                    <>
+                                      <div>Orateur : {item.speakerName}</div>
+                                      <div>
+                                        Date : {new Date(item.receivedAt).toLocaleDateString('fr-FR')}{' '}
+                                        {new Date(item.receivedAt).toLocaleTimeString('fr-FR')}
+                                      </div>
+                                      <div className='line-clamp-2'>Contenu : {item.message}</div>
+                                    </>
+                                  )}
+                                </div>
                               </div>
-                              <div className='space-y-1 text-sm text-gray-600 dark:text-gray-400'>
-                                {group.type === 'speaker' && (
-                                  <>
-                                    <div>Congrégation : {item.congregation}</div>
-                                    {item.telephone && <div>Tél : {item.telephone}</div>}
-                                    {item.email && <div>Email : {item.email}</div>}
-                                    <div>
-                                      Visites : {visits.filter((v) => v.id === item.id).length}
-                                    </div>
-                                    <div>
-                                      Messages :{' '}
-                                      {
-                                        visits.filter(
-                                          (v) => v.id === item.id && v.communicationStatus
-                                        ).length
-                                      }
-                                    </div>
-                                    {item.createdAt && (
-                                      <div className='text-xs'>
-                                        Créé : {new Date(item.createdAt).toLocaleDateString('fr-FR')}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                                {group.type === 'host' && (
-                                  <>
-                                    {item.telephone && <div>Tél : {item.telephone}</div>}
-                                    {item.address && <div>Adresse : {item.address}</div>}
-                                    {item.createdAt && (
-                                      <div className='text-xs'>
-                                        Créé : {new Date(item.createdAt).toLocaleDateString('fr-FR')}
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                                {group.type === 'visit' && (
-                                  <>
-                                    <div>
-                                      Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}
-                                    </div>
-                                    <div>Heure : {item.visitTime}</div>
-                                    <div>Statut : {item.status}</div>
-                                  </>
-                                )}
-                                {group.type === 'archivedVisit' && (
-                                  <>
-                                    <div>
-                                      Date : {new Date(item.visitDate).toLocaleDateString('fr-FR')}
-                                    </div>
-                                    <div>Heure : {item.visitTime || 'N/A'}</div>
-                                    <div>Statut : {item.status}</div>
-                                    {item._source && (
-                                      <div className='mt-1'>
-                                        <Badge
-                                          variant={
-                                            item._source === 'archived' ? 'warning' : 'success'
-                                          }
-                                          className='text-xs'
-                                        >
-                                          {item._source === 'archived' ? 'Archivée' : 'Actuelle'}
-                                        </Badge>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                                {group.type === 'message' && (
-                                  <>
-                                    <div>Orateur : {item.speakerName}</div>
-                                    <div>
-                                      Date : {new Date(item.receivedAt).toLocaleDateString('fr-FR')}{' '}
-                                      {new Date(item.receivedAt).toLocaleTimeString('fr-FR')}
-                                    </div>
-                                    <div className='line-clamp-2'>Contenu : {item.message}</div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          });
+                        })()}
                       </div>
                     </div>
                   </CardBody>

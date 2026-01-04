@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
-import { Visit, Expense, MessageType, HostAssignment } from '@/types';
+import { Visit, Expense, MessageType } from '@/types';
 import {
   Edit2,
   Trash2,
@@ -28,6 +28,7 @@ import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { RoadmapView } from '@/components/reports/RoadmapView';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
+import { CancellationModal } from '@/components/planning/CancellationModal';
 import { generateUUID } from '@/utils/uuid';
 import { cn } from '@/utils/cn';
 import { Badge } from '@/components/ui/Badge';
@@ -56,7 +57,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   visit,
   action,
 }) => {
-  const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
+  const { updateVisit, deleteVisit, completeVisit, cancelVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
   const { confirm } = useConfirm();
   const { scheduleVisitReminder, cancelVisitReminder } = useVisitNotifications();
@@ -68,10 +69,17 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     isOpen: false,
     type: 'confirmation',
   });
+  const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
 
   useEffect(() => {
-    if (visit) setFormData(visit);
-  }, [visit]);
+    if (visit) {
+      setFormData(visit);
+      // Ouvrir automatiquement CancellationModal pour l'action 'cancel'
+      if (action === 'cancel') {
+        setIsCancellationModalOpen(true);
+      }
+    }
+  }, [visit, action]);
 
   if (!visit) return null;
 
@@ -82,6 +90,17 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
       await cancelVisitReminder(visit.visitId);
       await updateVisit({ ...visit, ...formData });
       await scheduleVisitReminder({ ...visit, ...formData });
+
+      // Pour l'action 'replace', ouvrir automatiquement la modale de message
+      if (action === 'replace') {
+        addToast('Orateur remplacé avec succès', 'success');
+        // Ouvrir la modale de message pour le nouvel orateur
+        setGeneratorParams({ isOpen: true, type: 'confirmation' });
+        // Ne pas fermer la modale principale immédiatement
+        setIsLoading(false);
+        return;
+      }
+
       addToast('Visite mise à jour', 'success');
       onClose();
     } catch (_error) {
@@ -374,107 +393,113 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
                   {/* Add new assignment form */}
                   <div className='p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl'>
-                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-                      <select
-                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
-                        aria-label='Sélectionner un hôte'
-                        title='Choisir l&apos;hôte pour cette assignation'
-                        onChange={(e) => {
-                          const hostId = e.target.value;
-                          if (hostId) {
-                            const host = hosts.find(h => h.nom === hostId);
-                            if (host) {
-                              const newAssignment = {
-                                id: generateUUID(),
-                                hostId: host.nom,
-                                hostName: host.nom,
-                                role: 'accommodation' as const,
-                                createdAt: new Date().toISOString(),
+                    <div className='space-y-3'>
+                      {/* Sélection de l'hôte - pleine largeur */}
+                      <div>
+                        <select
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          aria-label="Sélectionner un hôte"
+                          title="Choisir l'hôte pour cette assignation"
+                          onChange={(e) => {
+                            const hostId = e.target.value;
+                            if (hostId) {
+                              const host = hosts.find(h => h.nom === hostId);
+                              if (host) {
+                                const newAssignment = {
+                                  id: generateUUID(),
+                                  hostId: host.nom,
+                                  hostName: host.nom,
+                                  role: 'accommodation' as const,
+                                  createdAt: new Date().toISOString(),
+                                };
+                                setFormData((p) => ({
+                                  ...p,
+                                  hostAssignments: [...(p.hostAssignments || []), newAssignment],
+                                  host: p.host || host.nom,
+                                }));
+                              }
+                            }
+                            e.target.value = '';
+                          }}
+                        >
+                          <option value=''>Sélectionner un hôte...</option>
+                          {hosts.map((h) => {
+                            const isAlreadyAssigned = (formData.hostAssignments || []).some(a => a.hostId === h.nom);
+                            const assignedRoles = (formData.hostAssignments || [])
+                              .filter(a => a.hostId === h.nom)
+                              .map(a => {
+                                switch (a.role) {
+                                  case 'accommodation': return '🏠';
+                                  case 'pickup': return '🚗';
+                                  case 'meals': return '🍽️';
+                                  case 'transport': return '🚌';
+                                  case 'other': return '📋';
+                                  default: return '❓';
+                                }
+                              })
+                              .join(' ');
+
+                            return (
+                              <option key={h.nom} value={h.nom}>
+                                {h.nom} {isAlreadyAssigned ? `(${assignedRoles})` : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Rôle et Notes sur la même ligne */}
+                      <div className='grid grid-cols-2 gap-3'>
+                        <select
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          aria-label='Sélectionner un rôle'
+                          title='Choisir le rôle de l&apos;hôte'
+                          onChange={(e) => {
+                            const role = e.target.value as any;
+                            if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
+                              const lastIndex = formData.hostAssignments.length - 1;
+                              const updatedAssignments = [...formData.hostAssignments];
+                              updatedAssignments[lastIndex] = {
+                                ...updatedAssignments[lastIndex],
+                                role,
                               };
                               setFormData((p) => ({
                                 ...p,
-                                hostAssignments: [...(p.hostAssignments || []), newAssignment],
-                                host: p.host || host.nom,
+                                hostAssignments: updatedAssignments,
                               }));
                             }
-                          }
-                          e.target.value = '';
-                        }}
-                      >
-                        <option value=''>Sélectionner un hôte...</option>
-                        {hosts.map((h) => {
-                          const isAlreadyAssigned = (formData.hostAssignments || []).some(a => a.hostId === h.nom);
-                          const assignedRoles = (formData.hostAssignments || [])
-                            .filter(a => a.hostId === h.nom)
-                            .map(a => {
-                              switch (a.role) {
-                                case 'accommodation': return '🏠';
-                                case 'pickup': return '🚗';
-                                case 'meals': return '🍽️';
-                                case 'transport': return '🚌';
-                                case 'other': return '📋';
-                                default: return '❓';
-                              }
-                            })
-                            .join(' ');
+                            e.target.value = '';
+                          }}
+                        >
+                          <option value=''>Rôle...</option>
+                          <option value='accommodation'>Hébergement</option>
+                          <option value='pickup'>Ramassage gare</option>
+                          <option value='meals'>Repas</option>
+                          <option value='transport'>Transport</option>
+                          <option value='other'>Autre</option>
+                        </select>
 
-                          return (
-                            <option key={h.nom} value={h.nom}>
-                              {h.nom} {isAlreadyAssigned ? `(${assignedRoles})` : ''}
-                            </option>
-                          );
-                        })}
-                      </select>
-
-                      <select
-                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
-                        aria-label='Sélectionner un rôle'
-                        title='Choisir le rôle de l&apos;hôte'
-                        onChange={(e) => {
-                          const role = e.target.value as any;
-                          if (role && formData.hostAssignments && formData.hostAssignments.length > 0) {
-                            const lastIndex = formData.hostAssignments.length - 1;
-                            const updatedAssignments = [...formData.hostAssignments];
-                            updatedAssignments[lastIndex] = {
-                              ...updatedAssignments[lastIndex],
-                              role,
-                            };
-                            setFormData((p) => ({
-                              ...p,
-                              hostAssignments: updatedAssignments,
-                            }));
-                          }
-                          e.target.value = '';
-                        }}
-                      >
-                        <option value=''>Rôle...</option>
-                        <option value='accommodation'>Hébergement</option>
-                        <option value='pickup'>Ramassage gare</option>
-                        <option value='meals'>Repas</option>
-                        <option value='transport'>Transport</option>
-                        <option value='other'>Autre</option>
-                      </select>
-
-                      <input
-                        type='text'
-                        placeholder='Notes (optionnel)'
-                        className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
-                        onChange={(e) => {
-                          const notes = e.target.value;
-                          if (formData.hostAssignments && formData.hostAssignments.length > 0) {
-                            const lastIndex = formData.hostAssignments.length - 1;
-                            const updatedAssignments = [...formData.hostAssignments];
-                            updatedAssignments[lastIndex] = {
-                              ...updatedAssignments[lastIndex],
-                              notes: notes || undefined,
-                            };
-                            setFormData((p) => ({
-                              ...p,
-                              hostAssignments: updatedAssignments,
-                            }));
-                          }
-                        }}
-                      />
+                        <input
+                          type='text'
+                          placeholder='Notes (optionnel)'
+                          className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-teal-500'
+                          onChange={(e) => {
+                            const notes = e.target.value;
+                            if (formData.hostAssignments && formData.hostAssignments.length > 0) {
+                              const lastIndex = formData.hostAssignments.length - 1;
+                              const updatedAssignments = [...formData.hostAssignments];
+                              updatedAssignments[lastIndex] = {
+                                ...updatedAssignments[lastIndex],
+                                notes: notes || undefined,
+                              };
+                              setFormData((p) => ({
+                                ...p,
+                                hostAssignments: updatedAssignments,
+                              }));
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -683,6 +708,88 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           </div>
         );
 
+      case 'replace':
+        return (
+          <div className='p-6 space-y-6'>
+            <div className='text-center'>
+              <div className='w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4'>
+                <Users className='w-8 h-8' />
+              </div>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                Remplacer l'orateur
+              </h3>
+              <p className='text-gray-600 dark:text-gray-400 mb-6'>
+                Sélectionnez un nouvel orateur pour cette visite. Un message de confirmation sera automatiquement envoyé au nouvel orateur.
+              </p>
+            </div>
+
+            <div className='space-y-4'>
+              <div>
+                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+                  Orateur actuel
+                </label>
+                <div className='p-3 bg-gray-50 dark:bg-gray-800 rounded-lg'>
+                  <span className='font-medium text-gray-900 dark:text-white'>{visit.nom}</span>
+                  <span className='text-sm text-gray-500 ml-2'>({visit.congregation})</span>
+                </div>
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
+                  Nouveau orateur
+                </label>
+                <select
+                  value={formData.id || ''}
+                  onChange={(e) => {
+                    const speakerId = e.target.value;
+                    const speaker = speakers.find((s) => s.id === speakerId);
+                    if (speaker) {
+                      setFormData({
+                        ...formData,
+                        id: speaker.id,
+                        nom: speaker.nom,
+                        congregation: speaker.congregation,
+                        telephone: speaker.telephone,
+                        photoUrl: speaker.photoUrl,
+                      });
+                    }
+                  }}
+                  className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl font-medium focus:ring-2 focus:ring-blue-500'
+                  aria-label='Sélectionner le nouvel orateur'
+                >
+                  <option value=''>Choisir un orateur...</option>
+                  {speakers
+                    .filter((s) => s.id !== visit.id) // Exclure l'orateur actuel
+                    .map((speaker) => (
+                      <option key={speaker.id} value={speaker.id}>
+                        {speaker.nom} ({speaker.congregation})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {formData.id && formData.id !== visit.id && (
+                <div className='p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800'>
+                  <div className='flex items-start gap-3'>
+                    <CheckCircle className='w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0' />
+                    <div>
+                      <h4 className='font-medium text-blue-900 dark:text-blue-100 mb-1'>
+                        Orateur sélectionné
+                      </h4>
+                      <p className='text-sm text-blue-800 dark:text-blue-200'>
+                        <strong>{formData.nom}</strong> ({formData.congregation})
+                      </p>
+                      <p className='text-xs text-blue-600 dark:text-blue-300 mt-2'>
+                        Après validation, un message de confirmation sera automatiquement envoyé à ce nouvel orateur.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -703,14 +810,14 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         size={['logistics', 'message', 'edit'].includes(action) ? 'xl' : 'md'}
         padding='none'
         hideCloseButton={true}
-        className='overflow-hidden'
+        className={`overflow-hidden ${action === 'edit' ? 'max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw]' : ''}`}
       >
         <div className='max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 flex flex-col'>
           {renderHeader()}
 
           <div className='flex-1'>{getModalContent()}</div>
 
-          {(action === 'edit' || action === 'logistics') && (
+          {(action === 'edit' || action === 'logistics' || action === 'replace') && (
             <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0'>
               <Button variant='ghost' onClick={onClose} disabled={isLoading}>
                 Annuler
@@ -718,9 +825,10 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <Button
                 onClick={handleSave}
                 isLoading={isLoading}
+                disabled={!formData.id || formData.id === visit.id}
                 className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none'
               >
-                Enregistrer
+                {action === 'replace' ? 'Remplacer et envoyer message' : 'Enregistrer'}
               </Button>
             </div>
           )}
@@ -742,6 +850,33 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           speaker={speakers.find((s) => s.id === visit.id)!}
           visit={visit}
           initialType={generatorParams.type}
+        />
+      )}
+
+      {isCancellationModalOpen && (
+        <CancellationModal
+          isOpen={isCancellationModalOpen}
+          onClose={() => {
+            setIsCancellationModalOpen(false);
+            onClose();
+          }}
+          visit={visit}
+          onCancel={async (cancellationData) => {
+            try {
+              // Annuler les rappels pour cette visite
+              await cancelVisitReminder(visit.visitId);
+
+              // Annuler la visite avec les données d'annulation
+              await cancelVisit(visit, cancellationData);
+
+              addToast('Visite annulée avec succès', 'success');
+              setIsCancellationModalOpen(false);
+              onClose();
+            } catch (error) {
+              console.error('Erreur lors de l\'annulation:', error);
+              addToast('Erreur lors de l\'annulation de la visite', 'error');
+            }
+          }}
         />
       )}
     </>
