@@ -87,23 +87,31 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     if (!formData) return;
     setIsLoading(true);
     try {
-      await cancelVisitReminder(visit.visitId);
-      await updateVisit({ ...visit, ...formData });
-      await scheduleVisitReminder({ ...visit, ...formData });
-
-      // Pour l'action 'replace', ouvrir automatiquement la modale de message
       if (action === 'replace') {
+        // Pour le remplacement d'orateur
+        await cancelVisitReminder(visit.visitId);
+        const updatedVisit = { ...visit, ...formData };
+        await updateVisit(updatedVisit);
+        await scheduleVisitReminder(updatedVisit);
+
         addToast('Orateur remplacé avec succès', 'success');
         // Ouvrir la modale de message pour le nouvel orateur
         setGeneratorParams({ isOpen: true, type: 'confirmation' });
-        // Ne pas fermer la modale principale immédiatement
+        // Ne pas fermer la modale principale immédiatement pour permettre l'envoi du message
         setIsLoading(false);
         return;
-      }
+      } else {
+        // Pour les autres actions (edit, logistics)
+        await cancelVisitReminder(visit.visitId);
+        const updatedVisit = { ...visit, ...formData };
+        await updateVisit(updatedVisit);
+        await scheduleVisitReminder(updatedVisit);
 
-      addToast('Visite mise à jour', 'success');
-      onClose();
+        addToast('Visite mise à jour', 'success');
+        onClose();
+      }
     } catch (_error) {
+      console.error('Erreur lors de la sauvegarde:', _error);
       addToast('Erreur lors de la mise à jour', 'error');
     } finally {
       setIsLoading(false);
