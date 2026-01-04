@@ -56,7 +56,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   visit,
   action,
 }) => {
-  const { updateVisit, deleteVisit, completeVisit, cancelVisit, speakers, hosts } = useData();
+  const { updateVisit, deleteVisit, completeVisit, speakers, hosts } = useData();
   const { addToast } = useToast();
   const { confirm } = useConfirm();
   const { scheduleVisitReminder, cancelVisitReminder } = useVisitNotifications();
@@ -869,7 +869,10 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               <Button
                 onClick={handleSave}
                 isLoading={isLoading}
-                disabled={!formData.id || formData.id === visit.id}
+                disabled={
+                  isLoading ||
+                  (action === 'replace' ? !selectedSpeakerId : false)
+                }
                 className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none'
               >
                 {action === 'replace' ? 'Remplacer et envoyer message' : 'Enregistrer'}
