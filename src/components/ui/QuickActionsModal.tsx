@@ -250,7 +250,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title=''
-      size='xl'
+      size='4xl'
       hideCloseButton
       padding='none'
       className='max-sm:rounded-none overflow-hidden border-none'
@@ -361,7 +361,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
               {searchTerm ? 'Résultats de recherche' : 'Toutes les actions'}
             </h4>
             {filteredActions.length > 0 ? (
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 {filteredActions.map((action) => (
                   <Card
                     key={action.id}

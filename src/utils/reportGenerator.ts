@@ -240,11 +240,11 @@ function generateHTMLReport(
 }
 
 function generateCSVContent(
-  config: ReportConfig,
+  _config: ReportConfig,
   visits: Visit[],
-  speakers: Speaker[],
-  hosts: Host[],
-  congregationProfile: CongregationProfile
+  _speakers: Speaker[],
+  _hosts: Host[],
+  _congregationProfile: CongregationProfile
 ): string {
   const rows: string[] = [];
 

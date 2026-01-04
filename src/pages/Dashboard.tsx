@@ -138,52 +138,39 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className='max-w-[1600px] mx-auto space-y-4 px-4 sm:px-6 lg:px-8 py-3'>
-      {/* 1. Immersive Command Center Header */}
-      <div className='relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-xl shadow-blue-500/20'>
-        <div className='absolute top-0 right-0 p-4 opacity-10'>
-          <Sparkles className='w-32 h-32 rotate-12' />
+    <div className='max-w-[1600px] mx-auto space-y-3 px-4 sm:px-6 lg:px-8 py-1'>
+      {/* 1. Compact Header */}
+      <div className='flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700'>
+        <div>
+           <h1 className='text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2'>
+             <span className='w-2 h-2 rounded-full bg-blue-500 animate-pulse'></span>
+             Bonjour Francis
+           </h1>
+           <p className='text-xs text-gray-500 dark:text-gray-400 mt-1' >
+             {stats.pending > 0 ? (
+               <span className='text-orange-600 font-bold'>Running • {stats.pending} validations en attente</span>
+             ) : (
+               <span className='text-green-600 font-bold'>System Normal • Tout est à jour</span>
+             )}
+           </p>
         </div>
 
-        <div className='relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4'>
-          <div className='space-y-2'>
-            <div className='flex items-center gap-2'>
-              <Badge className='bg-white/20 hover:bg-white/30 text-white border-none py-1 px-3 backdrop-blur-md font-bold text-[9px] tracking-[0.2em] uppercase'>
-                GROUPE DE LYON
-              </Badge>
-            </div>
-
-            <div>
-              <h1 className='text-2xl sm:text-3xl font-black tracking-tighter leading-tight text-white'>
-                Bonjour Francis,
-              </h1>
-              <h2 className='text-xl sm:text-2xl font-bold tracking-tight text-blue-100'>
-                Command Center.
-              </h2>
-            </div>
-
-            <p className='text-blue-100/90 text-xs font-medium leading-relaxed max-w-md'>
-              Vous avez <span className='text-white font-bold'>{stats.pending} validations</span> en attente.
-            </p>
-          </div>
-
-          <div className='flex gap-2'>
+        <div className='flex gap-2'>
             <Button
-              className='h-10 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-lg text-sm'
-              leftIcon={<CalendarPlus className='w-4 h-4' />}
+              className='h-9 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-sm text-xs'
+              leftIcon={<CalendarPlus className='w-3 h-3' />}
               onClick={() => setIsScheduleModalOpen(true)}
             >
               Nouvelle Visite
             </Button>
             <Button
-              className='h-10 bg-blue-500/30 hover:bg-blue-500/40 text-white border-none backdrop-blur-md font-bold text-sm'
-              leftIcon={<Zap className='w-4 h-4 text-amber-300 fill-amber-300' />}
+              className='h-9 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 font-bold text-xs'
+              leftIcon={<Zap className='w-3 h-3 text-amber-500' />}
               onClick={() => setIsQuickActionsOpen(true)}
             >
               Actions
             </Button>
-          </div>
-        </div>
+         </div>
       </div>
 
       {/* 2. Global Insight Grid */}

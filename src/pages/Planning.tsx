@@ -341,7 +341,6 @@ export const Planning: React.FC = () => {
   const SpecializedViewOption = ({ id, label, icon: Icon, desc }: any) => (
     <button
       onClick={() => {
-        console.log('🔄 VIEW CHANGE: From', view, 'to', id);
         setView(id as ViewType);
         setIsViewMenuOpen(false);
       }}
@@ -634,26 +633,13 @@ export const Planning: React.FC = () => {
           </div>
         )}
 
-        {view === 'timeline' && (
-          <>
-            {console.log('🔄 Rendering timeline view with visits:', filteredVisits.length)}
-            <PlanningTimelineView visits={filteredVisits} />
-          </>
-        )}
-        {view === 'workload' && (
-          <>
-            {console.log('🔄 Rendering workload view')}
-            <PlanningWorkloadView />
-          </>
-        )}
+        {view === 'timeline' && <PlanningTimelineView visits={filteredVisits} />}
+        {view === 'workload' && <PlanningWorkloadView />}
         {/* Finance Dashboard handles its own layout */}
         {view === 'finance' && (
-          <>
-            {console.log('🔄 Rendering finance view')}
-            <div className='rounded-3xl overflow-hidden'>
-              <FinancialDashboard />
-            </div>
-          </>
+          <div className='rounded-3xl overflow-hidden'>
+            <FinancialDashboard />
+          </div>
         )}
 
         {view === 'archives' && (

@@ -157,7 +157,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title=''
-      size='xl'
+      size='4xl'
       hideCloseButton
       className='max-sm:rounded-none overflow-hidden border-none'
     >
@@ -195,7 +195,7 @@ export const ReportGeneratorModal: React.FC<ReportGeneratorModalProps> = ({
             <h4 className='text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4'>
               1. Choisir le type de rapport
             </h4>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
               {REPORT_TYPES.map((type) => (
                 <button
                   key={type.value}

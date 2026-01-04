@@ -28,6 +28,7 @@ import {
   Calendar,
   Clock,
   MapPin,
+  MessageSquare,
   CheckCircle,
 } from 'lucide-react';
 import { CongregationProfile, ImportResult, Language, Theme } from '@/types';
@@ -231,6 +232,58 @@ export const Settings: React.FC = () => {
       .finally(() => setIsSyncing(false));
   };
 
+  // WhatsApp Backup Function
+  const handleWhatsAppBackup = async () => {
+    console.log('[DEBUG] Starting WhatsApp backup...');
+    try {
+      const json = exportData();
+      const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      
+      // Créer un blob avec les données
+      const blob = new Blob([json], { type: 'application/json' });
+      const file = new File([blob], filename, { type: 'application/json' });
+      
+      // Essayer de partager via WhatsApp Web
+      try {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          console.log('[DEBUG] Trying WhatsApp share...');
+          await navigator.share({
+            files: [file],
+            title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
+            text: `📅 Sauvegarde du ${new Date().toLocaleDateString('fr-FR')}\n\n📊 Contient:\n• ${speakers.length} orateurs\n• ${visits.length} visites\n• ${hosts.length} hôtes\n\n📱 Importez ce fichier dans KBV sur mobile/tablette`,
+          });
+          addToast('📱 Sauvegarde envoyée via WhatsApp', 'success');
+          return;
+        }
+      } catch (shareError) {
+        console.log('[DEBUG] Share failed, trying download fallback:', shareError);
+      }
+      
+      // Fallback: téléchargement direct avec instructions WhatsApp
+      console.log('[DEBUG] Using download fallback...');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Instructions pour WhatsApp
+      addToast('💾 Fichier téléchargé ! Partagez-le manuellement sur WhatsApp', 'success');
+      
+      // Ouvrir WhatsApp Web si possible
+      setTimeout(() => {
+        window.open('https://web.whatsapp.com/', '_blank');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('[DEBUG] WhatsApp backup failed:', error);
+      addToast('❌ Erreur lors de la sauvegarde WhatsApp', 'error');
+    }
+  };
+
   const handleBackupAdapter = async (_options: BackupOptions): Promise<void> => {
     console.log('[DEBUG] handleBackupAdapter called with options:', _options);
     try {
@@ -406,7 +459,7 @@ export const Settings: React.FC = () => {
   };
 
   return (
-    <div className='max-w-[1600px] mx-auto space-y-4 px-4 sm:px-6 lg:px-8 py-3'>
+    <div className='max-w-[1600px] mx-auto space-y-3 px-4 sm:px-6 lg:px-8 py-1'>
       {/* Header Page */}
       <div className='flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-700 pb-6'>
         <div>
@@ -571,19 +624,19 @@ export const Settings: React.FC = () => {
                       onClick={() => setActiveTab(tab.id as any)}
                       className='group'
                     >
-                      <CardBody className='p-6 flex flex-col h-full'>
+                      <CardBody className='p-3 flex flex-col h-full'>
                         <div
                           className={cn(
-                            'w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 duration-300',
+                            'w-10 h-10 rounded-xl flex items-center justify-center mb-2 transition-transform group-hover:scale-110 duration-300',
                             tab.bg
                           )}
                         >
-                          <tab.icon className={cn('w-6 h-6', tab.color)} />
+                          <tab.icon className={cn('w-5 h-5', tab.color)} />
                         </div>
-                        <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                        <h3 className='text-base font-bold text-gray-900 dark:text-white mb-1'>
                           {tab.label}
                         </h3>
-                        <p className='text-sm text-gray-500 dark:text-gray-400 flex-1'>
+                        <p className='text-xs text-gray-500 dark:text-gray-400 flex-1 leading-tight'>
                           {tab.id === 'profile' &&
                             'Gérez le nom, la ville et les horaires de réunion de votre congrégation.'}
                           {tab.id === 'appearance' &&
@@ -1135,6 +1188,15 @@ export const Settings: React.FC = () => {
                         color: 'text-green-600',
                         bg: 'bg-green-100',
                         action: () => setIsBackupModalOpen(true),
+                      },
+                      {
+                        id: 'whatsapp',
+                        label: 'WhatsApp',
+                        desc: 'Sauvegarde via WhatsApp',
+                        icon: MessageSquare,
+                        color: 'text-green-500',
+                        bg: 'bg-green-50',
+                        action: handleWhatsAppBackup,
                       },
                       {
                         id: 'import',
