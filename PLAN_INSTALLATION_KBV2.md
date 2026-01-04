@@ -60,7 +60,7 @@ Installer KBV2 sur votre PC avec démarrage automatique et système de sauvegard
 
 ## 📱 Flux de Synchronisation
 
-```
+```text
 PC (Gestion)     →     WhatsApp (Partage)     →     Mobile (Utilisation)
 ├── Ajouter orateur       ├── Envoyer backup       ├── Recevoir fichier
 ├── Planifier visite      ├── Partager .json      ├── Importer données

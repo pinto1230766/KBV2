@@ -39,7 +39,7 @@ setup-auto-start.bat
 
 ### PC → WhatsApp → Mobile
 
-```
+```text
 PC (Gestion)     →     WhatsApp (Partage)     →     Mobile (Utilisation)
 ├── Ajouter orateur       ├── Envoyer backup       ├── Recevoir fichier
 ├── Planifier visite      ├── Partager .json      ├── Importer données
