@@ -69,6 +69,19 @@ PC (Gestion)     →     WhatsApp (Partage)     →     Mobile (Utilisation)
 
 ## 📊 Statistiques en Temps Réel
 
+## 👁️ Portail de Suivi pour Orateurs et Hôtes
+
+### Accès au Portail
+- **Orateurs**: Un lien unique est fourni à chaque orateur pour suivre ses visites.
+  - URL: `http://localhost:5173/suivi/orateur/[ID_ORATEUR]`
+- **Hôtes**: Un lien est disponible pour chaque hôte afin de voir l'état des visites qu'ils accueillent.
+  - URL: `http://localhost:5173/suivi/hote/[ID_HOTE]`
+
+### Fonctionnalités du Portail
+- **Vue en temps réel**: Affiche le statut actuel de la programmation (ex: "Confirmée", "Planifiée").
+- **Informations clés**: Affiche uniquement les détails essentiels de la visite (date, thème, lieu).
+- **Sécurisé**: L'accès est limité aux informations pertinentes pour l'utilisateur.
+
 - **Tableau de bord**: Vue d'ensemble complète
 - **Rapports**: Export PDF/Excel
 - **Graphiques**: Tendances et analyses
