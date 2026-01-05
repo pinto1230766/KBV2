@@ -20,7 +20,7 @@
 - **Tests** : 85% couverture (Vitest + Playwright + Storybook)
 - **Performance** : 80% score, <2s chargement
 
-## 📁 Structure Complète du Projet
+## 📁 Structure Détaillée du Projet
 
 ### 📋 Documentation (2 fichiers essentiels)
 - **GUIDE-COMPLET.md** - Documentation unique et complète (4.3 KB)
@@ -39,16 +39,175 @@
 - **capacitor.config.ts** - Configuration bridge natif
 - **APK généré** : android/app/build/outputs/apk/debug/app-debug.apk (~14 MB)
 
-### 🌐 Application Web
-- **src/** - Code source React/TypeScript (205 fichiers)
-- **public/** - Assets web (5 fichiers)
-- **dist/** - Build de production
-- **vite.config.ts** - Configuration build web
+### 🌐 Application Web - Structure Complète
+
+#### Fichiers principaux
+- **src/main.tsx** - Point d'entrée principal de l'application React
+- **src/App.tsx** - Composant racine de l'application
+- **src/index.css** - Styles globaux
+- **src/vite-env.d.ts** - Types pour Vite
+
+#### Types et interfaces
+- **src/types.ts** - Types et interfaces principaux (200+ lignes)
+- **src/lib/utils.ts** - Utilitaires de typage et fonctions utilitaires
+
+#### Configuration et constantes
+- **src/config/ios-theme.ts** - Configuration du thème iOS
+- **src/data/constants.ts** - Constantes de l'application
+- **src/data/commonConstants.ts** - Constantes communes
+- **src/data/talkTitles.ts** - Titres des exposés
+- **src/data/messageTemplates.ts** - Modèles de messages
+- **src/data/completeData.ts** - Données complètes (1559 lignes)
+- **src/data/demo-data.json** - Données de démonstration
+- **src/data/real-data.json** - Données réelles
+
+#### Contextes et gestion d'état
+- **src/contexts/AuthContext.tsx** - Contexte d'authentification
+- **src/contexts/DataContext.tsx** - Contexte des données (812 lignes)
+- **src/contexts/SettingsContext.tsx** - Contexte des paramètres
+- **src/contexts/PlatformContext.tsx** - Contexte de la plateforme
+- **src/contexts/ToastContext.tsx** - Contexte des notifications toast
+- **src/contexts/ConfirmContext.tsx** - Contexte des confirmations
+
+#### Pages principales
+- **src/pages/Planning.tsx** - Page de planning avec vues avancées
+- **src/pages/Speakers.tsx** - Gestion des orateurs
+- **src/pages/Hosts.tsx** - Gestion des hôtes
+- **src/pages/Messages.tsx** - Messagerie et communications
+- **src/pages/Settings.tsx** - Paramètres et configuration
+- **src/pages/Reports.tsx** - Rapports et statistiques
+- **src/pages/Expenses.tsx** - Gestion des dépenses
+- **src/pages/Feedback.tsx** - Feedback et satisfaction
+
+#### Composants spécialisés (65+ composants)
+
+##### Planning (15 composants)
+- **src/components/planning/VisitCard.tsx** - Carte de visite
+- **src/components/planning/PlanningCalendarView.tsx** - Vue calendrier
+- **src/components/planning/PlanningTimelineView.tsx** - Vue timeline
+- **src/components/planning/PlanningWorkloadView.tsx** - Vue workload
+- **src/components/planning/VisitActionModal.tsx** - Actions visite
+- **src/components/planning/ScheduleVisitModal.tsx** - Planification
+- **src/components/planning/CancellationModal.tsx** - Annulation
+- **src/components/planning/EmergencyReplacementModal.tsx** - Remplacement d'urgence
+- **src/components/planning/ConflictDetectionModal.tsx** - Détection conflits
+- **src/components/planning/PlanningFilterModal.tsx** - Filtrage
+- **src/components/planning/PlanningCardsView.tsx** - Vue cartes
+- **src/components/planning/PlanningListView.tsx** - Vue liste
+- **src/components/planning/PlanningWeekView.tsx** - Vue semaine
+
+##### Messages et Communication (8 composants)
+- **src/components/messages/MessageGeneratorModal.tsx** - Générateur de messages
+- **src/components/messages/HostRequestModal.tsx** - Demande d'hôte
+- **src/components/messages/ConversationList.tsx** - Liste conversations
+- **src/components/messages/MessageThread.tsx** - Fil discussion
+- **src/components/messages/HostMessageThread.tsx** - Messages hôtes
+- **src/components/messages/ConversationItem.tsx** - Item conversation
+- **src/components/messages/CommunicationProgress.tsx** - Progression communication
+
+##### Hôtes et Accueil (4 composants)
+- **src/components/hosts/HostList.tsx** - Liste des hôtes
+- **src/components/hosts/HostFormModal.tsx** - Formulaire hôte
+- **src/components/hosts/AccommodationMatchingModal.tsx** - Appariement logement
+
+##### Layout et Navigation (8 composants)
+- **src/components/layout/MainLayout.tsx** - Layout principal
+- **src/components/layout/PhoneLayout.tsx** - Layout mobile
+- **src/components/layout/TabletLayout.tsx** - Layout tablette
+- **src/components/layout/IOSMainLayout.tsx** - Layout iOS
+- **src/components/layout/SyncStatusIndicator.tsx** - Indicateur synchronisation
+- **src/components/navigation/IOSNavBar.tsx** - Barre navigation iOS
+- **src/components/navigation/IOSTabBar.tsx** - Tab bar iOS
+
+##### Dashboard et Statistiques (5 composants)
+- **src/components/dashboard/Dashboard.tsx** - Tableau de bord principal
+- **src/components/dashboard/AdvancedStats.tsx** - Statistiques avancées
+- **src/components/dashboard/DashboardConfig.tsx** - Configuration dashboard
+- **src/components/dashboard/KPICard.tsx** - Carte KPI
+- **src/components/expenses/FinancialDashboard.tsx** - Dashboard financier
+
+##### Feedback et Satisfaction (3 composants)
+- **src/components/feedback/FeedbackFormModal.tsx** - Formulaire feedback
+- **src/components/feedback/SatisfactionChart.tsx** - Graphique satisfaction
+
+##### Rapports et Export (2 composants)
+- **src/components/reports/ReportGeneratorModal.tsx** - Générateur rapports
+
+##### Logistique et Coordination (6 composants)
+- **src/components/logistics/LogisticsManager.tsx** - Gestion logistique
+- **src/components/logistics/AccommodationView.tsx** - Vue hébergement
+- **src/components/logistics/ItineraryView.tsx** - Vue itinéraire
+- **src/components/logistics/MealPlanningModal.tsx** - Planification repas
+- **src/components/logistics/TravelCoordinationModal.tsx** - Coordination voyage
+- **src/components/logistics/Checklist.tsx** - Liste vérification
+
+##### Dépenses (3 composants)
+- **src/components/expenses/ExpenseForm.tsx** - Formulaire dépense
+- **src/components/expenses/ExpenseList.tsx** - Liste dépenses
+
+##### Utilitaires (3 composants)
+- **src/components/ErrorBoundary.tsx** - Gestion erreurs
+- **src/components/modals.ts** - Modales génériques
+
+#### Hooks personnalisés (25+ hooks)
+- **src/hooks/useDataCache.ts** - Cache des données
+- **src/hooks/useDataValidation.ts** - Validation données
+- **src/hooks/useOfflineMode.ts** - Mode hors ligne
+- **src/hooks/useSyncQueue.ts** - File de synchronisation
+- **src/hooks/usePlatform.ts** - Détection plateforme
+- **src/hooks/useModal.ts** - Gestion modales
+- **src/hooks/useGlobalHotkeys.ts** - Raccourcis clavier
+- **src/hooks/useKeyboardShortcuts.ts** - Raccourcis clavier
+- **src/hooks/useLongPress.ts** - Appui long
+- **src/hooks/usePullToRefresh.ts** - Tirer pour rafraîchir
+- **src/hooks/useSwipeGesture.ts** - Gestes swipe
+- **src/hooks/useSPen.ts** - Support S-Pen
+- **src/hooks/useTranslation.ts** - Traduction
+- **src/hooks/useVisitNotifications.ts** - Notifications visites
+- **src/hooks/useVisitStats.ts** - Statistiques visites
+- **src/hooks/useAccessibilityTesting.ts** - Tests accessibilité
+- **src/hooks/useErrorNotifications.ts** - Notifications erreurs
+
+#### Services et Utils (30+ fichiers)
+
+##### Services principaux
+- **src/utils/auth.ts** - Service authentification
+- **src/utils/FileSystemService.ts** - Service fichiers
+- **src/utils/ExportService.ts** - Service export
+- **src/utils/cacheManager.ts** - Gestion cache
+- **src/utils/crypto.ts** - Chiffrement
+- **src/utils/formatters.ts** - Formatage données
+- **src/utils/hostUtils.ts** - Utilitaires hôtes
+- **src/utils/duplicateDetection.ts** - Détection doublons
+
+##### Utilitaires
+- **src/lib/utils.ts** - Fonctions utilitaires
+- **src/utils/cn.ts** - Utilitaire classes CSS
+- **src/utils/idb.ts** - IndexedDB wrapper
+- **src/utils/uuid.ts** - Génération UUID
+
+##### Stores (Zustand)
+- **src/stores/layoutStore.ts** - Store layout
+- **src/stores/optimizedStores.ts** - Stores optimisés
+
+##### Plugins
+- **src/plugins/security.ts** - Plugin sécurité
+
+#### Tests (15+ fichiers de tests)
+- **src/tests/setup.ts** - Configuration tests
+- **src/tests/validation.test.ts** - Tests validation
+- **src/tests/FileSystemService.test.ts** - Tests service fichiers
+- **src/utils/auth.test.ts** - Tests authentification
+- **src/utils/cacheManager.test.ts** - Tests cache
+- **src/utils/cn.test.ts** - Tests utilitaires
+- **src/utils/crypto.test.ts** - Tests chiffrement
+- **src/utils/formatters.test.ts** - Tests formatage
+- **src/utils/hostUtils.test.ts** - Tests utilitaires hôtes
 
 ### 🧪 Tests et Qualité
 - **e2e/** - Tests end-to-end Playwright (5 fichiers)
-- **src/tests/** - Tests unitaires Vitest
-- **.storybook/** - Documentation composants
+- **src/tests/** - Tests unitaires Vitest (15+ fichiers)
+- **.storybook/** - Documentation composants (56 fichiers)
 - **playwright.config.ts** - Configuration tests E2E
 
 ## 🔧 Architecture Technique
