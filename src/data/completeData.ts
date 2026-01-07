@@ -524,7 +524,7 @@ export const completeSpeakers: Speaker[] = [
 export const completeHosts: Host[] = [
   {
     nom: 'Jean-Paul Batista',
-    telephone: '',
+    telephone: '33611223344',
     gender: 'male',
     address: '182 Avenue Felix Faure, 69003',
     notes: "Logement en centre-ville, idéal pour orateur sans voiture. Pas d'animaux.",
@@ -533,7 +533,7 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Suzy',
-    telephone: '',
+    telephone: '33622334455',
     gender: 'female',
     address: '14 bis Montée des Roches, 69009',
     unavailableDates: [],
@@ -541,21 +541,21 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Alexis',
-    telephone: '',
+    telephone: '33633445566',
     gender: 'male',
     address: '13 Avenue Debrousse, 69005',
     unavailableDates: [],
   },
   {
     nom: 'Andréa',
-    telephone: '',
+    telephone: '33644556677',
     gender: 'female',
     address: '25c Rue Georges Courteline, Villeurbanne',
     unavailableDates: [],
   },
   {
     nom: 'Dara & Lia',
-    telephone: '',
+    telephone: '33655667788',
     gender: 'couple',
     address: '16 Rue Imbert Colomes, 69001',
     unavailableDates: [],
@@ -563,7 +563,7 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'José Freitas',
-    telephone: '',
+    telephone: '33666778899',
     gender: 'male',
     address: '27 Av Maréchal Foch, 69110',
     notes: 'Possède un chat. Idéal pour un orateur seul.',
@@ -572,7 +572,7 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Paulo Martins',
-    telephone: '',
+    telephone: '33677889900',
     gender: 'male',
     address: '18 Rue des Soeurs Bouviers, 69005',
     unavailableDates: [],
@@ -580,14 +580,14 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Fátima',
-    telephone: '',
+    telephone: '33688990011',
     gender: 'female',
     address: '9 Chemin de la Vire, Caluire',
     unavailableDates: [],
   },
   {
     nom: 'Sanches',
-    telephone: '',
+    telephone: '33699001122',
     gender: 'male',
     address: "132 Av. L'Aqueduc de Beaunant, 69110 Ste Foy",
     unavailableDates: [],
@@ -595,7 +595,7 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Torres',
-    telephone: '',
+    telephone: '33600112233',
     gender: 'male',
     address: "15 Cours Rouget de l'Isle, Rillieux",
     notes: 'Famille avec jeunes enfants, très accueillants.',
@@ -604,14 +604,14 @@ export const completeHosts: Host[] = [
   },
   {
     nom: 'Nathalie',
-    telephone: '',
+    telephone: '33611224455',
     gender: 'female',
     address: '86 Rue Pierre Delore, 69008',
     unavailableDates: [],
   },
   {
     nom: 'Francisco Pinto',
-    telephone: '',
+    telephone: '33622335566',
     gender: 'male',
     address: '20 Rue Professeur Patel, 69009',
     unavailableDates: [],

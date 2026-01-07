@@ -10,6 +10,8 @@ const { mockFilesystem, mockShare } = vi.hoisted(() => ({
     deleteFile: vi.fn(),
     mkdir: vi.fn(),
     getUri: vi.fn(),
+    checkPermissions: vi.fn().mockResolvedValue({ publicStorage: 'granted' }),
+    requestPermissions: vi.fn().mockResolvedValue({ publicStorage: 'granted' }),
   },
   mockShare: {
     canShare: vi.fn(),

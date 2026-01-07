@@ -13,18 +13,18 @@ describe('FileUpload', () => {
   describe('Rendering', () => {
     it('should render upload area', () => {
       render(<FileUpload {...defaultProps} />);
-      expect(screen.getByText(/drag.*drop|déposer/i)).toBeInTheDocument();
+      expect(screen.getByText(/drag.*drop|dépose/i)).toBeInTheDocument();
     });
 
     it('should show drag and drop area', () => {
       render(<FileUpload {...defaultProps} />);
-      expect(screen.getByText(/drag.*drop|déposer/i)).toBeInTheDocument();
+      expect(screen.getByText(/drag.*drop|dépose/i)).toBeInTheDocument();
     });
 
     it('should have file input', () => {
       render(<FileUpload {...defaultProps} />);
       // File input is created dynamically, check for the area
-      expect(screen.getByText(/drag.*drop|déposer/i)).toBeInTheDocument();
+      expect(screen.getByText(/drag.*drop|dépose/i)).toBeInTheDocument();
     });
   });
 
@@ -33,12 +33,21 @@ describe('FileUpload', () => {
       const onFilesSelected = vi.fn();
       render(<FileUpload {...defaultProps} onFilesSelected={onFilesSelected} />);
 
-      // Since input is created dynamically, we need to trigger the file selection differently
-      // For this test, we'll assume the component works as the onFilesSelected is called
+      const input = screen.getByLabelText('Upload Files') as HTMLInputElement;
       const file = new File(['content'], 'test.txt', { type: 'text/plain' });
-      onFilesSelected([file]);
 
-      expect(onFilesSelected).toHaveBeenCalledWith([file]);
+      Object.defineProperty(input, 'files', {
+        value: [file],
+        writable: false,
+      });
+
+      fireEvent.change(input);
+
+      await waitFor(() => {
+        expect(onFilesSelected).toHaveBeenCalledWith(
+          expect.arrayContaining([expect.objectContaining({ name: 'test.txt' })])
+        );
+      });
     });
 
     it('should handle multiple files', async () => {
@@ -72,17 +81,18 @@ describe('FileUpload', () => {
   describe('Drag and drop', () => {
     it('should handle drag enter', () => {
       render(<FileUpload {...defaultProps} />);
-      const dropZone = screen.getByText(/drag.*drop|déposer/i).closest('div');
+      const dropZone = screen.getByText(/drag.*drop|dépose/i).closest('div');
 
       fireEvent.dragEnter(dropZone!);
 
       // Visual feedback should be shown
       expect(dropZone).toBeInTheDocument();
+      // TODO: Add assertion for visual feedback class (e.g., expect(dropZone).toHaveClass('border-blue-500'))
     });
 
     it('should handle drag over', () => {
       render(<FileUpload {...defaultProps} />);
-      const dropZone = screen.getByText(/drag.*drop|déposer/i).closest('div');
+      const dropZone = screen.getByText(/drag.*drop|dépose/i).closest('div');
 
       const event = new Event('dragover', { bubbles: true });
       Object.defineProperty(event, 'dataTransfer', {
@@ -98,7 +108,7 @@ describe('FileUpload', () => {
       const onFilesSelected = vi.fn();
       render(<FileUpload {...defaultProps} onFilesSelected={onFilesSelected} />);
 
-      const dropZone = screen.getByText(/drag.*drop|déposer/i).closest('div');
+      const dropZone = screen.getByText(/drag.*drop|dépose/i).closest('div');
       const file = new File(['content'], 'dropped.txt', { type: 'text/plain' });
 
       const dropEvent = new Event('drop', { bubbles: true });
@@ -118,8 +128,9 @@ describe('FileUpload', () => {
 
   describe('File validation', () => {
     it('should validate file size', async () => {
+      const onFilesSelected = vi.fn();
       const maxSize = 1000; // 1KB
-      render(<FileUpload {...defaultProps} maxSize={maxSize} />);
+      render(<FileUpload {...defaultProps} maxSize={maxSize} onFilesSelected={onFilesSelected} />);
 
       const input = screen.getByLabelText('Upload Files') as HTMLInputElement;
       const largeFile = new File(['x'.repeat(2000)], 'large.txt', { type: 'text/plain' });
@@ -130,11 +141,16 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should show error or reject file
+      await waitFor(() => {
+        expect(onFilesSelected).not.toHaveBeenCalled();
+        // TODO: Add assertion for error message presence
+        // expect(screen.getByText(/file too large/i)).toBeInTheDocument();
+      });
     });
 
     it('should validate file type', async () => {
-      render(<FileUpload {...defaultProps} accept='image/*' />);
+      const onFilesSelected = vi.fn();
+      render(<FileUpload {...defaultProps} accept='image/*' onFilesSelected={onFilesSelected} />);
 
       const input = screen.getByLabelText('Upload Files') as HTMLInputElement;
       const textFile = new File(['content'], 'doc.txt', { type: 'text/plain' });
@@ -145,12 +161,16 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should show error or reject file
+      await waitFor(() => {
+        expect(onFilesSelected).not.toHaveBeenCalled();
+        // TODO: Add assertion for error message presence
+      });
     });
 
     it('should validate maximum number of files', async () => {
+      const onFilesSelected = vi.fn();
       const maxFiles = 2;
-      render(<FileUpload {...defaultProps} maxFiles={maxFiles} multiple />);
+      render(<FileUpload {...defaultProps} maxFiles={maxFiles} multiple onFilesSelected={onFilesSelected} />);
 
       const input = screen.getByLabelText('Upload Files') as HTMLInputElement;
       const files = [
@@ -165,16 +185,19 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should show error or limit to maxFiles
+      // Depending on implementation, it might reject all or slice the array.
+      // Assuming strict validation:
+      await waitFor(() => {
+        expect(onFilesSelected).not.toHaveBeenCalled();
+      });
     });
   });
 
   describe('States', () => {
     it('should be disabled when disabled prop is true', () => {
       render(<FileUpload {...defaultProps} disabled />);
-      // Should not be clickable or something, but since input is dynamic, check the area
-      const area = screen.getByText(/drag.*drop|déposer/i);
-      expect(area).toBeInTheDocument();
+      const input = screen.getByLabelText('Upload Files');
+      expect(input).toBeDisabled();
     });
   });
 
@@ -191,7 +214,9 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should show image preview
+      await waitFor(() => {
+        expect(screen.getByRole('img')).toBeInTheDocument();
+      });
     });
 
     it('should not show preview when showPreview is false', async () => {
@@ -206,7 +231,9 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should not show preview
+      await waitFor(() => {
+        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -229,6 +256,8 @@ describe('FileUpload', () => {
         if (removeButton) {
           fireEvent.click(removeButton);
         }
+        // Expect the list to be empty after removal
+        expect(onFilesSelected).toHaveBeenCalledWith([]);
       });
     });
   });
@@ -263,7 +292,7 @@ describe('FileUpload', () => {
 
       fireEvent.change(input);
 
-      // Should not call onFilesSelected with empty array
+      expect(onFilesSelected).not.toHaveBeenCalled();
     });
 
     it('should handle files with special characters in name', async () => {

@@ -10,7 +10,9 @@ export type MessageType =
   | 'reminder-2'
   | 'thanks'
   | 'host_request'
-  | 'host_request_individual';
+  | 'host_request_individual'
+  | 'host_request_message'
+  | 'free_message';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 export type LocationType = 'physical' | 'zoom' | 'streaming';
@@ -23,7 +25,7 @@ export type SpecialDateType =
   | 'convention'
   | 'other';
 export type Theme = 'light' | 'dark' | 'auto';
-export type CommunicationChannel = 'whatsapp' | 'sms' | 'email';
+export type CommunicationChannel = 'whatsapp' | 'whatsapp_group' | 'sms' | 'email';
 
 // ============================================================================
 // ORATEUR (SPEAKER)
@@ -263,6 +265,7 @@ export interface Settings {
   encryptionEnabled: boolean;
   sessionTimeout?: number; // minutes
   autoArchiveDays?: number;
+  whatsappGroupId?: string; // ID du groupe WhatsApp des hôtes
 }
 
 // ============================================================================

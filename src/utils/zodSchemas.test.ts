@@ -108,8 +108,7 @@ describe('Zod Schemas', () => {
   describe('SpeakerSchema', () => {
     it('should validate valid speaker', () => {
       const validSpeaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'john.doe@example.com',
       };
 
@@ -117,21 +116,9 @@ describe('Zod Schemas', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should reject speaker with empty firstName', () => {
+    it('should reject speaker with empty nom', () => {
       const invalidSpeaker = {
-        firstName: '',
-        lastName: 'Doe',
-        email: 'john@example.com',
-      };
-
-      const result = SpeakerSchema.safeParse(invalidSpeaker);
-      expect(result.success).toBe(false);
-    });
-
-    it('should reject speaker with empty lastName', () => {
-      const invalidSpeaker = {
-        firstName: 'John',
-        lastName: '',
+        nom: '',
         email: 'john@example.com',
       };
 
@@ -178,22 +165,19 @@ describe('Zod Schemas', () => {
       });
     });
 
-    it('should trim name fields', () => {
+    it('should trim name field `nom`', () => {
       const speaker = {
-        firstName: '  John  ',
-        lastName: '  Doe  ',
+        nom: '  John Doe  ',
         email: 'john@example.com',
       };
 
       const result = SpeakerSchema.parse(speaker);
-      expect(result.firstName).toBe('John');
-      expect(result.lastName).toBe('Doe');
+      expect(result.nom).toBe('John Doe');
     });
 
     it('should accept optional phone field', () => {
       const speaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'john@example.com',
       };
 
@@ -203,8 +187,7 @@ describe('Zod Schemas', () => {
 
     it('should reject names exceeding max length', () => {
       const speaker = {
-        firstName: 'x'.repeat(100),
-        lastName: 'Doe',
+        nom: 'x'.repeat(100),
         email: 'john@example.com',
       };
 
@@ -214,10 +197,9 @@ describe('Zod Schemas', () => {
 
     it('should accept empty string for optional phone', () => {
       const speaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'john@example.com',
-        phone: '',
+        telephone: '',
       };
 
       const result = SpeakerSchema.safeParse(speaker);

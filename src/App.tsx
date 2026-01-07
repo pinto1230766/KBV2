@@ -34,6 +34,14 @@ const Settings = React.lazy(() =>
   import('@/pages/Settings').then((module) => ({ default: module.Settings }))
 );
 
+// Lazy load portals
+const SpeakerPortal = React.lazy(() =>
+  import('@/pages/portal/SpeakerPortal').then((module) => ({ default: module.SpeakerPortal }))
+);
+const HostPortal = React.lazy(() =>
+  import('@/pages/portal/HostPortal').then((module) => ({ default: module.HostPortal }))
+);
+
 // Loading fallback component
 const PageLoader = () => (
   <div className='flex items-center justify-center h-64'>
@@ -71,6 +79,24 @@ function AppContent() {
             <ConfirmProvider>
               <Suspense fallback={<PageLoader />}>
                 <Routes>
+                  {/* Portails externes (Sans le layout principal) */}
+                  <Route
+                    path='/portal/speaker/:id'
+                    element={
+                      <ErrorBoundary>
+                        <SpeakerPortal />
+                      </ErrorBoundary>
+                    }
+                  />
+                  <Route
+                    path='/portal/host/:id'
+                    element={
+                      <ErrorBoundary>
+                        <HostPortal />
+                      </ErrorBoundary>
+                    }
+                  />
+
                   <Route path='/' element={<LayoutComponent />}>
                     <Route
                       index

@@ -1,10 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
+import { useToast } from '@/contexts/ToastContext';
+import { Select } from '@/components/ui/Select';
+import { Modal } from '@/components/ui/Modal';
 import { MessageThread } from '@/components/messages/MessageThread';
 import { HostMessageThread } from '@/components/messages/HostMessageThread';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { HostRequestModal } from '@/components/messages/HostRequestModal';
+
 import { Button } from '@/components/ui/Button';
 
 import { Badge } from '@/components/ui/Badge';
@@ -13,7 +17,6 @@ import { cn } from '@/utils/cn';
 import {
   MessageSquare,
   Search,
-  Plus,
   CheckCircle,
   Clock,
   Users,
@@ -27,9 +30,10 @@ import {
 } from 'lucide-react';
 import { Speaker, Visit, Host } from '@/types';
 import { getPrimaryHostName, needsHost } from '@/utils/hostUtils';
+import { generateHostRequestMessage } from '@/utils/messageGenerator';
 
 export const Messages: React.FC = () => {
-  const { visits, speakers, hosts, updateVisit, refreshData } = useData();
+  const { visits, speakers, hosts, updateVisit, refreshData, congregationProfile } = useData();
   const { deviceType } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isSamsungTablet = isTablet && window.innerWidth >= 1200;
@@ -47,9 +51,23 @@ export const Messages: React.FC = () => {
   >('all');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
   const [isHostRequestModalOpen, setIsHostRequestModalOpen] = useState(false);
+  const [isGroupMessageModalOpen, setIsGroupMessageModalOpen] = useState(false);
+  const [groupMessageText, setGroupMessageText] = useState('');
+
   const [generatorVisit, setGeneratorVisit] = useState<Visit | null>(null);
   const [generatorHost, setGeneratorHost] = useState<Host | null>(null);
   const [isGroupMessage, setIsGroupMessage] = useState(false);
+  const [broadcastVisitId, setBroadcastVisitId] = useState<string | null>(null);
+  const { addToast } = useToast();
+
+  const broadcastableVisits = useMemo(() => {
+    const upcoming = visits.filter(
+      (v) =>
+        new Date(v.visitDate) >= new Date(new Date().setHours(0, 0, 0, 0)) &&
+        v.status !== 'cancelled'
+    );
+    return upcoming.sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
+  }, [visits]);
 
   // Group visits by speaker
   const conversations = useMemo(() => {
@@ -184,6 +202,8 @@ export const Messages: React.FC = () => {
     }
   };
 
+
+
   return (
     <div className='max-w-[1600px] mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-4'>
       {/* Header Section */}
@@ -212,30 +232,57 @@ export const Messages: React.FC = () => {
               Retour
             </Button>
           )}
+
+
           {activeTab === 'hosts' && (
-            <Button
-              variant='outline'
-              leftIcon={<Users className='w-4 h-4' />}
-              onClick={() => {
-                setGeneratorHost(null);
-                setIsGroupMessage(true);
-                setIsGeneratorModalOpen(true);
-              }}
-            >
-              Message Groupé
-            </Button>
+            <div className='flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-xl'>
+              <Select
+                value={broadcastVisitId || ''}
+                onChange={(e) => setBroadcastVisitId(e.target.value)}
+                className='min-w-[250px] bg-white dark:bg-gray-700'
+                aria-label='Choisir une visite pour le message groupé'
+                options={broadcastableVisits.map((visit) => ({
+                  value: visit.visitId,
+                  label: `${visit.nom} - ${new Date(visit.visitDate).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                  })}`,
+                }))}
+              />
+              <Button
+                variant='outline'
+                leftIcon={<Users className='w-4 h-4' />}
+                onClick={() => {
+                  if (!broadcastVisitId) {
+                    addToast(
+                      "Aucune visite sélectionnée — Veuillez choisir une visite dans la liste pour envoyer un message groupé.",
+                      'warning'
+                    );
+                    return;
+                  }
+                  const visit = visits.find((v) => v.visitId === broadcastVisitId);
+                  if (!visit) return;
+
+                  // Générer automatiquement le message de demande d'accueil groupé
+                  const message = generateHostRequestMessage(
+                    [visit],
+                    congregationProfile,
+                    'fr', // Langue par défaut
+                    undefined,
+                    false // isIndividualRequest = false pour message de groupe
+                  );
+
+                  // Ouvrir le modal de modification
+                  setGroupMessageText(message);
+                  setIsGroupMessageModalOpen(true);
+                }}
+                disabled={!broadcastVisitId}
+              >
+                Message Groupé
+              </Button>
+            </div>
           )}
-          <Button
-            className='shadow-lg shadow-primary-200 dark:shadow-none'
-            leftIcon={<Plus className='w-4 h-4' />}
-            onClick={() => {
-              setGeneratorVisit(null);
-              setGeneratorHost(null);
-              setIsGeneratorModalOpen(true);
-            }}
-          >
-            Nouveau Message
-          </Button>
+
         </div>
       </div>
 
@@ -665,6 +712,65 @@ export const Messages: React.FC = () => {
           onClose={() => setIsHostRequestModalOpen(false)}
           visitsNeedingHost={visits.filter((v) => needsHost(v))}
         />
+      )}
+
+      {/* Modal pour message groupé */}
+      {isGroupMessageModalOpen && (
+        <Modal
+          isOpen={isGroupMessageModalOpen}
+          onClose={() => setIsGroupMessageModalOpen(false)}
+          title="Message Groupé"
+          size="lg"
+        >
+          <div className='space-y-4'>
+            <p className='text-sm text-gray-600'>
+              Modifiez le message si nécessaire avant de le copier et ouvrir WhatsApp :
+            </p>
+            <textarea
+              className='w-full h-64 p-4 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
+              value={groupMessageText}
+              onChange={(e) => setGroupMessageText(e.target.value)}
+              placeholder='Modifiez le message ici...'
+              aria-label='Message groupé à modifier'
+            />
+            <div className='flex gap-3 justify-end'>
+              <Button
+                variant='ghost'
+                onClick={() => setIsGroupMessageModalOpen(false)}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant='secondary'
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(groupMessageText);
+                    addToast('Message copié dans le presse-papiers !', 'success');
+                    setIsGroupMessageModalOpen(false);
+                  } catch (error) {
+                    addToast('Erreur lors de la copie', 'error');
+                  }
+                }}
+              >
+                Copier
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(groupMessageText);
+                    addToast('Message copié ! Ouvrez votre groupe WhatsApp et collez.', 'success');
+                    window.open('https://wa.me/', '_blank');
+                    setIsGroupMessageModalOpen(false);
+                  } catch (error) {
+                    addToast('Erreur lors de la copie', 'error');
+                  }
+                }}
+              >
+                Copier & Ouvrir WhatsApp
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );

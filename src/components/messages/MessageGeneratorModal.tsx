@@ -8,7 +8,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
 import { getPrimaryHostName } from '@/utils/hostUtils';
-import { generateMessage } from '@/utils/messageGenerator';
+import { generateMessage, generateBroadcastHostRequest, generateHostRequestMessage } from '@/utils/messageGenerator';
 import { Copy, RefreshCw, Send, Save, BookOpen } from 'lucide-react';
 
 interface MessageGeneratorModalProps {
@@ -44,9 +44,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   const [message, setMessage] = useState('');
   const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
-  const [type, setType] = useState<MessageType | 'host_request_message' | 'free_message'>(
-    initialType
-  );
+  const [type, setType] = useState<MessageType>(initialType);
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -56,10 +54,10 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       id: string;
       name: string;
       content: string;
-      type: MessageType | 'host_request_message' | 'free_message';
+      type: MessageType;
       language: string;
-      channel: CommunicationChannel;
-      createdAt: Date;
+      channel: string;
+      createdAt: string;
     }>
   >([]);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -73,7 +71,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       try {
         const parsed = JSON.parse(saved).map((t: any) => ({
           ...t,
-          createdAt: new Date(t.createdAt),
+          createdAt: typeof t.createdAt === 'string' ? t.createdAt : new Date(t.createdAt).toISOString(),
         }));
         setMessageTemplates(parsed);
       } catch (_error) {
@@ -97,29 +95,73 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       if (isHostMessage) {
         // Messages spécifiques aux hôtes
         if (isGroupMessage) {
-          // Message groupé - utiliser les modèles traduits
-          generated = generateMessage(
-            null,
-            null,
-            null,
-            congregationProfile,
-            type as MessageType,
-            'host',
-            language,
-            true // isGroupMessage
-          );
+          // Message groupé pour une visite spécifique
+          if (visit && allHosts.length > 0) {
+            if (channel === 'whatsapp_group') {
+              // Pour le groupe WhatsApp, utiliser un message de groupe
+              generated = generateHostRequestMessage(
+                [visit],
+                congregationProfile,
+                language,
+                undefined, // customTemplate
+                false // isIndividualRequest = false pour message de groupe
+              );
+              setMessage(generated); // Message direct sans préfixe pour le groupe
+            } else {
+              // Pour broadcast individuel, message personnalisé
+              generated = generateBroadcastHostRequest(
+                visit,
+                allHosts[0],
+                congregationProfile,
+                language
+              );
+              setMessage(
+                `// APERÇU - Ce message sera personnalisé pour chaque hôte :\n\n${generated}`
+              );
+            }
+          } else {
+            // Message groupé générique
+            generated = generateMessage(
+              null,
+              null,
+              null,
+              congregationProfile,
+              type,
+              'host',
+              language
+            );
+            setMessage(generated);
+          }
+          return; // Sortir après avoir défini le message
         } else if (host && visit) {
           // Message individuel à un hôte avec visite
-          const visitSpeaker = speaker || { nom: visit.nom, congregation: visit.congregation, telephone: visit.telephone };
-          generated = generateMessage(
-            visit,
-            visitSpeaker as Speaker,
-            host,
-            congregationProfile,
-            type as MessageType,
-            'host',
-            language
-          );
+          if (type === 'host_request_message') {
+            // Pour les demandes d'accueil individuelles, utiliser le modèle spécialisé
+            generated = generateHostRequestMessage(
+              [visit],
+              congregationProfile,
+              language,
+              undefined, // customTemplate
+              true, // isIndividualRequest
+              host.nom
+            );
+          } else {
+            const visitSpeaker =
+              speaker || {
+                nom: visit.nom,
+                congregation: visit.congregation,
+                telephone: visit.telephone,
+              };
+            generated = generateMessage(
+              visit,
+              visitSpeaker as Speaker,
+              host,
+              congregationProfile,
+              type,
+              'host',
+              language
+            );
+          }
         } else if (host) {
           // Message individuel à un hôte sans visite spécifique
           generated = generateMessage(
@@ -127,7 +169,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             null,
             host,
             congregationProfile,
-            type as MessageType,
+            type,
             'host',
             language
           );
@@ -178,7 +220,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         type,
         language,
         channel,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
 
       const updatedTemplates = [...messageTemplates, newTemplate];
@@ -200,7 +242,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     setMessage(template.content);
     setType(template.type);
     setLanguage(template.language as 'fr' | 'cv' | 'pt');
-    setChannel(template.channel);
+    setChannel(template.channel as CommunicationChannel);
     setShowTemplates(false);
     addToast(`${t('Modèle')} "${template.name}" ${t('chargé')}`, 'info');
   };
@@ -223,48 +265,115 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         ? `Message de l'assemblée de Lyon`
         : `Visite à KBV Lyon - ${visit?.talkTheme || ''}`
     );
-    const body = encodeURIComponent(message);
+
+    // Fonction pour ouvrir WhatsApp avec fallback
+    const openWhatsApp = (phone: string, message: string) => {
+      const cleanPhone = phone.replace(/\D/g, '');
+      const encodedMessage = encodeURIComponent(message);
+
+      // Essayer différentes méthodes
+      const waUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+      console.log('Opening WhatsApp URL:', waUrl);
+
+      // Créer un lien temporaire et cliquer dessus
+      const link = document.createElement('a');
+      link.href = waUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Fallback: essayer avec le protocole
+      setTimeout(() => {
+        const protocolUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedMessage}`;
+        console.log('Fallback to WhatsApp protocol:', protocolUrl);
+        window.location.href = protocolUrl;
+      }, 1000);
+    };
+
+    // Fonction pour ouvrir le groupe WhatsApp des hôtes
+    const openWhatsAppGroup = (message: string) => {
+      const encodedMessage = encodeURIComponent(message);
+      // ID du groupe WhatsApp des hôtes depuis les settings
+      const groupId = settings.whatsappGroupId || '1234567890'; // Valeur par défaut si non configuré
+
+      // URL pour le groupe WhatsApp
+      const groupUrl = `https://wa.me/${groupId}?text=${encodedMessage}`;
+      console.log('Opening WhatsApp Group URL:', groupUrl);
+
+      // Créer un lien temporaire et cliquer dessus
+      const link = document.createElement('a');
+      link.href = groupUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Fallback: essayer avec le protocole de groupe
+      setTimeout(() => {
+        const protocolUrl = `whatsapp://send?text=${encodedMessage}`;
+        console.log('Fallback to WhatsApp protocol:', protocolUrl);
+        window.location.href = protocolUrl;
+      }, 1000);
+    };
 
     if (isGroupMessage) {
       // Envoi groupé avec délai pour éviter les blocages
       addToast(`${t('Envoi groupé à')} ${recipients.length} ${t('destinataires...')}`, 'info');
 
       for (let i = 0; i < recipients.length; i++) {
-        const recipient = recipients[i];
+        const recipient = recipients[i] as Host; // On sait que ce sont des hôtes
         if (!recipient) continue;
 
+        // Générer le message dynamiquement pour chaque hôte si c'est un broadcast de visite
+        const messageToSend =
+          isGroupMessage && visit
+            ? generateBroadcastHostRequest(visit, recipient, congregationProfile, language)
+            : message;
+
         if (channel === 'whatsapp' && recipient.telephone) {
-          const encodedMessage = encodeURIComponent(message);
-          const phone = recipient.telephone.replace(/\D/g, '');
           setTimeout(() => {
-            window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
-          }, i * 1000); // Délai de 1 seconde entre chaque ouverture
+            openWhatsApp(recipient.telephone!, messageToSend);
+          }, i * 1500); // Délai de 1.5 seconde entre chaque ouverture
+        } else if (channel === 'whatsapp_group') {
+          // Pour le groupe, envoyer seulement le premier message
+          if (i === 0) {
+            setTimeout(() => {
+              openWhatsAppGroup(messageToSend);
+            }, 500);
+          }
         } else if (channel === 'email' && recipient.email) {
+          const body = encodeURIComponent(messageToSend);
           setTimeout(() => {
             window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, '_blank');
-          }, i * 500); // Délai de 0.5 seconde pour les emails
+          }, i * 500);
         }
       }
 
       setTimeout(
         () => {
           addToast(
-            `${t('Messages envoyés à')} ${recipients.length} ${t('destinataires...').replace('...', '')}`,
+            `${t('Messages envoyés à')} ${
+              recipients.length
+            } ${t('destinataires...').replace('...', '')}`,
             'success'
           );
           onClose();
         },
-        recipients.length * 1000 + 1000
+        recipients.length * 1500 + 1000
       );
     } else {
       // Envoi individuel
       const recipient = recipients[0];
       if (!recipient) return;
+      const body = encodeURIComponent(message);
 
       if (channel === 'whatsapp' && recipient.telephone) {
-        const encodedMessage = encodeURIComponent(message);
-        const phone = recipient.telephone.replace(/\D/g, '');
-        window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+        openWhatsApp(recipient.telephone, message);
+      } else if (channel === 'whatsapp_group') {
+        openWhatsAppGroup(message);
       } else if (channel === 'email' && recipient.email) {
         window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, '_blank');
       } else if (recipient.telephone) {
@@ -309,6 +418,10 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 isHostMessage
                   ? [
                       { value: 'host_request_message', label: t("Demande d'accueil") },
+                      { value: 'confirmation', label: t('Confirmation') },
+                      { value: 'preparation', label: t('Préparation') },
+                      { value: 'reminder-7', label: t('Rappel (J-7)') },
+                      { value: 'reminder-2', label: t('Rappel (J-2)') },
                       { value: 'thanks', label: t('Remerciements') },
                       { value: 'free_message', label: t('Message libre') },
                     ]
@@ -348,7 +461,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                 { value: 'sms', label: t('SMS') },
                 { value: 'email', label: t('Email') },
               ]}
-              value={channel}
+              value={channel === 'whatsapp_group' ? 'whatsapp' : channel}
               onChange={(e) => setChannel(e.target.value as CommunicationChannel)}
             />
           </div>
@@ -401,7 +514,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                     <div className='font-medium text-sm'>{template.name}</div>
                     <div className='text-xs text-gray-500'>
                       {template.type} • {template.language} • {template.channel} •{' '}
-                      {template.createdAt.toLocaleDateString()}
+                      {new Date(template.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   <div className='flex gap-2'>

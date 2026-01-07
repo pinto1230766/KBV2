@@ -35,6 +35,22 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
     },
 
+    host_request_message: {
+      host: `Bonjour Frère *{hostName}*, 🏠
+
+J'espère que vous allez bien.
+
+Nous recherchons régulièrement des familles d'accueil pour les orateurs qui nous visitent.
+
+Seriez-vous disponibles pour accueillir un orateur à l'avenir ? Si oui, pourriez-vous me contacter pour que nous puissions vous proposer des dates ?
+
+Merci beaucoup pour votre hospitalité !
+
+Fraternellement,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+    },
+
     preparation: {
       speaker: `Bonjour Frère *{speakerName}*,
 
@@ -104,6 +120,15 @@ Bon voyage et à très vite !
 
 Fraternellement,
 {hospitalityOverseer}`,
+
+      host: `Bonjour Frère *{hostName}*,
+
+Dernier rappel : tu accueilles *{speakerName}* *après-demain*, le *{visitDate}* ! 🏠
+
+Merci pour ton hospitalité !
+
+Fraternellement,
+{hospitalityOverseer}`,
     },
 
     thanks: {
@@ -124,6 +149,25 @@ Ton accueil chaleureux contribue grandement à la réussite de ces visites.
 
 Fraternellement,
 {hospitalityOverseer}`,
+    },
+
+    // NOUVEAU: Message libre pour les hôtes
+    free_message: {
+      speaker: `Bonjour Frère *{speakerName}*,
+
+[Personnalisez votre message ici]
+
+Fraternellement,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+
+      host: `Bonjour Frère *{hostName}*,
+
+[Personnalisez votre message ici]
+
+Fraternellement,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
     },
   },
 
@@ -151,6 +195,22 @@ N ta spera ma bu sta bon. 🏠
 Nu ten prazer di akolhe *{speakerName}* di kongregason di *{congregation}* dia *{visitDate}*.
 
 Bu pode inkarga-u di akolhimentu? Favor konfirma-m.
+
+Fraternalmenti,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+    },
+
+    host_request_message: {
+      host: `Bon dia Mon *{hostName}*, 🏠
+
+N ta spera ma bu sta bon.
+
+Nu ta buska regularmenti família pa resebe oradoris ki ta vizitanu.
+
+Nhos ta disponivel pa resebe un orador na futuru? Si sta, pur favor entra en kontatu ku mim pa podé propusi datas.
+
+Obrigadu pa nhos ospitalidadi!
 
 Fraternalmenti,
 {hospitalityOverseer}
@@ -226,6 +286,15 @@ Bon biaji i te ja!
 
 Fraternalmenti,
 {hospitalityOverseer}`,
+
+      host: `Bon dia Mon *{hostName}*,
+
+Últimu limbransá : bu ta akolhe *{speakerName}* *dizpois di manhã*, dia *{visitDate}*! 🏠
+
+Obrigadu pa bu ospitalidadi!
+
+Fraternalmenti,
+{hospitalityOverseer}`,
     },
 
     thanks: {
@@ -246,6 +315,25 @@ Bu akolhimentu kalorozi ta kontribui munti pa susesu di es bizitas.
 
 Fraternalmenti,
 {hospitalityOverseer}`,
+    },
+
+    // NOUVEAU: Message libre pour les hôtes
+    free_message: {
+      speaker: `Bon dia Mon *{speakerName}*,
+
+[Personnalize bu messajem aki]
+
+Fraternalmenti,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+
+      host: `Bon dia Mon *{hostName}*,
+
+[Personnalize bu messajem aki]
+
+Fraternalmenti,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
     },
   },
 
@@ -368,6 +456,41 @@ O teu acolhimento caloroso contribui muito para o sucesso destas visitas.
 
 Fraternalmente,
 {hospitalityOverseer}`,
+    },
+
+    host_request_message: {
+      host: `Olá Irmão *{hostName}*, 🏠
+
+Espero que esteja bem.
+
+Estamos regularmente à procura de famílias anfitriãs para os oradores que nos visitam.
+
+Estaria disponível para acolher um orador no futuro? Se sim, poderia entrar em contacto para podermos propor datas?
+
+Muito obrigado pela vossa hospitalidade!
+
+Fraternalmente,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+    },
+
+    // NOUVEAU: Message libre pour les hôtes
+    free_message: {
+      speaker: `Olá Irmão *{speakerName}*,
+
+[Personalize a sua mensagem aqui]
+
+Fraternalmente,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
+
+      host: `Olá Irmão *{hostName}*,
+
+[Personalize a sua mensagem aqui]
+
+Fraternalmente,
+{hospitalityOverseer}
+📞 {hospitalityOverseerPhone}`,
     },
   },
 };

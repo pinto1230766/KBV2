@@ -28,86 +28,55 @@ export const ExpenseSchema = z.object({
 // Validation des orateurs
 export const SpeakerSchema = z.object({
   id: z.string().uuid().optional(),
-  firstName: z
-    .string()
-    .min(1, 'Le prénom est requis')
-    .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
-    .trim(),
-  lastName: z
+  nom: z
     .string()
     .min(1, 'Le nom est requis')
-    .max(50, 'Le nom ne peut pas dépasser 50 caractères')
+    .max(100, 'Le nom ne peut pas dépasser 100 caractères')
     .trim(),
   email: z
     .string()
     .email('Email invalide')
     .max(100, "L'email ne peut pas dépasser 100 caractères")
     .trim(),
-  phone: z
+  telephone: z
     .string()
     .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
-  company: z
+  congregation: z
     .string()
-    .max(100, "L'entreprise ne peut pas dépasser 100 caractères")
+    .max(100, "La congrégation ne peut pas dépasser 100 caractères")
     .optional()
     .or(z.literal('')),
-  bio: z
-    .string()
-    .max(500, 'La biographie ne peut pas dépasser 500 caractères')
-    .optional()
-    .or(z.literal('')),
+  gender: z.enum(['male', 'female', 'couple']).optional(),
+  notes: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  socialLinks: z
-    .object({
-      linkedin: z.string().url('URL LinkedIn invalide').optional().or(z.literal('')),
-      twitter: z.string().url('URL Twitter invalide').optional().or(z.literal('')),
-      website: z.string().url('URL site web invalide').optional().or(z.literal('')),
-    })
-    .optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional(),
 });
 
 // Validation des hôtes
 export const HostSchema = z.object({
-  id: z.string().uuid().optional(),
-  firstName: z
-    .string()
-    .min(1, 'Le prénom est requis')
-    .max(50, 'Le prénom ne peut pas dépasser 50 caractères')
-    .trim(),
-  lastName: z
+  nom: z
     .string()
     .min(1, 'Le nom est requis')
-    .max(50, 'Le nom ne peut pas dépasser 50 caractères')
+    .max(100, 'Le nom ne peut pas dépasser 100 caractères')
     .trim(),
   email: z
     .string()
     .email('Email invalide')
     .max(100, "L'email ne peut pas dépasser 100 caractères")
     .trim(),
-  phone: z
+  telephone: z
     .string()
     .regex(/^[+]?[0-9][\d]{0,15}$/, 'Téléphone invalide')
     .optional()
     .or(z.literal('')),
-  address: z.object({
-    street: z
-      .string()
-      .min(1, 'La rue est requise')
-      .max(200, 'La rue ne peut pas dépasser 200 caractères'),
-    city: z
-      .string()
-      .min(1, 'La ville est requise')
-      .max(100, 'La ville ne peut pas dépasser 100 caractères'),
-    postalCode: z.string().regex(/^\d{5}$/, 'Code postal invalide'),
-    country: z
-      .string()
-      .min(1, 'Le pays est requis')
-      .max(50, 'Le pays ne peut pas dépasser 50 caractères'),
-  }),
+  address: z
+    .string()
+    .max(200, 'L\'adresse ne peut pas dépasser 200 caractères')
+    .optional()
+    .or(z.literal('')),
   capacity: z
     .number()
     .positive('La capacité doit être positive')

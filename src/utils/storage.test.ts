@@ -1,223 +1,89 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as storage from './storage';
+import { Preferences } from '@capacitor/preferences';
+
+// Mock Capacitor Preferences
+vi.mock('@capacitor/preferences', () => ({
+  Preferences: {
+    get: vi.fn(),
+    set: vi.fn(),
+    remove: vi.fn(),
+    clear: vi.fn(),
+    keys: vi.fn(),
+  },
+}));
+
+// Mock Capacitor Core
+vi.mock('@capacitor/core', () => ({
+  Capacitor: {
+    isNativePlatform: vi.fn(() => true), // Default to native for these tests
+  },
+}));
+
+// Mock idb (no direct import required in this test file)
+vi.mock('./idb', () => ({
+  get: vi.fn(),
+  set: vi.fn(),
+  del: vi.fn(),
+  clear: vi.fn(),
+  keys: vi.fn(),
+  exportAll: vi.fn(),
+  importAll: vi.fn(),
+}));
+
 describe('Storage Utils', () => {
   beforeEach(() => {
-    // Clear storage before each test
-    localStorage.clear();
-    sessionStorage.clear();
+    vi.clearAllMocks();
   });
 
-  describe('Basic Storage Operations', () => {
-    it('should store and retrieve string data', () => {
-      const key = 'testKey';
-      const value = 'testValue';
+  describe('Native Platform (Capacitor Preferences)', () => {
+    it('should get value from Preferences', async () => {
+      const mockValue = { test: 'data' };
+      vi.mocked(Preferences.get).mockResolvedValue({ value: JSON.stringify(mockValue) });
 
-      localStorage.setItem(key, value);
-      const retrieved = localStorage.getItem(key);
-
-      expect(retrieved).toBe(value);
+      const result = await storage.get('test-key');
+      expect(Preferences.get).toHaveBeenCalledWith({ key: 'test-key' });
+      expect(result).toEqual(mockValue);
     });
 
-    it('should store and retrieve object data', () => {
-      const key = 'testObject';
-      const value = { name: 'Test', age: 25 };
+    it('should return undefined if key does not exist', async () => {
+      vi.mocked(Preferences.get).mockResolvedValue({ value: null });
 
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || '{}');
-
-      expect(retrieved).toEqual(value);
+      const result = await storage.get('non-existent');
+      expect(result).toBeUndefined();
     });
 
-    it('should return null for non-existent key', () => {
-      const retrieved = localStorage.getItem('nonExistent');
-      expect(retrieved).toBeNull();
-    });
+    it('should set value to Preferences', async () => {
+      const mockValue = { test: 'data' };
+      await storage.set('test-key', mockValue);
 
-    it('should handle removal of items', () => {
-      const key = 'toRemove';
-      localStorage.setItem(key, 'value');
-
-      expect(localStorage.getItem(key)).toBe('value');
-
-      localStorage.removeItem(key);
-      expect(localStorage.getItem(key)).toBeNull();
-    });
-
-    it('should clear all storage', () => {
-      localStorage.setItem('key1', 'value1');
-      localStorage.setItem('key2', 'value2');
-      localStorage.setItem('key3', 'value3');
-
-      expect(localStorage.length).toBe(3);
-
-      localStorage.clear();
-      expect(localStorage.length).toBe(0);
-    });
-  });
-
-  describe('Complex Data Types', () => {
-    it('should handle arrays', () => {
-      const key = 'testArray';
-      const value = [1, 2, 3, 4, 5];
-
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || '[]');
-
-      expect(retrieved).toEqual(value);
-    });
-
-    it('should handle nested objects', () => {
-      const key = 'nestedObject';
-      const value = {
-        user: {
-          name: 'John',
-          preferences: {
-            theme: 'dark',
-            language: 'fr',
-          },
-        },
-      };
-
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || '{}');
-
-      expect(retrieved).toEqual(value);
-    });
-
-    it('should handle boolean values', () => {
-      const key = 'boolValue';
-      const value = true;
-
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || 'false');
-
-      expect(retrieved).toBe(value);
-    });
-
-    it('should handle number values', () => {
-      const key = 'numberValue';
-      const value = 42.5;
-
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || '0');
-
-      expect(retrieved).toBe(value);
-    });
-
-    it('should handle null values', () => {
-      const key = 'nullValue';
-      const value = null;
-
-      localStorage.setItem(key, JSON.stringify(value));
-      const retrieved = JSON.parse(localStorage.getItem(key) || 'null');
-
-      expect(retrieved).toBe(value);
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle JSON parse errors gracefully', () => {
-      const key = 'invalidJSON';
-      localStorage.setItem(key, '{invalid json}');
-
-      expect(() => {
-        JSON.parse(localStorage.getItem(key) || '{}');
-      }).toThrow();
-    });
-
-    it('should handle empty strings', () => {
-      const key = 'emptyString';
-      localStorage.setItem(key, '');
-
-      const retrieved = localStorage.getItem(key);
-      expect(retrieved).toBe('');
-    });
-  });
-
-  describe('Storage Limits', () => {
-    it('should handle reasonably sized data', () => {
-      const key = 'largeData';
-      const value = 'x'.repeat(1000); // 1KB
-
-      localStorage.setItem(key, value);
-      const retrieved = localStorage.getItem(key);
-
-      expect(retrieved).toBe(value);
-      expect(retrieved?.length).toBe(1000);
-    });
-  });
-
-  describe('Key Management', () => {
-    it('should handle special characters in keys', () => {
-      const specialKeys = [
-        'key-with-dash',
-        'key_with_underscore',
-        'key.with.dots',
-        'key:with:colons',
-      ];
-
-      specialKeys.forEach((key) => {
-        localStorage.setItem(key, 'value');
-        expect(localStorage.getItem(key)).toBe('value');
+      expect(Preferences.set).toHaveBeenCalledWith({
+        key: 'test-key',
+        value: JSON.stringify(mockValue),
       });
     });
 
-    it('should handle empty string as key', () => {
-      localStorage.setItem('', 'emptyKey');
-      expect(localStorage.getItem('')).toBe('emptyKey');
+    it('should remove value from Preferences', async () => {
+      await storage.del('test-key');
+      expect(Preferences.remove).toHaveBeenCalledWith({ key: 'test-key' });
+    });
+
+    it('should clear Preferences', async () => {
+      await storage.clear();
+      expect(Preferences.clear).toHaveBeenCalled();
+    });
+
+    it('should get keys from Preferences', async () => {
+      const mockKeys = ['key1', 'key2'];
+      vi.mocked(Preferences.keys).mockResolvedValue({ keys: mockKeys });
+
+      const result = await storage.keys();
+      expect(Preferences.keys).toHaveBeenCalled();
+      expect(result).toEqual(mockKeys);
     });
   });
 
-  describe('Data Persistence', () => {
-    it('should maintain data across operations', () => {
-      localStorage.setItem('persist1', 'value1');
-      localStorage.setItem('persist2', 'value2');
-      localStorage.setItem('persist3', 'value3');
-
-      expect(localStorage.getItem('persist1')).toBe('value1');
-
-      localStorage.setItem('persist4', 'value4');
-
-      expect(localStorage.getItem('persist1')).toBe('value1');
-      expect(localStorage.getItem('persist2')).toBe('value2');
-      expect(localStorage.getItem('persist3')).toBe('value3');
-      expect(localStorage.getItem('persist4')).toBe('value4');
-    });
-  });
-
-  describe('SessionStorage vs LocalStorage', () => {
-    it('should be independent storage spaces', () => {
-      const key = 'sameKey';
-
-      localStorage.setItem(key, 'local');
-      sessionStorage.setItem(key, 'session');
-
-      expect(localStorage.getItem(key)).toBe('local');
-      expect(sessionStorage.getItem(key)).toBe('session');
-    });
-
-    it('should not share data between storages', () => {
-      localStorage.setItem('localOnly', 'value');
-      sessionStorage.setItem('sessionOnly', 'value');
-
-      expect(sessionStorage.getItem('localOnly')).toBeNull();
-      expect(localStorage.getItem('sessionOnly')).toBeNull();
-    });
-  });
-
-  describe('Unicode and Special Characters', () => {
-    it('should handle unicode characters', () => {
-      const key = 'unicode';
-      const value = '你好世界 🚀 مرحبا';
-
-      localStorage.setItem(key, value);
-      expect(localStorage.getItem(key)).toBe(value);
-    });
-
-    it('should handle emoji', () => {
-      const key = 'emoji';
-      const value = '😀😃😄😁🎉🎊';
-
-      localStorage.setItem(key, value);
-      expect(localStorage.getItem(key)).toBe(value);
-    });
-  });
+  // Note: Testing the "Web" path (isNativePlatform = false) requires changing the mock of Capacitor.isNativePlatform
+  // which might be tricky if it's a top-level mock. 
+  // For now, we focus on the native path as it seems to be the default in the test environment based on logs.
 });

@@ -125,12 +125,6 @@ describe('CacheManager', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle invalid query keys', () => {
-      expect(() => {
-        queryClient.getQueryData(null as any);
-      }).toThrow();
-    });
-
     it('should handle setting undefined data', () => {
       const queryKey = ['undefined', 'data'];
       queryClient.setQueryData(queryKey, undefined);

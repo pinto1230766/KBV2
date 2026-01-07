@@ -27,18 +27,19 @@ export function generateMessage(
   messageType: MessageType,
   role: MessageRole,
   language: Language,
-  isGroupMessage: boolean = false,
   customTemplate?: string
 ): string {
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
   const template = customTemplate || messageTemplates[language]?.[messageType]?.[role];
+  
+  console.log('Generating message:', { language, messageType, role, templateFound: !!template });
 
   if (!template) {
     return `Modèle non trouvé pour: ${language}/${messageType}/${role}`;
   }
 
   // Remplacer les variables
-  let message = replaceVariables(template, visit, host, congregationProfile, language, isGroupMessage);
+  let message = replaceVariables(template, visit, host, congregationProfile, language);
 
   // Adapter selon le genre
   message = adaptMessageGender(message, speaker?.gender, host?.gender);
@@ -55,8 +56,7 @@ function replaceVariables(
   visit: Visit | null,
   host: Host | null | undefined,
   congregationProfile: CongregationProfile,
-  language: Language,
-  isGroupMessage: boolean = false
+  language: Language
 ): string {
   let message = template;
 
@@ -189,6 +189,38 @@ export function generateHostRequestMessage(
     .replace(/{congregationName}/g, congregationProfile.name)
     .replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer)
     .replace(/{hospitalityOverseerPhone}/g, congregationProfile.hospitalityOverseerPhone);
+
+  return message;
+}
+
+// ============================================================================
+// GÉNÉRATION DE DEMANDE D'ACCUEIL EN BROADCAST
+// ============================================================================
+
+export function generateBroadcastHostRequest(
+  visit: Visit,
+  host: Host,
+  congregationProfile: CongregationProfile,
+  language: Language
+): string {
+  // TODO: Déplacer les modèles dans messageTemplates.ts
+  const templates = {
+    fr: `Bonjour {hostName}, \n\nNotre assemblée recherche une famille d'accueil pour un orateur qui nous visitera prochainement. Seriez-vous disponibles pour l'héberger ?\n\n- Orateur : {speakerName}\n- Congrégation : {congregation}\n- Date de la visite : {visitDate}\n\nSi vous êtes en mesure de l'accueillir, pourriez-vous s'il vous plaît contacter rapidement {hospitalityOverseer} au {hospitalityOverseerPhone} ?\n\nMerci beaucoup pour votre hospitalité !`,
+    pt: `Olá {hostName}, \n\nA nossa congregação está à procura de uma família anfitriã para um orador que nos visitará em breve. Estariam disponíveis para o hospedar?\n\n- Orador: {speakerName}\n- Congregação: {congregation}\n- Data da visita: {visitDate}\n\nSe puderem recebê-lo, por favor, contactem rapidamente {hospitalityOverseer} através do {hospitalityOverseerPhone}.\n\nMuito obrigado pela vossa hospitalidade!`,
+    cv: `Olá {hostName}, \n\nNôs kongregason sta ta buska un família pa resebe un orador ki ta ben vizitanu prosimamenti. Nhos sta disponível pa o-resebe?\n\n- Orador: {speakerName}\n- Kongregason: {congregation}\n- Data di vizita: {visitDate}\n\nSi nhos pode resebe-l, pur favor, entra en kontatu ku {hospitalityOverseer} pa {hospitalityOverseerPhone}.\n\nMutu obrigadu pa nhos ospitalidadi!`,
+  };
+
+  const template = templates[language] || templates.fr;
+
+  let message = template
+    .replace(/{hostName}/g, host.nom)
+    .replace(/{speakerName}/g, visit.nom)
+    .replace(/{congregation}/g, visit.congregation)
+    .replace(/{visitDate}/g, formatFullDate(visit.visitDate))
+    .replace(/{hospitalityOverseer}/g, congregationProfile.hospitalityOverseer)
+    .replace(/{hospitalityOverseerPhone}/g, congregationProfile.hospitalityOverseerPhone);
+  
+  message = adaptMessageGender(message, undefined, host?.gender);
 
   return message;
 }

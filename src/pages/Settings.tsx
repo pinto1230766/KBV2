@@ -1044,6 +1044,67 @@ export const Settings: React.FC = () => {
                   )}
                 </CardBody>
               </Card>
+
+              {/* WhatsApp Configuration */}
+              <Card className='border-none shadow-lg'>
+                <CardHeader>
+                  <h3 className='text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2'>
+                    <MessageSquare className='w-6 h-6 text-green-500' />
+                    Configuration WhatsApp
+                  </h3>
+                </CardHeader>
+                <CardBody className='p-8 space-y-6'>
+                  <div className='p-6 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30 rounded-2xl flex items-start gap-4'>
+                    <div className='p-3 bg-white dark:bg-green-900/40 rounded-xl shadow-sm'>
+                      <MessageSquare className='w-8 h-8 text-green-600' />
+                    </div>
+                    <div>
+                      <h4 className='font-bold text-green-900 dark:text-green-100'>
+                        Groupe WhatsApp des hôtes
+                      </h4>
+                      <p className='text-sm text-green-700 dark:text-green-300 mt-1'>
+                        Configurez l'ID du groupe WhatsApp pour envoyer des messages groupés aux hôtes.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className='space-y-4'>
+                    <div>
+                      <label className='block font-bold text-gray-900 dark:text-white mb-2'>
+                        ID du groupe WhatsApp
+                      </label>
+                      <p className='text-sm text-gray-500 mb-4'>
+                        Numéro du groupe (avec indicateur pays, sans + ni espaces). 
+                        Ex: 33612345678 pour un groupe français.
+                      </p>
+                      <Input
+                        type='text'
+                        value={settings.whatsappGroupId || ''}
+                        onChange={(e) =>
+                          updateSettings({ ...settings, whatsappGroupId: e.target.value })
+                        }
+                        placeholder='33612345678'
+                        className='max-w-xs'
+                        aria-label='ID du groupe WhatsApp'
+                      />
+                    </div>
+
+                    <div className='p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/30 rounded-xl'>
+                      <h5 className='font-semibold text-blue-900 dark:text-blue-100 mb-2 flex items-center gap-2'>
+                        <Info className='w-4 h-4' />
+                        Comment trouver l'ID du groupe ?
+                      </h5>
+                      <ol className='text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside'>
+                        <li>Ouvrez le groupe WhatsApp sur mobile</li>
+                        <li>Tapez sur le nom du groupe en haut</li>
+                        <li>Descendez et cliquez sur "Exporter le chat"</li>
+                        <li>L'ID apparaîtra dans l'URL générée</li>
+                        <li>Ou utilisez un service en ligne pour récupérer l'ID</li>
+                      </ol>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
             </div>
           )}
 

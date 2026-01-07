@@ -240,10 +240,14 @@ function generateHTMLReport(
 }
 
 function generateCSVContent(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _config: ReportConfig,
   visits: Visit[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _speakers: Speaker[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _hosts: Host[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _congregationProfile: CongregationProfile
 ): string {
   const rows: string[] = [];
