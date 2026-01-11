@@ -1,5 +1,6 @@
-import React, { Suspense, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { DataProvider } from '@/contexts/DataContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import { ToastProvider } from '@/contexts/ToastContext';
@@ -54,6 +55,31 @@ function AppContent() {
   const isTablet = deviceType === 'tablet';
   const isPhone = deviceType === 'phone';
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Gestion des notifications Capacitor (Deep Linking)
+  useEffect(() => {
+    const handleNotificationClick = LocalNotifications.addListener(
+      'localNotificationActionPerformed',
+      (notification) => {
+        const { extra } = notification.notification;
+        if (extra && extra.visitId) {
+          console.log('🔔 Notification cliquée:', extra);
+          // Rediriger vers le planning avec des params pour ouvrir la modale
+          const queryParams = new URLSearchParams();
+          queryParams.set('visitId', extra.visitId);
+          if (extra.messageType) queryParams.set('messageType', extra.messageType);
+          if (extra.target) queryParams.set('target', extra.target);
+          
+          navigate(`/planning?${queryParams.toString()}`);
+        }
+      }
+    );
+
+    return () => {
+      handleNotificationClick.remove();
+    };
+  }, [navigate]);
 
   // Configuration des raccourcis clavier
   useKeyboardShortcuts({

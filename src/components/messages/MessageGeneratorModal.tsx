@@ -6,7 +6,7 @@ import { useSettings } from '@/contexts/SettingsContext';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Visit, Speaker, Host, MessageType, CommunicationChannel } from '@/types';
+import { Visit, Speaker, Host, MessageType, CommunicationChannel, MessageRole } from '@/types';
 import { getPrimaryHostName } from '@/utils/hostUtils';
 import { generateMessage, generateBroadcastHostRequest, generateHostRequestMessage } from '@/utils/messageGenerator';
 import { Copy, RefreshCw, Send, Save, BookOpen } from 'lucide-react';
@@ -33,7 +33,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   initialType = 'reminder-7',
 }) => {
   const { settings } = useSettings();
-  const { hosts: allHosts, congregationProfile } = useData();
+  const { hosts: allHosts, congregationProfile, logCommunication } = useData();
   const { addToast } = useToast();
   const { t } = useTranslation();
 
@@ -149,7 +149,20 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           return; // Sortir après avoir défini le message
         } else if (host && visit) {
           // Message individuel à un hôte avec visite
-          if (type === 'host_request_message') {
+          if (type === 'visit_recap') {
+            // Nouveau type: Récapitulatif complet de la visite
+            generated = generateMessage(
+              visit,
+              speaker || virtualSpeaker as Speaker,
+              host,
+              congregationProfile,
+              type,
+              'host',
+              language,
+              undefined,
+              allHosts
+            );
+          } else if (type === 'host_request_message') {
             // Pour les demandes d'accueil individuelles, utiliser le modèle spécialisé
             generated = generateHostRequestMessage(
               [visit],
@@ -414,6 +427,12 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         window.open(`sms:${recipient.telephone}?body=${smsBody}`, '_blank');
       }
 
+      // Consigner la communication
+      if (visit) {
+        const role = isHostMessage ? ('host' as MessageRole) : ('speaker' as MessageRole);
+        logCommunication(visit.visitId, type, role);
+      }
+
       onClose();
     }
   };
@@ -452,11 +471,12 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       { value: 'host_request_message', label: t("Demande d'accueil") },
                       { value: 'confirmation', label: t('Confirmation') },
                       { value: 'preparation', label: t('Préparation') },
-                      { value: 'reminder-7', label: t('Rappel (J-7)') },
-                      { value: 'reminder-2', label: t('Rappel (J-2)') },
-                      { value: 'thanks', label: t('Remerciements') },
-                      { value: 'free_message', label: t('Message libre') },
-                    ]
+                       {value: 'reminder-7', label: t('Rappel (J-7)')},
+                       {value: 'reminder-2', label: t('Rappel (J-2)')},
+                       {value: 'thanks', label: t('Remerciements')},
+                       {value: 'visit_recap', label: t('Récapitulatif Visite')},
+                       {value: 'free_message', label: t('Message libre')},
+                     ]
                   : [
                       { value: 'confirmation', label: t('Confirmation') },
                       { value: 'reminder-7', label: t('Rappel (J-7)') },

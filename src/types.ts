@@ -12,6 +12,7 @@ export type MessageType =
   | 'host_request'
   | 'host_request_individual'
   | 'host_request_message'
+  | 'visit_recap'
   | 'free_message';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
@@ -266,14 +267,26 @@ export interface CongregationProfile {
 export interface NotificationSettings {
   enabled: boolean;
   reminderDays: number[]; // Ex: [7, 2] pour rappels J-7 et J-2
+  communicationReminders: boolean; // Suivi des étapes de communication
   sound: boolean;
   vibration: boolean;
+}
+
+export interface MessagingAutomationSettings {
+  enabled: boolean;
+  confirmationLeadDays: number; // J-X pour confirmation
+  preparationLeadDays: number; // J-X pour préparation
+  reminder7Enabled: boolean;
+  reminder2Enabled: boolean;
+  thanksEnabled: boolean;
+  autoSendEnabled: boolean; // Si vrai, tente d'envoyer sans intervention (si possible)
 }
 
 export interface Settings {
   theme: Theme;
   language: Language;
   notifications: NotificationSettings;
+  messagingAutomation: MessagingAutomationSettings;
   encryptionEnabled: boolean;
   sessionTimeout?: number; // minutes
   autoArchiveDays?: number;

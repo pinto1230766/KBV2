@@ -162,12 +162,28 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
 
       host: `Bonjour Frère *{hostName}*,
-
+ 
 [Personnalisez votre message ici]
-
+ 
 Fraternellement,
 {hospitalityOverseer}
 📞 {hospitalityOverseerPhone}`,
+    },
+ 
+    visit_recap: {
+      speaker: ``, // Non utilisé pour ce type
+      host: `Bonjour à tous ! 🏠
+ 
+Voici un récapitulatif de l'organisation pour la visite de Frère *{speakerName}* ({congregation}) le *{visitDate} à {visitTime}* :
+ 
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
+ 
+Merci à tous pour votre précieuse collaboration ! 🙏
+ 
+Fraternellement,
+{hospitalityOverseer}`,
     },
   },
 
@@ -328,12 +344,29 @@ Fraternalmenti,
 📞 {hospitalityOverseerPhone}`,
 
       host: `Bon dia Mon *{hostName}*,
-
-[Personnalize bu messajem aki]
-
+ 
+Un grandi obrigadu pa bu hospitalidadi pa nu mon palistrante konvidadu, {speakerName} ! 🏠❤️
+ 
+Bu akolhimentu kalurozu ta kontribui txeu pa susesu di es bizitas.
+ 
 Fraternalmenti,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{hospitalityOverseer}`,
+    },
+ 
+    visit_recap: {
+      speaker: ``,
+      host: `Bon dia tudu! 🏠
+ 
+Aki es un rezumu di organizasón pa bizita di Nu Mon *{speakerName}* ({congregation}) dia *{visitDate} na {visitTime}* :
+ 
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
+ 
+Obrigadu tudu pa nhos kolaborasón valiozu! 🙏
+ 
+Fraternalmenti,
+{hospitalityOverseer}`,
     },
   },
 

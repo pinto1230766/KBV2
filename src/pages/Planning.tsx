@@ -140,6 +140,24 @@ export const Planning: React.FC = () => {
   // Handle initial state from navigation (e.g. from Quick Actions)
   useEffect(() => {
     const state = location.state as { openConflicts?: boolean; openSchedule?: boolean };
+    const params = new URLSearchParams(location.search);
+    const visitIdParam = params.get('visitId');
+    const messageTypeParam = params.get('messageType');
+
+    if (visitIdParam) {
+      const visit = visits.find(v => v.visitId === visitIdParam);
+      if (visit) {
+        setSelectedVisit(visit);
+        if (messageTypeParam) {
+          setSelectedAction('message');
+        }
+        setIsActionModalOpen(true);
+        // Clean up URL
+        navigate(location.pathname, { replace: true, state: {} });
+        return;
+      }
+    }
+
     if (!state) return;
 
     if (state.openConflicts) {
@@ -152,7 +170,7 @@ export const Planning: React.FC = () => {
       // Clean up state to prevent re-opening
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, navigate, location.pathname]);
+  }, [location.state, location.search, visits, navigate, location.pathname]);
 
   const handleExport = async () => {
     if (view === 'archives') {

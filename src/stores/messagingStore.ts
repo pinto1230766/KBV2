@@ -287,6 +287,55 @@ Fraternalmenti,
     context: ['thank-you', 'speaker', 'post-visit'],
     usageCount: 0,
     lastUsed: null
+  },
+  
+  // Récapitulatif visite (Groupe WhatsApp)
+  {
+    id: 'visit-recap-host',
+    name: 'Récapitulatif Visite (Groupe)',
+    category: 'follow-up',
+    translations: {
+      fr: `Bonjour à tous ! 🏠
+
+Voici un récapitulatif de l'organisation pour la visite de Frère *{speakerName}* ({congregation}) le *{visitDate} à {visitTime}* :
+
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
+
+Merci à tous pour votre précieuse collaboration ! 🙏
+
+Fraternellement,
+{hospitalityOverseer}`,
+      pt: `Olá a todos! 🏠
+
+Aqui está um resumo da organização para a visita do Irmão *{speakerName}* ({congregation}) no dia *{visitDate} às {visitTime}*:
+
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
+
+Obrigado a todos pela vossa preciosa colaboração! 🙏
+
+Fraternalmente,
+{hospitalityOverseer}`,
+      cv: `Bon dia tudu! 🏠
+
+Aki es un rezumu di organizasón pa bizita di Nu Mon *{speakerName}* ({congregation}) dia *{visitDate} na {visitTime}* :
+
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
+
+Obrigadu tudu pa nhos kolaborasón valiozu! 🙏
+
+Fraternalmenti,
+{hospitalityOverseer}`
+    },
+    variables: ['speakerName', 'congregation', 'visitDate', 'visitTime', 'accommodationLogistics', 'mealsLogistics', 'pickupLogistics', 'hospitalityOverseer'],
+    context: ['recap', 'group', 'host', 'logistics'],
+    usageCount: 0,
+    lastUsed: null
   }
 ];
 

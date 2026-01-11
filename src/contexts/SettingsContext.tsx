@@ -12,8 +12,18 @@ const defaultSettings: Settings = {
   notifications: {
     enabled: true,
     reminderDays: [7, 2],
+    communicationReminders: true,
     sound: true,
     vibration: true,
+  },
+  messagingAutomation: {
+    enabled: true,
+    confirmationLeadDays: 21,
+    preparationLeadDays: 14,
+    reminder7Enabled: true,
+    reminder2Enabled: true,
+    thanksEnabled: true,
+    autoSendEnabled: false,
   },
   encryptionEnabled: false,
   sessionTimeout: 30, // 30 minutes
