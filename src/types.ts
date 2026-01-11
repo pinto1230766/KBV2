@@ -132,6 +132,17 @@ export interface HostAssignment {
   createdAt?: string; // ISO date
 }
 
+export type CompanionType = 'couple' | 'brother' | 'sister' | 'other';
+
+export interface Companion {
+  id: string;
+  name: string;
+  type: CompanionType;
+  congregation?: string;
+  hostAssignments?: HostAssignment[];
+  notes?: string;
+}
+
 export interface Visit {
   id: string; // ID de l'orateur
   visitId: string; // ID unique de la visite
@@ -159,6 +170,7 @@ export interface Visit {
   zoomLink?: string;
   streamingLink?: string;
   accompanyingPersons?: number; // Nombre de personnes accompagnant l'orateur
+  companions?: Companion[]; // Liste détaillée des accompagnants
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }

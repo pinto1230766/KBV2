@@ -22,5 +22,5 @@ export const LOCATION_TYPES = {
 } as const;
 
 // Messages
-export const DEFAULT_MEETING_TIME = '14:30';
+export const DEFAULT_MEETING_TIME = '11:30';
 export const REMINDER_DAYS = [7, 2] as const;

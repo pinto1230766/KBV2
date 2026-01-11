@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit, HostAssignment } from '@/types';
+import { Visit, HostAssignment, Companion, CompanionType } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 import {
   AlertTriangle,
@@ -17,6 +17,8 @@ import {
   Info,
   X,
   Users,
+  Plus,
+  Home,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
@@ -605,6 +607,224 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                   </p>
                 </div>
               )}
+
+              {/* Section Accompagnants */}
+              <div className='space-y-4 pt-6 border-t border-gray-100 dark:border-gray-800'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <Users className='w-4 h-4 text-indigo-500' />
+                    <h4 className='text-sm font-bold text-gray-900 dark:text-white'>Accompagnants</h4>
+                  </div>
+                  <Button
+                    variant='ghost'
+                    size='sm'
+                    onClick={() => {
+                      const newCompanion: Companion = {
+                        id: uuidv4(),
+                        name: '',
+                        type: 'other',
+                        hostAssignments: [],
+                      };
+                      setFormData((p) => ({
+                        ...p,
+                        companions: [...(p.companions || []), newCompanion],
+                      }));
+                    }}
+                    className='text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold text-xs'
+                    leftIcon={<Plus className='w-3 h-3' />}
+                  >
+                    Ajouter
+                  </Button>
+                </div>
+
+                <div className='space-y-4'>
+                  {(formData.companions || []).length === 0 ? (
+                    <p className='text-xs text-gray-500 italic text-center py-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl'>
+                      Aucun accompagnant ajouté
+                    </p>
+                  ) : (
+                    (formData.companions || []).map((companion, index) => (
+                      <div
+                        key={companion.id}
+                        className='p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 relative group'
+                      >
+                        <button
+                          onClick={() => {
+                            const newCompanions = (formData.companions || []).filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData((p) => ({ ...p, companions: newCompanions }));
+                          }}
+                          className='absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-200'
+                          title="Supprimer l'accompagnant"
+                        >
+                          <X className='w-3 h-3' />
+                        </button>
+
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                          <div className='space-y-1'>
+                            <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                              Nom de l'accompagnant
+                            </label>
+                            <input
+                              type='text'
+                              value={companion.name}
+                              onChange={(e) => {
+                                const newCompanions = [...(formData.companions || [])];
+                                newCompanions[index] = { ...newCompanions[index], name: e.target.value };
+                                setFormData((p) => ({ ...p, companions: newCompanions }));
+                              }}
+                              placeholder='Nom complet...'
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                            />
+                          </div>
+                          <div className='space-y-1'>
+                            <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                              Type / Relation
+                            </label>
+                            <select
+                              title="Relation de l'accompagnant"
+                              value={companion.type}
+                              onChange={(e) => {
+                                const newCompanions = [...(formData.companions || [])];
+                                newCompanions[index] = {
+                                  ...newCompanions[index],
+                                  type: e.target.value as CompanionType,
+                                };
+                                setFormData((p) => ({ ...p, companions: newCompanions }));
+                              }}
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                            >
+                              <option value='couple'>Couple</option>
+                              <option value='brother'>Frère</option>
+                              <option value='sister'>Sœur</option>
+                              <option value='other'>Autre personne de la congré.</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Système d'hôtes pour l'accompagnant (Aligné sur l'orateur) */}
+                        <div className='mt-6 space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
+                          <div className='flex items-center gap-2'>
+                            <Home className='w-3.5 h-3.5 text-teal-500' />
+                            <h5 className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider'>Assignation de l'hôte</h5>
+                          </div>
+
+                          {/* Assignations existantes pour cet accompagnant */}
+                          <div className='space-y-2'>
+                            {(companion.hostAssignments || []).map((assignment, aIndex) => (
+                              <div
+                                key={assignment.id}
+                                className='flex items-center gap-3 p-2 bg-white dark:bg-gray-700 rounded-xl border border-gray-100 dark:border-gray-600'
+                              >
+                                <div className='flex-1 min-w-0'>
+                                  <div className='flex items-center gap-2'>
+                                    <span className='text-xs font-bold text-gray-900 dark:text-white truncate'>
+                                      {assignment.hostName}
+                                    </span>
+                                    <Badge
+                                      variant='default'
+                                      className='text-[9px] px-1.5 py-0 bg-teal-50 text-teal-700 border-teal-100 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-800'
+                                    >
+                                      {assignment.role === 'accommodation' && '🏠 Hébergement'}
+                                      {assignment.role === 'pickup' && '🚗 Ramassage'}
+                                      {assignment.role === 'meals' && '🍽️ Repas'}
+                                      {assignment.role === 'transport' && '🚌 Transport'}
+                                      {assignment.role === 'other' && '📋 Autre'}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    const newAssignments = (companion.hostAssignments || []).filter((_, i) => i !== aIndex);
+                                    const newCompanions = [...(formData.companions || [])];
+                                    newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                    setFormData((p) => ({ ...p, companions: newCompanions }));
+                                  }}
+                                  className='text-red-500 hover:text-red-700 p-1'
+                                  title="Supprimer cette assignation"
+                                >
+                                  <X className='w-3 h-3' />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Formulaire d'ajout d'assignation pour cet accompagnant */}
+                          <div className='p-3 border border-dashed border-gray-300 dark:border-gray-600 rounded-xl space-y-3'>
+                            <select
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs focus:ring-2 focus:ring-teal-500'
+                              title="Choisir un hôte"
+                              onChange={(e) => {
+                                const hostName = e.target.value;
+                                if (hostName) {
+                                  const newAssignments = [...(companion.hostAssignments || []), {
+                                    id: uuidv4(),
+                                    hostId: hostName,
+                                    hostName: hostName,
+                                    role: 'accommodation' as const,
+                                    createdAt: new Date().toISOString()
+                                  }];
+                                  const newCompanions = [...(formData.companions || [])];
+                                  newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                  setFormData((p) => ({ ...p, companions: newCompanions }));
+                                }
+                                e.target.value = '';
+                              }}
+                            >
+                              <option value=''>Sélectionner un hôte...</option>
+                              {hosts.map(h => (
+                                <option key={h.nom} value={h.nom}>{h.nom}</option>
+                              ))}
+                            </select>
+
+                            {(companion.hostAssignments || []).length > 0 && (
+                              <div className='flex gap-2'>
+                                <select
+                                  className='flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs focus:ring-2 focus:ring-teal-500'
+                                  title="Changer le rôle de la dernière assignation"
+                                  onChange={(e) => {
+                                    const role = e.target.value as any;
+                                    if (role) {
+                                      const newAssignments = [...(companion.hostAssignments || [])];
+                                      newAssignments[newAssignments.length - 1].role = role;
+                                      const newCompanions = [...(formData.companions || [])];
+                                      newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                      setFormData((p) => ({ ...p, companions: newCompanions }));
+                                    }
+                                    e.target.value = '';
+                                  }}
+                                >
+                                  <option value=''>Changer rôle...</option>
+                                  <option value='accommodation'>🏠 Hébergement</option>
+                                  <option value='pickup'>🚗 Ramassage</option>
+                                  <option value='meals'>🍽️ Repas</option>
+                                  <option value='transport'>🚌 Transport</option>
+                                  <option value='other'>📋 Autre</option>
+                                </select>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className='mt-4'>
+                          <input
+                            type='text'
+                            value={companion.notes || ''}
+                            onChange={(e) => {
+                              const newCompanions = [...(formData.companions || [])];
+                              newCompanions[index] = { ...newCompanions[index], notes: e.target.value };
+                              setFormData((p) => ({ ...p, companions: newCompanions }));
+                            }}
+                            placeholder='Notes sur les horaires ou l&apos;organisation...'
+                            className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
+                          />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

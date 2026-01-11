@@ -734,7 +734,7 @@ export const Settings: React.FC = () => {
                     <Input
                       label='Heure de réunion'
                       type='time'
-                      value={profileForm.meetingTime || '14:30'}
+                      value={profileForm.meetingTime || '11:30'}
                       onChange={(e) =>
                         setProfileForm({ ...profileForm, meetingTime: e.target.value })
                       }

@@ -1,13 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { useData } from '@/contexts/DataContext';
 import { usePlatformContext } from '@/contexts/PlatformContext';
-import { useToast } from '@/contexts/ToastContext';
-import { Select } from '@/components/ui/Select';
-import { Modal } from '@/components/ui/Modal';
 import { MessageThread } from '@/components/messages/MessageThread';
 import { HostMessageThread } from '@/components/messages/HostMessageThread';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
-import { HostRequestModal } from '@/components/messages/HostRequestModal';
+import { GroupHostMessageModal } from '@/components/messages/GroupHostMessageModal';
 
 import { Button } from '@/components/ui/Button';
 
@@ -30,10 +27,9 @@ import {
 } from 'lucide-react';
 import { Speaker, Visit, Host } from '@/types';
 import { getPrimaryHostName, needsHost } from '@/utils/hostUtils';
-import { generateHostRequestMessage } from '@/utils/messageGenerator';
 
 export const Messages: React.FC = () => {
-  const { visits, speakers, hosts, updateVisit, refreshData, congregationProfile } = useData();
+  const { visits, speakers, hosts, updateVisit, refreshData } = useData();
   const { deviceType } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isSamsungTablet = isTablet && window.innerWidth >= 1200;
@@ -50,23 +46,14 @@ export const Messages: React.FC = () => {
     'all' | 'pending' | 'needs_host' | 'available' | 'hosting'
   >('all');
   const [isGeneratorModalOpen, setIsGeneratorModalOpen] = useState(false);
-  const [isHostRequestModalOpen, setIsHostRequestModalOpen] = useState(false);
-  const [isGroupMessageModalOpen, setIsGroupMessageModalOpen] = useState(false);
-  const [groupMessageText, setGroupMessageText] = useState('');
+  const [isGroupHostMessageModalOpen, setIsGroupHostMessageModalOpen] = useState(false);
 
   const [generatorVisit, setGeneratorVisit] = useState<Visit | null>(null);
   const [generatorHost, setGeneratorHost] = useState<Host | null>(null);
-  const [isGroupMessage, setIsGroupMessage] = useState(false);
-  const [broadcastVisitId, setBroadcastVisitId] = useState<string | null>(null);
-  const { addToast } = useToast();
 
-  const broadcastableVisits = useMemo(() => {
-    const upcoming = visits.filter(
-      (v) =>
-        new Date(v.visitDate) >= new Date(new Date().setHours(0, 0, 0, 0)) &&
-        v.status !== 'cancelled'
-    );
-    return upcoming.sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime());
+  // Visits needing host for group message modal
+  const visitsNeedingHost = useMemo(() => {
+    return visits.filter((v) => needsHost(v));
   }, [visits]);
 
   // Group visits by speaker
@@ -193,9 +180,6 @@ export const Messages: React.FC = () => {
       setIsGeneratorModalOpen(true);
     } else if (action === 'confirm' && visit) {
       updateVisit({ ...visit, status: 'confirmed', updatedAt: new Date().toISOString() });
-    } else if (action === 'host_request' && visit) {
-      setGeneratorVisit(visit);
-      setIsHostRequestModalOpen(true);
     } else if (action === 'message_host' && host) {
       setGeneratorHost(host);
       setIsGeneratorModalOpen(true);
@@ -233,56 +217,25 @@ export const Messages: React.FC = () => {
             </Button>
           )}
 
-
-          {activeTab === 'hosts' && (
-            <div className='flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-2 rounded-xl'>
-              <Select
-                value={broadcastVisitId || ''}
-                onChange={(e) => setBroadcastVisitId(e.target.value)}
-                className='min-w-[250px] bg-white dark:bg-gray-700'
-                aria-label='Choisir une visite pour le message groupé'
-                options={broadcastableVisits.map((visit) => ({
-                  value: visit.visitId,
-                  label: `${visit.nom} - ${new Date(visit.visitDate).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                  })}`,
-                }))}
-              />
-              <Button
-                variant='outline'
-                leftIcon={<Users className='w-4 h-4' />}
-                onClick={() => {
-                  if (!broadcastVisitId) {
-                    addToast(
-                      "Aucune visite sélectionnée — Veuillez choisir une visite dans la liste pour envoyer un message groupé.",
-                      'warning'
-                    );
-                    return;
-                  }
-                  const visit = visits.find((v) => v.visitId === broadcastVisitId);
-                  if (!visit) return;
-
-                  // Générer automatiquement le message de demande d'accueil groupé
-                  const message = generateHostRequestMessage(
-                    [visit],
-                    congregationProfile,
-                    'fr', // Langue par défaut
-                    undefined,
-                    false // isIndividualRequest = false pour message de groupe
-                  );
-
-                  // Ouvrir le modal de modification
-                  setGroupMessageText(message);
-                  setIsGroupMessageModalOpen(true);
-                }}
-                disabled={!broadcastVisitId}
+          {/* Bouton permanent pour message groupé hôtes */}
+          <Button
+            variant='primary'
+            leftIcon={<Users className='w-4 h-4' />}
+            onClick={() => setIsGroupHostMessageModalOpen(true)}
+            disabled={visitsNeedingHost.length === 0}
+            className='relative'
+          >
+            Message Groupé Hôtes
+            {visitsNeedingHost.length > 0 && (
+              <Badge 
+                variant='danger' 
+                size='sm'
+                className='ml-2 px-1.5 py-0.5 text-[10px]'
               >
-                Message Groupé
-              </Button>
-            </div>
-          )}
-
+                {visitsNeedingHost.length}
+              </Badge>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -697,80 +650,20 @@ export const Messages: React.FC = () => {
             setIsGeneratorModalOpen(false);
             setGeneratorVisit(null);
             setGeneratorHost(null);
-            setIsGroupMessage(false);
           }}
           speaker={selectedSpeaker}
           visit={generatorVisit}
           host={generatorHost}
-          isGroupMessage={isGroupMessage}
         />
       )}
 
-      {isHostRequestModalOpen && (
-        <HostRequestModal
-          isOpen={isHostRequestModalOpen}
-          onClose={() => setIsHostRequestModalOpen(false)}
-          visitsNeedingHost={visits.filter((v) => needsHost(v))}
+      {/* Modal unifié pour message groupé hôtes */}
+      {isGroupHostMessageModalOpen && (
+        <GroupHostMessageModal
+          isOpen={isGroupHostMessageModalOpen}
+          onClose={() => setIsGroupHostMessageModalOpen(false)}
+          visitsNeedingHost={visitsNeedingHost}
         />
-      )}
-
-      {/* Modal pour message groupé */}
-      {isGroupMessageModalOpen && (
-        <Modal
-          isOpen={isGroupMessageModalOpen}
-          onClose={() => setIsGroupMessageModalOpen(false)}
-          title="Message Groupé"
-          size="lg"
-        >
-          <div className='space-y-4'>
-            <p className='text-sm text-gray-600'>
-              Modifiez le message si nécessaire avant de le copier et ouvrir WhatsApp :
-            </p>
-            <textarea
-              className='w-full h-64 p-4 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
-              value={groupMessageText}
-              onChange={(e) => setGroupMessageText(e.target.value)}
-              placeholder='Modifiez le message ici...'
-              aria-label='Message groupé à modifier'
-            />
-            <div className='flex gap-3 justify-end'>
-              <Button
-                variant='ghost'
-                onClick={() => setIsGroupMessageModalOpen(false)}
-              >
-                Annuler
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(groupMessageText);
-                    addToast('Message copié dans le presse-papiers !', 'success');
-                    setIsGroupMessageModalOpen(false);
-                  } catch (error) {
-                    addToast('Erreur lors de la copie', 'error');
-                  }
-                }}
-              >
-                Copier
-              </Button>
-              <Button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(groupMessageText);
-                    addToast('Message copié ! Ouvrez votre groupe WhatsApp et collez.', 'success');
-                    window.open('https://wa.me/', '_blank');
-                    setIsGroupMessageModalOpen(false);
-                  } catch (error) {
-                    addToast('Erreur lors de la copie', 'error');
-                  }
-                }}
-              >
-                Copier & Ouvrir WhatsApp
-              </Button>
-            </div>
-          </div>
-        </Modal>
       )}
     </div>
   );

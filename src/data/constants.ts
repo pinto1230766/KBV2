@@ -5,8 +5,8 @@ export const initialCongregationProfile: CongregationProfile = {
   city: 'Lyon',
   hospitalityOverseer: 'Responsable Accueil',
   hospitalityOverseerPhone: '+33 6 12 34 56 78',
-  meetingDay: 'Samedi',
-  meetingTime: '14:30',
+  meetingDay: 'Dimanche',
+  meetingTime: '11:30',
 };
 
 export const initialSpeakers: Speaker[] = [

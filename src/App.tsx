@@ -7,8 +7,7 @@ import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { PlatformProvider, usePlatformContext } from '@/contexts/PlatformContext';
 import { AccessibilityProvider, useKeyboardShortcuts } from '@/components/ui/Accessibility';
 import { IOSMainLayout } from '@/components/layout/IOSMainLayout';
-import { TabletLayout } from '@/components/layout/TabletLayout';
-import { PhoneLayout } from '@/components/layout/PhoneLayout';
+import { ResponsiveLayout } from '@/components/layout/ResponsiveLayout';
 import { Spinner } from '@/components/ui/Spinner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/utils/cacheManager';
@@ -51,7 +50,7 @@ const PageLoader = () => (
 
 // Composant interne qui peut accéder au contexte Platform
 function AppContent() {
-  const { deviceType, isPhoneS25Ultra } = usePlatformContext();
+  const { deviceType } = usePlatformContext();
   const isTablet = deviceType === 'tablet';
   const isPhone = deviceType === 'phone';
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
@@ -62,14 +61,8 @@ function AppContent() {
   });
 
   // Choix du layout en fonction du type d'appareil
-  let LayoutComponent;
-  if (isTablet) {
-    LayoutComponent = TabletLayout;
-  } else if (isPhone && isPhoneS25Ultra) {
-    LayoutComponent = PhoneLayout;
-  } else {
-    LayoutComponent = IOSMainLayout;
-  }
+  // ResponsiveLayout gère maintenant phone et tablet de manière unifiée
+  const LayoutComponent = isTablet || isPhone ? ResponsiveLayout : IOSMainLayout;
 
   return (
     <ErrorBoundary>

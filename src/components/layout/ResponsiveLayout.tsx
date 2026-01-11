@@ -22,8 +22,9 @@ import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal'
 import { useToast } from '@/contexts/ToastContext';
 import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { generateReport } from '@/utils/reportGenerator';
 
-// Mapping des routes vers les titres et icônes
+// Navigation items - centralisé
 const NAV_ITEMS = [
   { path: '/', label: 'Accueil', icon: LayoutDashboard },
   { path: '/planning', label: 'Planning', icon: Calendar },
@@ -32,102 +33,38 @@ const NAV_ITEMS = [
   { path: '/settings', label: 'Paramètres', icon: Settings },
 ];
 
-export const TabletLayout: React.FC = () => {
+/**
+ * ResponsiveLayout - Layout unifié qui s'adapte au deviceType
+ * Remplace MainLayout, PhoneLayout et TabletLayout
+ */
+export const ResponsiveLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { deviceType, orientation } = usePlatformContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { visits } = useData();
+  const { visits, speakers, hosts, congregationProfile } = useData();
   const { addToast } = useToast();
   const { settings, setTheme } = useSettings();
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const isTablet = deviceType === 'tablet';
+  const isPhone = deviceType === 'phone';
   const isLandscape = orientation === 'landscape';
   const isDarkMode = settings.theme === 'dark';
+
   const toggleTheme = () => setTheme(settings.theme === 'dark' ? 'light' : 'dark');
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const handleReportGenerate = (config: any) => {
-    const filteredVisits = visits.filter((v) => {
-      if (config.period === 'current-month') {
-        const now = new Date();
-        const visitDate = new Date(v.visitDate);
-        return (
-          visitDate.getMonth() === now.getMonth() && visitDate.getFullYear() === now.getFullYear()
-        );
-      }
-      return true;
-    });
-
-    const fileName = `rapport-kbv-${new Date().toISOString().slice(0, 10)}`;
-
-    // Helper pour formater la date de manière cohérente (JJ/MM/AAAA)
-    const formatDate = (date: string | Date) => new Date(date).toLocaleDateString('fr-FR');
-
-    // Helper pour échapper les caractères spéciaux CSV (virgules, guillemets, sauts de ligne)
-    const escapeCsv = (value: any) => {
-      const str = String(value || '');
-      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-        return `"${str.replace(/"/g, '""')}"`;
-      }
-      return str;
-    };
-
-    if (config.format === 'csv') {
-      let csvContent = 'Date,Orateur,Congrégation,Discours,Thème,Hôte,Statut\n';
-      filteredVisits.forEach((v) => {
-        csvContent += `${formatDate(v.visitDate)},${escapeCsv(v.nom)},${escapeCsv(v.congregation)},${escapeCsv(v.talkNoOrType)},${escapeCsv(v.talkTheme)},${escapeCsv(v.host)},${escapeCsv(v.status)}\n`;
-      });
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${fileName}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      addToast('Rapport CSV généré !', 'success');
-    } else if (config.format === 'excel') {
-      let htmlContent = `<html><head><meta charset="utf-8"><style>table{border-collapse:collapse;width:100%;}th,td{border:1px solid black;padding:8px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
-      filteredVisits.forEach((v) => {
-        htmlContent += `<tr><td>${formatDate(v.visitDate)}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
-      });
-      htmlContent += '</table></body></html>';
-      const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${fileName}.xls`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      addToast('Rapport Excel généré !', 'success');
-    } else if (config.format === 'pdf') {
-      let htmlContent = `<html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;margin:40px;}h1{color:#4F46E5;}table{border-collapse:collapse;width:100%;margin-top:20px;}th,td{border:1px solid #ddd;padding:12px;text-align:left;}th{background-color:#4F46E5;color:white;}</style></head><body><h1>Rapport KBV Lyon</h1><p>Généré le ${new Date().toLocaleDateString('fr-FR')}</p><table><tr><th>Date</th><th>Orateur</th><th>Congrégation</th><th>Discours</th><th>Thème</th><th>Hôte</th><th>Statut</th></tr>`;
-      filteredVisits.forEach((v) => {
-        htmlContent += `<tr><td>${new Date(v.visitDate).toLocaleDateString('fr-FR')}</td><td>${v.nom}</td><td>${v.congregation}</td><td>${v.talkNoOrType || ''}</td><td>${v.talkTheme || ''}</td><td>${v.host || ''}</td><td>${v.status}</td></tr>`;
-      });
-      htmlContent += `</table><p style="margin-top:30px;color:#666;">Total: ${filteredVisits.length} visite(s)</p></body></html>`;
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${fileName}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      addToast('Rapport HTML généré ! Ouvrez-le et imprimez en PDF', 'success');
+  // Gestion de la génération de rapports (logique unifiée)
+  const handleReportGenerate = async (config: any) => {
+    try {
+      await generateReport(config, visits, speakers, hosts, congregationProfile);
+      addToast('Rapport généré avec succès !', 'success');
+      setIsReportModalOpen(false);
+    } catch (error) {
+      addToast('Erreur lors de la génération du rapport', 'error');
     }
-
-    setIsReportModalOpen(false);
   };
 
   const currentIndex = NAV_ITEMS.findIndex((item) => item.path === location.pathname);
@@ -135,19 +72,15 @@ export const TabletLayout: React.FC = () => {
   const canGoForward = currentIndex < NAV_ITEMS.length - 1;
 
   const goToPrevious = () => {
-    if (canGoBack) {
-      navigate(NAV_ITEMS[currentIndex - 1].path);
-    }
+    if (canGoBack) navigate(NAV_ITEMS[currentIndex - 1].path);
   };
 
   const goToNext = () => {
-    if (canGoForward) {
-      navigate(NAV_ITEMS[currentIndex + 1].path);
-    }
+    if (canGoForward) navigate(NAV_ITEMS[currentIndex + 1].path);
   };
 
-  if (!isTablet) {
-    // Fallback vers le layout iOS pour les appareils non-tablette
+  // Render pour Phone (bottom navigation)
+  if (isPhone) {
     return (
       <div className='flex flex-col h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden'>
         <main className='flex-1 overflow-y-auto px-4 pb-[83px] pt-4'>
@@ -156,15 +89,30 @@ export const TabletLayout: React.FC = () => {
           </div>
         </main>
         <IOSTabBar />
+
+        {/* Modals */}
+        <QuickActionsModal
+          isOpen={isQuickActionsOpen}
+          onClose={() => setIsQuickActionsOpen(false)}
+          onAction={(action) => {
+            setIsQuickActionsOpen(false);
+            if (action === 'generate-report') setIsReportModalOpen(true);
+          }}
+        />
+        <ReportGeneratorModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          onGenerate={handleReportGenerate}
+        />
       </div>
     );
   }
 
+  // Render pour Tablet/Desktop (avec sidebar)
   return (
     <SPenCursor>
       <div className='flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden samsung-optimized w-screen max-w-none'>
-        {/* Sidebar - Cache en mode portrait si pliée */}
-        {/* Premium Tablet Sidebar */}
+        {/* Sidebar Premium */}
         <aside
           className={cn(
             'flex-shrink-0 bg-slate-900 border-r border-slate-800 transition-all duration-300 relative overflow-hidden flex flex-col',
@@ -366,15 +314,14 @@ export const TabletLayout: React.FC = () => {
 
         {/* Contenu principal */}
         <div className='flex-1 flex flex-col overflow-hidden'>
-          {/* Contenu principal - Pleine largeur sur tablette */}
           <main className='flex-1 overflow-hidden pt-4'>
             <div className='h-full overflow-y-auto'>
               <Outlet />
             </div>
           </main>
 
-          {/* Tab bar iOS - seulement en mode portrait */}
-          {!isLandscape && <IOSTabBar />}
+          {/* Tab bar iOS - seulement en mode portrait sur tablette */}
+          {isTablet && !isLandscape && <IOSTabBar />}
         </div>
 
         {/* Modals */}
