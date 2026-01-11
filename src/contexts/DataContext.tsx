@@ -347,6 +347,77 @@ export function DataProvider({ children }: { children: ReactNode }) {
     storage.clear();
   };
 
+  // Google Sheets Sync Helper: Filter duplicates
+  const filterVisits = (visits: Visit[]): Visit[] => {
+    const CUTOFF_DATE = new Date('2026-02-01');
+    
+    // 1. Séparer l'historique (avant cutoff) du futur
+    const pastVisits = visits.filter(v => new Date(v.visitDate) < CUTOFF_DATE);
+    const futureVisits = visits.filter(v => new Date(v.visitDate) >= CUTOFF_DATE);
+
+    // 2. Grouper les visites futures par Orateur
+    const futureBySpeaker = new Map<string, Visit[]>();
+    
+    for (const visit of futureVisits) {
+      const speakerKey = visit.id || `${visit.nom.toLowerCase()}|${visit.congregation.toLowerCase()}`;
+      if (!futureBySpeaker.has(speakerKey)) {
+        futureBySpeaker.set(speakerKey, []);
+      }
+      futureBySpeaker.get(speakerKey)?.push(visit);
+    }
+
+    // 3. Sélectionner la "meilleure" visite pour chaque orateur
+    const keptFutureVisits: Visit[] = [];
+
+    futureBySpeaker.forEach((candidates) => {
+      if (candidates.length === 1) {
+        keptFutureVisits.push(candidates[0]);
+        return;
+      }
+
+      // Règles de priorité :
+      // 1. Privilégier le Dimanche (Day 0) par rapport au Samedi (Day 6)
+      // 2. Si égalité, privilégier la date la plus récente ? Ou la plus ancienne ?
+      // L'utilisateur dit "Le Sheet contient des doublons... Dates différentes".
+      // Supposons : Samedi 7 (bad) vs Dimanche 8 (good).
+      
+      const bestVisit = candidates.reduce((prev, curr) => {
+        const prevDate = new Date(prev.visitDate);
+        const currDate = new Date(curr.visitDate);
+        const prevDay = prevDate.getDay(); // 0 = Dimanche, 6 = Samedi
+        const currDay = currDate.getDay();
+
+        // Si l'un est Dimanche et l'autre non, on garde le Dimanche
+        if (prevDay === 0 && currDay !== 0) return prev;
+        if (currDay === 0 && prevDay !== 0) return curr;
+
+        // Si les deux sont Dimanche (ou aucun), on garde le plus récent ?
+        // ou le premier dans l'ordre chronologique ?
+        // Si on a Dimanche 8 et Dimanche 15... c'est peut-être deux visites légitimes ?
+        // MAIS l'utilisateur a dit "Garder maximum une visite par orateur".
+        // Donc on doit n'en garder qu'une.
+        // Dans le doute, on garde la première chronologiquement (pour ne pas repousser indéfiniment)
+        // Sauf si c'est Samedi vs Dimanche où on veut Dimanche (qui est APRES Samedi).
+        
+        // Donc : Si Dimanche vs Samedi -> Dimanche.
+        // Sinon -> Chronologique.
+        
+        return prevDate < currDate ? prev : curr;
+      });
+
+      // Correction explicite si le gagnant est encore un Samedi (cas où il n'y a que du Samedi)
+      // "À partir du 1er Février... les réunions passent au Dimanche"
+      // Si on a que Samedi 7, on devrait peut-être le forcer à Dimanche 8 ?
+      // Pour l'instant on garde juste le 'bestVisit', le filtrage "Dimanche vs Samedi" devrait suffire si le doublon existe.
+      keptFutureVisits.push(bestVisit);
+    });
+
+    // 4. Recombiner et trier
+    return [...pastVisits, ...keptFutureVisits].sort((a, b) => 
+      new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
+    );
+  };
+
   // Google Sheets Sync
   const syncWithGoogleSheet = async (): Promise<void> => {
     const googleSheetId = '1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg';
@@ -442,8 +513,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         setData((prev) => {
           const newSpeakers = [...prev.speakers];
-          const newVisits = [...prev.visits];
+          // Note: On ne copie pas tout de suite newVisits, on va d'abord parser le sheet
           const speakerMap = new Map(newSpeakers.map((s) => [s.nom.toLowerCase(), s]));
+          
+          // 1. Parser toutes les visites candidates depuis le Sheet
+          const candidateVisits: Visit[] = [];
 
           for (const row of rows) {
             const cells = row.c;
@@ -475,8 +549,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const day = String(visitDateObj.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
 
-            const displayDate = visitDateObj.toLocaleDateString('fr-FR');
-
             let speaker = speakerMap.get(speakerName.toLowerCase());
             if (!speaker) {
               speaker = {
@@ -489,12 +561,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
               newSpeakers.push(speaker);
               speakerMap.set(speakerName.toLowerCase(), speaker);
             } else if (speaker.congregation !== congregation && congregation) {
-              // Update congregation if it differs
-              speaker.congregation = congregation;
+               speaker.congregation = congregation;
             }
 
-            const existingVisitIndex = newVisits.findIndex((v) => v.visitDate === formattedDate);
-
+            // Création de l'objet visite "candidat"
             const talkNoValue =
               talkNoIndex > -1
                 ? cells[talkNoIndex]?.v !== null
@@ -507,75 +577,97 @@ export function DataProvider({ children }: { children: ReactNode }) {
                   ? String(cells[themeIndex]?.v)
                   : null
                 : null;
-            // Si pas de titre dans le sheet, utiliser le titre par défaut
+            
             const finalTheme = themeValue || getTalkTitle(talkNoValue);
 
-            if (existingVisitIndex > -1) {
-              const existingVisit = newVisits[existingVisitIndex];
-              const updates: string[] = [];
-
-              if (existingVisit.id !== speaker.id) {
-                existingVisit.id = speaker.id;
-                existingVisit.nom = speaker.nom;
-                existingVisit.telephone = speaker.telephone;
-                existingVisit.photoUrl = speaker.photoUrl;
-                updates.push('Orateur');
-              }
-
-              if (congregation && existingVisit.congregation !== congregation) {
-                existingVisit.congregation = congregation;
-                updates.push('Congrégation');
-              }
-              if (talkNoIndex > -1 && existingVisit.talkNoOrType !== talkNoValue) {
-                existingVisit.talkNoOrType = talkNoValue;
-                updates.push('N° Discours');
-              }
-              if (themeIndex > -1 && existingVisit.talkTheme !== finalTheme) {
-                existingVisit.talkTheme = finalTheme;
-                updates.push('Thème');
-              }
-
-              if (updates.length > 0) {
-                updatedCount++;
-                updatedVisitsDetails.push(
-                  `- ${speaker.nom} (${displayDate}): ${updates.join(', ')}`
-                );
-              }
-            } else {
-              const newVisit: Visit = {
-                id: speaker.id,
-                nom: speaker.nom,
-                congregation,
-                telephone: speaker.telephone,
-                photoUrl: speaker.photoUrl,
-                visitId: generateUUID(),
-                visitDate: formattedDate,
-                visitTime: prev.congregationProfile.meetingTime || '14:30',
-                host:
-                  congregation.toLowerCase().includes('zoom') ||
+            // On crée une visite temporaire
+            candidateVisits.push({
+              id: speaker.id,
+              nom: speaker.nom,
+              congregation,
+              telephone: speaker.telephone,
+              photoUrl: speaker.photoUrl,
+              visitId: generateUUID(), // ID temporaire, sera remplacé si match existant
+              visitDate: formattedDate,
+              visitTime: prev.congregationProfile.meetingTime || '14:30',
+              host: congregation.toLowerCase().includes('zoom') ||
                   congregation.toLowerCase().includes('streaming') ||
                   congregation.toLowerCase().includes('lyon')
-                    ? NA_HOST
-                    : UNASSIGNED_HOST,
-                accommodation: '',
-                meals: '',
-                status: 'pending',
-                locationType: congregation.toLowerCase().includes('zoom')
+                  ? NA_HOST
+                  : UNASSIGNED_HOST,
+              accommodation: '',
+              meals: '',
+              status: 'pending',
+              locationType: congregation.toLowerCase().includes('zoom')
                   ? 'zoom'
                   : congregation.toLowerCase().includes('streaming')
-                    ? 'streaming'
-                    : 'physical',
-                talkNoOrType: talkNoValue,
-                talkTheme: finalTheme,
-                communicationStatus: {},
-              };
-              newVisits.push(newVisit);
-              addedCount++;
-              addedVisitsDetails.push(`- ${newVisit.nom} (${displayDate})`);
-            }
+                  ? 'streaming'
+                  : 'physical',
+              talkNoOrType: talkNoValue,
+              talkTheme: finalTheme,
+              communicationStatus: {},
+            });
           }
+
+          // 2. Appliquer le filtre des doublons sur les candidats
+          const filteredCandidates = filterVisits(candidateVisits);
+          console.log(`Sync Filter: ${candidateVisits.length} raw -> ${filteredCandidates.length} filtered`);
+
+          // 3. Fusionner avec les visites existantes
+          const initialVisits = [...prev.visits];
+          const mergedVisits = [...initialVisits];
+
+          for (const candidate of filteredCandidates) {
+             const existingVisitIndex = mergedVisits.findIndex(v => v.visitDate === candidate.visitDate);
+             const displayDate = new Date(candidate.visitDate).toLocaleDateString('fr-FR');
+             
+             if (existingVisitIndex > -1) {
+               // Mise à jour visite existante
+               const existingVisit = mergedVisits[existingVisitIndex];
+               const updates: string[] = [];
+
+               if (existingVisit.id !== candidate.id) {
+                  existingVisit.id = candidate.id;
+                  existingVisit.nom = candidate.nom;
+                  existingVisit.telephone = candidate.telephone;
+                  existingVisit.photoUrl = candidate.photoUrl;
+                  updates.push('Orateur');
+               }
+               if (candidate.congregation && existingVisit.congregation !== candidate.congregation) {
+                  existingVisit.congregation = candidate.congregation;
+                  updates.push('Congrégation');
+               }
+               if (existingVisit.talkNoOrType !== candidate.talkNoOrType) {
+                  existingVisit.talkNoOrType = candidate.talkNoOrType;
+                  updates.push('N° Discours');
+               }
+               if (existingVisit.talkTheme !== candidate.talkTheme) {
+                  existingVisit.talkTheme = candidate.talkTheme;
+                  updates.push('Thème');
+               }
+
+               if (updates.length > 0) {
+                 updatedCount++;
+                 updatedVisitsDetails.push(`- ${candidate.nom} (${displayDate}): ${updates.join(', ')}`);
+               }
+             } else {
+               // Nouvelle visite
+               mergedVisits.push(candidate);
+               addedCount++;
+               addedVisitsDetails.push(`- ${candidate.nom} (${displayDate})`);
+             }
+          }
+
+          // 4. NETTOYAGE FINAL : Appliquer le filtre sur TOUTES les visites (existantes + nouvelles)
+          // Cela permet de supprimer les doublons qui étaient déjà en base (dates différentes)
+          const finalVisits = filterVisits(mergedVisits);
+          
+          if (finalVisits.length < initialVisits.length) {
+              console.log(`🧹 Nettoyage: ${initialVisits.length - finalVisits.length} doublons supprimés de la base.`);
+          }
+
           // IMPORTANT: Préserver les hôtes lors de la sync
-          return { ...prev, speakers: newSpeakers, visits: newVisits, hosts: prev.hosts };
+          return { ...prev, speakers: newSpeakers, visits: finalVisits, hosts: prev.hosts };
         });
 
         let toastMessage = `Synchronisation depuis les onglets ${successfulGids.join(', ')} terminée !\n- ${addedCount} visite(s) ajoutée(s)\n- ${updatedCount} visite(s) mise(s) à jour\n- ${skippedCount} ligne(s) ignorée(s)`;
