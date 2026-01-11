@@ -53,19 +53,19 @@ Fraternellement,
 
     preparation: {
       speaker: `Bonjour Frère *{speakerName}*,
-
+ 
 Merci pour ta confirmation ! 😊
-
+ 
 Voici les détails pour ta visite du *{visitDate} à {visitTime}* :
 
-🏠 *Contact d'accueil* : {hostName}
-📞 *Téléphone* : {hostPhone}
-📍 *Adresse* : {hostAddress}
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
 
-N'hésite pas à contacter directement notre frère {hostName} si besoin.
-
+N'hésite pas à nous contacter si besoin.
+ 
 Au plaisir de te voir bientôt !
-
+ 
 Fraternellement,
 {hospitalityOverseer}`,
 
@@ -224,11 +224,11 @@ Obrigadu pa bu konfirmasón! 😊
  
 Aki es detalhis pa bu bizita dia *{visitDate} na {visitTime}* :
 
-🏠 *Kontaktu di akolhimentu* : {hostName}
-📞 *Telefone* : {hostPhone}
-📍 *Morada* : {hostAddress}
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
 
-Si bu prisize, bu pode kontakta diretamenti nu mon {hostName}.
+N'hésite pas à nous contacter si besoin.
 
 Te logu!
 
@@ -374,11 +374,11 @@ Obrigado pela tua confirmação! 😊
 
 Aqui estão os detalhes para a tua visita de *{visitDate} às {visitTime}*:
 
-🏠 *Contacto de acolhimento*: {hostName}
-📞 *Telefone*: {hostPhone}
-📍 *Morada*: {hostAddress}
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
 
-Não hesites em contactar diretamente o nosso irmão {hostName} se precisares.
+Não hesites em contactar-nos se precisares de algo.
 
 Até breve!
 

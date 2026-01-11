@@ -27,7 +27,8 @@ export function generateMessage(
   messageType: MessageType,
   role: MessageRole,
   language: Language,
-  customTemplate?: string
+  customTemplate?: string,
+  allHosts: Host[] = []
 ): string {
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
   const template = customTemplate || messageTemplates[language]?.[messageType]?.[role];
@@ -39,7 +40,7 @@ export function generateMessage(
   }
 
   // Remplacer les variables
-  let message = replaceVariables(template, visit, host, congregationProfile, language);
+  let message = replaceVariables(template, visit, host, congregationProfile, language, allHosts);
 
   // Adapter selon le genre
   message = adaptMessageGender(message, speaker?.gender, host?.gender);
@@ -56,7 +57,8 @@ function replaceVariables(
   visit: Visit | null,
   host: Host | null | undefined,
   congregationProfile: CongregationProfile,
-  language: Language
+  language: Language,
+  allHosts: Host[] = []
 ): string {
   let message = template;
 
@@ -66,12 +68,75 @@ function replaceVariables(
     message = message.replace(/{congregation}/g, visit.congregation);
     message = message.replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)');
 
-    // Variables du contact d'accueil
+    // Variables du contact d'accueil principal (Hébergement par défaut)
     const hostName = visit.host !== 'À définir' ? visit.host : '(non assigné)';
     message = message.replace(/{hostName}/g, hostName);
 
+    // Nouvelles variables logistiques intelligentes
+    const assignments = visit.hostAssignments || [];
+    
+    // 1. Hébergement
+    const accAssignment = assignments.find(a => a.role === 'accommodation');
+    const accHost = accAssignment ? allHosts.find(h => h.nom === accAssignment.hostName) : null;
+    
+    let accInfo = '';
+    if (accHost) {
+      if (language === 'pt') {
+        accInfo = `🏠 *Alojamento*: ${accHost.nom}\n📞 *Telefone*: ${accHost.telephone || '(em falta)'}\n📍 *Morada*: ${accHost.address || '(em falta)'}`;
+      } else if (language === 'cv') {
+        accInfo = `🏠 *Alojamentu*: ${accHost.nom}\n📞 *Telefone*: ${accHost.telephone || '(falta-il)'}\n📍 *Morada*: ${accHost.address || '(falta-il)'}`;
+      } else {
+        accInfo = `🏠 *Hébergement* : ${accHost.nom}\n📞 *Téléphone* : ${accHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${accHost.address || '(non renseignée)'}`;
+      }
+    }
+    message = message.replace(/{accommodationLogistics}/g, accInfo);
+
+    // 2. Repas
+    const mealsAssignments = assignments.filter(a => a.role === 'meals');
+    let mealsInfo = '';
+    
+    mealsAssignments.forEach(ma => {
+      // N'inclure que si différent de l'hébergement
+      if (!accAssignment || ma.hostName !== accAssignment.hostName) {
+        const mHost = allHosts.find(h => h.nom === ma.hostName);
+        if (mHost) {
+          if (language === 'pt') {
+            mealsInfo += `\n🍴 *Refeições*: ${mHost.nom}\n📞 *Telefone*: ${mHost.telephone || '(em falta)'}\n📍 *Morada*: ${mHost.address || '(em falta)'}\n`;
+          } else if (language === 'cv') {
+            mealsInfo += `\n🍴 *Kumida*: ${mHost.nom}\n📞 *Telefone*: ${mHost.telephone || '(falta-il)'}\n📍 *Morada*: ${mHost.address || '(falta-il)'}\n`;
+          } else {
+            mealsInfo += `\n🍴 *Repas* : ${mHost.nom}\n📞 *Téléphone* : ${mHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${mHost.address || '(non renseignée)'}\n`;
+          }
+        }
+      }
+    });
+    message = message.replace(/{mealsLogistics}/g, mealsInfo.trim());
+
+    // 3. Ramassage
+    const pickupAssignment = assignments.find(a => a.role === 'pickup');
+    let pickupInfo = '';
+    if (pickupAssignment) {
+      // Différent de l'hébergement et des repas
+      const isAccHost = accAssignment && pickupAssignment.hostName === accAssignment.hostName;
+      const isMealsHost = mealsAssignments.some(ma => ma.hostName === pickupAssignment.hostName);
+      
+      if (!isAccHost && !isMealsHost) {
+        const pHost = allHosts.find(h => h.nom === pickupAssignment.hostName);
+        if (pHost) {
+          if (language === 'pt') {
+            pickupInfo = `🚗 *Recolha*: ${pHost.nom} (📞 ${pHost.telephone || '(em falta)'})`;
+          } else if (language === 'cv') {
+            pickupInfo = `🚗 *Ramassage*: ${pHost.nom} (📞 ${pHost.telephone || '(falta-il)'})`;
+          } else {
+            pickupInfo = `🚗 *Ramassage* : ${pHost.nom} (📞 ${pHost.telephone || '(non renseigné)'})`;
+          }
+        }
+      }
+    }
+    message = message.replace(/{pickupLogistics}/g, pickupInfo);
+
     // Variables de la visite
-    message = message.replace(/{visitDate}/g, formatFullDate(visit.visitDate));
+    message = message.replace(/{visitDate}/g, formatFullDate(visit.visitDate, language));
     message = message.replace(/{visitTime}/g, visit.visitTime);
 
     // Variables du discours

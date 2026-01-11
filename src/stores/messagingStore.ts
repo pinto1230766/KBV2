@@ -155,11 +155,13 @@ Merci pour ta confirmation ! 😊
 
 Voici les détails pour ta visite du *{visitDate} à {visitTime}* :
 
-🏠 *Contact d'accueil* : {hostName}
-📞 *Téléphone* : {hostPhone}
-📍 *Adresse* : {hostAddress}
+{accommodationLogistics}
+{mealsLogistics}
+{pickupLogistics}
 
-N'hésite pas à contacter directement notre frère {hostName} si besoin.
+
+
+N'hésite pas à nous contacter si besoin.
 
 Au plaisir de te voir bientôt !
 
@@ -198,7 +200,7 @@ Te logu!
 Fraternalmenti,
 {hospitalityOverseer}`
     },
-    variables: ['speakerName', 'visitDate', 'visitTime', 'hostName', 'hostPhone', 'hostAddress', 'hospitalityOverseer'],
+    variables: ['speakerName', 'visitDate', 'visitTime', 'accommodationLogistics', 'mealsLogistics', 'pickupLogistics', 'hospitalityOverseer'],
     context: ['preparation', 'speaker', 'visit'],
     usageCount: 0,
     lastUsed: null

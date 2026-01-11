@@ -128,7 +128,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               congregationProfile,
               type,
               'host',
-              language
+              language,
+              undefined,
+              allHosts
             );
             setMessage(generated);
           }
@@ -159,7 +161,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               congregationProfile,
               type,
               'host',
-              language
+              language,
+              undefined,
+              allHosts
             );
           }
         } else if (host) {
@@ -171,7 +175,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             congregationProfile,
             type,
             'host',
-            language
+            language,
+            undefined,
+            allHosts
           );
         }
       } else if (speaker && visit) {
@@ -184,7 +190,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           congregationProfile,
           type as MessageType,
           'speaker',
-          language
+          language,
+          undefined,
+          allHosts
         );
       }
 
