@@ -10,18 +10,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean; // Added asChild prop
 }
 
-export const Button: React.FC<ButtonProps> = ({
-  children,
-  className = '',
-  variant = 'primary',
-  size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  disabled,
-  asChild, // Destructure asChild
-  ...props
-}) => {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      className = '',
+      variant = 'primary',
+      size = 'md',
+      isLoading = false,
+      leftIcon,
+      rightIcon,
+      disabled,
+      asChild,
+      ...props
+    },
+    ref
+  ) => {
   const baseStyles =
     'inline-flex items-center justify-center font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg';
 
@@ -75,9 +79,12 @@ export const Button: React.FC<ButtonProps> = ({
     );
   }
 
-  return (
-    <button className={mergedClassName} disabled={disabled || isLoading} {...props}>
-      {buttonContent}
-    </button>
-  );
-};
+    return (
+      <button ref={ref} className={mergedClassName} disabled={disabled || isLoading} {...props}>
+        {buttonContent}
+      </button>
+    );
+  }
+);
+
+Button.displayName = 'Button';

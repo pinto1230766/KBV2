@@ -994,6 +994,89 @@ export const Settings: React.FC = () => {
                       </div>
 
                       <div className='pt-4'>
+                        <div className='flex items-center justify-between mb-4'>
+                          <h4 className='font-bold text-gray-900 dark:text-white'>
+                            Rappels de communication
+                          </h4>
+                          <input
+                            type='checkbox'
+                            title='Activer les rappels de communication'
+                            checked={settings.notifications.communicationReminders}
+                            onChange={(e) =>
+                              updateSettings({
+                                ...settings,
+                                notifications: {
+                                  ...settings.notifications,
+                                  communicationReminders: e.target.checked,
+                                },
+                              })
+                            }
+                            className='w-5 h-5 rounded text-primary-600 focus:ring-primary-500'
+                          />
+                        </div>
+                        <p className='text-xs text-gray-500 mb-6'>
+                          Active les rappels spécifiques pour les étapes de communication (Confirmation, Préparation, etc.)
+                        </p>
+
+                        {settings.notifications.communicationReminders && (
+                          <div className='space-y-4 p-4 bg-primary-50/30 dark:bg-primary-900/10 rounded-2xl border border-primary-100 dark:border-primary-800/30'>
+                            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                              <Input
+                                label='Délai Confirmation (jours)'
+                                type='number'
+                                value={settings.messagingAutomation.confirmationLeadDays.toString()}
+                                onChange={(e) => updateSettings({
+                                  ...settings,
+                                  messagingAutomation: {
+                                    ...settings.messagingAutomation,
+                                    confirmationLeadDays: parseInt(e.target.value) || 0
+                                  }
+                                })}
+                              />
+                              <Input
+                                label='Délai Préparation (jours)'
+                                type='number'
+                                value={settings.messagingAutomation.preparationLeadDays.toString()}
+                                onChange={(e) => updateSettings({
+                                  ...settings,
+                                  messagingAutomation: {
+                                    ...settings.messagingAutomation,
+                                    preparationLeadDays: parseInt(e.target.value) || 0
+                                  }
+                                })}
+                              />
+                            </div>
+
+                            <div className='space-y-2 mt-4'>
+                              <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>Étapes activées</p>
+                              {[
+                                { key: 'reminder7Enabled', label: 'Rappel J-7' },
+                                { key: 'reminder2Enabled', label: 'Rappel J-2' },
+                                { key: 'thanksEnabled', label: 'Message Merci (après la visite)' },
+                              ].map((step) => (
+                                <div key={step.key} className='flex items-center justify-between py-2'>
+                                  <span className='text-sm text-gray-700 dark:text-gray-300'>{step.label}</span>
+                                  <input
+                                    type='checkbox'
+                                    title={step.label}
+                                    checked={(settings.messagingAutomation as any)[step.key]}
+                                    onChange={(e) => updateSettings({
+                                      ...settings,
+                                      messagingAutomation: {
+                                        ...settings.messagingAutomation,
+                                        [step.key]: e.target.checked
+                                      }
+                                    })}
+                                    className='w-4 h-4 rounded text-primary-600'
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className='pt-4'>
                         <h4 className='font-bold text-gray-900 dark:text-white mb-4'>
                           Alertes sonores & Vibrations
                         </h4>
@@ -1413,7 +1496,7 @@ export const Settings: React.FC = () => {
                   KBV <span className='text-primary-600'>MANAGER</span>
                 </h3>
                 <p className='text-gray-400 font-bold tracking-[0.2em] uppercase text-[10px] mb-8'>
-                  Version 1.20.1 Built 2025
+                  Version 1.20.2 Built 2026
                 </p>
 
                 <div className='max-w-md bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 space-y-6'>
@@ -1428,7 +1511,7 @@ export const Settings: React.FC = () => {
                     </div>
                     <div>
                       <p className='text-[10px] text-gray-400 font-bold uppercase'>Dernière MAJ</p>
-                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Jan 2026</p>
+                      <p className='text-sm font-bold text-gray-900 dark:text-white'>Jan 2026 (v1.20.7)</p>
                     </div>
                   </div>
                   

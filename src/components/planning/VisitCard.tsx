@@ -5,7 +5,7 @@ import {
   MapPin,
   User,
   Clock,
-  MoreVertical,
+  ChevronDown,
   Edit2,
   Trash2,
   MessageSquare,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Visit } from '@/types';
 import { Card, CardBody } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { CommunicationProgress } from '@/components/messages/CommunicationProgress';
 import { format } from 'date-fns';
@@ -221,17 +222,19 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
           </div>
 
           <div className='relative'>
-            <button
+            <Button
               ref={buttonRef}
-              aria-label='Options'
-              className='p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700'
+              variant='secondary'
+              size='sm'
+              className='font-bold text-xs'
               onClick={(e) => {
                 e.stopPropagation();
                 setShowMenu(!showMenu);
               }}
+              rightIcon={<ChevronDown className='w-3 h-3' />}
             >
-              <MoreVertical className='w-4 h-4' />
-            </button>
+              Actions
+            </Button>
 
             {showMenu &&
               createPortal(

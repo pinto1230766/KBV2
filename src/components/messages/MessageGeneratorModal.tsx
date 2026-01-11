@@ -99,6 +99,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     }
   }, [isOpen, type, language]);
 
+  // Synchroniser le canal si la prop initialChannel change
+  useEffect(() => {
+    if (initialChannel) {
+      setChannel(initialChannel);
+    }
+  }, [initialChannel]);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
@@ -109,8 +116,22 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         if (isGroupMessage) {
           // Message groupé pour une visite spécifique
           if (visit && allHosts.length > 0) {
-            if (channel === 'whatsapp_group') {
-              // Pour le groupe WhatsApp, utiliser un message de groupe
+            if (type === 'visit_recap') {
+                 // Cas spécifique pour le récapitulatif de visite
+                 generated = generateMessage(
+                  visit,
+                  speaker || virtualSpeaker as Speaker,
+                  null, // Pas d'hôte spécifique car c'est pour le groupe
+                  congregationProfile,
+                  type,
+                  'host',
+                  language,
+                  undefined,
+                  allHosts
+                );
+                setMessage(generated);
+            } else if (channel === 'whatsapp_group') {
+              // Pour le groupe WhatsApp, utiliser un message de groupe (Demande d'accueil par défaut)
               generated = generateHostRequestMessage(
                 [visit],
                 congregationProfile,
@@ -317,50 +338,32 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     const openWhatsApp = (phone: string, message: string) => {
       const cleanPhone = phone.replace(/\D/g, '');
       const encodedMessage = encodeURIComponent(message);
-
-      // Essayer différentes méthodes
       const waUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+      
       console.log('Opening WhatsApp URL:', waUrl);
-
-      // Créer un lien temporaire et cliquer dessus
-      const link = document.createElement('a');
-      link.href = waUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Fallback: essayer avec le protocole
+      window.open(waUrl, '_blank');
+      
+      // Fallback: essayer avec le protocole direct après un court délai
       setTimeout(() => {
         const protocolUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedMessage}`;
-        console.log('Fallback to WhatsApp protocol:', protocolUrl);
         window.location.href = protocolUrl;
-      }, 1000);
+      }, 800);
     };
 
-    // Fonction pour ouvrir le groupe WhatsApp des hôtes
+    // Fonction pour ouvrir le groupe WhatsApp des hôtes (ou partager au groupe)
     const openWhatsAppGroup = (message: string) => {
       const encodedMessage = encodeURIComponent(message);
-      // ID du groupe WhatsApp des hôtes depuis les settings
-      const groupId = settings.whatsappGroupId || 'Di5J5Jl4VjU4e9QURFHsrf'; 
-      const groupUrl = `https://chat.whatsapp.com/${groupId}`;
-      console.log('Opening WhatsApp Group URL:', groupUrl);
+      
+      // On utilise whatsapp://send pour permettre de choisir le groupe dans WhatsApp
+      const protocolUrl = `whatsapp://send?text=${encodedMessage}`;
+      console.log('Sharing to WhatsApp group:', protocolUrl);
+      window.location.href = protocolUrl;
 
-      // Créer un lien temporaire et cliquer dessus
-      const link = document.createElement('a');
-      link.href = groupUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Fallback: essayer avec le protocole de groupe
+      // Fallback sur le lien d'invitation si le protocole échoue
       setTimeout(() => {
-        const protocolUrl = `whatsapp://send?text=${encodedMessage}`;
-        console.log('Fallback to WhatsApp protocol:', protocolUrl);
-        window.location.href = protocolUrl;
+        const groupId = settings.whatsappGroupId || 'Di5J5Jl4VjU4e9QURFHsrf'; 
+        const groupUrl = `https://chat.whatsapp.com/${groupId}`;
+        window.open(groupUrl, '_blank');
       }, 1000);
     };
 
@@ -373,8 +376,9 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         if (!recipient) continue;
 
         // Générer le message dynamiquement pour chaque hôte si c'est un broadcast de visite
+        // MAIS PA POUR LE RECAPITULATIF (qui est unique pour le groupe)
         const messageToSend =
-          isGroupMessage && visit
+          isGroupMessage && visit && type !== 'visit_recap' && channel !== 'whatsapp_group'
             ? generateBroadcastHostRequest(visit, recipient, congregationProfile, language)
             : message;
 
@@ -389,6 +393,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               openWhatsAppGroup(messageToSend);
             }, 500);
           }
+          // On break car on envoie une seule fois au groupe
+          break; 
         } else if (channel === 'email' && recipient.email) {
           const body = encodeURIComponent(messageToSend);
           setTimeout(() => {
@@ -397,18 +403,26 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         }
       }
 
-      setTimeout(
-        () => {
-          addToast(
-            `${t('Messages envoyés à')} ${
-              recipients.length
-            } ${t('destinataires...').replace('...', '')}`,
-            'success'
-          );
-          onClose();
-        },
-        recipients.length * 1500 + 1000
-      );
+      // Notification de fin différente selon si c'est un groupe ou broadcast
+      if (channel === 'whatsapp_group') {
+         setTimeout(() => {
+            addToast(t('Message envoyé au groupe WhatsApp'), 'success');
+            onClose();
+         }, 1000);
+      } else {
+        setTimeout(
+            () => {
+            addToast(
+                `${t('Messages envoyés à')} ${
+                recipients.length
+                } ${t('destinataires...').replace('...', '')}`,
+                'success'
+            );
+            onClose();
+            },
+            recipients.length * 1500 + 1000
+        );
+      }
     } else {
       // Envoi individuel
       const recipient = recipients[0];
@@ -417,7 +431,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
       if (channel === 'whatsapp' && recipient.telephone) {
         openWhatsApp(recipient.telephone, message);
-      } else if (channel === 'whatsapp_group') {
+      } else if (channel === 'whatsapp_group' || channel === 'whatsapp') { 
+         // Fallback si channel mismatch
         openWhatsAppGroup(message);
       } else if (channel === 'email' && (recipient as any).email) {
         window.open(`mailto:${(recipient as any).email}?subject=${subject}&body=${body}`, '_blank');
@@ -454,7 +469,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
           </Button>
           <Button onClick={handleSend} leftIcon={<Send className='w-4 h-4' />}>
             {t('Envoyer')} (
-            {channel === 'whatsapp' ? t('WhatsApp') : channel === 'email' ? t('Email') : t('SMS')})
+            {channel === 'whatsapp' || channel === 'whatsapp_group' ? t('WhatsApp') : channel === 'email' ? t('Email') : t('SMS')})
           </Button>
         </>
       }
@@ -509,11 +524,12 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             <Select
               label={t('Canal')}
               options={[
-                { value: 'whatsapp', label: t('WhatsApp') },
+                { value: 'whatsapp', label: t('WhatsApp (Individuel)') },
+                { value: 'whatsapp_group', label: t('WhatsApp (Groupe)') },
                 { value: 'sms', label: t('SMS') },
                 { value: 'email', label: t('Email') },
               ]}
-              value={channel === 'whatsapp_group' ? 'whatsapp' : channel}
+              value={channel}
               onChange={(e) => setChannel(e.target.value as CommunicationChannel)}
             />
           </div>

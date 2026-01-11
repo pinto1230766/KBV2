@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit, Expense, MessageType, Companion, CompanionType } from '@/types';
+import { Visit, Expense, MessageType, Companion, CompanionType, CommunicationChannel } from '@/types';
 import {
   Edit2,
   Trash2,
@@ -63,7 +63,12 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
   const [formData, setFormData] = useState<Partial<Visit>>({});
   const [isAddingExpense, setIsAddingExpense] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | undefined>(undefined);
-  const [generatorParams, setGeneratorParams] = useState<{ isOpen: boolean; type: MessageType }>({
+  const [generatorParams, setGeneratorParams] = useState<{
+    isOpen: boolean;
+    type: MessageType;
+    isGroup?: boolean;
+    channel?: CommunicationChannel;
+  }>({
     isOpen: false,
     type: 'confirmation',
   });
@@ -870,11 +875,18 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               { type: 'reminder-7', label: 'Rappel J-7', icon: Clock },
               { type: 'reminder-2', label: 'Rappel J-2', icon: Clock },
               { type: 'thanks', label: 'Remerciements', icon: Star },
-              { type: 'host_request', label: 'Demande Accueil', icon: Home },
+              { type: 'thanks', label: 'Remerciements', icon: Star },
+              { type: 'host_request_message', label: 'Demande Accueil', icon: Home, isGroup: true },
+              { type: 'visit_recap', label: 'Récapitulatif Visite', icon: FileText, isGroup: true },
             ].map((msg) => (
               <button
                 key={msg.type}
-                onClick={() => setGeneratorParams({ isOpen: true, type: msg.type as MessageType })}
+                onClick={() => setGeneratorParams({ 
+                  isOpen: true, 
+                  type: msg.type as MessageType,
+                  isGroup: msg.isGroup,
+                  channel: msg.isGroup ? 'whatsapp_group' : 'whatsapp'
+                })}
                 className='flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent hover:border-gray-200'
               >
                 <div className='w-10 h-10 rounded-full bg-white dark:bg-gray-700 text-indigo-500 flex items-center justify-center shadow-sm'>
@@ -1105,6 +1117,8 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
           speaker={speakers.find((s) => s.id === visit.id)!}
           visit={visit}
           initialType={generatorParams.type}
+          isGroupMessage={generatorParams.isGroup}
+          initialChannel={generatorParams.channel}
         />
       )}
     </>

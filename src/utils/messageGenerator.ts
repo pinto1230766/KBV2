@@ -76,8 +76,18 @@ function replaceVariables(
     const assignments = visit.hostAssignments || [];
     
     // 1. Hébergement
+    let accHostName = '';
     const accAssignment = assignments.find(a => a.role === 'accommodation');
-    const accHost = accAssignment ? allHosts.find(h => h.nom === accAssignment.hostName) : null;
+    
+    if (accAssignment) {
+      accHostName = accAssignment.hostName;
+    } else if (visit.logistics?.accommodation?.name) {
+      accHostName = visit.logistics.accommodation.name;
+    } else if (visit.host && visit.host !== 'À définir') {
+      accHostName = visit.host; // Legacy fallback
+    }
+
+    const accHost = accHostName ? allHosts.find(h => h.nom === accHostName) : null;
     
     let accInfo = '';
     if (accHost) {
@@ -88,17 +98,27 @@ function replaceVariables(
       } else {
         accInfo = `🏠 *Hébergement* : ${accHost.nom}\n📞 *Téléphone* : ${accHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${accHost.address || '(non renseignée)'}`;
       }
+    } else if (accHostName) {
+       // Cas où le nom est connu mais pas l'objet Host (rare mais possible)
+       accInfo = `🏠 *Hébergement* : ${accHostName}`;
     }
     message = message.replace(/{accommodationLogistics}/g, accInfo);
 
     // 2. Repas
+    let mealsHostNames: string[] = [];
     const mealsAssignments = assignments.filter(a => a.role === 'meals');
-    let mealsInfo = '';
     
-    mealsAssignments.forEach(ma => {
+    if (mealsAssignments.length > 0) {
+      mealsHostNames = mealsAssignments.map(a => a.hostName);
+    } else if (visit.meals && visit.meals !== 'À définir') {
+      mealsHostNames = [visit.meals]; // Legacy fallback
+    }
+
+    let mealsInfo = '';
+    mealsHostNames.forEach(name => {
       // N'inclure que si différent de l'hébergement
-      if (!accAssignment || ma.hostName !== accAssignment.hostName) {
-        const mHost = allHosts.find(h => h.nom === ma.hostName);
+      if (name !== accHostName) {
+        const mHost = allHosts.find(h => h.nom === name);
         if (mHost) {
           if (language === 'pt') {
             mealsInfo += `\n🍴 *Refeições*: ${mHost.nom}\n📞 *Telefone*: ${mHost.telephone || '(em falta)'}\n📍 *Morada*: ${mHost.address || '(em falta)'}\n`;
@@ -107,6 +127,8 @@ function replaceVariables(
           } else {
             mealsInfo += `\n🍴 *Repas* : ${mHost.nom}\n📞 *Téléphone* : ${mHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${mHost.address || '(non renseignée)'}\n`;
           }
+        } else {
+           mealsInfo += `\n🍴 *Repas* : ${name}\n`;
         }
       }
     });
@@ -115,10 +137,11 @@ function replaceVariables(
     // 3. Ramassage
     const pickupAssignment = assignments.find(a => a.role === 'pickup');
     let pickupInfo = '';
+    
     if (pickupAssignment) {
       // Différent de l'hébergement et des repas
-      const isAccHost = accAssignment && pickupAssignment.hostName === accAssignment.hostName;
-      const isMealsHost = mealsAssignments.some(ma => ma.hostName === pickupAssignment.hostName);
+      const isAccHost = accHostName && pickupAssignment.hostName === accHostName;
+      const isMealsHost = mealsHostNames.includes(pickupAssignment.hostName);
       
       if (!isAccHost && !isMealsHost) {
         const pHost = allHosts.find(h => h.nom === pickupAssignment.hostName);
@@ -132,7 +155,11 @@ function replaceVariables(
           }
         }
       }
+    } else if (visit.logistics?.itinerary?.meetingPoint) {
+         // Fallback sur le point de rendez-vous si défini dans l'itinéraire
+         pickupInfo = `🚗 *Ramassage* : ${visit.logistics.itinerary.meetingPoint}`;
     }
+    
     message = message.replace(/{pickupLogistics}/g, pickupInfo);
 
     // Variables de la visite
