@@ -1074,8 +1074,8 @@ export const Settings: React.FC = () => {
                         ID du groupe WhatsApp
                       </label>
                       <p className='text-sm text-gray-500 mb-4'>
-                        Numéro du groupe (avec indicateur pays, sans + ni espaces). 
-                        Ex: 33612345678 pour un groupe français.
+                        ID unique du groupe (dernière partie du lien d'invitation). 
+                        Ex: Di5J5Jl4VjU4e9QURFHsrf
                       </p>
                       <Input
                         type='text'

@@ -101,7 +101,11 @@ export const GroupHostMessageModal: React.FC<GroupHostMessageModalProps> = ({
     try {
       await navigator.clipboard.writeText(message);
       addToast(t('Message copié ! Ouvrez votre groupe WhatsApp et collez.'), 'success');
-      window.open('https://wa.me/', '_blank');
+      const groupId = settings.whatsappGroupId || '';
+      const url = groupId 
+        ? `https://chat.whatsapp.com/${groupId}`
+        : 'https://wa.me/';
+      window.open(url, '_blank');
       onClose();
     } catch (_error) {
       addToast(t('Erreur lors de la copie'), 'error');

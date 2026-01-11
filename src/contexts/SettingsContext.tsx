@@ -18,6 +18,7 @@ const defaultSettings: Settings = {
   encryptionEnabled: false,
   sessionTimeout: 30, // 30 minutes
   autoArchiveDays: 90,
+  whatsappGroupId: 'Di5J5Jl4VjU4e9QURFHsrf',
 };
 
 // ============================================================================

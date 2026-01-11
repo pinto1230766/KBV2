@@ -296,10 +296,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     const openWhatsAppGroup = (message: string) => {
       const encodedMessage = encodeURIComponent(message);
       // ID du groupe WhatsApp des hôtes depuis les settings
-      const groupId = settings.whatsappGroupId || '1234567890'; // Valeur par défaut si non configuré
-
-      // URL pour le groupe WhatsApp
-      const groupUrl = `https://wa.me/${groupId}?text=${encodedMessage}`;
+      const groupId = settings.whatsappGroupId || 'Di5J5Jl4VjU4e9QURFHsrf'; 
+      const groupUrl = `https://chat.whatsapp.com/${groupId}`;
       console.log('Opening WhatsApp Group URL:', groupUrl);
 
       // Créer un lien temporaire et cliquer dessus
