@@ -39,8 +39,20 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   // Déterminer si on envoie à un hôte ou à un orateur
   const isHostMessage = !!host || isGroupMessage;
-  const targetEntity = host || speaker;
-  const targetName = isGroupMessage ? `${allHosts.length} hôtes` : targetEntity?.nom || '';
+  
+  // Fallback sur les données de la visite si l'orateur n'est pas trouvé
+  const virtualSpeaker = !speaker && visit ? {
+    nom: visit.nom,
+    congregation: visit.congregation,
+    telephone: visit.telephone,
+    id: visit.id,
+    gender: 'male' as const,
+    talkHistory: [],
+    email: undefined
+  } : null;
+
+  const targetEntity = host || speaker || virtualSpeaker;
+  const targetName = isGroupMessage ? `${allHosts.length} hôtes` : (targetEntity?.nom || visit?.nom || '');
 
   const [message, setMessage] = useState('');
   const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
@@ -180,12 +192,21 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             allHosts
           );
         }
-      } else if (speaker && visit) {
+      } else if ((speaker || visit) && !isHostMessage) {
         // Message à un orateur
-        const visitHost = allHosts.find((h) => h.nom === getPrimaryHostName(visit));
+        const visitHost = allHosts.find((h) => h.nom === getPrimaryHostName(visit!));
+        const currentSpeaker = speaker || {
+          id: visit?.id || '',
+          nom: visit?.nom || '',
+          congregation: visit?.congregation || '',
+          telephone: visit?.telephone || '',
+          gender: 'male' as const,
+          talkHistory: [],
+        } as Speaker;
+
         generated = generateMessage(
-          visit,
-          speaker,
+          visit!,
+          currentSpeaker,
           visitHost,
           congregationProfile,
           type as MessageType,
@@ -263,10 +284,15 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   };
 
   const handleSend = async () => {
-    const recipients =
-      isGroupMessage && isHostMessage ? allHosts : [isHostMessage ? host : speaker].filter(Boolean);
+    // Collecter les destinataires avec fallback sur la visite pour les orateurs
+    const recipients = isGroupMessage && isHostMessage 
+      ? allHosts 
+      : [isHostMessage ? host : (speaker || virtualSpeaker)].filter(Boolean);
 
-    if (!recipients.length) return;
+    if (!recipients.length) {
+      addToast(t('Aucun destinataire trouvé'), 'warning');
+      return;
+    }
 
     const subject = encodeURIComponent(
       isHostMessage
@@ -380,8 +406,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         openWhatsApp(recipient.telephone, message);
       } else if (channel === 'whatsapp_group') {
         openWhatsAppGroup(message);
-      } else if (channel === 'email' && recipient.email) {
-        window.open(`mailto:${recipient.email}?subject=${subject}&body=${body}`, '_blank');
+      } else if (channel === 'email' && (recipient as any).email) {
+        window.open(`mailto:${(recipient as any).email}?subject=${subject}&body=${body}`, '_blank');
       } else if (recipient.telephone) {
         // SMS
         const smsBody = encodeURIComponent(message);
