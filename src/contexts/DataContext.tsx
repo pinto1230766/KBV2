@@ -11,12 +11,10 @@ import {
 } from '@/types';
 import * as storage from '@/utils/storage';
 import { completeData } from '@/data/completeData';
-import { UNASSIGNED_HOST, NA_HOST } from '@/data/commonConstants';
-import { generateUUID } from '@/utils/uuid';
-import { parseDate } from '@/utils/formatters';
-import { useToast } from '@/contexts/ToastContext';
-import { useSyncQueue } from '@/hooks/useSyncQueue';
-import { useOfflineMode } from '@/hooks/useOfflineMode';
+import { processSheetRows, mergeVisitsIdempotent } from '@/utils/googleSheetSync';
+import { useToast } from './ToastContext';
+import { useSyncQueue } from '../hooks/useSyncQueue';
+import { useOfflineMode } from '../hooks/useOfflineMode';
 import { getTalkTitle } from '@/data/talkTitles';
 
 // Types condensés pour le context
@@ -73,103 +71,135 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // car le chargement de données est déjà géré par useEffect + idb ci-dessous
   const { isOnline } = useOfflineMode('app_state', async () => completeData);
 
+  const loadData = async () => {
+    try {
+      // Migration automatique si nécessaire
+      await storage.migrateToCapacitor();
+
+      const saved = await storage.get<AppData>('kbv-app-data');
+      const lastRestoreTimestamp = localStorage.getItem('last-data-restore');
+
+      // Vérifier si une restauration a été faite récemment (dans les 5 dernières minutes)
+      const isRecentRestore = lastRestoreTimestamp &&
+        (Date.now() - parseInt(lastRestoreTimestamp)) < (5 * 60 * 1000); // 5 minutes
+
+      if (isRecentRestore) {
+        console.log('🔄 RECENT RESTORE DETECTED: Using saved data without fusion');
+        // Utiliser directement les données sauvegardées sans fusion
+        const dataToUse = saved || completeData;
+        setData({
+          ...dataToUse,
+          dataVersion: '1.3.0', // S'assurer d'avoir la bonne version
+        });
+        // Nettoyer le flag de restauration
+        localStorage.removeItem('last-data-restore');
+        setTimeout(() => addToast('Restauration appliquée avec succès !', 'success'), 0);
+        setLoaded(true);
+        return;
+      }
+
+      // SOLUTION: Toujours utiliser completeData comme base, puis fusionner avec les sauvegardes
+      // Cela garantit que la tablette aura TOUTES les données complètes
+      const visitsWithTitles = (saved?.visits || []).map((visit) => ({
+        ...visit,
+        talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType),
+      }));
+
+      // FORCE RELOAD: Si les données sauvegardées n'ont pas la nouvelle version ou sont vides,
+      // utiliser uniquement completeData pour forcer le rechargement complet
+      const shouldForceReload =
+        !saved?.dataVersion ||
+        saved.dataVersion < '1.3.0' ||
+        !saved.speakers ||
+        saved.speakers.length < 50;
+
+      let mergedData;
+      if (shouldForceReload) {
+        console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.3.0)');
+        mergedData = {
+          ...completeData,
+          dataVersion: '1.3.0', // Forcer la nouvelle version
+        };
+      } else {
+        // FUSION INTELLIGENTE: Préserver les hostAssignments et autres données utilisateur
+        const mergedVisits = visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits;
+
+        // Si nous avons des visites sauvegardées avec hostAssignments, les préserver
+        const visitsWithHostAssignments = mergedVisits.map((visit) => {
+          // Chercher la visite correspondante dans les données sauvegardées
+          const savedVisit = saved?.visits?.find((sv) => sv.visitId === visit.visitId);
+          if (savedVisit?.hostAssignments && savedVisit.hostAssignments.length > 0) {
+            console.log(`🔄 Préservation hostAssignments pour ${visit.nom}:`, savedVisit.hostAssignments);
+            return {
+              ...visit,
+              hostAssignments: savedVisit.hostAssignments,
+              // Garder aussi l'ancien champ host pour compatibilité
+              host: savedVisit.host || visit.host,
+            };
+          }
+          return visit;
+        });
+
+        mergedData = {
+          ...completeData, // BASE = Données complètes intégrées
+          ...saved, // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
+          visits: visitsWithHostAssignments,
+          // Préserver les hôtes personnalisés mais ajouter ceux manquants
+          hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter(
+            (host, index, arr) => arr.findIndex((h) => h.nom === host.nom) === index
+          ),
+          dataVersion: '1.3.0', // Mettre à jour la version
+        };
+      }
+
+      setData(mergedData);
+      // Sauvegarder immédiatement les données complètes
+      await storage.set('kbv-app-data', mergedData);
+      setTimeout(() => addToast('Données complètes chargées avec succès !', 'success'), 0);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données:', error);
+      setData(completeData);
+    } finally {
+      setLoaded(true);
+    }
+  };
+
   // Load - Charger depuis le stockage ou depuis le fichier JSON initial
   useEffect(() => {
-    const loadInitialData = async () => {
+    loadData();
+  }, []);
+
+  // Gestion de la Sauvegarde Automatique (Hebdomadaire)
+  useEffect(() => {
+    const checkAutoBackup = async () => {
+      // On ne sauvegarde que si on a des données chargées
+      if (data.visits.length === 0) return;
+
       try {
-        // Migration automatique si nécessaire
-        await storage.migrateToCapacitor();
-
-        const saved = await storage.get<AppData>('kbv-app-data');
-        const lastRestoreTimestamp = localStorage.getItem('last-data-restore');
-
-        // Vérifier si une restauration a été faite récemment (dans les 5 dernières minutes)
-        const isRecentRestore = lastRestoreTimestamp &&
-          (Date.now() - parseInt(lastRestoreTimestamp)) < (5 * 60 * 1000); // 5 minutes
-
-        if (isRecentRestore) {
-          console.log('🔄 RECENT RESTORE DETECTED: Using saved data without fusion');
-          // Utiliser directement les données sauvegardées sans fusion
-          const dataToUse = saved || completeData;
-          setData({
-            ...dataToUse,
-            dataVersion: '1.3.0', // S'assurer d'avoir la bonne version
-          });
-          // Nettoyer le flag de restauration
-          localStorage.removeItem('last-data-restore');
-          setTimeout(() => addToast('Restauration appliquée avec succès !', 'success'), 0);
-          setLoaded(true);
-          return;
+        const lastBackupStr = (await storage.get('lastAutoBackup')) as string;
+        const now = Date.now();
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+        
+        // Si pas de backup ou plus vieux qu'une semaine
+        if (!lastBackupStr || (now - new Date(lastBackupStr).getTime() > ONE_WEEK_MS)) {
+          // Création du backup
+          const backupKey = `auto_backup_${new Date().toISOString().split('T')[0]}`;
+          await storage.set(backupKey, data);
+          await storage.set('lastAutoBackup', new Date().toISOString());
+          
+          console.log(`💾 Sauvegarde automatique effectuée : ${backupKey}`);
+          addToast('Sauvegarde automatique hebdomadaire effectuée.', 'success');
         }
-
-        // SOLUTION: Toujours utiliser completeData comme base, puis fusionner avec les sauvegardes
-        // Cela garantit que la tablette aura TOUTES les données complètes
-        const visitsWithTitles = (saved?.visits || []).map((visit) => ({
-          ...visit,
-          talkTheme: visit.talkTheme || getTalkTitle(visit.talkNoOrType),
-        }));
-
-        // FORCE RELOAD: Si les données sauvegardées n'ont pas la nouvelle version ou sont vides,
-        // utiliser uniquement completeData pour forcer le rechargement complet
-        const shouldForceReload =
-          !saved?.dataVersion ||
-          saved.dataVersion < '1.3.0' ||
-          !saved.speakers ||
-          saved.speakers.length < 50;
-
-        let mergedData;
-        if (shouldForceReload) {
-          console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.3.0)');
-          mergedData = {
-            ...completeData,
-            dataVersion: '1.3.0', // Forcer la nouvelle version
-          };
-        } else {
-          // FUSION INTELLIGENTE: Préserver les hostAssignments et autres données utilisateur
-          const mergedVisits = visitsWithTitles.length > 0 ? visitsWithTitles : completeData.visits;
-
-          // Si nous avons des visites sauvegardées avec hostAssignments, les préserver
-          const visitsWithHostAssignments = mergedVisits.map((visit) => {
-            // Chercher la visite correspondante dans les données sauvegardées
-            const savedVisit = saved?.visits?.find((sv) => sv.visitId === visit.visitId);
-            if (savedVisit?.hostAssignments && savedVisit.hostAssignments.length > 0) {
-              console.log(`🔄 Préservation hostAssignments pour ${visit.nom}:`, savedVisit.hostAssignments);
-              return {
-                ...visit,
-                hostAssignments: savedVisit.hostAssignments,
-                // Garder aussi l'ancien champ host pour compatibilité
-                host: savedVisit.host || visit.host,
-              };
-            }
-            return visit;
-          });
-
-          mergedData = {
-            ...completeData, // BASE = Données complètes intégrées
-            ...saved, // SAUVEGARDES = Modifications utilisateur (visites terminées, etc.)
-            visits: visitsWithHostAssignments,
-            // Préserver les hôtes personnalisés mais ajouter ceux manquants
-            hosts: [...completeData.hosts, ...(saved?.hosts || [])].filter(
-              (host, index, arr) => arr.findIndex((h) => h.nom === host.nom) === index
-            ),
-            dataVersion: '1.3.0', // Mettre à jour la version
-          };
-        }
-
-        setData(mergedData);
-        // Sauvegarder immédiatement les données complètes
-        await storage.set('kbv-app-data', mergedData);
-        setTimeout(() => addToast('Données complètes chargées avec succès !', 'success'), 0);
       } catch (error) {
-        console.error('Erreur lors du chargement des données:', error);
-        setData(completeData);
-      } finally {
-        setLoaded(true);
+        console.error('Echec sauvegarde auto:', error);
       }
     };
 
-    loadInitialData();
-  }, []);
+    // On attend un peu que tout soit stable (ex: 5s après montage/chargement)
+    const timer = setTimeout(checkAutoBackup, 5000);
+    return () => clearTimeout(timer);
+  }, [data.visits.length]); // Déclenché quand le nombre de visites change (chargement initial)
+
 
   // Save
   useEffect(() => {
@@ -347,79 +377,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
     storage.clear();
   };
 
-  // Google Sheets Sync Helper: Filter duplicates
-  const filterVisits = (visits: Visit[]): Visit[] => {
-    const CUTOFF_DATE = new Date('2026-02-01');
-    
-    // 1. Séparer l'historique (avant cutoff) du futur
-    const pastVisits = visits.filter(v => new Date(v.visitDate) < CUTOFF_DATE);
-    const futureVisits = visits.filter(v => new Date(v.visitDate) >= CUTOFF_DATE);
-
-    // 2. Grouper les visites futures par Orateur
-    const futureBySpeaker = new Map<string, Visit[]>();
-    
-    for (const visit of futureVisits) {
-      const speakerKey = visit.id || `${visit.nom.toLowerCase()}|${visit.congregation.toLowerCase()}`;
-      if (!futureBySpeaker.has(speakerKey)) {
-        futureBySpeaker.set(speakerKey, []);
-      }
-      futureBySpeaker.get(speakerKey)?.push(visit);
-    }
-
-    // 3. Sélectionner la "meilleure" visite pour chaque orateur
-    const keptFutureVisits: Visit[] = [];
-
-    futureBySpeaker.forEach((candidates) => {
-      if (candidates.length === 1) {
-        keptFutureVisits.push(candidates[0]);
-        return;
-      }
-
-      // Règles de priorité :
-      // 1. Privilégier le Dimanche (Day 0) par rapport au Samedi (Day 6)
-      // 2. Si égalité, privilégier la date la plus récente ? Ou la plus ancienne ?
-      // L'utilisateur dit "Le Sheet contient des doublons... Dates différentes".
-      // Supposons : Samedi 7 (bad) vs Dimanche 8 (good).
-      
-      const bestVisit = candidates.reduce((prev, curr) => {
-        const prevDate = new Date(prev.visitDate);
-        const currDate = new Date(curr.visitDate);
-        const prevDay = prevDate.getDay(); // 0 = Dimanche, 6 = Samedi
-        const currDay = currDate.getDay();
-
-        // Si l'un est Dimanche et l'autre non, on garde le Dimanche
-        if (prevDay === 0 && currDay !== 0) return prev;
-        if (currDay === 0 && prevDay !== 0) return curr;
-
-        // Si les deux sont Dimanche (ou aucun), on garde le plus récent ?
-        // ou le premier dans l'ordre chronologique ?
-        // Si on a Dimanche 8 et Dimanche 15... c'est peut-être deux visites légitimes ?
-        // MAIS l'utilisateur a dit "Garder maximum une visite par orateur".
-        // Donc on doit n'en garder qu'une.
-        // Dans le doute, on garde la première chronologiquement (pour ne pas repousser indéfiniment)
-        // Sauf si c'est Samedi vs Dimanche où on veut Dimanche (qui est APRES Samedi).
-        
-        // Donc : Si Dimanche vs Samedi -> Dimanche.
-        // Sinon -> Chronologique.
-        
-        return prevDate < currDate ? prev : curr;
-      });
-
-      // Correction explicite si le gagnant est encore un Samedi (cas où il n'y a que du Samedi)
-      // "À partir du 1er Février... les réunions passent au Dimanche"
-      // Si on a que Samedi 7, on devrait peut-être le forcer à Dimanche 8 ?
-      // Pour l'instant on garde juste le 'bestVisit', le filtrage "Dimanche vs Samedi" devrait suffire si le doublon existe.
-      keptFutureVisits.push(bestVisit);
-    });
-
-    // 4. Recombiner et trier
-    return [...pastVisits, ...keptFutureVisits].sort((a, b) => 
-      new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
-    );
-  };
 
   // Google Sheets Sync
   const syncWithGoogleSheet = async (): Promise<void> => {
+    // 1. Sauvegarde automatique de sécurité avant la synchro
+    if (data.visits.length > 0) {
+        // Idéalement on garde une version datée, mais pour l'instant on force une persistence
+        await storage.set('kbv-app-data-backup-pre-sync', data);
+        console.log('🛡️ Backup de sécurité pré-synchro effectué.');
+    }
+
     const googleSheetId = '1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg';
     const range = 'A:E';
     const sheetGidsToTry = ['490509024', '1817293373', '936069614', '1474640023'];
@@ -428,6 +395,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     let cols: any = null;
     const successfulGids: string[] = [];
 
+    // 2. Récupération des données brutes (Extract)
     for (const gid of sheetGidsToTry) {
       const url = `https://docs.google.com/spreadsheets/d/${googleSheetId}/gviz/tq?gid=${gid}&range=${encodeURIComponent(range)}&tqx=out:json`;
 
@@ -460,236 +428,85 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Erreur lors du chargement des données:', error);
-        setData(completeData);
       }
+    }
 
-      if (allRows.length === 0) {
-        setTimeout(
-          () =>
-            addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'),
-          0
-        );
-        return;
-      }
+    if (allRows.length === 0) {
+      setTimeout(() => addToast('Impossible de récupérer des données depuis les onglets spécifiés.', 'error'), 0);
+      return;
+    }
 
-      try {
-        const rows = allRows;
-
-        if (!rows || rows.length === 0) {
-          setTimeout(
-            () => addToast('Aucune donnée trouvée dans les feuilles synchronisées.', 'warning'),
-            0
-          );
-          return;
+    try {
+        // 3. Transformation & Filtrage (Transform)
+        // On délègue toute la complexité métier à l'utilitaire dédié
+        // NOTE: On passe data.speakers (état actuel) pour la résolution stable des IDs
+        // Attention: data peut être "stale" dans la closure, mais ici on est dans une fonction async déclenchée par UI.
+        // Pour être sûr, on pourrait utiliser le state setter pattern, mais processSheetRows est pure.
+        
+        // Comme on est dans DataContext, on a accès à "data" qui est le state du rendu courant.
+        // S'il y a eu des updates concurrents c'est rare, mais acceptable pour la lecture.
+        
+        const cleanVisits = processSheetRows(allRows, cols, data.speakers, data.congregationProfile);
+        
+        if (cleanVisits.length === 0) {
+            setTimeout(() => addToast('Aucune visite valide trouvée après filtrage.', 'warning'), 0);
+            return;
         }
 
-        const headers = cols.map((h: any) =>
-          h.label
-            .toLowerCase()
-            .trim()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]/g, '')
-        );
-        const dateIndex = headers.findIndex((h: string) => h.includes('data'));
-        const speakerIndex = headers.findIndex((h: string) => h.includes('orador'));
-        const congIndex = headers.findIndex((h: string) => h.includes('kongregason'));
-        const talkNoIndex = headers.findIndex((h: string) => h === 'n' || h === 'no');
-        const themeIndex = headers.findIndex((h: string) => h.includes('tema'));
-
-        if ([dateIndex, speakerIndex, congIndex].some((i) => i === -1)) {
-          setTimeout(
-            () => addToast('En-têtes requis manquants: Data, Orador, Kongregason.', 'error'),
-            0
-          );
-          return;
-        }
-
-        let addedCount = 0,
-          updatedCount = 0,
-          skippedCount = 0;
-        const addedVisitsDetails: string[] = [];
-        const updatedVisitsDetails: string[] = [];
-
+        // 4. Chargement & Fusion (Load)
+        let stats = { added: 0, updated: 0, deleted: 0 };
+        
         setData((prev) => {
-          const newSpeakers = [...prev.speakers];
-          // Note: On ne copie pas tout de suite newVisits, on va d'abord parser le sheet
-          const speakerMap = new Map(newSpeakers.map((s) => [s.nom.toLowerCase(), s]));
-          
-          // 1. Parser toutes les visites candidates depuis le Sheet
-          const candidateVisits: Visit[] = [];
+            // Utilitaire de fusion idempotent
+            const result = mergeVisitsIdempotent(prev.visits, cleanVisits);
+            stats = result.stats;
 
-          for (const row of rows) {
-            const cells = row.c;
-            const dateValue = cells[dateIndex]?.v;
-            let visitDateObj: Date | null = null;
-
-            if (typeof dateValue === 'string' && dateValue.startsWith('Date(')) {
-              const dateParts = dateValue.substring(5, dateValue.length - 1).split(',');
-              visitDateObj = new Date(
-                Number(dateParts[0]),
-                Number(dateParts[1]),
-                Number(dateParts[2])
-              );
-            } else if (typeof dateValue === 'string') {
-              visitDateObj = parseDate(dateValue);
-            }
-
-            const speakerName = cells[speakerIndex]?.v?.trim();
-            const congregation = cells[congIndex]?.v?.trim() || '';
-
-            if (!visitDateObj || !speakerName) {
-              skippedCount++;
-              continue;
-            }
-
-            // Timezone-safe date formatting
-            const year = visitDateObj.getFullYear();
-            const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
-            const day = String(visitDateObj.getDate()).padStart(2, '0');
-            const formattedDate = `${year}-${month}-${day}`;
-
-            let speaker = speakerMap.get(speakerName.toLowerCase());
-            if (!speaker) {
-              speaker = {
-                id: generateUUID(),
-                nom: speakerName,
-                congregation: congregation || 'À définir',
-                talkHistory: [],
-                gender: 'male',
-              };
-              newSpeakers.push(speaker);
-              speakerMap.set(speakerName.toLowerCase(), speaker);
-            } else if (speaker.congregation !== congregation && congregation) {
-               speaker.congregation = congregation;
-            }
-
-            // Création de l'objet visite "candidat"
-            const talkNoValue =
-              talkNoIndex > -1
-                ? cells[talkNoIndex]?.v !== null
-                  ? String(cells[talkNoIndex]?.v)
-                  : null
-                : null;
-            const themeValue =
-              themeIndex > -1
-                ? cells[themeIndex]?.v !== null
-                  ? String(cells[themeIndex]?.v)
-                  : null
-                : null;
+            // Mise à jour des speakers si des nouveaux ont été créés par processSheetRows
+            // processSheetRows renvoie des visites avec des IDs. Si l'ID n'existait pas dans prev.speakers, il faut créer le speaker.
+            // Cependant, processSheetRows ne retourne QUE des visits.
+            // IL MANQUE L'ETAPE DE CREATION DES SPEAKERS MANQUANTS DANS MON UTILITAIRE !
+            // Je dois corriger cela : processSheetRows devrait retourner { visits, newSpeakers } ou je dois déduire.
             
-            const finalTheme = themeValue || getTalkTitle(talkNoValue);
-
-            // On crée une visite temporaire
-            candidateVisits.push({
-              id: speaker.id,
-              nom: speaker.nom,
-              congregation,
-              telephone: speaker.telephone,
-              photoUrl: speaker.photoUrl,
-              visitId: generateUUID(), // ID temporaire, sera remplacé si match existant
-              visitDate: formattedDate,
-              visitTime: prev.congregationProfile.meetingTime || '14:30',
-              host: congregation.toLowerCase().includes('zoom') ||
-                  congregation.toLowerCase().includes('streaming') ||
-                  congregation.toLowerCase().includes('lyon')
-                  ? NA_HOST
-                  : UNASSIGNED_HOST,
-              accommodation: '',
-              meals: '',
-              status: 'pending',
-              locationType: congregation.toLowerCase().includes('zoom')
-                  ? 'zoom'
-                  : congregation.toLowerCase().includes('streaming')
-                  ? 'streaming'
-                  : 'physical',
-              talkNoOrType: talkNoValue,
-              talkTheme: finalTheme,
-              communicationStatus: {},
+            // DEDUCTION DES SPEAKERS MANQUANTS :
+            const currentSpeakerIds = new Set(prev.speakers.map(s => s.id));
+            const newSpeakersToAdd: Speaker[] = [];
+            
+            cleanVisits.forEach(v => {
+                if (!currentSpeakerIds.has(v.id)) {
+                    // C'est un nouveau speaker détecté par le parsing (qui a généré un ID)
+                    currentSpeakerIds.add(v.id);
+                    newSpeakersToAdd.push({
+                        id: v.id,
+                        nom: v.nom,
+                        congregation: v.congregation,
+                        telephone: v.telephone,
+                        gender: 'male', // Défaut
+                        talkHistory: [],
+                        email: '',
+                        notes: '',
+                        tags: [],
+                    });
+                }
             });
-          }
 
-          // 2. Appliquer le filtre des doublons sur les candidats
-          const filteredCandidates = filterVisits(candidateVisits);
-          console.log(`Sync Filter: ${candidateVisits.length} raw -> ${filteredCandidates.length} filtered`);
-
-          // 3. Fusionner avec les visites existantes
-          const initialVisits = [...prev.visits];
-          const mergedVisits = [...initialVisits];
-
-          for (const candidate of filteredCandidates) {
-             const existingVisitIndex = mergedVisits.findIndex(v => v.visitDate === candidate.visitDate);
-             const displayDate = new Date(candidate.visitDate).toLocaleDateString('fr-FR');
-             
-             if (existingVisitIndex > -1) {
-               // Mise à jour visite existante
-               const existingVisit = mergedVisits[existingVisitIndex];
-               const updates: string[] = [];
-
-               if (existingVisit.id !== candidate.id) {
-                  existingVisit.id = candidate.id;
-                  existingVisit.nom = candidate.nom;
-                  existingVisit.telephone = candidate.telephone;
-                  existingVisit.photoUrl = candidate.photoUrl;
-                  updates.push('Orateur');
-               }
-               if (candidate.congregation && existingVisit.congregation !== candidate.congregation) {
-                  existingVisit.congregation = candidate.congregation;
-                  updates.push('Congrégation');
-               }
-               if (existingVisit.talkNoOrType !== candidate.talkNoOrType) {
-                  existingVisit.talkNoOrType = candidate.talkNoOrType;
-                  updates.push('N° Discours');
-               }
-               if (existingVisit.talkTheme !== candidate.talkTheme) {
-                  existingVisit.talkTheme = candidate.talkTheme;
-                  updates.push('Thème');
-               }
-
-               if (updates.length > 0) {
-                 updatedCount++;
-                 updatedVisitsDetails.push(`- ${candidate.nom} (${displayDate}): ${updates.join(', ')}`);
-               }
-             } else {
-               // Nouvelle visite
-               mergedVisits.push(candidate);
-               addedCount++;
-               addedVisitsDetails.push(`- ${candidate.nom} (${displayDate})`);
-             }
-          }
-
-          // 4. NETTOYAGE FINAL : Appliquer le filtre sur TOUTES les visites (existantes + nouvelles)
-          // Cela permet de supprimer les doublons qui étaient déjà en base (dates différentes)
-          const finalVisits = filterVisits(mergedVisits);
-          
-          if (finalVisits.length < initialVisits.length) {
-              console.log(`🧹 Nettoyage: ${initialVisits.length - finalVisits.length} doublons supprimés de la base.`);
-          }
-
-          // IMPORTANT: Préserver les hôtes lors de la sync
-          return { ...prev, speakers: newSpeakers, visits: finalVisits, hosts: prev.hosts };
+            return {
+                ...prev,
+                speakers: [...prev.speakers, ...newSpeakersToAdd],
+                visits: result.mergedVisits,
+            };
         });
 
-        let toastMessage = `Synchronisation depuis les onglets ${successfulGids.join(', ')} terminée !\n- ${addedCount} visite(s) ajoutée(s)\n- ${updatedCount} visite(s) mise(s) à jour\n- ${skippedCount} ligne(s) ignorée(s)`;
-        if (addedVisitsDetails.length > 0) {
-          toastMessage += `\n\nAjouts:\n${addedVisitsDetails.join('\n')}`;
-        }
-        if (updatedVisitsDetails.length > 0) {
-          toastMessage += `\n\nMises à jour:\n${updatedVisitsDetails.join('\n')}`;
-        }
+        // Feedback utilisateur
         localStorage.setItem('lastGoogleSheetSync', new Date().toISOString());
-        setTimeout(() => addToast(toastMessage, 'success', 15000), 0);
-      } catch (error) {
-        console.error('Error syncing with Google Sheet:', error);
-        setTimeout(
-          () =>
-            addToast(
-              `Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`,
-              'error'
-            ),
-          0
-        );
-      }
+        
+        let msg = `Synchronisation terminée !\n+ ${stats.added} ajout(s)\n~ ${stats.updated} mise(s) à jour`;
+        if (stats.deleted > 0) msg += `\n- ${stats.deleted} doublons supprimés`;
+        
+        setTimeout(() => addToast(msg, 'success', 8000), 0);
+
+    } catch (error) {
+      console.error('Error syncing with Google Sheet:', error);
+      setTimeout(() => addToast(`Erreur de synchronisation: ${error instanceof Error ? error.message : 'Inconnue'}.`, 'error'), 0);
     }
   };
 

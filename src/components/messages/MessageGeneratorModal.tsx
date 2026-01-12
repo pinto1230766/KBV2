@@ -488,7 +488,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       { value: 'preparation', label: t('Préparation') },
                        {value: 'reminder-7', label: t('Rappel (J-7)')},
                        {value: 'reminder-2', label: t('Rappel (J-2)')},
-                       {value: 'thanks', label: t('Remerciements')},
+                       {value: 'host_thanks', label: t('Remerciements hôte')},
                        {value: 'visit_recap', label: t('Récapitulatif Visite')},
                        {value: 'free_message', label: t('Message libre')},
                      ]
@@ -496,7 +496,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       { value: 'confirmation', label: t('Confirmation') },
                       { value: 'reminder-7', label: t('Rappel (J-7)') },
                       { value: 'reminder-2', label: t('Rappel (J-2)') },
-                      { value: 'thanks', label: t('Remerciements') },
+                      { value: 'thanks', label: t('Remerciements orateur') },
                       { value: 'preparation', label: t('Préparation') },
                     ]
               }
