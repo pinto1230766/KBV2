@@ -11,7 +11,7 @@ import {
 } from '@/types';
 import * as storage from '@/utils/storage';
 import { completeData } from '@/data/completeData';
-import { processSheetRows, mergeVisitsIdempoten, backfillExternalIdst } from '@/utils/googleSheetSync';
+import { processSheetRows, mergeVisitsIdempotent, backfillExternalIds } from '@/utils/googleSheetSync';
 import { useToast } from './ToastContext';
 import { useSyncQueue } from '../hooks/useSyncQueue';
 import { useOfflineMode } from '../hooks/useOfflineMode';
