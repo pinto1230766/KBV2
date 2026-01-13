@@ -3,7 +3,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
-import { Visit, Expense, MessageType, Companion, CompanionType, CommunicationChannel } from '@/types';
+import { Visit, Expense, MessageType, Companion, CompanionType } from '@/types';
 import {
   Edit2,
   Trash2,
@@ -26,13 +26,11 @@ import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
 import { RoadmapView } from '@/components/reports/RoadmapView';
-import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
 import { generateUUID } from '@/utils/uuid';
 import { cn } from '@/utils/cn';
 import { Badge } from '@/components/ui/Badge';
 import { useVisitNotifications } from '@/hooks/useVisitNotifications';
-import { getPrimaryHostName } from '@/utils/hostUtils';
 
 interface VisitActionModalProps {
   isOpen: boolean;
