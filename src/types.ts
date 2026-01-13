@@ -148,6 +148,7 @@ export interface Companion {
 export interface Visit {
   id: string; // ID de l'orateur
   visitId: string; // ID unique de la visite
+  externalId?: string; // ID stable construit depuis les colonnes du Sheet (Orador + Kongregason + N°)
   nom: string;
   congregation: string;
   telephone?: string;
