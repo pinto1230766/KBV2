@@ -88,6 +88,9 @@ export const processSheetRows = (
           ? String(cells[talkNoIndex]?.v)
           : null
         : null;
+
+    // Génération d'un ID stable pour identifier cette visite de façon unique
+    const externalId = `${speakerName.toLowerCase().trim()}__${congregation.toLowerCase().trim()}__${talkNoValue || 'notalk'}`;
     const themeValue =
       themeIndex > -1
         ? cells[themeIndex]?.v !== null
@@ -104,6 +107,7 @@ export const processSheetRows = (
       telephone: speakerPhone, // On garde le tel local si dispo via le match orateur
       photoUrl: speakerPhoto,
       visitId: generateUUID(), // ID temporaire
+      externalId: externalId,
       visitDate: formattedDate,
       visitTime: congregationProfile.meetingTime || '14:30',
       host: congregation.toLowerCase().includes('zoom') ||
@@ -207,11 +211,16 @@ export const mergeVisitsIdempotent = (
   for (const incoming of incomingVisits) {
     // Recherche d'une visite existante correspondante
     // Critère de "Même Visite" : Même Date ET Même Orateur
-    const matchIndex = mergedVisits.findIndex(existing => 
-      existing.visitDate === incoming.visitDate && 
-      (existing.id === incoming.id || existing.nom.toLowerCase() === incoming.nom.toLowerCase())
-    );
-
+        // Recherche par externalId en priorité
+    const matchIndex = mergedVisits.findIndex(existing => {
+      // Si les deux ont un externalId, on matche dessus
+      if (existing.externalId && incoming.externalId) {
+        return existing.externalId === incoming.externalId;
+      }
+      // Sinon fallback sur l'ancien système (date + nom)
+      return existing.visitDate === incoming.visitDate && 
+             existing.nom.toLowerCase() === incoming.nom.toLowerCase();
+    });
     if (matchIndex > -1) {
       // UPDATE
       const existing = mergedVisits[matchIndex];
@@ -219,6 +228,10 @@ export const mergeVisitsIdempotent = (
       // On préserve les données locales (ID, status, hostAssignments, feedback, etc.)
       const updated: Visit = {
         ...existing,
+      // Préserver l'ID de visite existant et mettre à jour externalId
+      visitId: existing.visitId,
+      externalId: incoming.externalId,
+      visitDate: incoming.visitDate,
         // Champs Sheet qui écrasent (source de vérité)
         congregation: incoming.congregation,
         talkNoOrType: incoming.talkNoOrType,
@@ -248,4 +261,19 @@ export const mergeVisitsIdempotent = (
   }
 
   return { mergedVisits: cleanedVisits, stats };
+};
+
+/**
+ * Fonction pour ajouter les externalId aux visites existantes qui n'en ont pas encore.
+ * À appeler une fois pour migrer les données existantes.
+ */
+export const backfillExternalIds = (visits: Visit[]): Visit[] => {
+  return visits.map(v => {
+    if (!v.externalId) {
+      // Recalculer l'externalId à partir des données existantes
+      const externalId = `${v.nom.toLowerCase().trim()}__${v.congregation.toLowerCase().trim()}__${v.talkNoOrType || 'notalk'}`;
+      return { ...v, externalId };
+    }
+    return v;
+  });
 };
