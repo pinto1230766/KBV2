@@ -40,6 +40,13 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
     if (host) {
       setFormData({
         ...host,
+        nom: host.nom || '',
+        address: host.address || '',
+        telephone: host.telephone || '',
+        email: host.email || '',
+        photoUrl: host.photoUrl || '',
+        gender: host.gender || 'couple',
+        notes: host.notes || '',
         capacity: host.capacity ?? DEFAULT_CAPACITY,
         hasPets: host.hasPets ?? false,
         isSmoker: host.isSmoker ?? false,

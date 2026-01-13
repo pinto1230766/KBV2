@@ -151,6 +151,18 @@ Fraternellement,
 {hospitalityOverseer}`,
     },
 
+    host_thanks: {
+      speaker: ``, // Non utilisé pour les hôtes
+      host: `Bonjour Frère *{hostName}*,
+
+Un grand merci pour ton hospitalité envers notre orateur invité, {speakerName} ! 🏠❤️
+
+Ton accueil chaleureux contribue grandement à la réussite de ces visites.
+
+Fraternellement,
+{hospitalityOverseer}`,
+    },
+
     // NOUVEAU: Message libre pour les hôtes
     free_message: {
       speaker: `Bonjour Frère *{speakerName}*,
@@ -333,6 +345,18 @@ Fraternalmenti,
 {hospitalityOverseer}`,
     },
 
+    host_thanks: {
+      speaker: ``, // Non utilisé pour les hôtes
+      host: `Bon dia Mon *{hostName}*,
+
+Un grandi obrigadu pa bu ospitalidadi pa ku nu orador kombidadu, {speakerName}! 🏠❤️
+
+Bu akolhimentu kalorozi ta kontribui munti pa susesu di es bizitas.
+
+Fraternalmenti,
+{hospitalityOverseer}`,
+    },
+
     // NOUVEAU: Message libre pour les hôtes
     free_message: {
       speaker: `Bon dia Mon *{speakerName}*,
@@ -481,6 +505,18 @@ Foi um verdadeiro prazer receber-te entre nós. Esperamos ver-te novamente em br
 Fraternalmente,
 {hospitalityOverseer}`,
 
+      host: `Olá Irmão *{hostName}*,
+
+Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️
+
+O teu acolhimento caloroso contribui muito para o sucesso destas visitas.
+
+Fraternalmente,
+{hospitalityOverseer}`,
+    },
+
+    host_thanks: {
+      speaker: ``, // Non utilisé pour les hôtes
       host: `Olá Irmão *{hostName}*,
 
 Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️

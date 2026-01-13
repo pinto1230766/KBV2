@@ -59,25 +59,37 @@ function AppContent() {
 
   // Gestion des notifications Capacitor (Deep Linking)
   useEffect(() => {
-    const handleNotificationClick = LocalNotifications.addListener(
-      'localNotificationActionPerformed',
-      (notification) => {
-        const { extra } = notification.notification;
-        if (extra && extra.visitId) {
-          console.log('🔔 Notification cliquée:', extra);
-          // Rediriger vers le planning avec des params pour ouvrir la modale
-          const queryParams = new URLSearchParams();
-          queryParams.set('visitId', extra.visitId);
-          if (extra.messageType) queryParams.set('messageType', extra.messageType);
-          if (extra.target) queryParams.set('target', extra.target);
-          
-          navigate(`/planning?${queryParams.toString()}`);
-        }
+    let notificationListener: any = null;
+
+    const setupNotificationListener = async () => {
+      try {
+        notificationListener = await LocalNotifications.addListener(
+          'localNotificationActionPerformed',
+          (notification) => {
+            const { extra } = notification.notification;
+            if (extra && extra.visitId) {
+              console.log('🔔 Notification cliquée:', extra);
+              // Rediriger vers le planning avec des params pour ouvrir la modale
+              const queryParams = new URLSearchParams();
+              queryParams.set('visitId', extra.visitId);
+              if (extra.messageType) queryParams.set('messageType', extra.messageType);
+              if (extra.target) queryParams.set('target', extra.target);
+
+              navigate(`/planning?${queryParams.toString()}`);
+            }
+          }
+        );
+      } catch (error) {
+        console.error('Erreur lors de la configuration du listener de notifications:', error);
       }
-    );
+    };
+
+    setupNotificationListener();
 
     return () => {
-      handleNotificationClick.remove();
+      if (notificationListener) {
+        notificationListener.remove();
+      }
     };
   }, [navigate]);
 

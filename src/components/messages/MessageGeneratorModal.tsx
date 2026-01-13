@@ -37,8 +37,15 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const { addToast } = useToast();
   const { t } = useTranslation();
 
+  const [message, setMessage] = useState('');
+  const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
+  const [type, setType] = useState<MessageType>(initialType);
+  const [language, setLanguage] = useState(settings.language);
+  const [isGenerating, setIsGenerating] = useState(false);
+
   // Déterminer si on envoie à un hôte ou à un orateur
-  const isHostMessage = !!host || isGroupMessage;
+  // Les types qui commencent par "host_" sont toujours pour les hôtes
+  const isHostMessage = !!host || isGroupMessage || type.startsWith('host_');
   
   // Fallback sur les données de la visite si l'orateur n'est pas trouvé
   const virtualSpeaker = !speaker && visit ? {
@@ -53,12 +60,6 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   const targetEntity = host || speaker || virtualSpeaker;
   const targetName = isGroupMessage ? `${allHosts.length} hôtes` : (targetEntity?.nom || visit?.nom || '');
-
-  const [message, setMessage] = useState('');
-  const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
-  const [type, setType] = useState<MessageType>(initialType);
-  const [language, setLanguage] = useState(settings.language);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   // Gestion des templates
   const [messageTemplates, setMessageTemplates] = useState<
@@ -94,7 +95,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   // Générer le message initial lors de l'ouverture ou du changement de paramètres
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isGenerating) {
       handleGenerate();
     }
   }, [isOpen, type, language]);
@@ -488,7 +489,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       { value: 'preparation', label: t('Préparation') },
                        {value: 'reminder-7', label: t('Rappel (J-7)')},
                        {value: 'reminder-2', label: t('Rappel (J-2)')},
-                       {value: 'host_thanks', label: t('Remerciements hôte')},
+                       {value: 'host_thanks', label: t('Remerciements (pour hôte)')},
                        {value: 'visit_recap', label: t('Récapitulatif Visite')},
                        {value: 'free_message', label: t('Message libre')},
                      ]
@@ -496,7 +497,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
                       { value: 'confirmation', label: t('Confirmation') },
                       { value: 'reminder-7', label: t('Rappel (J-7)') },
                       { value: 'reminder-2', label: t('Rappel (J-2)') },
-                      { value: 'thanks', label: t('Remerciements orateur') },
+                      { value: 'thanks', label: t('Remerciements (pour orateur)') },
                       { value: 'preparation', label: t('Préparation') },
                     ]
               }

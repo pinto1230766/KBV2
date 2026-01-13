@@ -1,7 +1,7 @@
 /**
  * Tests unitaires pour Planning.tsx
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TestWrapper } from '@/utils/TestWrapper';
 import { Planning } from '@/pages/Planning';
 
@@ -14,9 +14,11 @@ describe('Planning', () => {
     );
   };
 
-  it('rend le titre principal', () => {
+  it('rend le titre principal', async () => {
     renderPlanning();
-    expect(screen.getByText(/Planning des Visites/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/Planning des Visites/i)).toBeInTheDocument();
+    });
   });
 
   it('affiche les filtres de planification', () => {

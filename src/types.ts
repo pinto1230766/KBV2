@@ -9,6 +9,7 @@ export type MessageType =
   | 'reminder-7'
   | 'reminder-2'
   | 'thanks'
+  | 'host_thanks'
   | 'host_request'
   | 'host_request_individual'
   | 'host_request_message'

@@ -37,6 +37,13 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
     if (speaker) {
       setFormData({
         ...speaker,
+        nom: speaker.nom || '',
+        congregation: speaker.congregation || '',
+        telephone: speaker.telephone || '',
+        email: speaker.email || '',
+        photoUrl: speaker.photoUrl || '',
+        gender: speaker.gender || 'male',
+        notes: speaker.notes || '',
         isVehiculed: speaker.isVehiculed ?? true,
       });
     } else {
