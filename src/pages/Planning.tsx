@@ -6,6 +6,7 @@ import { PlanningListView } from '@/components/planning/PlanningListView';
 import { PlanningCalendarView } from '@/components/planning/PlanningCalendarView';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
+import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -43,6 +44,7 @@ import { cn } from '@/utils/cn';
 import { exportService } from '@/utils/ExportService';
 import { useToast } from '@/contexts/ToastContext';
 import { generateMessage, generateWhatsAppUrl } from '@/utils/messageGenerator';
+import { getPrimaryHostName } from '@/utils/hostUtils';
 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
@@ -126,6 +128,21 @@ export const Planning: React.FC = () => {
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
   const [isReplacementModalOpen, setIsReplacementModalOpen] = useState(false);
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
+  const [messageModalParams, setMessageModalParams] = useState<{
+    isOpen: boolean;
+    type: any;
+    isGroup?: boolean;
+    channel?: any;
+    speaker: any;
+    visit: Visit | null;
+    host: any;
+  }>({
+    isOpen: false,
+    type: 'confirmation',
+    speaker: null,
+    visit: null,
+    host: null,
+  });
 
   const componentRef = useRef<HTMLDivElement>(null);
 
@@ -249,6 +266,23 @@ export const Planning: React.FC = () => {
     setIsActionModalOpen(false);
     setSelectedVisit(null);
   }, []);
+
+  const handleOpenMessageModal = useCallback(
+    (params: { type: any; isGroup?: boolean; channel?: any; visit: Visit }) => {
+      const speaker = _speakers.find((s) => s.id === params.visit.id) || null;
+      const host = hosts.find((h) => h.nom === getPrimaryHostName(params.visit));
+      setMessageModalParams({
+        isOpen: true,
+        type: params.type,
+        isGroup: params.isGroup,
+        channel: params.channel,
+        speaker,
+        visit: params.visit,
+        host,
+      });
+    },
+    [_speakers, hosts]
+  );
 
   const handleReplacement = useCallback(
     (speaker: Speaker, sendNotification: boolean) => {
@@ -757,6 +791,7 @@ export const Planning: React.FC = () => {
         onClose={handleCloseActionModal}
         visit={selectedVisit}
         action={selectedAction}
+        onOpenMessageModal={handleOpenMessageModal}
       />
 
       <PlanningFilterModal
@@ -794,6 +829,19 @@ export const Planning: React.FC = () => {
           onClose={() => setIsReplacementModalOpen(false)}
           visit={selectedVisit}
           onSelectReplacement={handleReplacement}
+        />
+      )}
+
+      {messageModalParams.isOpen && (
+        <MessageGeneratorModal
+          isOpen={messageModalParams.isOpen}
+          onClose={() => setMessageModalParams({ ...messageModalParams, isOpen: false })}
+          speaker={messageModalParams.speaker}
+          visit={messageModalParams.visit}
+          host={messageModalParams.host}
+          initialType={messageModalParams.type}
+          isGroupMessage={messageModalParams.isGroup}
+          initialChannel={messageModalParams.channel}
         />
       )}
     </div>

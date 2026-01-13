@@ -36,12 +36,13 @@ import { cn } from '@/utils/cn';
 import { DashboardVisitItem } from '@/components/dashboard/DashboardVisitItem';
 
 import { Visit } from '@/types';
-import { getActiveHostsCount } from '@/utils/hostUtils';
+import { getActiveHostsCount, getPrimaryHostName } from '@/utils/hostUtils';
 import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
 import { generateReport } from '@/utils/reportGenerator';
 import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
+import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
 
 
@@ -57,6 +58,21 @@ export const Dashboard: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
   const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
+  const [messageModalParams, setMessageModalParams] = useState<{
+    isOpen: boolean;
+    type: any;
+    isGroup?: boolean;
+    channel?: any;
+    speaker: any;
+    visit: Visit | null;
+    host: any;
+  }>({
+    isOpen: false,
+    type: 'confirmation',
+    speaker: null,
+    visit: null,
+    host: null,
+  });
 
   // Memoized Data
   const stats = useMemo(() => {
@@ -95,6 +111,20 @@ export const Dashboard: React.FC = () => {
   const handleVisitClick = (visit: Visit) => {
     setSelectedVisit(visit);
     setIsVisitActionModalOpen(true);
+  };
+
+  const handleOpenMessageModal = (params: { type: any; isGroup?: boolean; channel?: any; visit: Visit }) => {
+    const speaker = speakers.find((s) => s.id === params.visit.id) || null;
+    const host = hosts.find((h) => h.nom === getPrimaryHostName(params.visit));
+    setMessageModalParams({
+      isOpen: true,
+      type: params.type,
+      isGroup: params.isGroup,
+      channel: params.channel,
+      speaker,
+      visit: params.visit,
+      host,
+    });
   };
 
   return (
@@ -451,6 +481,7 @@ export const Dashboard: React.FC = () => {
           onClose={() => setIsVisitActionModalOpen(false)}
           visit={selectedVisit}
           action='edit'
+          onOpenMessageModal={handleOpenMessageModal}
         />
       )}
 
@@ -516,6 +547,19 @@ export const Dashboard: React.FC = () => {
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
       />
+
+      {messageModalParams.isOpen && (
+        <MessageGeneratorModal
+          isOpen={messageModalParams.isOpen}
+          onClose={() => setMessageModalParams({ ...messageModalParams, isOpen: false })}
+          speaker={messageModalParams.speaker}
+          visit={messageModalParams.visit}
+          host={messageModalParams.host}
+          initialType={messageModalParams.type}
+          isGroupMessage={messageModalParams.isGroup}
+          initialChannel={messageModalParams.channel}
+        />
+      )}
     </div>
   );
 };
