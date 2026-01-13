@@ -11,7 +11,7 @@ import {
 } from '@/types';
 import * as storage from '@/utils/storage';
 import { completeData } from '@/data/completeData';
-import { processSheetRows, mergeVisitsIdempotent } from '@/utils/googleSheetSync';
+import { processSheetRows, mergeVisitsIdempoten, backfillExternalIdst } from '@/utils/googleSheetSync';
 import { useToast } from './ToastContext';
 import { useSyncQueue } from '../hooks/useSyncQueue';
 import { useOfflineMode } from '../hooks/useOfflineMode';
@@ -168,6 +168,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Migration: Ajouter externalId aux visites existantes
+  useEffect(() => {
+    if (loaded && data.visits.length > 0) {
+      const migratedVisits = backfillExternalIds(data.visits);
+      const needsMigration = migratedVisits.some((v, i) => 
+        v.externalId && !data.visits[i]?.externalId
+      );
+      
+      if (needsMigration) {
+        console.log('🔄 Migration: Adding externalId to existing visits');
+        setData((prev) => ({ ...prev, visits: migratedVisits }));
+      }
+    }
+  }, [loaded]);
 
   // Gestion de la Sauvegarde Automatique (Hebdomadaire)
   useEffect(() => {
