@@ -5,8 +5,7 @@ import { NA_HOST, UNASSIGNED_HOST } from '@/data/commonConstants';
 import { getTalkTitle } from '@/data/talkTitles';
 
 // Constante pour la date pivot du changement de planning (1er Fév 2026)
-const CUTOFF_DATE = new Date('2026-02-01');
-
+const CUTOFF_DATE = (() => { const today = new Date(); today.setHours(0, 0, 0, 0); return today; })();
 /**
  * Traite les lignes brutes du Google Sheet pour produire une liste de visites nettoyée et filtrée.
  */
