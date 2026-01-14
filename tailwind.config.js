@@ -2,6 +2,9 @@
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
+  corePlugins: {
+    transform: false,
+  },
   theme: {
     extend: {
       colors: {
@@ -105,7 +108,7 @@ export default {
         'slide-up': 'slideUp 0.3s cubic-bezier(0.4, 0.0, 0.2, 1)',
         'fade-in': 'fadeIn 0.2s cubic-bezier(0.4, 0.0, 0.2, 1)',
         'spin-slow': 'spin 3s linear infinite',
-        'bounce-subtle': 'bounceSubtle 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        // 'bounce-subtle': 'bounceSubtle 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
       keyframes: {
         slideUp: {
@@ -116,10 +119,10 @@ export default {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        bounceSubtle: {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(0.95)' },
-        },
+        // bounceSubtle: {
+        //   '0%, 100%': { transform: 'scale(1)' },
+        //   '50%': { transform: 'scale(0.95)' },
+        // },
       },
     },
   },
