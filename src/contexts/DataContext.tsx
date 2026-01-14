@@ -180,6 +180,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (needsMigration) {
         console.log('🔄 Migration: Adding externalId to existing visits');
         setData((prev) => ({ ...prev, visits: migratedVisits }));
+
+              // Dedupe: Remove duplicate visits based on externalId
+              const uniqueVisits = migratedVisits.reduce((acc, visit) => {
+                        if (!visit.externalId) {
+                                    acc.push(visit);
+                                    return acc;
+                                  }
+                        const duplicate = acc.find(v => v.externalId === visit.externalId);
+                        if (!duplicate) {
+                                    acc.push(visit);
+                                  } else {
+                                    console.log(`🗑️ Removing duplicate visit for ${visit.nom} on ${visit.visitDate}`);
+                                  }
+                        return acc;
+                      }, [] as Visit[]);
+
+              if (uniqueVisits.length < migratedVisits.length) {
+                        const removed = migratedVisits.length - uniqueVisits.length;
+                        console.log(`🔄 Migration: Removed ${removed} duplicate visit(s)`);
+                        setData((prev) => ({ ...prev, visits: uniqueVisits }));
+                      }
       }
     }
   }, [loaded]);
