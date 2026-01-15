@@ -57,18 +57,17 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const content = (
-    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6'>
+    <>
       <div
-        className='fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity'
+        className='fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity z-50'
         onClick={onClose}
         aria-hidden='true'
       />
-
       <div
         ref={modalRef}
         className={`
-          relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[90vh] flex flex-col
-          transform transition-all duration-200 scale-100 opacity-100
+          fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[70vh] flex flex-col
+          transition-all duration-200 scale-100 opacity-100 z-50
           ${sizes[size]}
           ${className}
         `}
@@ -104,7 +103,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 
   return createPortal(content, document.body);

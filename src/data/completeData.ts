@@ -21,14 +21,6 @@ export const completeSpeakers: Speaker[] = [
     gender: 'male',
   },
   {
-    id: '1',
-    nom: 'Ailton DIAS',
-    congregation: 'Villiers-sur-Marne',
-    talkHistory: [],
-    telephone: '33611223344',
-    gender: 'male',
-  },
-  {
     id: '3',
     nom: 'Alexandre NOGUEIRA',
     congregation: 'Creil',
@@ -112,15 +104,6 @@ export const completeSpeakers: Speaker[] = [
     gender: 'male',
   },
   {
-    id: '0eb3c29f-9791-4265-9563-d7bbef525580',
-    nom: 'Jonatã ALVES',
-    congregation: 'Albufeira KBV',
-    talkHistory: [],
-    telephone: '',
-    tags: ['zoom', 'expérimenté'],
-    gender: 'male',
-  },
-  {
     id: 'c9065ffa-0244-47fd-a70f-0efb2555258a',
     nom: 'José FREITAS',
     congregation: 'Lyon KBV',
@@ -134,14 +117,6 @@ export const completeSpeakers: Speaker[] = [
     congregation: 'Marseille KBV',
     talkHistory: [],
     telephone: '33618505292',
-    gender: 'male',
-  },
-  {
-    id: '504e24a7-1609-4f62-b374-4ae004b36350',
-    nom: 'Andrea MENARA',
-    congregation: 'Ettelbruck KBV',
-    talkHistory: [],
-    telephone: '352691295018',
     gender: 'male',
   },
   {
