@@ -66,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalRef}
         className={`
-          fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[60vh] flex flex-col
+          fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[50vh] flex flex-col
           transition-all duration-200 scale-100 opacity-100 z-50
           ${sizes[size]}
           ${className}
