@@ -63,17 +63,18 @@ export const Modal: React.FC<ModalProps> = ({
         onClick={onClose}
         aria-hidden='true'
       />
-      <div
-        ref={modalRef}
-        className={`
-          fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[50vh] flex flex-col
-          transition-all duration-200 scale-100 opacity-100 z-50
-          ${sizes[size]}
-          ${className}
-        `}
-        role='dialog'
-        aria-modal='true'
-      >
+      <div className='fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6'>
+        <div
+          ref={modalRef}
+          className={`
+            bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-h-[80vh] flex flex-col
+            transition-all duration-200 scale-100 opacity-100
+            ${sizes[size]}
+            ${className}
+          `}
+          role='dialog'
+          aria-modal='true'
+        >
         {!hideCloseButton && (
           <div
             className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0 ${title ? '' : 'justify-end border-none pb-0'}`}
@@ -103,7 +104,8 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </>
+    </div>
+  </>
   );
 
   return createPortal(content, document.body);
