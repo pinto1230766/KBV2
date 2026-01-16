@@ -206,7 +206,7 @@ export const mergeVisitsIdempotent = (
 
   // 1. Indexer les visites actuelles par date (clé simple pour recherche rapide, attention doublons possibles en base sale)
   // On utilise une map plus complexe pour matcher : Date + Nom (approximatif)
-  
+
   for (const incoming of incomingVisits) {
     // Recherche d'une visite existante correspondante
     // Critère de "Même Visite" : Même Date ET Même Orateur
@@ -217,32 +217,12 @@ export const mergeVisitsIdempotent = (
         return existing.externalId === incoming.externalId;
       }
       // Sinon fallback sur l'ancien système (date + nom)
-      return existing.visitDate === incoming.visitDate && 
+      return existing.visitDate === incoming.visitDate &&
              existing.nom.toLowerCase() === incoming.nom.toLowerCase();
     });
     if (matchIndex > -1) {
-      // UPDATE
-      const existing = mergedVisits[matchIndex];
-      // On ne met à jour que les champs pilotés par le Sheet
-      // On préserve les données locales (ID, status, hostAssignments, feedback, etc.)
-      const updated: Visit = {
-        ...existing,
-      // Préserver l'ID de visite existant et mettre à jour externalId
-      visitId: existing.visitId,
-      externalId: incoming.externalId,
-      visitDate: incoming.visitDate,
-        // Champs Sheet qui écrasent (source de vérité)
-        congregation: incoming.congregation,
-        talkNoOrType: incoming.talkNoOrType,
-        talkTheme: incoming.talkTheme,
-        // On peut mettre à jour le nom si c'est une correction mineure, mais on garde l'ID existant
-        nom: incoming.nom, 
-        telephone: incoming.telephone || existing.telephone, // Sheet peut apporter un tel
-        photoUrl: incoming.photoUrl || existing.photoUrl,
-      };
-      
-      mergedVisits[matchIndex] = updated;
-      stats.updated++;
+      // SKIP UPDATE for existing visits identified by externalId
+      // Do not update existing local visits
     } else {
       // INSERT
       // C'est une nouvelle visite, on l'ajoute.
