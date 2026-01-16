@@ -88,8 +88,39 @@ class FileSystemService {
         // Ne pas throw ici, continuer avec les fallbacks
       }
 
-      // Essayer plusieurs stratégies de sauvegarde
+      // Essayer plusieurs stratégies de sauvegarde (priorité aux répertoires accessibles)
+      console.log('[DEBUG] Testing multiple save strategies...');
       const saveStrategies = [
+        {
+          name: 'External/KBV',
+          options: {
+            path: `${this.KBV_FOLDER}/${options.filename}`,
+            data: options.data,
+            directory: Directory.External,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {
+            try {
+              console.log('[DEBUG] Preparing External/KBV strategy - creating folder...');
+              await this.ensureKBVFolderInExternal();
+              console.log('[DEBUG] KBV folder ready in External');
+            } catch (e) {
+              console.log('[DEBUG] Could not create KBV folder in External, trying without it. Error:', e);
+            }
+          }
+        },
+        {
+          name: 'External direct',
+          options: {
+            path: options.filename,
+            data: options.data,
+            directory: Directory.External,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {
+            console.log('[DEBUG] Using External direct - no preparation needed');
+          }
+        },
         {
           name: 'Documents/KBV',
           options: {
@@ -100,9 +131,11 @@ class FileSystemService {
           },
           prepare: async () => {
             try {
+              console.log('[DEBUG] Preparing Documents/KBV strategy - creating folder...');
               await this.ensureKBVFolderExists();
+              console.log('[DEBUG] KBV folder ready for Documents/KBV strategy');
             } catch (e) {
-              console.log('[DEBUG] Could not create KBV folder, trying without it');
+              console.log('[DEBUG] Could not create KBV folder, trying without it. Error:', e);
             }
           }
         },
@@ -114,7 +147,9 @@ class FileSystemService {
             directory: this.DEFAULT_DIRECTORY,
             encoding: 'utf8' as any,
           },
-          prepare: async () => {} // No preparation needed
+          prepare: async () => {
+            console.log('[DEBUG] Using Documents direct - no preparation needed');
+          }
         },
         {
           name: 'ExternalStorage/KBV',
@@ -124,7 +159,9 @@ class FileSystemService {
             directory: Directory.ExternalStorage,
             encoding: 'utf8' as any,
           },
-          prepare: async () => {} // External storage might not need folder creation
+          prepare: async () => {
+            console.log('[DEBUG] Using ExternalStorage/KBV - no preparation needed');
+          }
         },
         {
           name: 'ExternalStorage direct',
@@ -134,25 +171,44 @@ class FileSystemService {
             directory: Directory.ExternalStorage,
             encoding: 'utf8' as any,
           },
-          prepare: async () => {} // No preparation needed
+          prepare: async () => {
+            console.log('[DEBUG] Using ExternalStorage direct - no preparation needed');
+          }
         }
       ];
 
       for (const strategy of saveStrategies) {
         try {
-          console.log(`[DEBUG] Trying ${strategy.name} strategy...`);
+          console.log(`[DEBUG] Attempting ${strategy.name} strategy...`);
           await strategy.prepare();
 
-          console.log('[DEBUG] Write options:', strategy.options);
+          console.log(`[DEBUG] ${strategy.name} - Write options:`, {
+            path: strategy.options.path,
+            directory: strategy.options.directory,
+            dataLength: strategy.options.data.length,
+            encoding: strategy.options.encoding
+          });
           const result = await Filesystem.writeFile(strategy.options);
-          console.log(`[DEBUG] File written successfully with ${strategy.name}, URI:`, result.uri);
+          console.log(`[DEBUG] ${strategy.name} - File written successfully, URI:`, result.uri);
 
           return {
             success: true,
             path: result.uri,
           };
-        } catch (strategyError) {
+        } catch (strategyError: any) {
           console.log(`[DEBUG] ${strategy.name} strategy failed:`, strategyError);
+          console.log(`[DEBUG] ${strategy.name} error details:`, {
+            message: strategyError?.message,
+            code: strategyError?.code,
+            name: strategyError?.name,
+            stack: strategyError?.stack
+          });
+          // Check for specific error types
+          if (strategyError?.message?.includes('permission') || strategyError?.code === 'EACCES') {
+            console.error(`[DEBUG] ${strategy.name} - PERMISSION DENIED`);
+          } else if (strategyError?.message?.includes('storage') || strategyError?.message?.includes('disk')) {
+            console.error(`[DEBUG] ${strategy.name} - STORAGE ERROR`);
+          }
           // Continue to next strategy
         }
       }
@@ -209,7 +265,7 @@ class FileSystemService {
    */
   private async ensureKBVFolderExists(): Promise<void> {
     try {
-      console.log('[DEBUG] Creating KBV directory...');
+      console.log('[DEBUG] Creating KBV directory in Documents...');
       const mkdirOptions = {
         path: this.KBV_FOLDER,
         directory: this.DEFAULT_DIRECTORY,
@@ -217,17 +273,59 @@ class FileSystemService {
       };
       console.log('[DEBUG] mkdir options:', mkdirOptions);
       await Filesystem.mkdir(mkdirOptions);
-      console.log('[DEBUG] KBV directory created successfully');
+      console.log('[DEBUG] KBV directory created successfully in Documents');
     } catch (error: any) {
       console.log('[DEBUG] KBV directory creation error:', error);
       console.log('[DEBUG] Error details:', {
         message: error?.message,
         code: error?.code,
-        name: error?.name
+        name: error?.name,
+        stack: error?.stack
       });
+      // Check if it's a permission-related error
+      if (error?.message?.includes('permission') || error?.message?.includes('access') || error?.code === 'EACCES') {
+        console.error('[DEBUG] PERMISSION ERROR: Cannot create KBV folder due to permissions');
+        throw new Error('Permissions insuffisantes pour créer le dossier KBV. Vérifiez les permissions de stockage.');
+      }
       // Ignorer l'erreur si le dossier existe déjà
       if (error?.message?.includes('exists') || error?.message?.includes('already exists')) {
         console.log('[DEBUG] KBV directory already exists');
+        return;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Créer le dossier KBV dans External s'il n'existe pas
+   */
+  private async ensureKBVFolderInExternal(): Promise<void> {
+    try {
+      console.log('[DEBUG] Creating KBV directory in External...');
+      const mkdirOptions = {
+        path: this.KBV_FOLDER,
+        directory: Directory.External,
+        recursive: true,
+      };
+      console.log('[DEBUG] mkdir options for External:', mkdirOptions);
+      await Filesystem.mkdir(mkdirOptions);
+      console.log('[DEBUG] KBV directory created successfully in External');
+    } catch (error: any) {
+      console.log('[DEBUG] KBV directory creation error in External:', error);
+      console.log('[DEBUG] Error details:', {
+        message: error?.message,
+        code: error?.code,
+        name: error?.name,
+        stack: error?.stack
+      });
+      // Check if it's a permission-related error
+      if (error?.message?.includes('permission') || error?.message?.includes('access') || error?.code === 'EACCES') {
+        console.error('[DEBUG] PERMISSION ERROR: Cannot create KBV folder in External due to permissions');
+        throw new Error('Permissions insuffisantes pour créer le dossier KBV. Vérifiez les permissions de stockage.');
+      }
+      // Ignorer l'erreur si le dossier existe déjà
+      if (error?.message?.includes('exists') || error?.message?.includes('already exists')) {
+        console.log('[DEBUG] KBV directory already exists in External');
         return;
       }
       throw error;
@@ -333,7 +431,19 @@ class FileSystemService {
    * Vérifier si on est sur une plateforme native
    */
   private isNativePlatform(): boolean {
-    return (window as any).Capacitor?.isNativePlatform?.() || false;
+    const capacitor = (window as any).Capacitor;
+    const isNative = capacitor?.isNativePlatform?.() || false;
+    const platform = capacitor?.getPlatform?.() || 'unknown';
+
+    console.log('[DEBUG] Platform detection:', {
+      isNative,
+      platform,
+      capacitorPresent: !!capacitor,
+      isNativePlatformFn: typeof capacitor?.isNativePlatform,
+      getPlatformFn: typeof capacitor?.getPlatform
+    });
+
+    return isNative;
   }
 }
 
