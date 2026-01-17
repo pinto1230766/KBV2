@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { ImageUpload } from '@/components/ui/ImageUpload';
-import { Speaker, Gender } from '@/types';
+import { Speaker, Gender, Allergies } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 import { useConfirm } from '@/contexts/ConfirmContext';
 import { v4 as uuidv4 } from 'uuid';
-import { User, Phone, Mail, FileText, CheckCircle2, Car, Users, Trash2 } from 'lucide-react';
+import { User, Phone, Mail, FileText, CheckCircle2, Car, Users, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface SpeakerFormModalProps {
@@ -31,6 +31,10 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
     gender: 'male',
     notes: '',
     isVehiculed: true,
+    allergies: {
+      speaker: '',
+      spouse: '',
+    },
   });
 
   useEffect(() => {
@@ -45,6 +49,10 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
         gender: speaker.gender || 'male',
         notes: speaker.notes || '',
         isVehiculed: speaker.isVehiculed ?? true,
+        allergies: speaker.allergies || {
+          speaker: '',
+          spouse: '',
+        },
       });
     } else {
       setFormData({
@@ -56,6 +64,10 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
         gender: 'male',
         notes: '',
         isVehiculed: true,
+        allergies: {
+          speaker: '',
+          spouse: '',
+        },
       });
     }
   }, [speaker, isOpen]);
@@ -305,6 +317,56 @@ export const SpeakerFormModal: React.FC<SpeakerFormModalProps> = ({ isOpen, onCl
                   placeholder='Particularités, disponibilités...'
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-emerald-500 transition-all resize-none'
                 />
+              </div>
+            </div>
+
+            {/* Allergies Section */}
+            <div className='space-y-4'>
+              <div className='flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 mb-4'>
+                <AlertTriangle className='w-4 h-4 text-amber-500' />
+                <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider'>
+                  Allergies
+                </h3>
+              </div>
+
+              <div className='space-y-4'>
+                <div className='space-y-1'>
+                  <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                    Allergies du frère
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.allergies?.speaker || ''}
+                    onChange={(e) => setFormData((p) => ({ 
+                      ...p, 
+                      allergies: { 
+                        ...p.allergies, 
+                        speaker: e.target.value 
+                      } 
+                    }))}
+                    placeholder='Ex: Arachides, fruits de mer, gluten...'
+                    className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-emerald-500 transition-all resize-none'
+                  />
+                </div>
+
+                <div className='space-y-1'>
+                  <label className='text-xs font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                    Allergies de sa femme
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={formData.allergies?.spouse || ''}
+                    onChange={(e) => setFormData((p) => ({ 
+                      ...p, 
+                      allergies: { 
+                        ...p.allergies, 
+                        spouse: e.target.value 
+                      } 
+                    }))}
+                    placeholder='Ex: Lactose, noix, pollen...'
+                    className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-emerald-500 transition-all resize-none'
+                  />
+                </div>
               </div>
             </div>
           </form>

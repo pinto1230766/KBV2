@@ -1,7 +1,7 @@
 import React from 'react';
 import { Speaker, Visit } from '@/types';
 import { Button } from '@/components/ui/Button';
-import { Edit, Trash2, Phone, Mail, Car, Star } from 'lucide-react';
+import { Edit, Trash2, Phone, Mail, Car, Star, AlertTriangle } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { useData } from '@/contexts/DataContext';
@@ -95,6 +95,19 @@ export const SpeakerList: React.FC<SpeakerListProps> = ({
                     <div className='flex items-center gap-2 text-green-600 dark:text-green-400'>
                       <Car className='w-4 h-4' />
                       <span>Véhiculé</span>
+                    </div>
+                  )}
+                  {speaker.allergies && (speaker.allergies.speaker || speaker.allergies.spouse) && (
+                    <div className='flex items-start gap-2 text-amber-600 dark:text-amber-400'>
+                      <AlertTriangle className='w-4 h-4 mt-0.5 flex-shrink-0' />
+                      <div className='text-xs'>
+                        {speaker.allergies.speaker && (
+                          <div>Frère: {speaker.allergies.speaker}</div>
+                        )}
+                        {speaker.allergies.spouse && (
+                          <div>Épouse: {speaker.allergies.spouse}</div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

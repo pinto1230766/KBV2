@@ -42,6 +42,11 @@ export interface TalkHistory {
   feedback?: string;
 }
 
+export interface Allergies {
+  speaker?: string; // Allergies du frère/orateur
+  spouse?: string; // Allergies de sa femme
+}
+
 export interface Speaker {
   id: string;
   nom: string;
@@ -54,6 +59,7 @@ export interface Speaker {
   notes?: string;
   tags?: string[];
   isVehiculed?: boolean;
+  allergies?: Allergies;
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }
@@ -141,6 +147,8 @@ export interface Companion {
   name: string;
   type: CompanionType;
   congregation?: string;
+  telephone?: string;
+  allergies?: string;
   hostAssignments?: HostAssignment[];
   notes?: string;
 }
@@ -176,6 +184,9 @@ export interface Visit {
   companions?: Companion[]; // Liste détaillée des accompagnants
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
+  // Métadonnées de synchronisation Google Sheets
+  lastSyncedAt?: string; // ISO timestamp de dernière synchronisation
+  locallyModified?: boolean; // true si modifié localement après synchro
 }
 
 // ============================================================================

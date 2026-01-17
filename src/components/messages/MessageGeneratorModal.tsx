@@ -44,8 +44,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Déterminer si on envoie à un hôte ou à un orateur
-  // Les types qui commencent par "host_" sont toujours pour les hôtes
-  const isHostMessage = !!host || isGroupMessage || type.startsWith('host_');
+  // Seuls host_thanks et visit_recap sont pour les hôtes, tous les autres sont pour les orateurs
+  const isHostMessage = !!host || isGroupMessage || type === 'host_thanks' || type === 'visit_recap';
   
   // Fallback sur les données de la visite si l'orateur n'est pas trouvé
   const virtualSpeaker = !speaker && visit ? {
@@ -484,15 +484,10 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               options={
                 isHostMessage
                   ? [
-                      { value: 'host_request_message', label: t("Demande d'accueil") },
-                      { value: 'confirmation', label: t('Confirmation') },
-                      { value: 'preparation', label: t('Préparation') },
-                       {value: 'reminder-7', label: t('Rappel (J-7)')},
-                       {value: 'reminder-2', label: t('Rappel (J-2)')},
-                       {value: 'host_thanks', label: t('Remerciements (pour hôte)')},
-                       {value: 'visit_recap', label: t('Récapitulatif Visite')},
-                       {value: 'free_message', label: t('Message libre')},
-                     ]
+                      { value: 'host_thanks', label: t('Remerciements (pour hôte)') },
+                      { value: 'visit_recap', label: t('Récapitulatif Visite') },
+                      { value: 'free_message', label: t('Message libre') },
+                    ]
                   : [
                       { value: 'confirmation', label: t('Confirmation') },
                       { value: 'reminder-7', label: t('Rappel (J-7)') },

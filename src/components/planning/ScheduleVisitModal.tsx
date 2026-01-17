@@ -703,6 +703,41 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                           </div>
                         </div>
 
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+                          <div className='space-y-1'>
+                            <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                              Téléphone
+                            </label>
+                            <input
+                              type='tel'
+                              value={companion.telephone || ''}
+                              onChange={(e) => {
+                                const newCompanions = [...(formData.companions || [])];
+                                newCompanions[index] = { ...newCompanions[index], telephone: e.target.value };
+                                setFormData((p) => ({ ...p, companions: newCompanions }));
+                              }}
+                              placeholder='06 12 34 56 78...'
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                            />
+                          </div>
+                          <div className='space-y-1'>
+                            <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                              Allergies
+                            </label>
+                            <input
+                              type='text'
+                              value={companion.allergies || ''}
+                              onChange={(e) => {
+                                const newCompanions = [...(formData.companions || [])];
+                                newCompanions[index] = { ...newCompanions[index], allergies: e.target.value };
+                                setFormData((p) => ({ ...p, companions: newCompanions }));
+                              }}
+                              placeholder='Arachides, gluten...'
+                              className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                            />
+                          </div>
+                        </div>
+
                         {/* Système d'hôtes pour l'accompagnant (Aligné sur l'orateur) */}
                         <div className='mt-6 space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
                           <div className='flex items-center gap-2'>

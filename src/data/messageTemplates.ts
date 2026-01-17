@@ -78,6 +78,8 @@ Voici les coordonnées de notre orateur invité pour le *{visitDate}* :
 👤 *Orateur* : {speakerName}
 🏛️ *Congrégation* : {congregation}
 📞 *Téléphone* : {speakerPhone}
+{allergiesInfo}
+{companionsInfo}
 
 Merci de prendre contact avec lui pour coordonner l'accueil.
 
@@ -191,6 +193,8 @@ Voici un récapitulatif de l'organisation pour la visite de Frère *{speakerName
 {accommodationLogistics}
 {mealsLogistics}
 {pickupLogistics}
+{allergiesInfo}
+{companionsInfo}
  
 Merci à tous pour votre précieuse collaboration ! 🙏
  
@@ -272,6 +276,8 @@ Aki es kontaktu di nu orador kombidadu pa dia *{visitDate}* :
 👤 *Orador* : {speakerName}
 🏛️ *Kongregason* : {congregation}
 📞 *Telefone* : {speakerPhone}
+{allergiesInfo}
+{companionsInfo}
 
 Favor kontakta-l pa kordina akolhimentu.
 
@@ -386,6 +392,8 @@ Aki es un rezumu di organizasón pa bizita di Nu Mon *{speakerName}* ({congregat
 {accommodationLogistics}
 {mealsLogistics}
 {pickupLogistics}
+{allergiesInfo}
+{companionsInfo}
  
 Obrigadu tudu pa nhos kolaborasón valiozu! 🙏
  
@@ -451,6 +459,8 @@ Aqui estão os contactos do nosso orador convidado para *{visitDate}*:
 👤 *Orador*: {speakerName}
 🏛️ *Congregação*: {congregation}
 📞 *Telefone*: {speakerPhone}
+{allergiesInfo}
+{companionsInfo}
 
 Por favor, contacta-o para coordenar o acolhimento.
 

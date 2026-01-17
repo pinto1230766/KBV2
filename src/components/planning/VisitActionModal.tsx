@@ -642,6 +642,41 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                         </div>
                       </div>
 
+                      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+                        <div className='space-y-1'>
+                          <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                            Téléphone
+                          </label>
+                          <input
+                            type='tel'
+                            value={companion.telephone || ''}
+                            onChange={(e) => {
+                              const newCompanions = [...(formData.companions || [])];
+                              newCompanions[index] = { ...newCompanions[index], telephone: e.target.value };
+                              setFormData({ ...formData, companions: newCompanions });
+                            }}
+                            placeholder='06 12 34 56 78...'
+                            className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                          />
+                        </div>
+                        <div className='space-y-1'>
+                          <label className='text-[10px] font-bold text-gray-500 uppercase tracking-widest pl-1'>
+                            Allergies
+                          </label>
+                          <input
+                            type='text'
+                            value={companion.allergies || ''}
+                            onChange={(e) => {
+                              const newCompanions = [...(formData.companions || [])];
+                              newCompanions[index] = { ...newCompanions[index], allergies: e.target.value };
+                              setFormData({ ...formData, companions: newCompanions });
+                            }}
+                            placeholder='Arachides, gluten...'
+                            className='w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                          />
+                        </div>
+                      </div>
+
                       {/* Système d'hôtes pour l'accompagnant (Aligné sur l'orateur) */}
                       <div className='mt-6 space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
                         <div className='flex items-center gap-2'>
@@ -1071,38 +1106,36 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
         hideCloseButton={true}
         className={`overflow-hidden ${action === 'edit' ? 'max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw]' : ''}`}
       >
-        <div className='max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 flex flex-col'>
-          {renderHeader()}
+        {renderHeader()}
 
-          <div className='flex-1'>{getModalContent()}</div>
+        <div className='flex-1 overflow-y-auto'>{getModalContent()}</div>
 
-          {(action === 'edit' || action === 'logistics' || action === 'replace') && (
-            <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0'>
-              <Button variant='ghost' onClick={onClose} disabled={isLoading}>
-                Annuler
-              </Button>
-              <Button
-                onClick={handleSave}
-                isLoading={isLoading}
-                disabled={
-                  isLoading ||
-                  (action === 'replace' ? !selectedSpeakerId : false)
-                }
-                className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none'
-              >
-                {action === 'replace' ? 'Remplacer et envoyer message' : 'Enregistrer'}
-              </Button>
-            </div>
-          )}
+        {(action === 'edit' || action === 'logistics' || action === 'replace') && (
+          <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 shrink-0'>
+            <Button variant='ghost' onClick={onClose} disabled={isLoading}>
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSave}
+              isLoading={isLoading}
+              disabled={
+                isLoading ||
+                (action === 'replace' ? !selectedSpeakerId : false)
+              }
+              className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-none shadow-lg shadow-blue-200 dark:shadow-none'
+            >
+              {action === 'replace' ? 'Remplacer et envoyer message' : 'Enregistrer'}
+            </Button>
+          </div>
+        )}
 
-          {action === 'message' && (
-            <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end shrink-0'>
-              <Button variant='ghost' onClick={onClose}>
-                Fermer
-              </Button>
-            </div>
-          )}
-        </div>
+        {action === 'message' && (
+          <div className='p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex justify-end shrink-0'>
+            <Button variant='ghost' onClick={onClose}>
+              Fermer
+            </Button>
+          </div>
+        )}
       </Modal>
     </>
   );

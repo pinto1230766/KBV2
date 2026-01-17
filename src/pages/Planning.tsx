@@ -270,7 +270,11 @@ export const Planning: React.FC = () => {
   const handleOpenMessageModal = useCallback(
     (params: { type: any; isGroup?: boolean; channel?: any; visit: Visit }) => {
       const speaker = _speakers.find((s) => s.id === params.visit.id) || null;
-      const host = hosts.find((h) => h.nom === getPrimaryHostName(params.visit));
+      
+      // Ne passer un hôte que pour les messages destinés aux hôtes (host_thanks et visit_recap)
+      const isHostMessage = params.type === 'host_thanks' || params.type === 'visit_recap' || params.isGroup;
+      const host = isHostMessage ? hosts.find((h) => h.nom === getPrimaryHostName(params.visit)) : null;
+      
       setMessageModalParams({
         isOpen: true,
         type: params.type,

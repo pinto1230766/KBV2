@@ -40,7 +40,7 @@ export function generateMessage(
   }
 
   // Remplacer les variables
-  let message = replaceVariables(template, visit, host, congregationProfile, language, allHosts);
+  let message = replaceVariables(template, visit, host, congregationProfile, language, allHosts, speaker);
 
   // Adapter selon le genre
   message = adaptMessageGender(message, speaker?.gender, host?.gender);
@@ -58,7 +58,8 @@ function replaceVariables(
   host: Host | null | undefined,
   congregationProfile: CongregationProfile,
   language: Language,
-  allHosts: Host[] = []
+  allHosts: Host[] = [],
+  speaker: Speaker | null | undefined = null
 ): string {
   let message = template;
 
@@ -67,6 +68,58 @@ function replaceVariables(
     message = message.replace(/{speakerName}/g, visit.nom);
     message = message.replace(/{congregation}/g, visit.congregation);
     message = message.replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)');
+
+    // Variables des allergies (si disponibles via l'orateur)
+    let allergiesInfo = '';
+    if (speaker?.allergies) {
+      const allergies = [];
+      if (speaker.allergies.speaker) {
+        allergies.push(`Frère: ${speaker.allergies.speaker}`);
+      }
+      if (speaker.allergies.spouse) {
+        allergies.push(`Épouse: ${speaker.allergies.spouse}`);
+      }
+      if (allergies.length > 0) {
+        if (language === 'pt') {
+          allergiesInfo = `⚠️ *Alergias*: ${allergies.join(' | ')}`;
+        } else if (language === 'cv') {
+          allergiesInfo = `⚠️ *Alergia*: ${allergies.join(' | ')}`;
+        } else {
+          allergiesInfo = `⚠️ *Allergies*: ${allergies.join(' | ')}`;
+        }
+      }
+    }
+    message = message.replace(/{allergiesInfo}/g, allergiesInfo);
+
+    // Variables des accompagnants
+    let companionsInfo = '';
+    if (visit.companions && visit.companions.length > 0) {
+      const companions = visit.companions.map(companion => {
+        let info = `${companion.name}`;
+        if (companion.type) {
+          info += ` (${companion.type === 'couple' ? 'Couple' : 
+            companion.type === 'brother' ? 'Frère' : 
+            companion.type === 'sister' ? 'Sœur' : 
+            companion.type})`;
+        }
+        if (companion.telephone) {
+          info += ` - 📞 ${companion.telephone}`;
+        }
+        if (companion.allergies) {
+          info += ` - ⚠️ ${companion.allergies}`;
+        }
+        return info;
+      });
+      
+      if (language === 'pt') {
+        companionsInfo = `👥 *Acompanhantes*: ${companions.join(' | ')}`;
+      } else if (language === 'cv') {
+        companionsInfo = `👥 *Akompanyantes*: ${companions.join(' | ')}`;
+      } else {
+        companionsInfo = `👥 *Accompagnants*: ${companions.join(' | ')}`;
+      }
+    }
+    message = message.replace(/{companionsInfo}/g, companionsInfo);
 
     // Variables du contact d'accueil principal (Hébergement par défaut)
     const hostName = visit.host !== 'À définir' ? visit.host : '(non assigné)';
@@ -102,6 +155,36 @@ function replaceVariables(
        // Cas où le nom est connu mais pas l'objet Host (rare mais possible)
        accInfo = `🏠 *Hébergement* : ${accHostName}`;
     }
+
+    // Ajouter les hébergements des accompagnants
+    if (visit.companions && visit.companions.length > 0) {
+      visit.companions.forEach(companion => {
+        const companionAssignments = companion.hostAssignments || [];
+        const companionAccAssignment = companionAssignments.find(a => a.role === 'accommodation');
+        
+        if (companionAccAssignment && companionAccAssignment.hostName !== accHostName) {
+          const companionHost = allHosts.find(h => h.nom === companionAccAssignment.hostName);
+          if (companionHost) {
+            if (language === 'pt') {
+              accInfo += `\n\n🏠 *Alojamento ${companion.name}*: ${companionHost.nom}\n📞 *Telefone*: ${companionHost.telephone || '(em falta)'}\n📍 *Morada*: ${companionHost.address || '(em falta)'}`;
+            } else if (language === 'cv') {
+              accInfo += `\n\n🏠 *Alojamentu ${companion.name}*: ${companionHost.nom}\n📞 *Telefone*: ${companionHost.telephone || '(falta-il)'}\n📍 *Morada*: ${companionHost.address || '(falta-il)'}`;
+            } else {
+              accInfo += `\n\n🏠 *Hébergement ${companion.name}* : ${companionHost.nom}\n📞 *Téléphone* : ${companionHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${companionHost.address || '(non renseignée)'}`;
+            }
+          } else {
+            if (language === 'pt') {
+              accInfo += `\n\n🏠 *Alojamento ${companion.name}*: ${companionAccAssignment.hostName}`;
+            } else if (language === 'cv') {
+              accInfo += `\n\n🏠 *Alojamentu ${companion.name}*: ${companionAccAssignment.hostName}`;
+            } else {
+              accInfo += `\n\n🏠 *Hébergement ${companion.name}* : ${companionAccAssignment.hostName}`;
+            }
+          }
+        }
+      });
+    }
+    
     message = message.replace(/{accommodationLogistics}/g, accInfo);
 
     // 2. Repas
@@ -132,6 +215,38 @@ function replaceVariables(
         }
       }
     });
+
+    // Ajouter les repas des accompagnants
+    if (visit.companions && visit.companions.length > 0) {
+      visit.companions.forEach(companion => {
+        const companionAssignments = companion.hostAssignments || [];
+        const companionMealsAssignment = companionAssignments.find(a => a.role === 'meals');
+        
+        if (companionMealsAssignment && 
+            companionMealsAssignment.hostName !== accHostName && 
+            !mealsHostNames.includes(companionMealsAssignment.hostName)) {
+          const companionHost = allHosts.find(h => h.nom === companionMealsAssignment.hostName);
+          if (companionHost) {
+            if (language === 'pt') {
+              mealsInfo += `\n🍴 *Refeições ${companion.name}*: ${companionHost.nom}\n📞 *Telefone*: ${companionHost.telephone || '(em falta)'}\n📍 *Morada*: ${companionHost.address || '(em falta)'}\n`;
+            } else if (language === 'cv') {
+              mealsInfo += `\n🍴 *Kumida ${companion.name}*: ${companionHost.nom}\n📞 *Telefone*: ${companionHost.telephone || '(falta-il)'}\n📍 *Morada*: ${companionHost.address || '(falta-il)'}\n`;
+            } else {
+              mealsInfo += `\n🍴 *Repas ${companion.name}* : ${companionHost.nom}\n📞 *Téléphone* : ${companionHost.telephone || '(non renseigné)'}\n📍 *Adresse* : ${companionHost.address || '(non renseignée)'}\n`;
+            }
+          } else {
+            if (language === 'pt') {
+              mealsInfo += `\n🍴 *Refeições ${companion.name}*: ${companionMealsAssignment.hostName}\n`;
+            } else if (language === 'cv') {
+              mealsInfo += `\n🍴 *Kumida ${companion.name}*: ${companionMealsAssignment.hostName}\n`;
+            } else {
+              mealsInfo += `\n🍴 *Repas ${companion.name}* : ${companionMealsAssignment.hostName}\n`;
+            }
+          }
+        }
+      });
+    }
+    
     message = message.replace(/{mealsLogistics}/g, mealsInfo.trim());
 
     // 3. Ramassage
@@ -158,6 +273,44 @@ function replaceVariables(
     } else if (visit.logistics?.itinerary?.meetingPoint) {
          // Fallback sur le point de rendez-vous si défini dans l'itinéraire
          pickupInfo = `🚗 *Ramassage* : ${visit.logistics.itinerary.meetingPoint}`;
+    }
+
+    // Ajouter les ramassages des accompagnants
+    if (visit.companions && visit.companions.length > 0) {
+      visit.companions.forEach(companion => {
+        const companionAssignments = companion.hostAssignments || [];
+        const companionPickupAssignment = companionAssignments.find(a => a.role === 'pickup');
+        
+        if (companionPickupAssignment && 
+            companionPickupAssignment.hostName !== accHostName && 
+            !mealsHostNames.includes(companionPickupAssignment.hostName) &&
+            (!pickupAssignment || companionPickupAssignment.hostName !== pickupAssignment.hostName)) {
+          const companionHost = allHosts.find(h => h.nom === companionPickupAssignment.hostName);
+          if (companionHost) {
+            if (language === 'pt') {
+              pickupInfo += pickupInfo ? `\n🚗 *Recolha ${companion.name}*: ${companionHost.nom} (📞 ${companionHost.telephone || '(em falta)'})` 
+                                     : `🚗 *Recolha ${companion.name}*: ${companionHost.nom} (📞 ${companionHost.telephone || '(em falta)'})`;
+            } else if (language === 'cv') {
+              pickupInfo += pickupInfo ? `\n🚗 *Ramassage ${companion.name}*: ${companionHost.nom} (📞 ${companionHost.telephone || '(falta-il)'})` 
+                                     : `🚗 *Ramassage ${companion.name}*: ${companionHost.nom} (📞 ${companionHost.telephone || '(falta-il)'})`;
+            } else {
+              pickupInfo += pickupInfo ? `\n🚗 *Ramassage ${companion.name}* : ${companionHost.nom} (📞 ${companionHost.telephone || '(non renseigné)'})` 
+                                     : `🚗 *Ramassage ${companion.name}* : ${companionHost.nom} (📞 ${companionHost.telephone || '(non renseigné)'})`;
+            }
+          } else {
+            if (language === 'pt') {
+              pickupInfo += pickupInfo ? `\n🚗 *Recolha ${companion.name}*: ${companionPickupAssignment.hostName}` 
+                                     : `🚗 *Recolha ${companion.name}*: ${companionPickupAssignment.hostName}`;
+            } else if (language === 'cv') {
+              pickupInfo += pickupInfo ? `\n🚗 *Ramassage ${companion.name}*: ${companionPickupAssignment.hostName}` 
+                                     : `🚗 *Ramassage ${companion.name}*: ${companionPickupAssignment.hostName}`;
+            } else {
+              pickupInfo += pickupInfo ? `\n🚗 *Ramassage ${companion.name}* : ${companionPickupAssignment.hostName}` 
+                                     : `🚗 *Ramassage ${companion.name}* : ${companionPickupAssignment.hostName}`;
+            }
+          }
+        }
+      });
     }
     
     message = message.replace(/{pickupLogistics}/g, pickupInfo);

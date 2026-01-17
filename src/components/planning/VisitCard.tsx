@@ -188,6 +188,51 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </div>
           )}
 
+          {/* Accompanying Persons */}
+          {visit.companions && visit.companions.length > 0 && (
+            <div className='space-y-1'>
+              {visit.companions.map((companion) => (
+                <div key={companion.id} className='flex items-start text-sm text-gray-600 dark:text-gray-300'>
+                  <UserPlus className='w-4 h-4 mr-2 text-gray-400 flex-shrink-0 mt-0.5' />
+                  <div className='flex-1 min-w-0'>
+                    <div className='line-clamp-1'>
+                      {companion.name}
+                      {companion.type && (
+                        <span className='text-xs text-gray-500 dark:text-gray-400 ml-1'>
+                          ({companion.type === 'couple' ? 'Couple' : 
+                            companion.type === 'brother' ? 'Frère' : 
+                            companion.type === 'sister' ? 'Sœur' : 
+                            companion.type})
+                        </span>
+                      )}
+                    </div>
+                    {companion.telephone && (
+                      <div className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                        📞 {companion.telephone}
+                      </div>
+                    )}
+                    {companion.allergies && (
+                      <div className='text-xs text-amber-600 dark:text-amber-400 mt-1 flex items-center gap-1'>
+                        <AlertTriangle className='w-3 h-3' />
+                        {companion.allergies}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Fallback for accompanyingPersons count */}
+          {visit.accompanyingPersons && visit.accompanyingPersons > 0 && !visit.companions?.length && (
+            <div className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
+              <UserPlus className='w-4 h-4 mr-2 text-gray-400' />
+              <span className='line-clamp-1'>
+                {visit.accompanyingPersons} {visit.accompanyingPersons === 1 ? 'accompagnant' : 'accompagnants'}
+              </span>
+            </div>
+          )}
+
           {/* Logistics Indicator */}
           {visit.logistics?.checklist &&
             visit.logistics.checklist.some((item) => !item.isCompleted) && (
@@ -246,22 +291,24 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
                       setShowMenu(false);
                     }}
                   />
-                  <div className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 w-72 overflow-hidden animate-in fade-in zoom-in-95 duration-200'>
-                    <div className='p-2'>
-                      {actionOptions.map((option) => (
-                        <button
-                          key={option.action}
-                          className='w-full px-4 py-3 text-left text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center gap-3 transition-colors mb-1 last:mb-0'
-                          onClick={(e) => handleActionClick(option.action as any, e)}
-                        >
-                          <div
-                            className={`p-2 rounded-full bg-opacity-10 ${option.color.replace('text-', 'bg-')}`}
+                  <div className='fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none'>
+                    <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl w-72 max-h-[80vh] overflow-y-auto pointer-events-auto animate-in fade-in zoom-in-95 duration-200'>
+                      <div className='p-2'>
+                        {actionOptions.map((option) => (
+                          <button
+                            key={option.action}
+                            className='w-full px-4 py-3 text-left text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex items-center gap-3 transition-colors mb-1 last:mb-0'
+                            onClick={(e) => handleActionClick(option.action as any, e)}
                           >
-                            <option.icon className={`w-5 h-5 ${option.color}`} />
-                          </div>
-                          {option.label}
-                        </button>
-                      ))}
+                            <div
+                              className={`p-2 rounded-full bg-opacity-10 ${option.color.replace('text-', 'bg-')}`}
+                            >
+                              <option.icon className={`w-5 h-5 ${option.color}`} />
+                            </div>
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </>,
