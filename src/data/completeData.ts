@@ -915,10 +915,10 @@ export const completeVisits: Visit[] = [
     "meals": "",
     "status": "confirmed",
     "locationType": "physical",
-    "talkNoOrType": "100",
-    "talkTheme": "Modi ki nu pode faze bons amizadi",
+    "talkNoOrType": "56",
+    "talkTheme": "Na ki lider ki bu pode kunfia?",
     "communicationStatus": {},
-    "externalId": "marcelino\ndos santos__plaisir kbv__100",
+    "externalId": "david\nmoreira__ettelbruck kbv__56",
     "hostAssignments": [
       {
         "id": "be25a862-9456-4b97-b304-a5a6284472c8",
