@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/utils';
+import './LazyImage.css';
 
 interface LazyImageProps {
   src: string;
@@ -173,16 +174,41 @@ export const LazyImage: React.FC<LazyImageProps> = ({
     setZoomPosition({ x, y });
   };
 
+  const containerClasses = cn(
+    'lazy-image-container',
+    isZoomed && 'zoomed',
+    aspectRatio === '16/9' ? 'aspect-video' : 
+    aspectRatio === '4/3' ? 'aspect-[4/3]' : 
+    aspectRatio === '1/1' ? 'aspect-square' : '',
+    className
+  );
+
+  const imageClasses = cn(
+    'lazy-image',
+    isLoaded ? 'loaded' : 'loading',
+    zoomable && 'cursor-zoom-in',
+    isZoomed && 'cursor-zoom-out zoomed',
+    className
+  );
+
+  // Mettre à jour les propriétés CSS personnalisées pour le zoom
+  useEffect(() => {
+    if (containerRef.current) {
+      const container = containerRef.current as HTMLElement;
+      if (isZoomed) {
+        container.style.setProperty('--zoom-origin', `${zoomPosition.x}% ${zoomPosition.y}%`);
+        container.style.setProperty('--zoom-transform', `scale(${zoomScale})`);
+      } else {
+        container.style.removeProperty('--zoom-origin');
+        container.style.removeProperty('--zoom-transform');
+      }
+    }
+  }, [isZoomed, zoomPosition, zoomScale]);
+
   return (
     <div
       ref={containerRef}
-      className={cn(
-        'relative overflow-hidden bg-gray-100',
-        aspectRatio && `aspect-[${aspectRatio}]`,
-        zoomable && 'cursor-zoom-in',
-        isZoomed && 'cursor-grab',
-        className
-      )}
+      className={containerClasses}
       onClick={handleZoomToggle}
       onMouseMove={handleMouseMove}
     >
@@ -191,19 +217,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
         ref={imgRef}
         src={finalSrc}
         alt={alt}
-        className={cn(
-          'absolute inset-0 h-full w-full object-cover transition-all duration-300',
-          isLoaded ? 'opacity-100' : 'opacity-0',
-          isZoomed && `scale-[${zoomScale}]`
-        )}
-        style={
-          isZoomed
-            ? {
-                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                transform: `scale(${zoomScale})`,
-              }
-            : undefined
-        }
+        className={imageClasses}
         loading={priority ? 'eager' : loading}
         sizes={sizes}
         decoding='async'
@@ -211,8 +225,8 @@ export const LazyImage: React.FC<LazyImageProps> = ({
 
       {/* Skeleton loader pendant le chargement */}
       {!isLoaded && (
-        <div className='absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse'>
-          <div className='w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin' />
+        <div className='lazy-image-placeholder'>
+          <div className='lazy-image-spinner' />
         </div>
       )}
 

@@ -333,6 +333,7 @@ export const MealPlanningModal: React.FC<MealPlanningModalProps> = ({
                         <select
                           value={meal.host || ''}
                           onChange={(e) => updateMeal(meal.id, { host: e.target.value })}
+                          aria-label="Sélectionner un hôte pour le repas"
                           className='w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
                         >
                           <option value=''>Sélectionner un hôte...</option>

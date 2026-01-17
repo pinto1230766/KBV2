@@ -288,17 +288,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // Visits
   const addVisit = (visit: Visit) => {
-    setData((d) => ({ ...d, visits: [...d.visits, visit] }));
-    addToSyncQueue('ADD_VISIT', visit);
+    // Les visites créées manuellement sont toujours marquées comme locales
+    const newVisit = { ...visit, locallyModified: true };
+    setData((d) => ({ ...d, visits: [...d.visits, newVisit] }));
+    addToSyncQueue('ADD_VISIT', newVisit);
   };
 
   const updateVisit = (visit: Visit) => {
     console.log('🔄 UPDATE VISIT CALLED:', visit.visitId, 'New speaker:', visit.nom, 'ID:', visit.id);
+    // Marquer la visite comme modifiée localement
+    const updatedVisit = { ...visit, locallyModified: true };
     setData((d) => {
       const updatedVisits = d.visits.map((v) => {
         if (v.visitId === visit.visitId) {
-          console.log('🔄 UPDATING VISIT:', v.nom, '->', visit.nom);
-          return visit;
+          console.log('🔄 UPDATING VISIT:', v.nom, '->', updatedVisit.nom);
+          return updatedVisit;
         }
         return v;
       });
@@ -308,7 +312,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         visits: updatedVisits,
       };
     });
-    addToSyncQueue('UPDATE_VISIT', visit);
+    addToSyncQueue('UPDATE_VISIT', updatedVisit);
   };
 
   const deleteVisit = (visitId: string) => {
@@ -334,6 +338,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
               status: 'cancelled' as const,
               cancellationData,
               cancelledAt: new Date().toISOString(),
+              locallyModified: true, // Marquer comme modifié localement
             }
           : v
       ),
@@ -490,7 +495,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
 
         // 4. Chargement & Fusion (Load)
-        let stats = { added: 0, updated: 0, deleted: 0 };
+        let stats = { added: 0, updated: 0, skipped: 0, keptLocal: 0 };
         
         setData((prev) => {
             // Utilitaire de fusion idempotent
@@ -535,10 +540,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         // Feedback utilisateur
         localStorage.setItem('lastGoogleSheetSync', new Date().toISOString());
         
-        let msg = `Synchronisation terminée !\n+ ${stats.added} ajout(s)\n~ ${stats.updated} mise(s) à jour`;
-        if (stats.deleted > 0) msg += `\n- ${stats.deleted} doublons supprimés`;
+        // Message détaillé avec les statistiques
+        const messages = [];
+        if (stats.added > 0) messages.push(`${stats.added} nouvelle(s) visite(s) ajoutée(s)`);
+        if (stats.updated > 0) messages.push(`${stats.updated} visite(s) mise(s) à jour`);
+        if (stats.keptLocal > 0) messages.push(`${stats.keptLocal} visite(s) locale(s) conservée(s)`);
+        if (stats.skipped > 0) messages.push(`${stats.skipped} visite(s) déjà synchronisée(s)`);
         
-        setTimeout(() => addToast(msg, 'success', 8000), 0);
+        const message = messages.length > 0 
+          ? `✅ Synchronisation réussie:\n${messages.join('\n')}`
+          : 'ℹ️ Aucune nouvelle visite à synchroniser';
+        
+        setTimeout(() => addToast(message, 'success', 8000), 0);
 
     } catch (error) {
       console.error('Error syncing with Google Sheet:', error);

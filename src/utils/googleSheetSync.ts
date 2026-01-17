@@ -40,6 +40,9 @@ export const processSheetRows = (
   const candidateVisits: Visit[] = [];
 
   // 2. Parsing des lignes
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset to start of day for accurate comparison
+  
   for (const row of rawRows) {
     const cells = row.c;
     const dateValue = cells[dateIndex]?.v;
@@ -60,6 +63,12 @@ export const processSheetRows = (
     const congregation = cells[congIndex]?.v?.trim() || '';
 
     if (!visitDateObj || !speakerName) {
+      continue;
+    }
+    
+    // 🚫 FILTRE: Ignorer les visites passées (antérieures à aujourd'hui)
+    if (visitDateObj < today) {
+      console.log(`⏭️ Visite ignorée (passée): ${speakerName} - ${visitDateObj.toISOString().split('T')[0]}`);
       continue;
     }
 
@@ -200,8 +209,18 @@ export const filterAndDeduplicateVisits = (visits: Visit[]): Visit[] => {
 export const mergeVisitsIdempotent = (
   currentVisits: Visit[],
   incomingVisits: Visit[]
-): { mergedVisits: Visit[], stats: { added: number, updated: number, deleted: number } } => {
-  const stats = { added: 0, updated: 0, deleted: 0 };
+): { 
+  mergedVisits: Visit[], 
+  stats: { added: number, updated: number, skipped: number, keptLocal: number } 
+} => {
+  const stats = { 
+    added: 0,        // Nouvelles visites ajoutées depuis le Sheet
+    updated: 0,      // Visites mises à jour depuis le Sheet (non utilisé pour l'instant)
+    skipped: 0,      // Visites déjà synchronisées (inchangées)
+    keptLocal: 0     // Visites modifiées localement conservées
+  };
+  
+  const syncTimestamp = new Date().toISOString();
   const mergedVisits = [...currentVisits];
 
   // 1. Indexer les visites actuelles par date (clé simple pour recherche rapide, attention doublons possibles en base sale)
@@ -220,14 +239,33 @@ export const mergeVisitsIdempotent = (
       return existing.visitDate === incoming.visitDate &&
              existing.nom.toLowerCase() === incoming.nom.toLowerCase();
     });
+    
     if (matchIndex > -1) {
-      // SKIP UPDATE for existing visits identified by externalId
-      // Do not update existing local visits
+      const existing = mergedVisits[matchIndex];
+      
+      // 🔒 PRIORITÉ AUX MODIFICATIONS LOCALES
+      // Si la visite a été modifiée localement, on la garde et on ignore le Sheet
+      if (existing.locallyModified) {
+        stats.keptLocal++;
+        console.log(`⚠️ Visite locale conservée (modifiée par l'utilisateur): ${existing.nom} - ${existing.visitDate}`);
+        continue; // Passer à la visite suivante
+      }
+      
+      // Si la visite existe déjà et n'a pas été modifiée localement
+      // On ne fait rien (elle a déjà été synchronisée lors d'une synchro précédente)
+      stats.skipped++;
+      // Ne pas écraser les visites existantes non modifiées
+      
     } else {
-      // INSERT
-      // C'est une nouvelle visite, on l'ajoute.
-      mergedVisits.push(incoming);
+      // ✅ C'est une NOUVELLE visite du Sheet (pas encore en local)
+      const newVisit = {
+        ...incoming,
+        lastSyncedAt: syncTimestamp,
+        locallyModified: false
+      };
+      mergedVisits.push(newVisit);
       stats.added++;
+      console.log(`✅ Nouvelle visite ajoutée: ${incoming.nom} - ${incoming.visitDate}`);
     }
   }
 
@@ -235,10 +273,6 @@ export const mergeVisitsIdempotent = (
   // On réapplique le filtrage sur la totalité pour être sûr qu'aucun vieux doublon ne traîne
   const cleanedVisits = filterAndDeduplicateVisits(mergedVisits);
   
-  if (cleanedVisits.length < mergedVisits.length) {
-    stats.deleted = mergedVisits.length - cleanedVisits.length;
-  }
-
   return { mergedVisits: cleanedVisits, stats };
 };
 
