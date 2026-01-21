@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Calendar,
@@ -116,6 +116,23 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
   const [showMenu, setShowMenu] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
+  // Handle Escape key to close menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showMenu) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showMenu]);
+
   // État intelligent du workflow
   const workflowState = getWorkflowState(visit);
   const workflowColor = getWorkflowStateColor(workflowState);
@@ -201,7 +218,6 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
       color: 'text-green-600',
     },
     { action: 'expenses', label: 'Dépenses', icon: CreditCard, color: 'text-purple-600' },
-    { action: 'logistics', label: 'Logistique', icon: Truck, color: 'text-blue-500' },
     { action: 'status', label: 'Changer le statut', icon: CheckCircle, color: 'text-orange-600' },
     { action: 'conflict', label: 'Conflits', icon: AlertTriangle, color: 'text-amber-600' },
     { action: 'replace', label: 'Remplacer l\'orateur', icon: UserPlus, color: 'text-indigo-600' },
