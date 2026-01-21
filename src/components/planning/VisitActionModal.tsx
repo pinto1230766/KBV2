@@ -67,10 +67,15 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
 
   useEffect(() => {
     if (visit) {
-      setFormData(visit);
+      setFormData({
+        ...visit,
+        companions: visit.companions || [] // Ensure companions is always an array
+      });
       // Reset selectedSpeakerId quand on change de visite
       if (action === 'replace') {
         setSelectedSpeakerId('');
+      } else {
+        setSelectedSpeakerId(visit.id || '');
       }
     }
   }, [visit, action]);
@@ -351,7 +356,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                       <div key={companion.id} className='flex items-center gap-2 p-2 bg-white dark:bg-gray-700 rounded-lg'>
                         <input
                           type='text'
-                          value={companion.name}
+                          value={companion.name || ''}
                           onChange={(e) => {
                             const newCompanions = [...(formData.companions || [])];
                             newCompanions[index] = { ...newCompanions[index], name: e.target.value };
