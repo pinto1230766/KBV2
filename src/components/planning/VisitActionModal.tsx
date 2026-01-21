@@ -25,7 +25,6 @@ import {
 import { ExpenseForm } from '@/components/expenses/ExpenseForm';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { LogisticsManager } from '@/components/logistics/LogisticsManager';
-import { RoadmapView } from '@/components/reports/RoadmapView';
 import { FeedbackFormModal } from '@/components/feedback/FeedbackFormModal';
 import { generateUUID } from '@/utils/uuid';
 import { cn } from '@/utils/cn';
@@ -805,14 +804,6 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
               readOnly={isLoading}
               hosts={hosts}
             />
-            <div className='mt-6 border-t pt-6 bg-gray-50 dark:bg-gray-800/50 -mx-6 -mb-6 p-6'>
-              <h4 className='text-xs font-bold uppercase text-gray-500 mb-4'>Feuille de route</h4>
-              <RoadmapView
-                visit={{ ...visit, ...formData }}
-                speaker={speakers.find((s) => s.id === visit.id)}
-                host={hosts.find((h) => h.nom === formData.host)}
-              />
-            </div>
           </div>
         );
       }
