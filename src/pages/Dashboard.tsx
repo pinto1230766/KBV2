@@ -3,11 +3,13 @@ import {
   Users,
   Calendar,
   AlertCircle,
-  Zap,
   CalendarPlus,
   ShieldCheck,
   Search,
   LayoutGrid,
+  CheckCircle2,
+  Home,
+  Utensils,
 } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -16,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
-import { DashboardVisitItem } from '@/components/dashboard/DashboardVisitItem';
+import { UpcomingVisitCard } from '@/components/dashboard/UpcomingVisitCard';
 
 import { Visit } from '@/types';
 import { getActiveHostsCount, getPrimaryHostName } from '@/utils/hostUtils';
@@ -83,6 +85,50 @@ export const Dashboard: React.FC = () => {
       .slice(0, 5);
   }, [visits]);
 
+  const weekendVisits = useMemo(() => {
+    const now = new Date();
+    const weekendStart = new Date(now);
+    weekendStart.setDate(now.getDate() + (6 - now.getDay()));
+    const weekendEnd = new Date(weekendStart);
+    weekendEnd.setDate(weekendStart.getDate() + 1);
+    
+    return visits.filter(v => {
+      const vDate = new Date(v.visitDate);
+      return vDate >= weekendStart && vDate <= weekendEnd && v.status !== 'cancelled';
+    }).length;
+  }, [visits]);
+
+  const newSpeakers = useMemo(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return speakers.filter(s => s.createdAt && new Date(s.createdAt) >= thirtyDaysAgo).length;
+  }, [speakers]);
+
+  const todoTasks = useMemo(() => {
+    const tasks: Array<{ text: string; visitId: string; type: string }> = [];
+    
+    upcomingVisits.forEach(v => {
+      const hasAccommodation = v.hostAssignments?.some(h => h.role === 'accommodation');
+      const hasMeals = v.hostAssignments?.some(h => h.role === 'meals');
+      const hasTransport = v.hostAssignments?.some(h => h.role === 'transport' || h.role === 'pickup');
+      
+      const speakerName = v.prenom ? `${v.prenom} ${v.nom}` : v.nom;
+      const dateStr = new Date(v.visitDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+      
+      if (!hasAccommodation) {
+        tasks.push({ text: `Hébergement à confirmer pour ${speakerName} (${dateStr})`, visitId: v.visitId, type: 'accommodation' });
+      }
+      if (!hasMeals) {
+        tasks.push({ text: `Repas à organiser pour ${speakerName} (${dateStr})`, visitId: v.visitId, type: 'meals' });
+      }
+      if (!hasTransport) {
+        tasks.push({ text: `Transport à planifier pour ${speakerName} (${dateStr})`, visitId: v.visitId, type: 'transport' });
+      }
+    });
+    
+    return tasks.slice(0, 5);
+  }, [upcomingVisits]);
+
   const handleVisitClick = (visit: Visit) => {
     setSelectedVisit(visit);
     setIsVisitActionModalOpen(true);
@@ -135,6 +181,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Visites du mois',
             desc: 'Toutes les visites programmées en cours',
+            subText: weekendVisits > 0 ? `${weekendVisits} ce week-end` : 'Aucune ce week-end',
             value: stats.visitsThisMonth,
             icon: Calendar,
             color: 'text-blue-500',
@@ -144,6 +191,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Orateurs actifs',
             desc: 'Orateurs enregistrés dans la base de données',
+            subText: newSpeakers > 0 ? `${newSpeakers} nouveaux ce mois` : 'Base stable',
             value: stats.speakers,
             icon: Users,
             color: 'text-indigo-500',
@@ -153,6 +201,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Validations en attente',
             desc: 'Visites nécessitant une confirmation',
+            subText: stats.pending > 0 ? 'Action requise' : 'Tout confirmé',
             value: stats.pending,
             icon: AlertCircle,
             color: 'text-orange-500',
@@ -162,6 +211,7 @@ export const Dashboard: React.FC = () => {
           {
             label: "Contacts d'accueil",
             desc: 'Hôtes disponibles pour recevoir les orateurs',
+            subText: `${stats.hosts} disponibles`,
             value: stats.hosts,
             icon: ShieldCheck,
             color: 'text-green-500',
@@ -177,12 +227,15 @@ export const Dashboard: React.FC = () => {
           >
             <Card className='border-none shadow-sm group-hover:translate-y-[-4px] group-hover:shadow-lg transition-all duration-300 h-full'>
               <CardBody className='p-4 flex items-center justify-between'>
-                <div>
+                <div className='flex-1'>
                   <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1'>
                     {stat.label}
                   </p>
-                  <p className='text-3xl font-black text-gray-900 dark:text-white tracking-tighter'>
+                  <p className='text-3xl font-black text-gray-900 dark:text-white tracking-tighter mb-1'>
                     {stat.value}
+                  </p>
+                  <p className='text-[10px] text-gray-500 dark:text-gray-400 font-medium'>
+                    {stat.subText}
                   </p>
                 </div>
                 <div
@@ -199,8 +252,10 @@ export const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* 3. Upcoming Visits */}
-      <div className='max-w-2xl mx-auto'>
+      {/* 3. Main Content: Planning + To-do Panel */}
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-4'>
+        {/* Planning à venir (2/3) */}
+        <div className='lg:col-span-2'>
           <Card className='border-none shadow-sm bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl overflow-hidden'>
             <div className='p-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
@@ -224,19 +279,72 @@ export const Dashboard: React.FC = () => {
               {upcomingVisits.length > 0 ? (
                 <div className='space-y-3'>
                   {upcomingVisits.map((v) => (
-                    <DashboardVisitItem key={v.id} visit={v} onClick={() => handleVisitClick(v)} />
+                    <UpcomingVisitCard key={v.visitId} visit={v} onClick={() => handleVisitClick(v)} />
                   ))}
-                  <div className='pt-4 flex justify-center'>
-                    <button className='text-[10px] font-black text-primary-500 uppercase tracking-widest hover:underline'>
-                      + {visits.length - upcomingVisits.length} autres dans le futur
-                    </button>
-                  </div>
+                  {visits.length > upcomingVisits.length && (
+                    <div className='pt-4 flex justify-center'>
+                      <button 
+                        onClick={() => navigate('/planning')}
+                        className='text-[10px] font-black text-primary-500 uppercase tracking-widest hover:underline'
+                      >
+                        Étape 1/5 • + {visits.length - upcomingVisits.length} autres visites
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className='py-20 text-center opacity-40'>
                   <Calendar className='w-12 h-12 mx-auto mb-4' />
                   <p className='text-xs font-bold uppercase tracking-widest'>
                     Aucun planning programmé
+                  </p>
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* To-do Panel (1/3) */}
+        <div className='space-y-4'>
+          <Card className='border-none shadow-sm bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl overflow-hidden'>
+            <div className='p-4 border-b border-gray-100 dark:border-gray-700/50'>
+              <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
+                À faire cette semaine
+              </h3>
+              <p className='text-xs text-gray-500 font-medium'>
+                Tâches prioritaires
+              </p>
+            </div>
+            <CardBody className='p-4'>
+              {todoTasks.length > 0 ? (
+                <div className='space-y-2'>
+                  {todoTasks.map((task, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        const visit = visits.find(v => v.visitId === task.visitId);
+                        if (visit) handleVisitClick(visit);
+                      }}
+                      className='w-full text-left p-3 bg-gray-50 dark:bg-gray-900/40 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group border border-transparent hover:border-blue-200 dark:hover:border-blue-800'
+                    >
+                      <div className='flex items-start gap-2'>
+                        <div className='flex-shrink-0 mt-0.5'>
+                          {task.type === 'accommodation' && <Home className='w-4 h-4 text-orange-500' />}
+                          {task.type === 'meals' && <Utensils className='w-4 h-4 text-orange-500' />}
+                          {task.type === 'transport' && <Calendar className='w-4 h-4 text-orange-500' />}
+                        </div>
+                        <p className='text-xs text-gray-700 dark:text-gray-300 font-medium flex-1'>
+                          {task.text}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className='py-12 text-center opacity-40'>
+                  <CheckCircle2 className='w-10 h-10 mx-auto mb-3 text-green-500' />
+                  <p className='text-xs font-bold uppercase tracking-widest text-gray-500'>
+                    Tout est à jour !
                   </p>
                 </div>
               )}
@@ -251,21 +359,24 @@ export const Dashboard: React.FC = () => {
               <h4 className='text-base font-black uppercase tracking-tighter mb-3'>
                 Recherche globale
               </h4>
-              <div className='relative mb-4'>
+              <div className='relative mb-3'>
                 <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-300' />
                 <input
-                  className='w-full pl-10 pr-4 py-3 bg-white/10 dark:bg-black/20 border border-white/10 rounded-2xl text-xs backdrop-blur-md focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-primary-300/50'
-                  placeholder='Trouver un orateur, une date...'
+                  className='w-full pl-10 pr-20 py-3 bg-white/10 dark:bg-black/20 border border-white/10 rounded-2xl text-xs backdrop-blur-md focus:ring-2 focus:ring-primary-500 transition-all placeholder:text-primary-300/50'
+                  placeholder='Rechercher une visite, un orateur ou une date…'
                   onClick={() => setIsGlobalSearchOpen(true)}
                   readOnly
                 />
+                <div className='absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 bg-white/10 rounded text-[10px] font-bold text-primary-200'>
+                  CTRL + K
+                </div>
               </div>
-              <div className='flex items-center gap-3 text-[10px] font-bold text-primary-300 uppercase tracking-widest'>
-                <Zap className='w-3 h-3 text-amber-400' />
-                Appuyez sur CTRL + K partout
-              </div>
+              <p className='text-[10px] text-primary-300/70 font-medium'>
+                Accès rapide à toutes vos données
+              </p>
             </div>
           </Card>
+        </div>
       </div>
 
       {/* Modals */}
