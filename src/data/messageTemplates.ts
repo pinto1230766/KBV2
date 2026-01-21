@@ -320,7 +320,7 @@ Fraternellement,
 Groupe Capverdien de Lyon 🙏`,
     },
 
-    // Alias compatibilité : remerciements orateur
+    // ÉTAPE 9 : REMERCIEMENTS GÉNÉRIQUES (alias compatibilité)
     thanks: {
       speaker: `Bonjour Frère *{prenom_orateur}*,
 
@@ -337,23 +337,6 @@ Fraternellement,
 Groupe Capverdien de Lyon 🙏`,
     },
 
-    // ÉTAPE 8 : REMERCIEMENTS AUX HÔTES (post-visite)
-    thanks_hosts: {
-      host: `Bonjour {prenom_hotesse},
-
-Un grand merci pour ton aide généreuse lors de la visite de Frère *{prenom_orateur}* ! 🙏
-
-✅ {ta_tache} - Parfait ! ✨
-
-Ton dévouement a contribué à rendre cette visite mémorable et à accueillir chaleureusement notre frère visiteur. C'est grâce à des personnes comme toi que notre groupe s'épanouit.
-
-Que Jéhovah te bénisse !
-
-Fraternellement,
-{ton_nom}`,
-    },
-
-    // Alias compatibilité : remerciements hôtes
     host_thanks: {
       host: `Bonjour {prenom_hotesse},
 
