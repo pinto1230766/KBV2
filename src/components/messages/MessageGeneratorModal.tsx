@@ -60,7 +60,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   // Initialiser l'hôte sélectionné quand la visite change (pour thanks_hosts)
   useEffect(() => {
-    if (type === 'thanks_hosts' && visit?.hostAssignments?.length && allHosts.length > 0) {
+    if ((type === 'thanks_hosts' || type === 'host_thanks') && visit?.hostAssignments?.length && allHosts.length > 0) {
       const firstAssignedHost = allHosts.find(h => h.nom === visit.hostAssignments![0].hostName);
       setSelectedHost(firstAssignedHost || host || null);
     } else if (host) {
@@ -434,7 +434,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         </div>
 
         {/* Sélection de l'hôte pour les remerciements */}
-        {type === 'thanks_hosts' && visit?.hostAssignments && visit.hostAssignments.length > 0 && (
+        {(type === 'thanks_hosts' || type === 'host_thanks') && visit?.hostAssignments && visit.hostAssignments.length > 0 && (
           <div className='p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
             <label className='block text-sm font-medium text-gray-900 dark:text-white mb-2'>
               {t('Sélectionner l\'hôte à remercier')} :
@@ -450,15 +450,28 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             >
               <option value=''>{t('Choisir un hôte...')}</option>
+              {/* Hôtes principaux */}
               {visit.hostAssignments.map((assignment) => {
                 const host = allHosts.find(h => h.nom === assignment.hostName);
                 if (!host) return null;
                 return (
-                  <option key={host.nom} value={host.nom}>
+                  <option key={`main-${host.nom}`} value={host.nom}>
                     {host.nom} - {assignment.role === 'accommodation' ? '🏠 Hébergement' : assignment.role === 'meals' ? '🍽️ Repas' : assignment.role === 'transport' ? '🚗 Transport' : '📋 Autre'}
                   </option>
                 );
               })}
+              {/* Hôtes des accompagnants */}
+              {visit.companions?.map((companion) => 
+                companion.hostAssignments?.map((assignment) => {
+                  const host = allHosts.find(h => h.nom === assignment.hostName);
+                  if (!host) return null;
+                  return (
+                    <option key={`companion-${companion.id}-${host.nom}`} value={host.nom}>
+                      {host.nom} - {assignment.role === 'accommodation' ? '🏠' : assignment.role === 'meals' ? '🍽️' : assignment.role === 'transport' ? '🚗' : '📋'} ({companion.name})
+                    </option>
+                  );
+                })
+              )}
             </select>
           </div>
         )}
