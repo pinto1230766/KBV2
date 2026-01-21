@@ -251,270 +251,269 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     switch (action) {
       case 'edit':
         return (
-          <div className='p-2 grid grid-cols-1 lg:grid-cols-2 gap-3'>
-            {/* Colonne gauche : Informations de la visite */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2 pb-1 border-b border-gray-200 dark:border-gray-700'>
-                <Calendar className='w-4 h-4 text-indigo-500' />
-                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase'>Informations de la visite</span>
+          <div className='grid grid-cols-3 gap-4 p-4 min-h-[400px]'>
+            {/* Colonne 1 : Informations de la visite */}
+            <div className='space-y-3'>
+              <div className='bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-2 rounded-lg shadow-sm'>
+                <div className='flex items-center gap-2'>
+                  <Calendar className='w-4 h-4' />
+                  <span className='text-sm font-bold'>Visite</span>
+                </div>
               </div>
-              {/* Date, Heure, Type sur une ligne */}
-              <div className='grid grid-cols-3 gap-2'>
+              
+              <div className='grid grid-cols-2 gap-2'>
                 <div>
-                  <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>Date</label>
+                  <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>Date</label>
                   <input
                     type='date'
                     value={formData.visitDate}
                     onChange={(e) => setFormData({ ...formData, visitDate: e.target.value })}
-                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
                     aria-label='Date de visite'
                   />
                 </div>
                 <div>
-                  <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>Heure</label>
+                  <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>Heure</label>
                   <input
                     type='time'
                     value={formData.visitTime}
                     onChange={(e) => setFormData({ ...formData, visitTime: e.target.value })}
-                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
                     aria-label='Heure de visite'
                   />
                 </div>
-                <div>
-                  <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>Type</label>
-                  <select
-                    value={formData.locationType}
-                    onChange={(e) => setFormData({ ...formData, locationType: e.target.value as any })}
-                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
-                    aria-label='Type de lieu'
-                  >
-                    <option value='physical'>Présentiel</option>
-                    <option value='zoom'>Zoom</option>
-                    <option value='streaming'>Streaming</option>
-                  </select>
-                </div>
               </div>
 
-              {/* Discours */}
-              <div className='grid grid-cols-[80px,1fr] gap-2'>
+              <div>
+                <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>Type</label>
+                <select
+                  value={formData.locationType}
+                  onChange={(e) => setFormData({ ...formData, locationType: e.target.value as any })}
+                  className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                  aria-label='Type de lieu'
+                >
+                  <option value='physical'>🏛️ Présentiel</option>
+                  <option value='zoom'>💻 Zoom</option>
+                  <option value='streaming'>📺 Streaming</option>
+                </select>
+              </div>
+
+              <div className='grid grid-cols-[70px,1fr] gap-2'>
                 <div>
-                  <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>N°</label>
+                  <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>N°</label>
                   <input
                     placeholder='N°'
                     value={formData.talkNoOrType || ''}
                     onChange={(e) => setFormData({ ...formData, talkNoOrType: e.target.value })}
-                    className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
                   />
                 </div>
                 <div>
-                  <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>Thème</label>
+                  <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>Thème</label>
                   <input
                     placeholder='Thème du discours...'
                     value={formData.talkTheme || ''}
                     onChange={(e) => setFormData({ ...formData, talkTheme: e.target.value })}
-                    className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
                   />
                 </div>
               </div>
 
-              {/* Notes */}
               <div>
-                <label className='text-[10px] font-bold text-gray-500 uppercase pl-1'>Notes</label>
+                <label className='text-[10px] font-semibold text-gray-600 dark:text-gray-400 uppercase'>Notes</label>
                 <textarea
                   value={formData.notes || ''}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder='Notes générales...'
-                  className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 resize-none'
+                  className='w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 resize-none'
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            {/* Colonne 2 : Hôtes de l'orateur */}
+            <div className='space-y-3'>
+              <div className='bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-3 py-2 rounded-lg shadow-sm'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <Home className='w-4 h-4' />
+                    <span className='text-sm font-bold'>Hôtes de l'orateur</span>
+                  </div>
+                  {formData.locationType === 'physical' && !formData.congregation?.includes('Lyon') && (
+                    <button
+                      onClick={() => {
+                        const newAssignment = { id: generateUUID(), hostId: '', hostName: '', role: 'accommodation' as const, createdAt: new Date().toISOString() };
+                        setFormData((p) => ({ ...p, hostAssignments: [...(p.hostAssignments || []), newAssignment] }));
+                      }}
+                      className='bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded flex items-center gap-1'
+                    >
+                      <Plus className='w-3 h-3' /> Ajouter
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {formData.locationType === 'physical' && !formData.congregation?.includes('Lyon') ? (
+                <div className='space-y-2 max-h-[180px] overflow-y-auto'>
+                  {(formData.hostAssignments || []).length === 0 ? (
+                    <div className='text-center py-6 text-gray-400'>
+                      <Home className='w-8 h-8 mx-auto mb-2 opacity-30' />
+                      <p className='text-xs'>Cliquez sur "Ajouter" pour assigner un hôte</p>
+                    </div>
+                  ) : (
+                    (formData.hostAssignments || []).map((assignment, index) => (
+                      <div key={assignment.id} className='flex items-center gap-2 p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg border border-teal-100 dark:border-teal-800'>
+                        <select
+                          value={assignment.hostName}
+                          onChange={(e) => {
+                            const newAssignments = [...(formData.hostAssignments || [])];
+                            newAssignments[index] = { ...assignment, hostName: e.target.value, hostId: e.target.value };
+                            setFormData({ ...formData, hostAssignments: newAssignments });
+                          }}
+                          className='flex-1 px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs'
+                          aria-label="Sélectionner un hôte"
+                        >
+                          <option value=''>Choisir un hôte...</option>
+                          {hosts.map((h: Host) => (
+                            <option key={h.nom} value={h.nom}>{h.nom}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={assignment.role}
+                          onChange={(e) => {
+                            const newAssignments = [...(formData.hostAssignments || [])];
+                            newAssignments[index] = { ...assignment, role: e.target.value as any };
+                            setFormData({ ...formData, hostAssignments: newAssignments });
+                          }}
+                          className='px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs'
+                          aria-label="Rôle"
+                        >
+                          <option value='accommodation'>🏠 Hébergement</option>
+                          <option value='meals'>🍽️ Repas</option>
+                          <option value='pickup'>🚗 Prise en charge</option>
+                          <option value='transport'>🚌 Transport</option>
+                          <option value='other'>📋 Autre</option>
+                        </select>
+                        <button
+                          onClick={() => {
+                            const newAssignments = (formData.hostAssignments || []).filter((_, i) => i !== index);
+                            setFormData({ ...formData, hostAssignments: newAssignments });
+                          }}
+                          className='text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded'
+                          title="Supprimer"
+                        >
+                          <X className='w-4 h-4' />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              ) : (
+                <div className='text-center py-6 text-gray-400'>
+                  <p className='text-xs'>Pas d'hébergement nécessaire pour cette visite</p>
+                </div>
+              )}
+
+              {/* Allergies de l'orateur */}
+              <div className='mt-auto'>
+                <div className='bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1.5 rounded-t-lg'>
+                  <div className='flex items-center gap-2'>
+                    <AlertOctagon className='w-3 h-3' />
+                    <span className='text-xs font-bold'>Allergies & Spécifications</span>
+                  </div>
+                </div>
+                <textarea
+                  value={formData.allergyInfo || ''}
+                  onChange={(e) => setFormData({ ...formData, allergyInfo: e.target.value })}
+                  placeholder='Allergies alimentaires, régime, besoins spécifiques...'
+                  className='w-full px-3 py-2 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 border-t-0 rounded-b-lg text-xs focus:ring-1 focus:ring-red-500 resize-none'
                   rows={2}
                 />
               </div>
             </div>
 
-            {/* Colonne droite : Personnes et hébergement */}
-            <div className='space-y-2'>
-              <div className='flex items-center gap-2 pb-1 border-b border-gray-200 dark:border-gray-700'>
-                <Home className='w-4 h-4 text-teal-500' />
-                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase'>Personnes et hébergement</span>
-              </div>
-
-              {/* Hôtes de l'orateur principal */}
-              {formData.locationType === 'physical' && !formData.congregation?.includes('Lyon') && (
-                <div className='p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg'>
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='flex items-center gap-1'>
-                      <Home className='w-3 h-3 text-teal-500' />
-                      <span className='text-xs font-bold text-gray-700 dark:text-gray-300'>Hôtes de l'orateur</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        const newAssignment = { id: generateUUID(), hostId: '', hostName: '', role: 'accommodation' as const, createdAt: new Date().toISOString() };
-                        setFormData((p) => ({
-                          ...p,
-                          hostAssignments: [...(p.hostAssignments || []), newAssignment],
-                        }));
-                      }}
-                      className='text-teal-600 hover:text-teal-700 text-[10px] px-2 py-0.5 bg-white dark:bg-gray-700 rounded flex items-center gap-1'
-                      title="Ajouter un hôte"
-                    >
-                      <Plus className='w-3 h-3' /> Ajouter
-                    </button>
+            {/* Colonne 3 : Accompagnants */}
+            <div className='space-y-3 flex flex-col'>
+              <div className='bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-lg shadow-sm'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-2'>
+                    <Users className='w-4 h-4' />
+                    <span className='text-sm font-bold'>Accompagnants</span>
                   </div>
-                  <div className='space-y-1'>
-                    {(formData.hostAssignments || []).length === 0 ? (
-                      <p className='text-[10px] text-gray-400 italic'>Aucun hôte assigné</p>
-                    ) : (
-                      (formData.hostAssignments || []).map((assignment, index) => (
-                        <div key={assignment.id} className='flex items-center gap-1 p-1 bg-white dark:bg-gray-700 rounded'>
-                          <select
-                            value={assignment.hostName}
-                            onChange={(e) => {
-                              const newAssignments = [...(formData.hostAssignments || [])];
-                              newAssignments[index] = { ...assignment, hostName: e.target.value, hostId: e.target.value };
-                              setFormData({ ...formData, hostAssignments: newAssignments });
-                            }}
-                            className='flex-1 px-1 py-0.5 bg-gray-50 dark:bg-gray-600 border-none rounded text-[10px]'
-                            aria-label="Sélectionner un hôte"
-                          >
-                            <option value=''>Sélectionner...</option>
-                            {hosts.map((h: Host) => (
-                              <option key={h.nom} value={h.nom}>{h.nom}</option>
-                            ))}
-                          </select>
-                          <select
-                            value={assignment.role}
-                            onChange={(e) => {
-                              const newAssignments = [...(formData.hostAssignments || [])];
-                              newAssignments[index] = { ...assignment, role: e.target.value as any };
-                              setFormData({ ...formData, hostAssignments: newAssignments });
-                            }}
-                            className='px-1 py-0.5 bg-gray-50 dark:bg-gray-600 border-none rounded text-[10px]'
-                            aria-label="Rôle de l'hôte"
-                          >
-                            <option value='accommodation'>🏠 Hébergement</option>
-                            <option value='meals'>🍽️ Repas</option>
-                            <option value='pickup'>🚗 Prise en charge</option>
-                            <option value='transport'>🚌 Transport</option>
-                            <option value='other'>📋 Autre</option>
-                          </select>
-                          <button
-                            onClick={() => {
-                              const newAssignments = (formData.hostAssignments || []).filter((_, i) => i !== index);
-                              setFormData({ ...formData, hostAssignments: newAssignments });
-                            }}
-                            className='text-red-500 hover:text-red-700 p-0.5'
-                            title="Supprimer"
-                          >
-                            <X className='w-3 h-3' />
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Allergies et spécifications de l'orateur */}
-              <div className='p-2 bg-red-50 dark:bg-red-900/10 rounded-lg'>
-                <div className='flex items-center gap-1 mb-1'>
-                  <AlertOctagon className='w-3 h-3 text-red-500' />
-                  <span className='text-[10px] font-bold text-red-700 dark:text-red-300 uppercase'>Allergies & Spécifications</span>
-                </div>
-                <textarea
-                  value={formData.notes || ''}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder='Allergies (arachides, gluten...), régime alimentaire, besoins spécifiques...'
-                  className='w-full px-2 py-1 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-800 rounded text-[10px] focus:ring-1 focus:ring-red-500 resize-none'
-                  rows={2}
-                />
-              </div>
-
-              {/* Accompagnants - Compact */}
-              <div className='p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg'>
-                <div className='flex items-center justify-between mb-2'>
-                  <div className='flex items-center gap-1'>
-                    <Users className='w-3 h-3 text-indigo-500' />
-                    <span className='text-xs font-bold text-gray-700 dark:text-gray-300'>Accompagnants</span>
-                  </div>
-                  <Button
-                    variant='ghost'
-                    size='sm'
+                  <button
                     onClick={() => {
-                      console.log('Adding companion, current companions:', formData.companions);
                       const newCompanion: Companion = { id: generateUUID(), name: '', type: 'couple', hostAssignments: [] };
-                      const updatedCompanions = [...(formData.companions || []), newCompanion];
-                      console.log('New companions list:', updatedCompanions);
-                      setFormData({ ...formData, companions: updatedCompanions });
+                      setFormData({ ...formData, companions: [...(formData.companions || []), newCompanion] });
                     }}
-                    className='text-indigo-600 text-[10px] px-2 py-1 h-auto'
-                    leftIcon={<Plus className='w-3 h-3' />}
+                    className='bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded flex items-center gap-1'
                   >
-                    Ajouter
-                  </Button>
+                    <Plus className='w-3 h-3' /> Ajouter
+                  </button>
                 </div>
-                {(formData.companions || []).length === 0 ? (
-                  <p className='text-[10px] text-gray-400 italic'>Aucun accompagnant</p>
-                ) : (
-                  <div className='space-y-2'>
-                    {(formData.companions || []).map((companion, index) => (
-                      <div key={companion.id} className='space-y-1 p-2 bg-white dark:bg-gray-700 rounded-lg border-l-2 border-indigo-400'>
-                        {/* En-tête: Nom, type et supprimer */}
-                        <div className='flex items-center gap-2 pb-1 border-b border-gray-200 dark:border-gray-600'>
-                          <input
-                            type='text'
-                            value={companion.name || ''}
-                            onChange={(e) => {
-                              const newCompanions = [...(formData.companions || [])];
-                              newCompanions[index] = { ...newCompanions[index], name: e.target.value };
-                              setFormData({ ...formData, companions: newCompanions });
-                            }}
-                            placeholder="Nom de l'accompagnant..."
-                            className='flex-1 px-2 py-1 bg-transparent border-none text-xs font-medium focus:ring-0'
-                          />
-                          <select
-                            value={companion.type}
-                            onChange={(e) => {
-                              const newCompanions = [...(formData.companions || [])];
-                              newCompanions[index] = { ...newCompanions[index], type: e.target.value as CompanionType };
-                              setFormData({ ...formData, companions: newCompanions });
-                            }}
-                            className='px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 border-none rounded text-[10px]'
-                            title="Type d'accompagnant"
-                            aria-label="Type d'accompagnant"
-                          >
-                            <option value='couple'>Couple</option>
-                            <option value='brother'>Frère</option>
-                            <option value='sister'>Sœur</option>
-                            <option value='other'>Autre</option>
-                          </select>
-                          <button
-                            onClick={() => {
-                              const newCompanions = (formData.companions || []).filter((_, i) => i !== index);
-                              setFormData({ ...formData, companions: newCompanions });
-                            }}
-                            className='text-red-500 hover:text-red-700 p-1'
-                            title="Supprimer l'accompagnant"
-                            aria-label="Supprimer l'accompagnant"
-                          >
-                            <X className='w-3 h-3' />
-                          </button>
-                        </div>
+              </div>
 
-                        {/* Hôtes de l'accompagnant */}
-                        <div className='space-y-1'>
-                          <div className='flex items-center justify-between'>
-                            <span className='text-[9px] font-bold text-gray-500 uppercase'>Hôtes</span>
+              <div className='flex-1 overflow-y-auto space-y-2 max-h-[320px]'>
+                {(formData.companions || []).length === 0 ? (
+                  <div className='text-center py-6 text-gray-400'>
+                    <Users className='w-8 h-8 mx-auto mb-2 opacity-30' />
+                    <p className='text-xs'>Aucun accompagnant</p>
+                  </div>
+                ) : (
+                  (formData.companions || []).map((companion, index) => (
+                    <div key={companion.id} className='p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800'>
+                      {/* En-tête accompagnant */}
+                      <div className='flex items-center gap-2 mb-2'>
+                        <input
+                          type='text'
+                          value={companion.name || ''}
+                          onChange={(e) => {
+                            const newCompanions = [...(formData.companions || [])];
+                            newCompanions[index] = { ...newCompanions[index], name: e.target.value };
+                            setFormData({ ...formData, companions: newCompanions });
+                          }}
+                          placeholder="Nom..."
+                          className='flex-1 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-xs font-medium'
+                        />
+                        <select
+                          value={companion.type}
+                          onChange={(e) => {
+                            const newCompanions = [...(formData.companions || [])];
+                            newCompanions[index] = { ...newCompanions[index], type: e.target.value as CompanionType };
+                            setFormData({ ...formData, companions: newCompanions });
+                          }}
+                          className='px-2 py-1 bg-purple-100 dark:bg-purple-900/30 border-none rounded text-[10px]'
+                          aria-label="Type"
+                        >
+                          <option value='couple'>👫 Couple</option>
+                          <option value='brother'>👨 Frère</option>
+                          <option value='sister'>👩 Sœur</option>
+                          <option value='other'>👤 Autre</option>
+                        </select>
+                        <button
+                          onClick={() => {
+                            const newCompanions = (formData.companions || []).filter((_, i) => i !== index);
+                            setFormData({ ...formData, companions: newCompanions });
+                          }}
+                          className='text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded'
+                          title="Supprimer"
+                        >
+                          <X className='w-4 h-4' />
+                        </button>
+                      </div>
+
+                      {/* Hôtes de l'accompagnant */}
+                      {formData.locationType === 'physical' && !formData.congregation?.includes('Lyon') && (
+                        <div className='mb-2'>
+                          <div className='flex items-center justify-between mb-1'>
+                            <span className='text-[10px] font-bold text-purple-700 dark:text-purple-300'>HÔTES</span>
                             <button
                               onClick={() => {
                                 const newCompanions = [...(formData.companions || [])];
                                 const newAssignment = { id: generateUUID(), hostId: '', hostName: '', role: 'accommodation' as const, createdAt: new Date().toISOString() };
-                                newCompanions[index] = { 
-                                  ...companion, 
-                                  hostAssignments: [...(companion.hostAssignments || []), newAssignment] 
-                                };
+                                newCompanions[index] = { ...companion, hostAssignments: [...(companion.hostAssignments || []), newAssignment] };
                                 setFormData({ ...formData, companions: newCompanions });
                               }}
-                              className='text-indigo-600 hover:text-indigo-700 text-[9px] px-1 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 rounded flex items-center gap-0.5'
-                              title="Ajouter un hôte"
+                              className='text-purple-600 hover:text-purple-700 text-[9px] px-1.5 py-0.5 bg-white dark:bg-gray-800 rounded flex items-center gap-0.5'
                             >
                               <Plus className='w-2.5 h-2.5' /> Ajouter
                             </button>
@@ -522,78 +521,79 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                           {(companion.hostAssignments || []).length === 0 ? (
                             <p className='text-[9px] text-gray-400 italic'>Aucun hôte</p>
                           ) : (
-                            (companion.hostAssignments || []).map((assignment, hIndex) => (
-                              <div key={assignment.id} className='flex items-center gap-1'>
-                                <select
-                                  value={assignment.hostName}
-                                  onChange={(e) => {
-                                    const newCompanions = [...(formData.companions || [])];
-                                    const newAssignments = [...(companion.hostAssignments || [])];
-                                    newAssignments[hIndex] = { ...assignment, hostName: e.target.value, hostId: e.target.value };
-                                    newCompanions[index] = { ...companion, hostAssignments: newAssignments };
-                                    setFormData({ ...formData, companions: newCompanions });
-                                  }}
-                                  className='flex-1 px-1 py-0.5 bg-gray-50 dark:bg-gray-600 border-none rounded text-[9px]'
-                                  aria-label="Sélectionner un hôte"
-                                >
-                                  <option value=''>Sélectionner...</option>
-                                  {hosts.map((host: Host) => (
-                                    <option key={host.nom} value={host.nom}>{host.nom}</option>
-                                  ))}
-                                </select>
-                                <select
-                                  value={assignment.role}
-                                  onChange={(e) => {
-                                    const newCompanions = [...(formData.companions || [])];
-                                    const newAssignments = [...(companion.hostAssignments || [])];
-                                    newAssignments[hIndex] = { ...assignment, role: e.target.value as any };
-                                    newCompanions[index] = { ...companion, hostAssignments: newAssignments };
-                                    setFormData({ ...formData, companions: newCompanions });
-                                  }}
-                                  className='px-1 py-0.5 bg-gray-50 dark:bg-gray-600 border-none rounded text-[9px]'
-                                  aria-label="Rôle"
-                                >
-                                  <option value='accommodation'>🏠 Hébergement</option>
-                                  <option value='meals'>🍽️ Repas</option>
-                                  <option value='pickup'>🚗 Prise en charge</option>
-                                  <option value='transport'>🚌 Transport</option>
-                                  <option value='other'>📋 Autre</option>
-                                </select>
-                                <button
-                                  onClick={() => {
-                                    const newCompanions = [...(formData.companions || [])];
-                                    const newAssignments = (companion.hostAssignments || []).filter((_, i) => i !== hIndex);
-                                    newCompanions[index] = { ...companion, hostAssignments: newAssignments };
-                                    setFormData({ ...formData, companions: newCompanions });
-                                  }}
-                                  className='text-red-500 hover:text-red-700 p-0.5'
-                                  title="Supprimer"
-                                >
-                                  <X className='w-2.5 h-2.5' />
-                                </button>
-                              </div>
-                            ))
+                            <div className='space-y-1'>
+                              {(companion.hostAssignments || []).map((assignment, hIndex) => (
+                                <div key={assignment.id} className='flex items-center gap-1'>
+                                  <select
+                                    value={assignment.hostName}
+                                    onChange={(e) => {
+                                      const newCompanions = [...(formData.companions || [])];
+                                      const newAssignments = [...(companion.hostAssignments || [])];
+                                      newAssignments[hIndex] = { ...assignment, hostName: e.target.value, hostId: e.target.value };
+                                      newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                      setFormData({ ...formData, companions: newCompanions });
+                                    }}
+                                    className='flex-1 px-1 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-[9px]'
+                                    aria-label="Hôte"
+                                  >
+                                    <option value=''>Choisir...</option>
+                                    {hosts.map((host: Host) => (
+                                      <option key={host.nom} value={host.nom}>{host.nom}</option>
+                                    ))}
+                                  </select>
+                                  <select
+                                    value={assignment.role}
+                                    onChange={(e) => {
+                                      const newCompanions = [...(formData.companions || [])];
+                                      const newAssignments = [...(companion.hostAssignments || [])];
+                                      newAssignments[hIndex] = { ...assignment, role: e.target.value as any };
+                                      newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                      setFormData({ ...formData, companions: newCompanions });
+                                    }}
+                                    className='px-1 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded text-[9px]'
+                                    aria-label="Rôle"
+                                  >
+                                    <option value='accommodation'>🏠</option>
+                                    <option value='meals'>🍽️</option>
+                                    <option value='pickup'>🚗</option>
+                                    <option value='transport'>🚌</option>
+                                    <option value='other'>📋</option>
+                                  </select>
+                                  <button
+                                    onClick={() => {
+                                      const newCompanions = [...(formData.companions || [])];
+                                      const newAssignments = (companion.hostAssignments || []).filter((_, i) => i !== hIndex);
+                                      newCompanions[index] = { ...companion, hostAssignments: newAssignments };
+                                      setFormData({ ...formData, companions: newCompanions });
+                                    }}
+                                    className='text-red-500 hover:text-red-700 p-0.5'
+                                    title="Supprimer l'hôte"
+                                  >
+                                    <X className='w-3 h-3' />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
+                      )}
 
-                        {/* Allergies de l'accompagnant */}
-                        <div>
-                          <label className='text-[9px] font-bold text-red-600 dark:text-red-400 uppercase'>Allergies & Spécifications</label>
-                          <textarea
-                            value={companion.notes || ''}
-                            onChange={(e) => {
-                              const newCompanions = [...(formData.companions || [])];
-                              newCompanions[index] = { ...companion, notes: e.target.value };
-                              setFormData({ ...formData, companions: newCompanions });
-                            }}
-                            placeholder='Allergies, régime alimentaire...'
-                            className='w-full px-1 py-1 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded text-[9px] focus:ring-1 focus:ring-red-500 resize-none'
-                            rows={1}
-                          />
-                        </div>
+                      {/* Allergies */}
+                      <div>
+                        <span className='text-[10px] font-bold text-red-600 dark:text-red-400'>ALLERGIES</span>
+                        <input
+                          value={companion.notes || ''}
+                          onChange={(e) => {
+                            const newCompanions = [...(formData.companions || [])];
+                            newCompanions[index] = { ...companion, notes: e.target.value };
+                            setFormData({ ...formData, companions: newCompanions });
+                          }}
+                          placeholder='Allergies, régime...'
+                          className='w-full px-2 py-1 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded text-[10px]'
+                        />
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))
                 )}
               </div>
             </div>
