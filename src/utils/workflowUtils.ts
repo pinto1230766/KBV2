@@ -53,7 +53,7 @@ export function getWorkflowState(visit: Visit): CommunicationState {
   // Pour les visites en streaming/visioconférence, seule la confirmation est nécessaire
   if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
     // Si la visite est confirmée, elle est considérée comme terminée (pas de logistique)
-    if (visit.status === 'confirmed' && visit.communicationStatus?.confirmation?.speaker) {
+    if (visit.status === 'confirmed') {
       return CommunicationState.COMPLETED;
     }
     
@@ -69,7 +69,7 @@ export function getWorkflowState(visit: Visit): CommunicationState {
   // Pour les visiteurs de l'agrégation Lyon KBV, seule la confirmation est nécessaire (ils sont sur place)
   if (isLyonKbvVisitor(visit)) {
     // Si la visite est confirmée, elle est considérée comme terminée (pas de logistique locale)
-    if (visit.status === 'confirmed' && visit.communicationStatus?.confirmation?.speaker) {
+    if (visit.status === 'confirmed') {
       return CommunicationState.COMPLETED;
     }
     
