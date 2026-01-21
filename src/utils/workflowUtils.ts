@@ -4,7 +4,7 @@ import { needsHosts } from './hostAssignmentUtils';
 /**
  * Vérifie si un visiteur appartient à l'agrégation Lyon KBV
  */
-const isLyonKbvVisitor = (visit: Visit): boolean => {
+export const isLyonKbvVisitor = (visit: Visit): boolean => {
   const lyonKbvCongregations = [
     'Lyon KBV',
     'Lyon - KBV',
@@ -97,6 +97,11 @@ export function getWorkflowState(visit: Visit): CommunicationState {
     if (!visit.communicationStatus?.preparation?.speaker) {
       return CommunicationState.TO_PROCESS;
     }
+  }
+
+  // Si la visite n'est pas confirmée et qu'elle est dans moins de 7 jours, elle est urgente
+  if (daysUntil <= 7 && daysUntil >= -1 && visit.status === 'pending') {
+    return CommunicationState.URGENT;
   }
 
   // EN COURS : visites avec des messages envoyés récemment

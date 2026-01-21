@@ -26,7 +26,7 @@ import { Badge } from '@/components/ui/Badge';
 import { CommunicationProgress } from '@/components/messages/CommunicationProgress';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { getWorkflowState, getQuickActions, getWorkflowStateColor, getSpecificWorkflowStateLabel } from '@/utils/workflowUtils';
+import { getWorkflowState, getQuickActions, getWorkflowStateColor, getSpecificWorkflowStateLabel, isLyonKbvVisitor } from '@/utils/workflowUtils';
 import { needsHosts, getNoHostReason } from '@/utils/hostAssignmentUtils';
 
 interface VisitCardProps {
@@ -227,11 +227,13 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
           </div>
           <div className='flex flex-col items-end gap-1'>
             {getStatusBadge(visit.status)}
-            {/* Badge état workflow */}
-            <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${workflowClasses.bg} ${workflowClasses.text}`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${workflowClasses.dot}`} />
-              {workflowLabel}
-            </div>
+            {/* Badge état workflow - seulement si différent du statut et nécessaire */}
+            {!(visit.locationType === 'streaming' || visit.locationType === 'zoom' || isLyonKbvVisitor(visit)) && (
+              <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${workflowClasses.bg} ${workflowClasses.text}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${workflowClasses.dot}`} />
+                {workflowLabel}
+              </div>
+            )}
           </div>
         </div>
 
