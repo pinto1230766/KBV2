@@ -251,9 +251,13 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     switch (action) {
       case 'edit':
         return (
-          <div className='p-2 grid grid-cols-1 lg:grid-cols-2 gap-2'>
-            {/* Colonne gauche : Infos visite */}
+          <div className='p-2 grid grid-cols-1 lg:grid-cols-2 gap-3'>
+            {/* Colonne gauche : Informations de la visite */}
             <div className='space-y-2'>
+              <div className='flex items-center gap-2 pb-1 border-b border-gray-200 dark:border-gray-700'>
+                <Calendar className='w-4 h-4 text-indigo-500' />
+                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase'>Informations de la visite</span>
+              </div>
               {/* Date, Heure, Type sur une ligne */}
               <div className='grid grid-cols-3 gap-2'>
                 <div>
@@ -321,8 +325,16 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder='Notes générales...'
                   className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 resize-none'
-                  rows={1}
+                  rows={2}
                 />
+              </div>
+            </div>
+
+            {/* Colonne droite : Personnes et hébergement */}
+            <div className='space-y-2'>
+              <div className='flex items-center gap-2 pb-1 border-b border-gray-200 dark:border-gray-700'>
+                <Home className='w-4 h-4 text-teal-500' />
+                <span className='text-xs font-bold text-gray-700 dark:text-gray-300 uppercase'>Personnes et hébergement</span>
               </div>
 
               {/* Hôte de l'orateur principal */}
@@ -513,11 +525,6 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Colonne droite : Espace vide */}
-            <div className='space-y-3'>
-              {/* L'espace pour les hôtes est maintenant géré individuellement dans chaque section */}
             </div>
           </div>
         );
