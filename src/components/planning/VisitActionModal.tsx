@@ -80,6 +80,22 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     }
   }, [visit, action]);
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
+
   if (!visit) return null;
 
   const handleSave = async () => {
