@@ -2,6 +2,27 @@ import { Visit } from '@/types';
 import { needsHosts } from './hostAssignmentUtils';
 
 /**
+ * Vérifie si un visiteur appartient à l'agrégation Lyon KBV
+ */
+const isLyonKbvVisitor = (visit: Visit): boolean => {
+  const lyonKbvCongregations = [
+    'Lyon KBV',
+    'Lyon - KBV',
+    'KBV Lyon',
+    'Lyon',
+    'Lyon Centre',
+    'Lyon Est',
+    'Lyon Ouest',
+    'Lyon Sud'
+  ];
+
+  return lyonKbvCongregations.some(lyonCong => 
+    visit.congregation.toLowerCase().includes(lyonCong.toLowerCase()) ||
+    lyonCong.toLowerCase().includes(visit.congregation.toLowerCase())
+  );
+};
+
+/**
  * États intelligents du workflow de communication
  */
 export enum CommunicationState {
@@ -42,6 +63,22 @@ export function getWorkflowState(visit: Visit): CommunicationState {
     }
     
     // Par défaut pour les visites streaming
+    return CommunicationState.TO_PROCESS;
+  }
+
+  // Pour les visiteurs de l'agrégation Lyon KBV, seule la confirmation est nécessaire (ils sont sur place)
+  if (isLyonKbvVisitor(visit)) {
+    // Si la visite est confirmée, elle est considérée comme terminée (pas de logistique locale)
+    if (visit.status === 'confirmed' && visit.communicationStatus?.confirmation?.speaker) {
+      return CommunicationState.COMPLETED;
+    }
+    
+    // Si en attente de confirmation, c'est à traiter (mais pas urgent)
+    if (visit.status === 'pending') {
+      return CommunicationState.TO_PROCESS;
+    }
+    
+    // Par défaut pour les visiteurs Lyon KBV
     return CommunicationState.TO_PROCESS;
   }
 
@@ -117,11 +154,11 @@ export function getWorkflowStateLabel(state: CommunicationState): string {
  * Étiquette d'état spécifique selon le type de visite
  */
 export function getSpecificWorkflowStateLabel(visit: Visit): string {
-  // Pour les visites en streaming, utiliser des étiquettes plus appropriées
-  if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+  // Pour les visites en streaming et les visiteurs Lyon KBV, utiliser des étiquettes plus appropriées
+  if (visit.locationType === 'streaming' || visit.locationType === 'zoom' || isLyonKbvVisitor(visit)) {
     const state = getWorkflowState(visit);
     if (state === CommunicationState.COMPLETED) {
-      return 'Visio confirmée';
+      return isLyonKbvVisitor(visit) ? 'Confirmé' : 'Visio confirmée';
     }
     if (state === CommunicationState.TO_PROCESS) {
       return visit.status === 'pending' ? 'En attente' : 'À confirmer';
@@ -142,19 +179,19 @@ export function getQuickActions(visit: Visit): QuickAction[] {
   const daysUntil = Math.ceil((visitDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   const isPastVisit = daysUntil < 0;
 
-  // Pour les visites en streaming/visioconférence, uniquement la confirmation est nécessaire
-  if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+  // Pour les visites en streaming/visioconférence ET les visiteurs Lyon KBV, uniquement la confirmation est nécessaire
+  if (visit.locationType === 'streaming' || visit.locationType === 'zoom' || isLyonKbvVisitor(visit)) {
     // 1. Confirmation orateur (si en attente)
     if (visit.status === 'pending' && !visit.communicationStatus?.confirmation?.speaker) {
       actions.push({
         id: 'confirm_speaker',
-        label: 'Confirmer visio',
-        priority: 'medium', // Pas urgent pour les visios
-        description: 'Confirmer la participation à la visioconférence'
+        label: isLyonKbvVisitor(visit) ? 'Confirmer' : 'Confirmer visio',
+        priority: 'medium', // Pas urgent pour les locaux ou visios
+        description: isLyonKbvVisitor(visit) ? 'Confirmer la participation' : 'Confirmer la participation à la visioconférence'
       });
     }
 
-    // Pas d'autres actions nécessaires pour les visites en streaming
+    // Pas d'autres actions nécessaires pour les visites streaming ou locaux
     return actions;
   }
 
