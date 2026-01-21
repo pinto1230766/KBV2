@@ -33,6 +33,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
   const [message, setMessage] = useState('');
   const channel: CommunicationChannel = 'whatsapp'; // Hardcodé pour cette implémentation
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedHost, setSelectedHost] = useState<Host | null>(null);
 
   // Auto-détection intelligente de la langue
   const detectedLanguage = React.useMemo(() => {
@@ -41,6 +42,16 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
     }
     return settings.language;
   }, [visit, settings.language]);
+
+  // Initialiser l'hôte sélectionné quand la visite change
+  React.useEffect(() => {
+    if (visit?.hostAssignments?.length && allHosts.length > 0) {
+      const firstAssignedHost = allHosts.find(h => h.nom === visit.hostAssignments![0].hostName);
+      setSelectedHost(firstAssignedHost || null);
+    } else {
+      setSelectedHost(null);
+    }
+  }, [visit, allHosts]);
 
   // Titre et description selon l'action
   const getModalConfig = (action: string) => {
@@ -93,20 +104,11 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           description: 'Envoyer les informations logistiques',
           recipient: visit?.nom || 'Orateur'
         };
-      case 'visit_recap':
-        return {
-          title: 'Récapitulatif',
-          description: 'Envoyer le planning complet au groupe',
-          recipient: 'Groupe WhatsApp Lyon'
-        };
       case 'host_thanks':
-        const hostName = visit?.hostAssignments?.length > 0 
-          ? visit!.hostAssignments![0].hostName 
-          : 'Hôtes';
         return {
           title: 'Remerciements Hôtes',
           description: 'Remercier les hôtes après la visite',
-          recipient: hostName
+          recipient: selectedHost?.nom || 'Sélectionner un hôte'
         };
       default:
         return {
@@ -124,7 +126,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
     if (isOpen && action && visit) {
       generateMessageForAction();
     }
-  }, [isOpen, action, visit]);
+  }, [isOpen, action, visit, selectedHost]); // Ajouter selectedHost pour régénérer quand il change
 
   const generateMessageForAction = async () => {
     if (!visit) return;
@@ -144,9 +146,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
       };
 
       // Précalculer les variables pour éviter les déclarations dans les case
-      const assignedHost = visit.hostAssignments?.length > 0 
-        ? allHosts.find(h => h.nom === visit.hostAssignments![0].hostName)
-        : null;
+      // Pour host_thanks, on utilisera selectedHost qui peut être changé par l'utilisateur
 
       switch (action) {
         case 'confirm_speaker':
@@ -260,11 +260,11 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           break;
 
         case 'host_thanks':
-          // Utiliser le premier hôte assigné pour le remerciement
+          // Utiliser l'hôte sélectionné pour le remerciement
           generated = generateMessage(
             visit,
             virtualSpeaker,
-            assignedHost,
+            selectedHost,
             congregationProfile,
             'thanks_hosts',
             'host',
@@ -393,6 +393,34 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Sélection de l'hôte pour les remerciements */}
+        {action === 'host_thanks' && visit?.hostAssignments && visit.hostAssignments.length > 0 && (
+          <div className='p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
+            <label className='block text-sm font-medium text-gray-900 dark:text-white mb-2'>
+              Sélectionner l'hôte à remercier :
+            </label>
+            <select
+              value={selectedHost?.id || ''}
+              onChange={(e) => {
+                const host = allHosts.find(h => h.id === e.target.value);
+                setSelectedHost(host || null);
+              }}
+              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
+            >
+              <option value=''>Choisir un hôte...</option>
+              {visit.hostAssignments.map((assignment) => {
+                const host = allHosts.find(h => h.nom === assignment.hostName);
+                if (!host) return null;
+                return (
+                  <option key={host.id} value={host.id}>
+                    {host.nom} - {assignment.role === 'accommodation' ? '🏠 Hébergement' : assignment.role === 'meals' ? '🍽️ Repas' : assignment.role === 'transport' ? '🚗 Transport' : '📋 Autre'}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        )}
 
         {/* Message */}
         <div className='relative'>
