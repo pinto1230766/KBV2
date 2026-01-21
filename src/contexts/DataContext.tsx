@@ -109,16 +109,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       // utiliser uniquement completeData pour forcer le rechargement complet
       const shouldForceReload =
         !saved?.dataVersion ||
-        saved.dataVersion < '1.4.3' ||
+        saved.dataVersion < '1.5.0' ||
         !saved.speakers ||
         saved.speakers.length < 50;
 
       let mergedData;
       if (shouldForceReload) {
-        console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.4.0)');
+        console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.5.0)');
         mergedData = {
           ...completeData,
-          dataVersion: '1.4.3', // Forcer la nouvelle version
+          dataVersion: '1.5.0', // Forcer la nouvelle version
         };
       } else {
         // FUSION INTELLIGENTE: Préserver les hostAssignments et autres données utilisateur
