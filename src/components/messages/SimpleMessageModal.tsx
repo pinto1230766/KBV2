@@ -100,10 +100,13 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           recipient: 'Groupe WhatsApp Lyon'
         };
       case 'host_thanks':
+        const hostName = visit?.hostAssignments?.length > 0 
+          ? visit.hostAssignments[0].hostName 
+          : 'Hôtes';
         return {
           title: 'Remerciements Hôtes',
           description: 'Remercier les hôtes après la visite',
-          recipient: 'Hôtes'
+          recipient: hostName
         };
       default:
         return {
@@ -252,10 +255,15 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           break;
 
         case 'host_thanks':
+          // Utiliser le premier hôte assigné pour le remerciement
+          const assignedHost = visit.hostAssignments?.length > 0 
+            ? allHosts.find(h => h.nom === visit.hostAssignments[0].hostName)
+            : null;
+          
           generated = generateMessage(
             visit,
             virtualSpeaker,
-            null,
+            assignedHost,
             congregationProfile,
             'thanks_hosts',
             'host',
