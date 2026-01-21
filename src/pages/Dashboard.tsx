@@ -108,6 +108,20 @@ export const Dashboard: React.FC = () => {
     const tasks: Array<{ text: string; visitId: string; type: string }> = [];
     
     upcomingVisits.forEach(v => {
+      // Skip host-related tasks for zoom/streaming/local KBV visits
+      if (v.locationType === 'streaming' || v.locationType === 'zoom') {
+        return; // Skip zoom/streaming visits
+      }
+      
+      const isLocalKbv = ['Lyon KBV', 'Lyon - KBV', 'KBV Lyon', 'Lyon', 'Lyon Centre', 'Lyon Est', 'Lyon Ouest', 'Lyon Sud'].some(lyonCong => 
+        v.congregation.toLowerCase().includes(lyonCong.toLowerCase()) ||
+        lyonCong.toLowerCase().includes(v.congregation.toLowerCase())
+      );
+      
+      if (isLocalKbv) {
+        return; // Skip local KBV visits
+      }
+      
       const hasAccommodation = v.hostAssignments?.some(h => h.role === 'accommodation');
       const hasMeals = v.hostAssignments?.some(h => h.role === 'meals');
       const hasTransport = v.hostAssignments?.some(h => h.role === 'transport' || h.role === 'pickup');

@@ -13,6 +13,23 @@ interface UpcomingVisitCardProps {
 export const UpcomingVisitCard: React.FC<UpcomingVisitCardProps> = ({ visit, onClick }) => {
   const visitDate = new Date(visit.visitDate);
   
+  // Check if this visit needs hosts (not zoom/streaming/local KBV)
+  const needsHosts = useMemo(() => {
+    if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+      return false;
+    }
+    
+    const lyonKbvCongregations = ['Lyon KBV', 'Lyon - KBV', 'KBV Lyon', 'Lyon', 'Lyon Centre', 'Lyon Est', 'Lyon Ouest', 'Lyon Sud'];
+    if (lyonKbvCongregations.some(lyonCong => 
+      visit.congregation.toLowerCase().includes(lyonCong.toLowerCase()) ||
+      lyonCong.toLowerCase().includes(visit.congregation.toLowerCase())
+    )) {
+      return false;
+    }
+    
+    return visit.locationType === 'physical';
+  }, [visit.locationType, visit.congregation]);
+  
   const progressInfo = useMemo(() => {
     let step = 0;
     const total = 5;
@@ -107,42 +124,52 @@ export const UpcomingVisitCard: React.FC<UpcomingVisitCardProps> = ({ visit, onC
             </p>
           )}
 
-          {/* Badges de statut */}
-          <div className='flex items-center gap-2 mb-3'>
-            <div
-              className={cn(
-                'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
-                hasAccommodation
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-              )}
-            >
-              <Home className='w-3 h-3' />
-              {hasAccommodation ? 'OK' : 'À faire'}
+          {/* Badges de statut - only show for visits that need hosts */}
+          {needsHosts ? (
+            <div className='flex items-center gap-2 mb-3'>
+              <div
+                className={cn(
+                  'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
+                  hasAccommodation
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                )}
+              >
+                <Home className='w-3 h-3' />
+                {hasAccommodation ? 'OK' : 'À faire'}
+              </div>
+              <div
+                className={cn(
+                  'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
+                  hasMeals
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                )}
+              >
+                <Utensils className='w-3 h-3' />
+                {hasMeals ? 'OK' : 'Repas'}
+              </div>
+              <div
+                className={cn(
+                  'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
+                  hasTransport
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                )}
+              >
+                <Car className='w-3 h-3' />
+                {hasTransport ? 'OK' : 'Transport'}
+              </div>
             </div>
-            <div
-              className={cn(
-                'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
-                hasMeals
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-              )}
-            >
-              <Utensils className='w-3 h-3' />
-              {hasMeals ? 'OK' : 'Repas'}
+          ) : (
+            <div className='mb-3'>
+              <div className='flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'>
+                {visit.locationType === 'zoom' && '💻 Visioconférence'}
+                {visit.locationType === 'streaming' && '📺 Streaming'}
+                {visit.locationType === 'physical' && '🏠 Orateur local'}
+              </div>
             </div>
-            <div
-              className={cn(
-                'flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold',
-                hasTransport
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                  : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-              )}
-            >
-              <Car className='w-3 h-3' />
-              {hasTransport ? 'OK' : 'Transport'}
-            </div>
-          </div>
+          )}
 
           {/* Indicateur de progression */}
           <div className='flex items-center gap-2'>
