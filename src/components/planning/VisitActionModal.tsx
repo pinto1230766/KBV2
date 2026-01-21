@@ -331,8 +331,11 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                     variant='ghost'
                     size='sm'
                     onClick={() => {
+                      console.log('Adding companion, current companions:', formData.companions);
                       const newCompanion: Companion = { id: generateUUID(), name: '', type: 'couple', hostAssignments: [] };
-                      setFormData({ ...formData, companions: [...(formData.companions || []), newCompanion] });
+                      const updatedCompanions = [...(formData.companions || []), newCompanion];
+                      console.log('New companions list:', updatedCompanions);
+                      setFormData({ ...formData, companions: updatedCompanions });
                     }}
                     className='text-indigo-600 text-[10px] px-2 py-1 h-auto'
                     leftIcon={<Plus className='w-3 h-3' />}
