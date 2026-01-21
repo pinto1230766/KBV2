@@ -41,6 +41,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   const [type] = useState<MessageType>(initialType);
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedHost, setSelectedHost] = useState<Host | null>(null);
 
   // Déterminer si on envoie à un hôte ou à un orateur
   // Les types qui commencent par "host_" sont toujours pour les hôtes
@@ -57,6 +58,18 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     email: undefined
   } : null;
 
+  // Initialiser l'hôte sélectionné quand la visite change (pour thanks_hosts)
+  useEffect(() => {
+    if (type === 'thanks_hosts' && visit?.hostAssignments?.length && allHosts.length > 0) {
+      const firstAssignedHost = allHosts.find(h => h.nom === visit.hostAssignments![0].hostName);
+      setSelectedHost(firstAssignedHost || host || null);
+    } else if (host) {
+      setSelectedHost(host);
+    } else {
+      setSelectedHost(null);
+    }
+  }, [visit, allHosts, host, type]);
+
   const targetEntity = host || speaker || virtualSpeaker;
   const targetName = isGroupMessage ? `${allHosts.length} hôtes` : (targetEntity?.nom || visit?.nom || '');
 
@@ -65,7 +78,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
     if (isOpen && !isGenerating) {
       handleGenerate();
     }
-  }, [isOpen, type, language]);
+  }, [isOpen, type, language, selectedHost]); // Ajouter selectedHost pour régénérer quand il change
 
   // Synchroniser le canal si la prop initialChannel change
   useEffect(() => {
@@ -136,14 +149,15 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             setMessage(generated);
           }
           return; // Sortir après avoir défini le message
-        } else if (host && visit) {
+        } else if ((selectedHost || host) && visit) {
           // Message individuel à un hôte avec visite
+          const targetHost = selectedHost || host;
           if (type === 'visit_recap') {
             // Nouveau type: Récapitulatif complet de la visite
             generated = generateMessage(
               visit,
               speaker || virtualSpeaker as Speaker,
-              host,
+              targetHost,
               congregationProfile,
               type,
               'host',
@@ -159,7 +173,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               language,
               undefined, // customTemplate
               true, // isIndividualRequest
-              host.nom
+              targetHost!.nom
             );
           } else {
             const visitSpeaker =
@@ -171,7 +185,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             generated = generateMessage(
               visit,
               visitSpeaker as Speaker,
-              host,
+              targetHost,
               congregationProfile,
               type,
               'host',
@@ -180,12 +194,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               allHosts
             );
           }
-        } else if (host) {
+        } else if (selectedHost || host) {
           // Message individuel à un hôte sans visite spécifique
+          const targetHost = selectedHost || host;
           generated = generateMessage(
             null,
             null,
-            host,
+            targetHost,
             congregationProfile,
             type,
             'host',
@@ -417,6 +432,36 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Sélection de l'hôte pour les remerciements */}
+        {type === 'thanks_hosts' && visit?.hostAssignments && visit.hostAssignments.length > 0 && (
+          <div className='p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
+            <label className='block text-sm font-medium text-gray-900 dark:text-white mb-2'>
+              {t('Sélectionner l\'hôte à remercier')} :
+            </label>
+            <select
+              value={selectedHost?.nom || ''}
+              onChange={(e) => {
+                const host = allHosts.find(h => h.nom === e.target.value);
+                setSelectedHost(host || null);
+              }}
+              title={t('Sélectionner l\'hôte à remercier')}
+              aria-label={t('Sélectionner l\'hôte à remercier')}
+              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
+            >
+              <option value=''>{t('Choisir un hôte...')}</option>
+              {visit.hostAssignments.map((assignment) => {
+                const host = allHosts.find(h => h.nom === assignment.hostName);
+                if (!host) return null;
+                return (
+                  <option key={host.nom} value={host.nom}>
+                    {host.nom} - {assignment.role === 'accommodation' ? '🏠 Hébergement' : assignment.role === 'meals' ? '🍽️ Repas' : assignment.role === 'transport' ? '🚗 Transport' : '📋 Autre'}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        )}
 
         {/* Message Area */}
         <div className='relative'>
