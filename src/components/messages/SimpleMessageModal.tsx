@@ -101,7 +101,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         };
       case 'host_thanks':
         const hostName = visit?.hostAssignments?.length > 0 
-          ? visit.hostAssignments![0].hostName 
+          ? visit!.hostAssignments![0].hostName 
           : 'Hôtes';
         return {
           title: 'Remerciements Hôtes',
@@ -142,6 +142,11 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         gender: 'male' as const,
         talkHistory: [],
       };
+
+      // Précalculer les variables pour éviter les déclarations dans les case
+      const assignedHost = visit.hostAssignments?.length > 0 
+        ? allHosts.find(h => h.nom === visit.hostAssignments![0].hostName)
+        : null;
 
       switch (action) {
         case 'confirm_speaker':
@@ -256,12 +261,8 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
 
         case 'host_thanks':
           // Utiliser le premier hôte assigné pour le remerciement
-          const assignedHost = visit?.hostAssignments?.length > 0 
-            ? allHosts.find(h => h.nom === visit.hostAssignments![0].hostName)
-            : null;
-          
           generated = generateMessage(
-            visit!,
+            visit,
             virtualSpeaker,
             assignedHost,
             congregationProfile,
