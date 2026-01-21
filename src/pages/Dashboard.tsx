@@ -145,22 +145,13 @@ export const Dashboard: React.FC = () => {
            </p>
         </div>
 
-        <div className='flex gap-2'>
-            <Button
-              className='h-9 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-sm text-xs'
-              leftIcon={<CalendarPlus className='w-3 h-3' />}
-              onClick={() => setIsScheduleModalOpen(true)}
-            >
-              Nouvelle Visite
-            </Button>
-            <Button
-              className='h-9 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 font-bold text-xs'
-              leftIcon={<Zap className='w-3 h-3 text-amber-500' />}
-              onClick={() => setIsQuickActionsOpen(true)}
-            >
-              Actions
-            </Button>
-         </div>
+        <Button
+          className='h-9 bg-blue-600 hover:bg-blue-700 text-white border-none font-bold shadow-sm text-xs'
+          leftIcon={<CalendarPlus className='w-3 h-3' />}
+          onClick={() => setIsScheduleModalOpen(true)}
+        >
+          Nouvelle Visite
+        </Button>
       </div>
 
       {/* 2. Global Insight Grid */}
@@ -173,6 +164,7 @@ export const Dashboard: React.FC = () => {
             icon: Calendar,
             color: 'text-blue-500',
             bg: 'bg-blue-50 dark:bg-blue-900/20',
+            onClick: () => navigate('/planning'),
           },
           {
             label: 'Orateurs actifs',
@@ -181,6 +173,7 @@ export const Dashboard: React.FC = () => {
             icon: Users,
             color: 'text-indigo-500',
             bg: 'bg-indigo-50 dark:bg-indigo-900/20',
+            onClick: () => navigate('/speakers'),
           },
           {
             label: 'Validations en attente',
@@ -189,6 +182,7 @@ export const Dashboard: React.FC = () => {
             icon: AlertCircle,
             color: 'text-orange-500',
             bg: 'bg-orange-50 dark:bg-orange-900/20',
+            onClick: () => navigate('/planning', { state: { filterStatus: 'pending' } }),
           },
           {
             label: "Contacts d'accueil",
@@ -197,20 +191,16 @@ export const Dashboard: React.FC = () => {
             icon: ShieldCheck,
             color: 'text-green-500',
             bg: 'bg-green-50 dark:bg-green-900/20',
+            onClick: () => navigate('/speakers', { state: { activeTab: 'hosts' } }),
           },
         ].map((stat, i) => (
-          <div
+          <button
             key={i}
-            className='relative group'
-            title={`${stat.label}: ${stat.desc}${i === 2 ? ' (Cliquez pour plus de détails)' : i === 0 ? ' (Mise à jour temps réel)' : ''}`}
+            onClick={stat.onClick}
+            className='relative group text-left cursor-pointer'
+            title={`${stat.label}: ${stat.desc} - Cliquez pour voir les détails`}
           >
-            {/* Tooltip hint pour Power Users */}
-            {i === 2 && (
-              <div className='absolute -top-2 -right-2 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center z-10'>
-                <span className='text-[8px] text-white font-bold'>i</span>
-              </div>
-            )}
-            <Card className='border-none shadow-sm group-hover:translate-y-[-4px] transition-all duration-300 h-full'>
+            <Card className='border-none shadow-sm group-hover:translate-y-[-4px] group-hover:shadow-lg transition-all duration-300 h-full'>
               <CardBody className='p-4 flex items-center justify-between'>
                 <div>
                   <p className='text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1'>
@@ -230,7 +220,7 @@ export const Dashboard: React.FC = () => {
                 </div>
               </CardBody>
             </Card>
-          </div>
+          </button>
         ))}
       </div>
 
