@@ -526,25 +526,30 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                             className='flex-1 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-[10px]'
                             title="Assigner un hôte à l'accompagnant"
                             aria-label="Assigner un hôte à l'accompagnant"
+                            value={companion.hostAssignments?.[0]?.hostName || ''}
                             onChange={(e) => {
                               const hostName = e.target.value;
+                              const newCompanions = [...(formData.companions || [])];
                               if (hostName) {
-                                const newAssignments = [...(companion.hostAssignments || []), { id: generateUUID(), hostId: hostName, hostName, role: 'accommodation' as const, createdAt: new Date().toISOString() }];
-                                const newCompanions = [...(formData.companions || [])];
-                                newCompanions[cIndex] = { ...companion, hostAssignments: newAssignments };
-                                setFormData({ ...formData, companions: newCompanions });
+                                // Replace existing assignment or create new one
+                                const newAssignment = { 
+                                  id: companion.hostAssignments?.[0]?.id || generateUUID(), 
+                                  hostId: hostName, 
+                                  hostName, 
+                                  role: 'accommodation' as const, 
+                                  createdAt: companion.hostAssignments?.[0]?.createdAt || new Date().toISOString() 
+                                };
+                                newCompanions[cIndex] = { ...companion, hostAssignments: [newAssignment] };
+                              } else {
+                                // Remove assignment
+                                newCompanions[cIndex] = { ...companion, hostAssignments: [] };
                               }
-                              e.target.value = '';
+                              setFormData({ ...formData, companions: newCompanions });
                             }}
                           >
                             <option value=''>Assigner hôte...</option>
                             {hosts.map(h => <option key={h.nom} value={h.nom}>{h.nom}</option>)}
                           </select>
-                          {(companion.hostAssignments || []).length > 0 && (
-                            <Badge variant='success' className='text-[9px]'>
-                              {companion.hostAssignments![0].hostName}
-                            </Badge>
-                          )}
                         </div>
                       ))}
                     </div>
