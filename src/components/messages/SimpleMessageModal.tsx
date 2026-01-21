@@ -215,7 +215,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             virtualSpeaker,
             null,
             congregationProfile,
-            'thanks_speaker',
+            'thanks',
             'speaker',
             detectedLanguage,
             undefined,
@@ -335,6 +335,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
       case 'reminder_week': return 'reminder-7';
       case 'reminder_final': return 'reminder-2';
       case 'send_thanks': return 'thanks';
+      case 'host_thanks': return 'thanks_hosts';
       default: return 'free_message';
     }
   };
