@@ -1,0 +1,23 @@
+{
+  "name": "KBV Lyon - Gestion des Orateurs",
+  "short_name": "KBV Lyon",
+  "description": "Application de gestion des orateurs visiteurs - KBV DV Lyon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-only.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

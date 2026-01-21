@@ -1,0 +1,17 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .no-print {
+    display: none !important;
+  }
+  /* Only show the component that is being printed */
+  /* react-to-print usually handles this by creating an iframe or modifying styles temporarily. 
+     However, ensuring global UI is hidden if using a different method is good.
+     But react-to-print copies the specific node to a print window. 
+     So we mainly need to ensure that WITHIN that node, 'no-print' class works. 
+     The styles below are for the global app if we were printing window.print() directly on the page, 
+     but react-to-print isolates content. 
+     So actually, we just need standards. 
+  */
+}
