@@ -8,6 +8,7 @@ import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
 import { VisitActionModal } from '@/components/planning/VisitActionModal';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { SimpleMessageModal } from '@/components/messages/SimpleMessageModal';
+import { QuickWhatsAppModal } from '@/components/messages/QuickWhatsAppModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
@@ -126,6 +127,8 @@ export const Planning: React.FC = () => {
     | 'conflict'
   >('edit');
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+  const [isQuickWhatsAppModalOpen, setIsQuickWhatsAppModalOpen] = useState(false);
+  const [quickWhatsAppMessageType, setQuickWhatsAppMessageType] = useState<string>('confirmation');
   const [isCancellationModalOpen, setIsCancellationModalOpen] = useState(false);
   const [isReplacementModalOpen, setIsReplacementModalOpen] = useState(false);
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
@@ -183,9 +186,12 @@ export const Planning: React.FC = () => {
       if (visit) {
         setSelectedVisit(visit);
         if (messageTypeParam) {
-          setSelectedAction('message');
+          // Open QuickWhatsAppModal for notification-triggered messaging
+          setQuickWhatsAppMessageType(messageTypeParam);
+          setIsQuickWhatsAppModalOpen(true);
+        } else {
+          setIsActionModalOpen(true);
         }
-        setIsActionModalOpen(true);
         // Clean up URL
         navigate(location.pathname, { replace: true, state: {} });
         return;
@@ -862,6 +868,15 @@ export const Planning: React.FC = () => {
           onClose={() => setIsReplacementModalOpen(false)}
           visit={selectedVisit}
           onSelectReplacement={handleReplacement}
+        />
+      )}
+
+      {selectedVisit && isQuickWhatsAppModalOpen && (
+        <QuickWhatsAppModal
+          isOpen={isQuickWhatsAppModalOpen}
+          onClose={() => setIsQuickWhatsAppModalOpen(false)}
+          visit={selectedVisit}
+          messageType={quickWhatsAppMessageType}
         />
       )}
 
