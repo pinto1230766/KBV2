@@ -333,41 +333,72 @@ class FileSystemService {
   }
 
   /**
-   * Lire un fichier depuis Documents/KBV/
+   * Lire un fichier depuis tous les emplacements possibles
    */
   async readFromDocuments(filename: string): Promise<string> {
-    try {
-      const result = await Filesystem.readFile({
-        path: `${this.KBV_FOLDER}/${filename}`,
-        directory: this.DEFAULT_DIRECTORY,
-        encoding: 'utf8' as any,
-      });
+    // Liste des emplacements à essayer (même ordre que la sauvegarde)
+    const locations = [
+      { path: `${this.KBV_FOLDER}/${filename}`, directory: Directory.External },
+      { path: filename, directory: Directory.External },
+      { path: `${this.KBV_FOLDER}/${filename}`, directory: this.DEFAULT_DIRECTORY },
+      { path: filename, directory: this.DEFAULT_DIRECTORY },
+      { path: `${this.KBV_FOLDER}/${filename}`, directory: Directory.ExternalStorage },
+      { path: filename, directory: Directory.ExternalStorage },
+    ];
 
-      return result.data as string;
-    } catch (error) {
-      console.error('Erreur lecture fichier:', error);
-      throw error;
+    for (const location of locations) {
+      try {
+        const result = await Filesystem.readFile({
+          path: location.path,
+          directory: location.directory,
+          encoding: 'utf8' as any,
+        });
+        console.log(`[readFromDocuments] Found file at ${location.path} in ${location.directory}`);
+        return result.data as string;
+      } catch (error: any) {
+        // Continuer à essayer les autres emplacements
+        console.log(`[readFromDocuments] Could not read from ${location.path} in ${location.directory}:`, error?.message);
+      }
     }
+
+    throw new Error(`Fichier ${filename} non trouvé dans aucun emplacement`);
   }
 
   /**
-   * Lister les fichiers dans Documents/KBV/
+   * Lister les fichiers dans tous les emplacements possibles (External, Documents, ExternalStorage)
    */
   async listKBVFiles(): Promise<string[]> {
-    try {
-      const result = await Filesystem.readdir({
-        path: this.KBV_FOLDER,
-        directory: this.DEFAULT_DIRECTORY,
-      });
+    const allFiles: Set<string> = new Set();
+    
+    // Liste des emplacements à vérifier (même ordre que la sauvegarde)
+    const locations = [
+      { path: this.KBV_FOLDER, directory: Directory.External },
+      { path: '', directory: Directory.External },
+      { path: this.KBV_FOLDER, directory: this.DEFAULT_DIRECTORY },
+      { path: '', directory: this.DEFAULT_DIRECTORY },
+      { path: this.KBV_FOLDER, directory: Directory.ExternalStorage },
+      { path: '', directory: Directory.ExternalStorage },
+    ];
 
-      return result.files.map((f: string | { name: string }) => typeof f === 'string' ? f : f.name);
-    } catch (error: any) {
-      // Si le dossier n'existe pas, retourner un tableau vide
-      if (error?.message?.includes('does not exist')) {
-        return [];
+    for (const location of locations) {
+      try {
+        const result = await Filesystem.readdir({
+          path: location.path || '.',
+          directory: location.directory,
+        });
+
+        const files = result.files
+          .map((f: string | { name: string }) => typeof f === 'string' ? f : f.name)
+          .filter((name: string) => name.endsWith('.json'));
+        
+        files.forEach((file: string) => allFiles.add(file));
+      } catch (error: any) {
+        // Ignorer les erreurs (dossier inexistant, permissions, etc.)
+        console.log(`[listKBVFiles] Could not read from ${location.path || 'root'} in ${location.directory}:`, error?.message);
       }
-      throw error;
     }
+
+    return Array.from(allFiles);
   }
 
   /**
