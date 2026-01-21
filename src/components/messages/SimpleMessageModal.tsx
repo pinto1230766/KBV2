@@ -381,9 +381,9 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         </>
       }
     >
-      <div className='space-y-4'>
+      <div className='space-y-2'>
         {/* En-tête avec destinataire */}
-        <div className='p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg'>
+        <div className='p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg'>
           <div className='flex items-center justify-between'>
             <div>
               <p className='text-sm font-medium text-gray-900 dark:text-white'>
@@ -406,8 +406,8 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         </div>
 
         {/* Sélecteur de langue */}
-        <div className='flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
-          <span className='text-sm font-medium text-blue-900 dark:text-blue-100'>Langue:</span>
+        <div className='flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+          <span className='text-xs font-medium text-blue-900 dark:text-blue-100'>Langue:</span>
           <div className='flex gap-2'>
             {[
               { value: 'fr', label: '🇫🇷 Français' },
@@ -417,7 +417,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
               <button
                 key={lang.value}
                 onClick={() => setLanguage(lang.value as any)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all ${
                   language === lang.value
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700'
@@ -462,14 +462,14 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         {/* Message */}
         <div className='relative'>
           <textarea
-            className='w-full h-64 p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
+            className='w-full h-40 p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-xs'
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={isGenerating ? 'Génération du message...' : 'Le message apparaîtra ici...'}
             disabled={isGenerating}
           />
 
-          <div className='absolute bottom-4 right-4'>
+          <div className='absolute bottom-2 right-2'>
             <Button
               size='sm'
               variant='secondary'
@@ -483,7 +483,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
         </div>
 
         {/* Info utile */}
-        <div className='text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg'>
+        <div className='text-[10px] text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg'>
           💡 Vous pouvez modifier le message avant l'envoi. Le message sera ouvert dans WhatsApp pour finalisation.
         </div>
       </div>

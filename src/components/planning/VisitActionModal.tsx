@@ -224,21 +224,21 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     return (
       <div
         className={cn(
-          'bg-gradient-to-r p-6 text-white relative overflow-hidden shrink-0',
+          'bg-gradient-to-r p-3 text-white relative overflow-hidden shrink-0',
           colorClass
         )}
       >
-        <Icon className='absolute right-[-10px] top-[-10px] w-32 h-32 opacity-10 rotate-12' />
+        <Icon className='absolute right-[-10px] top-[-10px] w-20 h-20 opacity-10 rotate-12' />
         <div className='relative z-10'>
-          <h2 className='text-2xl font-black tracking-tighter mb-1'>{title}</h2>
-          <p className='opacity-90 text-sm font-medium'>{subtitle}</p>
+          <h2 className='text-lg font-black tracking-tighter'>{title}</h2>
+          <p className='opacity-90 text-xs font-medium'>{subtitle}</p>
 
-          <div className='mt-4 flex items-center gap-3'>
-            <div className='flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-lg'>
-              <span className='text-xs font-bold uppercase tracking-wider opacity-80'>Orateur</span>
-              <span className='font-bold text-sm'>{visit.nom}</span>
+          <div className='mt-2 flex items-center gap-2'>
+            <div className='flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg'>
+              <span className='text-[10px] font-bold uppercase tracking-wider opacity-80'>Orateur</span>
+              <span className='font-bold text-xs'>{visit.nom}</span>
             </div>
-            <Badge className='bg-white/20 text-white border-none backdrop-blur-md'>
+            <Badge className='bg-white/20 text-white border-none backdrop-blur-md text-[10px]'>
               {visit.congregation}
             </Badge>
           </div>
@@ -251,9 +251,9 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
     switch (action) {
       case 'edit':
         return (
-          <div className='p-4 grid grid-cols-1 lg:grid-cols-2 gap-4'>
+          <div className='p-2 grid grid-cols-1 lg:grid-cols-2 gap-2'>
             {/* Colonne gauche : Infos visite */}
-            <div className='space-y-3'>
+            <div className='space-y-2'>
               {/* Date, Heure, Type sur une ligne */}
               <div className='grid grid-cols-3 gap-2'>
                 <div>
@@ -262,7 +262,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                     type='date'
                     value={formData.visitDate}
                     onChange={(e) => setFormData({ ...formData, visitDate: e.target.value })}
-                    className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
                     aria-label='Date de visite'
                   />
                 </div>
@@ -272,7 +272,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                     type='time'
                     value={formData.visitTime}
                     onChange={(e) => setFormData({ ...formData, visitTime: e.target.value })}
-                    className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
                     aria-label='Heure de visite'
                   />
                 </div>
@@ -281,7 +281,7 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   <select
                     value={formData.locationType}
                     onChange={(e) => setFormData({ ...formData, locationType: e.target.value as any })}
-                    className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500'
+                    className='w-full px-2 py-1.5 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-xs focus:ring-2 focus:ring-indigo-500'
                     aria-label='Type de lieu'
                   >
                     <option value='physical'>Présentiel</option>
@@ -321,12 +321,12 @@ export const VisitActionModal: React.FC<VisitActionModalProps> = ({
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   placeholder='Notes générales...'
                   className='w-full px-2 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 resize-none'
-                  rows={2}
+                  rows={1}
                 />
               </div>
 
               {/* Accompagnants - Compact */}
-              <div className='p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl'>
+              <div className='p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg'>
                 <div className='flex items-center justify-between mb-2'>
                   <div className='flex items-center gap-1'>
                     <Users className='w-3 h-3 text-indigo-500' />

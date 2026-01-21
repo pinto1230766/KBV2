@@ -408,10 +408,10 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         </>
       }
     >
-      <div className='space-y-4'>
+      <div className='space-y-2'>
         {/* Sélecteur de langue */}
-        <div className='flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
-          <span className='text-sm font-medium text-blue-900 dark:text-blue-100'>{t('Langue')}:</span>
+        <div className='flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+          <span className='text-xs font-medium text-blue-900 dark:text-blue-100'>{t('Langue')}:</span>
           <div className='flex gap-2'>
             {[
               { value: 'fr', label: '🇫🇷 Français' },
@@ -421,7 +421,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
               <button
                 key={lang.value}
                 onClick={() => setLanguage(lang.value as 'fr' | 'cv' | 'pt')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-2 py-1 rounded-lg text-[10px] font-medium transition-all ${
                   language === lang.value
                     ? 'bg-blue-600 text-white shadow-md'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700'
@@ -435,8 +435,8 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
         {/* Sélection de l'hôte pour les remerciements */}
         {(type === 'thanks_hosts' || type === 'host_thanks') && visit?.hostAssignments && visit.hostAssignments.length > 0 && (
-          <div className='p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
-            <label className='block text-sm font-medium text-gray-900 dark:text-white mb-2'>
+          <div className='p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg'>
+            <label className='block text-xs font-medium text-gray-900 dark:text-white mb-1'>
               {t('Sélectionner l\'hôte à remercier')} :
             </label>
             <select
@@ -479,13 +479,13 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
         {/* Message Area */}
         <div className='relative'>
           <textarea
-            className='w-full h-64 p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-sm'
+            className='w-full h-40 p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none font-mono text-xs'
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={t('Le message généré apparaîtra ici...')}
           />
 
-          <div className='absolute bottom-4 right-4 flex gap-2'>
+          <div className='absolute bottom-2 right-2 flex gap-2'>
             <Button
               size='sm'
               variant='secondary'

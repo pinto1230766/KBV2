@@ -230,12 +230,12 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
       padding='none'
       className='max-sm:rounded-none overflow-hidden border-none'
     >
-      <div className='flex flex-col max-h-[90vh] bg-white dark:bg-gray-900 overflow-hidden rounded-3xl'>
+      <div className='flex flex-col max-h-[85vh] bg-white dark:bg-gray-900 overflow-hidden rounded-2xl'>
         {/* Top Gradient Header */}
-        <div className='bg-gradient-to-r from-primary-600 to-primary-700 p-8 text-white relative overflow-hidden'>
-          <Zap className='absolute right-[-20px] top-[-20px] w-48 h-48 opacity-10 rotate-12' />
+        <div className='bg-gradient-to-r from-primary-600 to-primary-700 p-4 text-white relative overflow-hidden'>
+          <Zap className='absolute right-[-10px] top-[-10px] w-24 h-24 opacity-10 rotate-12' />
           <div className='relative z-10'>
-            <div className='flex justify-between items-start mb-4'>
+            <div className='flex justify-between items-start mb-2'>
               <div className='px-3 py-1 bg-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md'>
                 Control Panel
               </div>
@@ -248,25 +248,25 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
                 <X className='w-6 h-6' />
               </button>
             </div>
-            <h2 className='text-3xl font-black tracking-tighter mb-2 flex items-center gap-3'>
-              <Sparkles className='w-8 h-8 text-amber-300' />
+            <h2 className='text-xl font-black tracking-tighter mb-1 flex items-center gap-2'>
+              <Sparkles className='w-5 h-5 text-amber-300' />
               Actions Rapides
             </h2>
-            <p className='text-primary-100 opacity-80 text-sm max-w-sm'>
+            <p className='text-primary-100 opacity-80 text-xs max-w-sm'>
               Accédez instantanément aux fonctionnalités clés de votre assistant de congrégation.
             </p>
           </div>
         </div>
 
         {/* Search & Categories Bar */}
-        <div className='p-6 border-b border-gray-100 dark:border-gray-800 space-y-6'>
+        <div className='p-3 border-b border-gray-100 dark:border-gray-800 space-y-3'>
           <div className='relative group'>
             <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary-500 transition-colors' />
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder='Quelle action souhaitez-vous effectuer ?'
-              className='w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-lg focus:ring-4 focus:ring-primary-500/10 transition-all font-medium placeholder:text-gray-400'
+              className='w-full pl-10 pr-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-4 focus:ring-primary-500/10 transition-all font-medium placeholder:text-gray-400'
               autoFocus
             />
           </div>
@@ -293,7 +293,7 @@ export const QuickActionsModal: React.FC<QuickActionsModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className='flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800'>
+        <div className='flex-1 overflow-y-auto p-3 space-y-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800'>
           {/* Recents - Only if no search */}
           {!searchTerm && selectedCategory === 'all' && recentActions.length > 0 && (
             <div className='animate-in fade-in slide-in-from-top-4 duration-300'>
