@@ -327,7 +327,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
       }
 
       // Consigner la communication
-      if (action.includes('speaker') || action.includes('reminder') || action.includes('thanks')) {
+      if (action.includes('speaker') || action.includes('reminder') || action.includes('thanks') || action === 'plan_logistics') {
         const messageType = mapActionToMessageType(action);
         logCommunication(visit.visitId, messageType, 'speaker');
       }
@@ -355,6 +355,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
       case 'reminder_final': return 'reminder-2';
       case 'send_thanks': return 'thanks';
       case 'host_thanks': return 'thanks_hosts';
+      case 'plan_logistics': return 'preparation';
       default: return 'free_message';
     }
   };
