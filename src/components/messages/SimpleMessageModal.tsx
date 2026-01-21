@@ -34,6 +34,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
   const channel: CommunicationChannel = 'whatsapp'; // Hardcodé pour cette implémentation
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedHost, setSelectedHost] = useState<Host | null>(null);
+  const [language, setLanguage] = useState(settings.language);
 
   // Auto-détection intelligente de la langue
   const detectedLanguage = React.useMemo(() => {
@@ -42,6 +43,11 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
     }
     return settings.language;
   }, [visit, settings.language]);
+
+  // Initialiser la langue avec la détection automatique
+  React.useEffect(() => {
+    setLanguage(detectedLanguage);
+  }, [detectedLanguage]);
 
   // Initialiser l'hôte sélectionné quand la visite change
   React.useEffect(() => {
@@ -127,7 +133,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
     if (isOpen && action && visit) {
       generateMessageForAction();
     }
-  }, [isOpen, action, visit, selectedHost]); // Ajouter selectedHost pour régénérer quand il change
+  }, [isOpen, action, visit, selectedHost, language]); // Ajouter language pour régénérer quand il change
 
   const generateMessageForAction = async () => {
     if (!visit) return;
@@ -159,7 +165,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'confirmation',
             'speaker',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -170,7 +176,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           generated = generateHostRequestMessage(
             [visit],
             congregationProfile,
-            detectedLanguage,
+            language,
             undefined,
             false // Message de groupe
           );
@@ -185,7 +191,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'visit_recap',
             'host', // Type récapitulatif
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -199,7 +205,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'reminder-5',
             'speaker',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -213,7 +219,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'reminder-5',
             'speaker',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -227,7 +233,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'thanks',
             'speaker',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -242,7 +248,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'preparation',
             'speaker',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -256,7 +262,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'preparation',
             'host',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -271,7 +277,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             congregationProfile,
             'thanks_hosts',
             'host',
-            detectedLanguage,
+            language,
             undefined,
             allHosts
           );
@@ -391,10 +397,34 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
                 WhatsApp
               </div>
               <div className='text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded font-medium'>
-                {detectedLanguage === 'fr' ? '🇫🇷' : detectedLanguage === 'cv' ? '🇨🇻' : '🇵🇹'}
-                {detectedLanguage.toUpperCase()}
+                {language === 'fr' ? '🇫🇷' : language === 'cv' ? '🇨🇻' : '🇵🇹'}
+                {language.toUpperCase()}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Sélecteur de langue */}
+        <div className='flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+          <span className='text-sm font-medium text-blue-900 dark:text-blue-100'>Langue:</span>
+          <div className='flex gap-2'>
+            {[
+              { value: 'fr', label: '🇫🇷 Français' },
+              { value: 'cv', label: '🇨🇻 Capverdien' },
+              { value: 'pt', label: '🇵🇹 Português' },
+            ].map((lang) => (
+              <button
+                key={lang.value}
+                onClick={() => setLanguage(lang.value as any)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  language === lang.value
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
           </div>
         </div>
 
