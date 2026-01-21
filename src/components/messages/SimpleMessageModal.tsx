@@ -401,11 +401,13 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
               Sélectionner l'hôte à remercier :
             </label>
             <select
-              value={selectedHost?.id || ''}
+              value={selectedHost?.nom || ''}
               onChange={(e) => {
-                const host = allHosts.find(h => h.id === e.target.value);
+                const host = allHosts.find(h => h.nom === e.target.value);
                 setSelectedHost(host || null);
               }}
+              title="Sélectionner l'hôte à remercier"
+              aria-label="Sélectionner l'hôte à remercier"
               className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent'
             >
               <option value=''>Choisir un hôte...</option>
@@ -413,7 +415,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
                 const host = allHosts.find(h => h.nom === assignment.hostName);
                 if (!host) return null;
                 return (
-                  <option key={host.id} value={host.id}>
+                  <option key={host.nom} value={host.nom}>
                     {host.nom} - {assignment.role === 'accommodation' ? '🏠 Hébergement' : assignment.role === 'meals' ? '🍽️ Repas' : assignment.role === 'transport' ? '🚗 Transport' : '📋 Autre'}
                   </option>
                 );
