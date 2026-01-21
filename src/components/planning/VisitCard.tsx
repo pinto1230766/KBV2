@@ -26,7 +26,7 @@ import { Badge } from '@/components/ui/Badge';
 import { CommunicationProgress } from '@/components/messages/CommunicationProgress';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { getWorkflowState, getQuickActions, getWorkflowStateColor, getWorkflowStateLabel } from '@/utils/workflowUtils';
+import { getWorkflowState, getQuickActions, getWorkflowStateColor, getSpecificWorkflowStateLabel } from '@/utils/workflowUtils';
 import { needsHosts, getNoHostReason } from '@/utils/hostAssignmentUtils';
 
 interface VisitCardProps {
@@ -119,7 +119,7 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
   // État intelligent du workflow
   const workflowState = getWorkflowState(visit);
   const workflowColor = getWorkflowStateColor(workflowState);
-  const workflowLabel = getWorkflowStateLabel(workflowState);
+  const workflowLabel = getSpecificWorkflowStateLabel(visit);
 
   // Mapping des couleurs vers des classes CSS
   const getWorkflowClasses = (color: string) => {

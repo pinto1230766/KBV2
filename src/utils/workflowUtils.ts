@@ -29,7 +29,23 @@ export function getWorkflowState(visit: Visit): CommunicationState {
   const visitDate = new Date(visit.visitDate);
   const daysUntil = Math.ceil((visitDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-  // URGENT : visites dans les 2 jours sans confirmation ou préparation
+  // Pour les visites en streaming/visioconférence, seule la confirmation est nécessaire
+  if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+    // Si la visite est confirmée, elle est considérée comme terminée (pas de logistique)
+    if (visit.status === 'confirmed' && visit.communicationStatus?.confirmation?.speaker) {
+      return CommunicationState.COMPLETED;
+    }
+    
+    // Si en attente de confirmation, c'est à traiter (mais pas urgent)
+    if (visit.status === 'pending') {
+      return CommunicationState.TO_PROCESS;
+    }
+    
+    // Par défaut pour les visites streaming
+    return CommunicationState.TO_PROCESS;
+  }
+
+  // URGENT : visites dans les 2 jours sans confirmation ou préparation (visites physiques uniquement)
   if (daysUntil <= 2 && daysUntil >= -1) {
     if (visit.status === 'pending') return CommunicationState.URGENT;
     if (visit.status === 'confirmed' &&
@@ -98,6 +114,26 @@ export function getWorkflowStateLabel(state: CommunicationState): string {
 }
 
 /**
+ * Étiquette d'état spécifique selon le type de visite
+ */
+export function getSpecificWorkflowStateLabel(visit: Visit): string {
+  // Pour les visites en streaming, utiliser des étiquettes plus appropriées
+  if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+    const state = getWorkflowState(visit);
+    if (state === CommunicationState.COMPLETED) {
+      return 'Visio confirmée';
+    }
+    if (state === CommunicationState.TO_PROCESS) {
+      return visit.status === 'pending' ? 'En attente' : 'À confirmer';
+    }
+    return getWorkflowStateLabel(state);
+  }
+  
+  // Pour les visites physiques, utiliser les étiquettes standards
+  return getWorkflowStateLabel(getWorkflowState(visit));
+}
+
+/**
  * Actions rapides disponibles selon l'état de la visite
  */
 export function getQuickActions(visit: Visit): QuickAction[] {
@@ -105,6 +141,22 @@ export function getQuickActions(visit: Visit): QuickAction[] {
   const visitDate = new Date(visit.visitDate);
   const daysUntil = Math.ceil((visitDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
   const isPastVisit = daysUntil < 0;
+
+  // Pour les visites en streaming/visioconférence, uniquement la confirmation est nécessaire
+  if (visit.locationType === 'streaming' || visit.locationType === 'zoom') {
+    // 1. Confirmation orateur (si en attente)
+    if (visit.status === 'pending' && !visit.communicationStatus?.confirmation?.speaker) {
+      actions.push({
+        id: 'confirm_speaker',
+        label: 'Confirmer visio',
+        priority: 'medium', // Pas urgent pour les visios
+        description: 'Confirmer la participation à la visioconférence'
+      });
+    }
+
+    // Pas d'autres actions nécessaires pour les visites en streaming
+    return actions;
+  }
 
   // 1. Confirmation orateur (si en attente)
   if (visit.status === 'pending' && !visit.communicationStatus?.confirmation?.speaker) {
