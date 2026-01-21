@@ -123,6 +123,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
 
   // Générer le message selon l'action
   useEffect(() => {
+    console.log('useEffect triggered:', { isOpen, action, visit: !!visit, selectedHost: !!selectedHost });
     if (isOpen && action && visit) {
       generateMessageForAction();
     }
@@ -131,6 +132,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
   const generateMessageForAction = async () => {
     if (!visit) return;
 
+    console.log('generateMessageForAction called with action:', action);
     setIsGenerating(true);
     try {
       let generated = '';
@@ -229,6 +231,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
             undefined,
             allHosts
           );
+          console.log('Generated thanks message:', generated);
           break;
 
         case 'plan_logistics':
@@ -278,6 +281,7 @@ export const SimpleMessageModal: React.FC<SimpleMessageModalProps> = ({
           generated = 'Message non configuré pour cette action';
       }
 
+      console.log('Setting message, length:', generated.length, 'preview:', generated.substring(0, 50));
       setMessage(generated);
     } catch (error) {
       console.error('Erreur génération message:', error);
