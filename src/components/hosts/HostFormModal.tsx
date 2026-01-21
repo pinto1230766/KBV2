@@ -33,6 +33,8 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
     notes: '',
     capacity: DEFAULT_CAPACITY,
     hasPets: false,
+    allergies: '',
+    specifications: '',
   });
 
   useEffect(() => {
@@ -48,6 +50,8 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
         notes: host.notes || '',
         capacity: host.capacity ?? DEFAULT_CAPACITY,
         hasPets: host.hasPets ?? false,
+        allergies: host.allergies || '',
+        specifications: host.specifications || '',
       });
     } else {
       setFormData({
@@ -60,6 +64,8 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
         notes: '',
         capacity: DEFAULT_CAPACITY,
         hasPets: false,
+        allergies: '',
+        specifications: '',
       });
     }
   }, [host, isOpen]);
@@ -296,6 +302,34 @@ export const HostFormModal: React.FC<HostFormModalProps> = ({ isOpen, onClose, h
                   onChange={(e) => setFormData((p) => ({ ...p, notes: e.target.value }))}
                   placeholder={t('Allergies, escaliers, régimes particuliers...')}
                   className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl font-medium focus:ring-2 focus:ring-teal-500 resize-none'
+                />
+              </div>
+
+              {/* Allergies */}
+              <div className='space-y-1 pt-2'>
+                <label className='text-xs font-bold text-red-500 uppercase tracking-widest pl-1'>
+                  {t('Allergies Alimentaires')}
+                </label>
+                <textarea
+                  rows={2}
+                  value={formData.allergies}
+                  onChange={(e) => setFormData((p) => ({ ...p, allergies: e.target.value }))}
+                  placeholder={t('Arachides, gluten, fruits de mer, lactose...')}
+                  className='w-full px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl font-medium focus:ring-2 focus:ring-red-500 resize-none'
+                />
+              </div>
+
+              {/* Specifications */}
+              <div className='space-y-1 pt-2'>
+                <label className='text-xs font-bold text-blue-500 uppercase tracking-widest pl-1'>
+                  {t('Autres Spécifications')}
+                </label>
+                <textarea
+                  rows={2}
+                  value={formData.specifications}
+                  onChange={(e) => setFormData((p) => ({ ...p, specifications: e.target.value }))}
+                  placeholder={t('Préférences particulières, besoins spécifiques...')}
+                  className='w-full px-4 py-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl font-medium focus:ring-2 focus:ring-blue-500 resize-none'
                 />
               </div>
             </div>

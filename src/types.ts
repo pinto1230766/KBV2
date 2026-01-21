@@ -60,6 +60,8 @@ export interface Speaker {
   notes?: string;
   tags?: string[];
   isVehiculed?: boolean;
+  allergies?: string; // Allergies et spécifications alimentaires
+  specifications?: string; // Autres spécifications importantes
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }
@@ -215,6 +217,8 @@ export interface Host {
   hasParking?: boolean;
   hasElevator?: boolean;
   hasPets?: boolean;
+  allergies?: string; // Allergies et spécifications alimentaires
+  specifications?: string; // Autres spécifications importantes
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }
