@@ -3,35 +3,18 @@ import {
   Users,
   Calendar,
   AlertCircle,
-  TrendingUp,
-  Clock,
   Zap,
   CalendarPlus,
-  MessageSquare,
-  FileText,
-  ArrowUpRight,
   ShieldCheck,
   Search,
-  Sparkles,
   LayoutGrid,
-  HelpCircle,
 } from 'lucide-react';
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-} from 'recharts';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/contexts/ToastContext';
 
 import { useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
 import { DashboardVisitItem } from '@/components/dashboard/DashboardVisitItem';
 
@@ -99,14 +82,6 @@ export const Dashboard: React.FC = () => {
       .sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime())
       .slice(0, 5);
   }, [visits]);
-
-  const chartData = useMemo(() => {
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-    return months.map((m, i) => ({
-      name: m,
-      value: i % 2 === 0 ? 12 + i : 15 - i, // Placeholder realistic-looking data
-    }));
-  }, []);
 
   const handleVisitClick = (visit: Visit) => {
     setSelectedVisit(visit);
@@ -224,178 +199,8 @@ export const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* 3. Main Operational View */}
-      <div className='grid grid-cols-1 xl:grid-cols-12 gap-4 items-start'>
-        {/* Left Side: Analytics & Metrics (8/12) */}
-        <div className='xl:col-span-8 space-y-4 animate-in fade-in slide-in-from-left-4 duration-700'>
-          <Card className='border-none shadow-sm overflow-hidden bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl'>
-            <div className='p-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
-              <div>
-                <h3 className='text-xl font-black text-gray-900 dark:text-white tracking-tighter uppercase mb-1'>
-                  Tableau de bord d'activité
-                </h3>
-                <p className='text-xs text-gray-500 font-medium'>
-                  Évolution mensuelle des visites programmées
-                </p>
-              </div>
-              <div className='flex gap-2'>
-                <Badge
-                  variant='success'
-                  className='bg-green-50 text-green-700 dark:bg-green-900/20 border-none px-3 font-bold'
-                >
-                  +18% vs 2024
-                </Badge>
-                <Button variant='ghost' size='sm' className='rounded-full'>
-                  <TrendingUp className='w-4 h-4' />
-                </Button>
-              </div>
-            </div>
-            <CardBody className='p-4'>
-              <div className='h-48 w-full pr-4'>
-                <ResponsiveContainer width='100%' height='100%'>
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id='colorValue' x1='0' y1='0' x2='0' y2='1'>
-                        <stop offset='5%' stopColor='#4F46E5' stopOpacity={0.3} />
-                        <stop offset='95%' stopColor='#4F46E5' stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray='3 3'
-                      vertical={false}
-                      stroke='#E5E7EB'
-                      className='dark:stroke-gray-700'
-                    />
-                    <XAxis
-                      dataKey='name'
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fontWeight: 'bold', fill: '#9CA3AF' }}
-                      dy={10}
-                    />
-                    <YAxis hide />
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: '1.5rem',
-                        border: 'none',
-                        boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                        padding: '12px',
-                      }}
-                    />
-                    <Area
-                      type='monotone'
-                      dataKey='value'
-                      stroke='#4F46E5'
-                      strokeWidth={4}
-                      fillOpacity={1}
-                      fill='url(#colorValue)'
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4'>
-                {[
-                  {
-                    label: 'Moyenne mensuelle',
-                    value: '14.2',
-                    icon: Clock,
-                    hint: 'Nombre moyen de visites par mois',
-                    advanced: 'Calculé sur 12 mois glissants',
-                  },
-                  {
-                    label: "Pic d'activité",
-                    value: '18',
-                    icon: TrendingUp,
-                    hint: 'Maximum de visites en un mois',
-                    advanced: 'Record historique enregistré',
-                  },
-                  {
-                    label: 'Taux confirmation',
-                    value: '94%',
-                    icon: Sparkles,
-                    hint: 'Visites confirmées vs programmées',
-                    advanced: 'Indicateur de fiabilité du planning',
-                  },
-                  {
-                    label: 'Sauvegarde auto',
-                    value: 'Active',
-                    icon: ShieldCheck,
-                    hint: 'Sauvegarde automatique des données',
-                    advanced: 'Backup toutes les 6 heures',
-                  },
-                ].map((m, i) => (
-                  <div
-                    key={i}
-                    className='p-3 bg-gray-50 dark:bg-gray-900/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors relative group'
-                    title={`${m.label}: ${m.hint}${i > 1 ? ` (🔧 ${m.advanced})` : ''}`}
-                  >
-                    {i > 1 && (
-                      <div className='absolute -top-1 -right-1 w-3 h-3 bg-primary-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity'>
-                        <HelpCircle className='w-2 h-2 text-white m-0.5' />
-                      </div>
-                    )}
-                    <m.icon className='w-4 h-4 text-primary-500 mb-2' />
-                    <p className='text-[10px] font-bold text-gray-400 uppercase tracking-tight'>
-                      {m.label}
-                    </p>
-                    <p className='text-sm font-black text-gray-900 dark:text-white'>{m.value}</p>
-                  </div>
-                ))}
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Launcher / Shortcuts Section */}
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            {[
-              {
-                title: 'Centre de messagerie',
-                desc: 'Envoyer rappels et notifications aux orateurs',
-                icon: MessageSquare,
-                path: '/messages',
-                color: 'bg-blue-600',
-              },
-              {
-                title: 'Gestion des orateurs',
-                desc: 'Ajouter, modifier et organiser la base orateurs',
-                icon: Users,
-                path: '/speakers',
-                color: 'bg-green-600',
-              },
-              {
-                title: 'Générateur de rapports',
-                desc: 'Créer des extractions PDF, Excel et analyses',
-                icon: FileText,
-                action: () => setIsReportModalOpen(true),
-                color: 'bg-orange-600',
-              },
-            ].map((item, i) => (
-              <button
-                key={i}
-                onClick={item.action || (() => navigate(item.path!))}
-                className='group p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 text-left border border-transparent hover:border-primary-500/20'
-              >
-                <div
-                  className={cn(
-                    'w-12 h-12 rounded-xl flex items-center justify-center mb-4 text-white shadow-lg transition-transform group-hover:scale-110',
-                    item.color
-                  )}
-                >
-                  <item.icon className='w-6 h-6' />
-                </div>
-                <h4 className='font-black text-sm uppercase tracking-tighter text-gray-900 dark:text-white mb-1'>
-                  {item.title}
-                </h4>
-                <p className='text-xs text-gray-500 font-medium'>{item.desc}</p>
-                <ArrowUpRight className='w-5 h-5 ml-auto text-gray-300 group-hover:text-primary-500 transition-colors' />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Side: Activity Heartbeat (4/12) */}
-        <div className='xl:col-span-4 space-y-4 animate-in fade-in slide-in-from-right-4 duration-700'>
+      {/* 3. Upcoming Visits */}
+      <div className='max-w-2xl mx-auto'>
           <Card className='border-none shadow-sm bg-white dark:bg-gray-800/80 backdrop-blur-md rounded-3xl overflow-hidden'>
             <div className='p-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between'>
               <div>
@@ -461,7 +266,6 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
           </Card>
-        </div>
       </div>
 
       {/* Modals */}
