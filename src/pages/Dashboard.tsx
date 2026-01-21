@@ -82,7 +82,7 @@ export const Dashboard: React.FC = () => {
           v.status !== 'cancelled'
       )
       .sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime())
-      .slice(0, 5);
+      .slice(0, 3);
   }, [visits]);
 
   const weekendVisits = useMemo(() => {
