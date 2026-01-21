@@ -490,15 +490,9 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                   <h4 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
                     Aucune sauvegarde trouvée
                   </h4>
-                  <p className='text-sm text-gray-600 dark:text-gray-400 mb-4'>
-                    Créez d'abord une sauvegarde pour pouvoir la restaurer
+                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                    Utilisez l'onglet "Créer une sauvegarde" ou sélectionnez un fichier ci-dessous
                   </p>
-                  <Button
-                    variant='primary'
-                    onClick={() => setActiveTab('backup')}
-                  >
-                    Créer une sauvegarde
-                  </Button>
                 </div>
               </div>
             )}
