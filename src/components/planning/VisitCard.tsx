@@ -27,6 +27,7 @@ import { CommunicationProgress } from '@/components/messages/CommunicationProgre
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { getWorkflowState, getQuickActions, getWorkflowStateColor, getWorkflowStateLabel } from '@/utils/workflowUtils';
+import { needsHosts, getNoHostReason } from '@/utils/hostAssignmentUtils';
 
 interface VisitCardProps {
   visit: Visit;
@@ -254,8 +255,8 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </span>
           </div>
 
-          {/* Host Assignments */}
-          {visit.hostAssignments && visit.hostAssignments.length > 0 && !visit.congregation?.includes('Lyon') && (
+          {/* Host Assignments - only show if hosts are needed */}
+          {needsHosts(visit) && visit.hostAssignments && visit.hostAssignments.length > 0 && (
             <div className='space-y-1'>
               {visit.hostAssignments.map((assignment) => (
                 <div key={assignment.id} className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
@@ -274,11 +275,21 @@ export const VisitCard: React.FC<VisitCardProps> = ({ visit, onClick, onAction }
             </div>
           )}
 
-          {/* Legacy host display for backward compatibility */}
-          {visit.host && !visit.hostAssignments?.length && !visit.congregation?.includes('Lyon') && (
+          {/* Legacy host display for backward compatibility - only show if hosts are needed */}
+          {needsHosts(visit) && visit.host && !visit.hostAssignments?.length && (
             <div className='flex items-center text-sm text-gray-600 dark:text-gray-300'>
               <User className='w-4 h-4 mr-2 text-gray-400' />
               <span className='line-clamp-1'>Chez {visit.host}</span>
+            </div>
+          )}
+
+          {/* Show message when no hosts are needed */}
+          {!needsHosts(visit) && (
+            <div className='flex items-center text-sm text-amber-600 dark:text-amber-400'>
+              <AlertTriangle className='w-4 h-4 mr-2' />
+              <span className='line-clamp-1 text-xs'>
+                {getNoHostReason(visit)}
+              </span>
             </div>
           )}
 

@@ -23,6 +23,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/utils/cn';
 import { useVisitNotifications } from '@/hooks/useVisitNotifications';
+import { needsHosts, getNoHostReason } from '@/utils/hostAssignmentUtils';
 
 interface ScheduleVisitModalProps {
   isOpen: boolean;
@@ -382,7 +383,7 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                 />
               </div>
 
-              {formData.locationType === 'physical' && !isLocalSpeaker && (
+              {needsHosts(formData as Visit) && (
                 <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in fade-in duration-300'>
                   <div className='flex items-center gap-2'>
                     <Users className='w-4 h-4 text-teal-500' />
@@ -596,6 +597,18 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                     <p>
                       L'orateur vient d'une autre congrégation. Vous pouvez assigner plusieurs hôtes pour différentes tâches : hébergement, ramassage à la gare, repas, etc.
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {!needsHosts(formData as Visit) && (
+                <div className='space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800 animate-in fade-in duration-300'>
+                  <div className='p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl flex gap-3 text-amber-700 dark:text-amber-300 text-sm leading-relaxed'>
+                    <Info className='w-4 h-4 shrink-0 mt-0.5' />
+                    <div>
+                      <p className='font-medium mb-1'>Aucun hôte nécessaire</p>
+                      <p>{getNoHostReason(formData as Visit)}</p>
+                    </div>
                   </div>
                 </div>
               )}

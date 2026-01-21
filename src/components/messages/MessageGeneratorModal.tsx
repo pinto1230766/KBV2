@@ -38,7 +38,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
 
   const [message, setMessage] = useState('');
   const [channel, setChannel] = useState<CommunicationChannel>(initialChannel);
-  const [type, setType] = useState<MessageType>(initialType);
+  const [type] = useState<MessageType>(initialType);
   const [language, setLanguage] = useState(settings.language);
   const [isGenerating, setIsGenerating] = useState(false);
 

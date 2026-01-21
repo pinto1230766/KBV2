@@ -1,4 +1,5 @@
 import { Visit } from '@/types';
+import { needsHosts } from './hostAssignmentUtils';
 
 /**
  * États intelligents du workflow de communication
@@ -115,8 +116,8 @@ export function getQuickActions(visit: Visit): QuickAction[] {
     });
   }
 
-  // 2. Demande d'accueil groupe (si confirmé et pas d'hôtes)
-  if (visit.status === 'confirmed' && !visit.hostAssignments?.length && !visit.communicationStatus?.host_request?.group) {
+  // 2. Demande d'accueil groupe (si confirmé et pas d'hôtes et si des hôtes sont nécessaires)
+  if (visit.status === 'confirmed' && !visit.hostAssignments?.length && !visit.communicationStatus?.host_request?.group && needsHosts(visit)) {
     actions.push({
       id: 'find_hosts',
       label: 'Chercher hôtes',
@@ -135,8 +136,8 @@ export function getQuickActions(visit: Visit): QuickAction[] {
     });
   }
 
-  // 4. Récapitulatif groupe (si hôtes assignés et pas envoyé)
-  if (visit.hostAssignments?.length && !visit.communicationStatus?.visit_recap?.group && daysUntil > 0 && daysUntil <= 7) {
+  // 4. Récapitulatif groupe (si hôtes assignés et pas envoyé et si des hôtes sont nécessaires)
+  if (visit.hostAssignments?.length && !visit.communicationStatus?.visit_recap?.group && daysUntil > 0 && daysUntil <= 7 && needsHosts(visit)) {
     actions.push({
       id: 'visit_recap',
       label: 'Récap groupe',
@@ -175,8 +176,8 @@ export function getQuickActions(visit: Visit): QuickAction[] {
     });
   }
 
-  // 8. Remerciements hôtes (après la visite)
-  if (isPastVisit && visit.hostAssignments?.length && !visit.communicationStatus?.thanks?.host && daysUntil >= -7) {
+  // 8. Remerciements hôtes (après la visite, seulement si des hôtes étaient nécessaires)
+  if (isPastVisit && visit.hostAssignments?.length && !visit.communicationStatus?.thanks?.host && daysUntil >= -7 && needsHosts(visit)) {
     actions.push({
       id: 'host_thanks',
       label: 'Remercier hôtes',

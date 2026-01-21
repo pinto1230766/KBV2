@@ -37,6 +37,7 @@ export type QuickAction =
   | 'add-host'
   | 'send-message'
   | 'check-conflicts'
+  | 'generate-report'
   | 'backup-data'
   | 'import-data'
   | 'sync-sheets'

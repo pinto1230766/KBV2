@@ -1,5 +1,5 @@
 import React from 'react';
-import { Visit, Speaker } from '@/types';
+import { Visit } from '@/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
