@@ -33,8 +33,6 @@ export function generateMessage(
   // Utiliser le modèle personnalisé si fourni, sinon le modèle par défaut
   const template = customTemplate || messageTemplates[language]?.[messageType]?.[role];
   
-
-
   if (!template) {
     return `Modèle non trouvé pour: ${language}/${messageType}/${role}`;
   }

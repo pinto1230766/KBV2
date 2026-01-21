@@ -259,7 +259,7 @@ Si besoin de précisions, je suis disponible : {mon_tel}
 À très vite ! 🙏`,
     },
 
-    // Alias compatibilité : rappels J-7 et J-2
+    // ÉTAPE 6b : RAPPEL AUTOMATIQUE J-7
     'reminder-7': {
       speaker: `Bonjour Frère *{prenom_orateur}*,
 
@@ -280,6 +280,8 @@ Si besoin de précisions, je suis disponible : {mon_tel}
 
 À très vite ! 🙏`,
     },
+
+    // ÉTAPE 6c : RAPPEL AUTOMATIQUE J-2
     'reminder-2': {
       speaker: `Bonjour Frère *{prenom_orateur}*,
 
