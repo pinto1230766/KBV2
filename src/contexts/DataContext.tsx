@@ -16,6 +16,7 @@ import { useToast } from './ToastContext';
 import { useSyncQueue } from '../hooks/useSyncQueue';
 import { useOfflineMode } from '../hooks/useOfflineMode';
 import { getTalkTitle } from '@/data/talkTitles';
+import { checkMessageResendStatus } from '@/data/modules/visits';
 
 // Types condensés pour le context
 interface DataContextValue extends AppData {
@@ -302,6 +303,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const updatedVisits = d.visits.map((v) => {
         if (v.visitId === visit.visitId) {
           console.log('🔄 UPDATING VISIT:', v.nom, '->', visit.nom);
+          
+          // WhatsApp Auto-Action: Check if critical fields changed
+          const resendStatus = checkMessageResendStatus(v, visit);
+          
+          if (resendStatus.needsResend) {
+            console.log('📱 WHATSAPP AUTO-ACTION: Messages need resend!', resendStatus.reason);
+            // Mark the visit with resend status
+            return {
+              ...visit,
+              messageResendStatus: resendStatus,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          
           return visit;
         }
         return v;

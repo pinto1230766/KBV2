@@ -197,6 +197,18 @@ export interface Visit {
   companions?: Companion[]; // Liste détaillée des accompagnants
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
+  // WhatsApp Auto-Action: Track when messages need to be resent
+  messageResendStatus?: {
+    needsResend: boolean;
+    messageTypes: string[];
+    reason: string;
+    changes: Array<{
+      field: string;
+      oldValue: string | null;
+      newValue: string | null;
+      label: string;
+    }>;
+  };
 }
 
 // ============================================================================
