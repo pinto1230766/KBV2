@@ -126,3 +126,47 @@ export {
   STANDARD_EVENTS,
   createFromTemplate,
 } from './specialEvents';
+
+// ============================================================================
+// CLOUD SYNC MODULE (Isolation stricte - Synchro manuelle uniquement)
+// ============================================================================
+export {
+  // Types
+  type SyncResult,
+  type SyncStats,
+  type SyncConflict,
+  type MergeOptions,
+  // Intelligent Merge
+  mergeVisitsIntelligent,
+  mergeSpeakersIntelligent,
+  mergeHostsIntelligent,
+  // Utilities
+  formatSyncSummary,
+  validateSyncData,
+} from './cloudSync';
+
+// ============================================================================
+// BACKUP MODULE (Sauvegarde automatique et Git-ready)
+// ============================================================================
+export {
+  // Types
+  type BackupMetadata,
+  type BackupFile,
+  type BackupConfig,
+  type GitReadyExport,
+  // Backup Creation
+  createBackup,
+  exportBackupToJson,
+  importBackupFromJson,
+  // Backup Rotation
+  getBackupKeys,
+  rotateBackups,
+  // Auto Backup
+  isAutoBackupNeeded,
+  generateBackupFilename,
+  // Git-Ready Export
+  exportForGit,
+  importFromGit,
+  // Validation
+  validateBackupData,
+} from './backup';
