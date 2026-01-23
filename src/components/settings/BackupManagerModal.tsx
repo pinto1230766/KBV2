@@ -30,6 +30,7 @@ interface BackupOptions {
   includeArchived: boolean;
   includeSettings: boolean;
   includeTemplates: boolean;
+  compressPhotos: boolean;
   encrypt: boolean;
   password?: string;
 }
@@ -52,6 +53,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
   const [includeArchived, setIncludeArchived] = useState(true);
   const [includeSettings, setIncludeSettings] = useState(true);
   const [includeTemplates, setIncludeTemplates] = useState(true);
+  const [compressPhotos, setCompressPhotos] = useState(true);
   const [encrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -111,6 +113,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
         includeArchived,
         includeSettings,
         includeTemplates,
+        compressPhotos,
         encrypt,
         password: encrypt ? password : undefined,
       };
@@ -341,6 +344,23 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                   </span>
                   <p className='text-xs text-gray-500 dark:text-gray-400'>
                     Modèles de messages et configurations personnalisées
+                  </p>
+                </div>
+              </label>
+
+              <label className='flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg cursor-pointer'>
+                <input
+                  type='checkbox'
+                  checked={compressPhotos}
+                  onChange={(e) => setCompressPhotos(e.target.checked)}
+                  className='w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500'
+                />
+                <div className='flex-1'>
+                  <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                    🖼️ Compresser les photos
+                  </span>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    Réduit la taille du fichier (~80% plus léger) - Recommandé
                   </p>
                 </div>
               </label>

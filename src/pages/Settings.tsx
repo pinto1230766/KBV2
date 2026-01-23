@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
 import { useToast } from '@/contexts/ToastContext';
+import { compressPhotosInData } from '@/utils/imageCompression';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -48,6 +49,7 @@ interface BackupOptions {
   includeArchived: boolean;
   includeSettings: boolean;
   includeTemplates: boolean;
+  compressPhotos: boolean;
   encrypt: boolean;
   password?: string;
 }
@@ -309,12 +311,27 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const handleBackupAdapter = async (_options: BackupOptions): Promise<{ success: boolean; path?: string }> => {
-    console.log('[DEBUG] handleBackupAdapter called with options:', _options);
+  const handleBackupAdapter = async (options: BackupOptions): Promise<{ success: boolean; path?: string }> => {
+    console.log('[DEBUG] handleBackupAdapter called with options:', options);
     try {
       console.log('[DEBUG] Calling exportData()...');
-      const json = exportData();
+      let json = exportData();
       console.log('[DEBUG] exportData() completed, JSON length:', json.length);
+
+      // Compress photos if option is enabled
+      if (options.compressPhotos) {
+        console.log('[DEBUG] Compressing photos...');
+        addToast('Compression des photos en cours...', 'info');
+        try {
+          const parsedData = JSON.parse(json);
+          const compressedData = await compressPhotosInData(parsedData);
+          json = JSON.stringify(compressedData);
+          console.log('[DEBUG] Photos compressed, new JSON length:', json.length);
+        } catch (compressError) {
+          console.warn('[DEBUG] Photo compression failed, using original:', compressError);
+        }
+      }
+
       console.log('[DEBUG] First 200 chars of JSON:', json.substring(0, 200));
 
       const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -1612,6 +1629,7 @@ export const Settings: React.FC = () => {
             includeArchived: true,
             includeSettings: false,
             includeTemplates: false,
+            compressPhotos: true,
             encrypt: false,
           });
         }}
