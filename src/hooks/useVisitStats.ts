@@ -25,6 +25,18 @@ export const useVisitStats = (visits: Visit[]) => {
       );
     });
 
+    // Visites de cette semaine (lundi à dimanche)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    
+    const thisWeekVisits = visits.filter((v) => {
+      const visitDate = new Date(v.visitDate);
+      return visitDate >= startOfWeek && visitDate <= endOfWeek;
+    });
+
     // Prochaines visites (5 prochaines, pas annulées)
     const upcomingVisits = visits
       .filter((v) => {
@@ -71,6 +83,7 @@ export const useVisitStats = (visits: Visit[]) => {
 
       // Visites par période
       thisMonthCount: thisMonthVisits.length,
+      thisWeekCount: thisWeekVisits.length,
       upcomingCount: upcomingVisits.length,
       needsActionCount: needsAction.length,
 

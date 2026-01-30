@@ -92,6 +92,30 @@ class FileSystemService {
       console.log('[DEBUG] Testing multiple save strategies...');
       const saveStrategies = [
         {
+          name: 'Samsung/Documents/KBV',
+          options: {
+            path: `Documents/${this.KBV_FOLDER}/${options.filename}`,
+            data: options.data,
+            directory: Directory.ExternalStorage,
+            encoding: 'utf8' as any,
+          },
+          prepare: async () => {
+            try {
+              console.log('[DEBUG] Preparing Samsung/Documents/KBV strategy - creating folder...');
+              await Filesystem.mkdir({
+                path: `Documents/${this.KBV_FOLDER}`,
+                directory: Directory.ExternalStorage,
+                recursive: true,
+              });
+              console.log('[DEBUG] KBV folder ready in Samsung/Documents');
+            } catch (e: any) {
+              if (!e?.message?.includes('exists')) {
+                console.log('[DEBUG] Could not create KBV folder in Samsung/Documents:', e);
+              }
+            }
+          }
+        },
+        {
           name: 'External/KBV',
           options: {
             path: `${this.KBV_FOLDER}/${options.filename}`,
@@ -333,75 +357,133 @@ class FileSystemService {
   }
 
   /**
-   * Lire un fichier depuis Documents/KBV/
+   * Lire un fichier depuis Documents/KBV/ (essaye aussi le chemin Samsung)
    */
   async readFromDocuments(filename: string): Promise<string> {
+    // Essayer d'abord le chemin par défaut (Documents)
     try {
       const result = await Filesystem.readFile({
         path: `${this.KBV_FOLDER}/${filename}`,
         directory: this.DEFAULT_DIRECTORY,
         encoding: 'utf8' as any,
       });
-
       return result.data as string;
-    } catch (error) {
-      console.error('Erreur lecture fichier:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Lister les fichiers dans Documents/KBV/
-   */
-  async listKBVFiles(): Promise<string[]> {
-    try {
-      const result = await Filesystem.readdir({
-        path: this.KBV_FOLDER,
-        directory: this.DEFAULT_DIRECTORY,
-      });
-
-      return result.files.map((f: string | { name: string }) => typeof f === 'string' ? f : f.name);
     } catch (error: any) {
-      // Si le dossier n'existe pas, retourner un tableau vide
-      if (error?.message?.includes('does not exist')) {
-        return [];
+      // Si fichier non trouvé, essayer le chemin Samsung (ExternalStorage/Documents/KBV)
+      if (error?.message?.includes('does not exist') || error?.message?.includes('not found')) {
+        try {
+          const result = await Filesystem.readFile({
+            path: `Documents/${this.KBV_FOLDER}/${filename}`,
+            directory: Directory.ExternalStorage,
+            encoding: 'utf8' as any,
+          });
+          return result.data as string;
+        } catch (samsungError) {
+          throw error; // Propager l'erreur originale
+        }
       }
       throw error;
     }
   }
 
   /**
-   * Supprimer un fichier de Documents/KBV/
+   * Lister les fichiers dans Documents/KBV/ (essaye aussi le chemin Samsung)
+   */
+  async listKBVFiles(): Promise<string[]> {
+    const files: string[] = [];
+    
+    // Essayer le chemin par défaut (Documents)
+    try {
+      const result = await Filesystem.readdir({
+        path: this.KBV_FOLDER,
+        directory: this.DEFAULT_DIRECTORY,
+      });
+      files.push(...result.files.map((f: string | { name: string }) => typeof f === 'string' ? f : f.name));
+    } catch (error: any) {
+      // Si dossier n'existe pas, continuer
+      if (!error?.message?.includes('does not exist')) {
+        console.log('[DEBUG] Error reading default directory:', error);
+      }
+    }
+    
+    // Essayer le chemin Samsung (ExternalStorage/Documents/KBV)
+    try {
+      const result = await Filesystem.readdir({
+        path: `Documents/${this.KBV_FOLDER}`,
+        directory: Directory.ExternalStorage,
+      });
+      const samsungFiles = result.files.map((f: string | { name: string }) => typeof f === 'string' ? f : f.name);
+      // Fusionner sans doublons
+      samsungFiles.forEach((file: string) => {
+        if (!files.includes(file)) {
+          files.push(file);
+        }
+      });
+    } catch (error: any) {
+      // Si dossier n'existe pas, ignorer
+      if (!error?.message?.includes('does not exist')) {
+        console.log('[DEBUG] Error reading Samsung directory:', error);
+      }
+    }
+    
+    return files;
+  }
+
+  /**
+   * Supprimer un fichier de Documents/KBV/ (essaye aussi le chemin Samsung)
    */
   async deleteFromDocuments(filename: string): Promise<void> {
+    // Essayer d'abord le chemin par défaut
     try {
       await Filesystem.deleteFile({
         path: `${this.KBV_FOLDER}/${filename}`,
         directory: this.DEFAULT_DIRECTORY,
       });
-    } catch (error) {
-      console.error('Erreur suppression fichier:', error);
+      return;
+    } catch (error: any) {
+      // Si fichier non trouvé, essayer le chemin Samsung
+      if (error?.message?.includes('does not exist') || error?.message?.includes('not found')) {
+        try {
+          await Filesystem.deleteFile({
+            path: `Documents/${this.KBV_FOLDER}/${filename}`,
+            directory: Directory.ExternalStorage,
+          });
+          return;
+        } catch (samsungError) {
+          throw error;
+        }
+      }
       throw error;
     }
   }
 
   /**
-   * Obtenir le chemin complet du dossier KBV dans Documents
+   * Obtenir le chemin complet du dossier KBV (essaye d'abord Samsung, puis défaut)
    */
   async getKBVFolderPath(): Promise<string> {
+    // Essayer d'abord le chemin Samsung
     try {
       const result = await Filesystem.getUri({
-        path: this.KBV_FOLDER,
-        directory: this.DEFAULT_DIRECTORY,
+        path: `Documents/${this.KBV_FOLDER}`,
+        directory: Directory.ExternalStorage,
       });
       return result.uri;
     } catch (error) {
-      return 'Documents/KBV';
+      // Fallback sur le chemin par défaut
+      try {
+        const result = await Filesystem.getUri({
+          path: this.KBV_FOLDER,
+          directory: this.DEFAULT_DIRECTORY,
+        });
+        return result.uri;
+      } catch {
+        return 'Documents/KBV';
+      }
     }
   }
 
   /**
-   * Partager un fichier (utile pour Android)
+   * Partager un fichier (essaye d'abord Samsung, puis défaut)
    */
   async shareFile(filename: string, title: string = 'Partager la sauvegarde'): Promise<void> {
     try {
@@ -410,15 +492,27 @@ class FileSystemService {
         throw new Error('Le partage n\'est pas disponible');
       }
 
-      const fileUri = await Filesystem.getUri({
-        path: `${this.KBV_FOLDER}/${filename}`,
-        directory: this.DEFAULT_DIRECTORY,
-      });
+      // Essayer d'abord le chemin Samsung
+      let fileUri;
+      try {
+        const result = await Filesystem.getUri({
+          path: `Documents/${this.KBV_FOLDER}/${filename}`,
+          directory: Directory.ExternalStorage,
+        });
+        fileUri = result.uri;
+      } catch {
+        // Fallback sur le chemin par défaut
+        const result = await Filesystem.getUri({
+          path: `${this.KBV_FOLDER}/${filename}`,
+          directory: this.DEFAULT_DIRECTORY,
+        });
+        fileUri = result.uri;
+      }
 
       await Share.share({
         title,
         text: `Sauvegarde KBV: ${filename}`,
-        url: fileUri.uri,
+        url: fileUri,
         dialogTitle: title,
       });
     } catch (error) {

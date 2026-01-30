@@ -30,6 +30,8 @@ interface BackupOptions {
   includeArchived: boolean;
   includeSettings: boolean;
   includeTemplates: boolean;
+  includePhotos: boolean;
+  compressPhotos: boolean;
   encrypt: boolean;
   password?: string;
 }
@@ -52,6 +54,8 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
   const [includeArchived, setIncludeArchived] = useState(true);
   const [includeSettings, setIncludeSettings] = useState(true);
   const [includeTemplates, setIncludeTemplates] = useState(true);
+  const [includePhotos, setIncludePhotos] = useState(true);
+  const [compressPhotos, setCompressPhotos] = useState(false);
   const [encrypt, setEncrypt] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -111,6 +115,8 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
         includeArchived,
         includeSettings,
         includeTemplates,
+        includePhotos,
+        compressPhotos,
         encrypt,
         password: encrypt ? password : undefined,
       };
@@ -344,6 +350,45 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                   </p>
                 </div>
               </label>
+
+              <label className='flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer'>
+                <input
+                  type='checkbox'
+                  checked={includePhotos}
+                  onChange={(e) => {
+                    setIncludePhotos(e.target.checked);
+                    if (!e.target.checked) setCompressPhotos(false);
+                  }}
+                  className='w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500'
+                />
+                <div className='flex-1'>
+                  <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                    Photos des orateurs
+                  </span>
+                  <p className='text-xs text-gray-500 dark:text-gray-400'>
+                    Inclure les photos dans la sauvegarde
+                  </p>
+                </div>
+              </label>
+
+              {includePhotos && (
+                <label className='flex items-center gap-3 p-3 pl-8 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer'>
+                  <input
+                    type='checkbox'
+                    checked={compressPhotos}
+                    onChange={(e) => setCompressPhotos(e.target.checked)}
+                    className='w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500'
+                  />
+                  <div className='flex-1'>
+                    <span className='text-sm font-medium text-gray-900 dark:text-white'>
+                      Compresser les photos
+                    </span>
+                    <p className='text-xs text-gray-500 dark:text-gray-400'>
+                      Réduire la taille des images pour un fichier plus léger
+                    </p>
+                  </div>
+                </label>
+              )}
             </div>
 
             {/* Chiffrement */}
@@ -429,7 +474,7 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
             </div>
 
             {/* Fichiers disponibles dans Documents/KBV */}
-            {savedFiles.length > 0 ? (
+            {savedFiles.length > 0 && (
               <div className='space-y-4'>
                 <div className='flex items-center gap-2 mb-3'>
                   <FolderOpen className='w-4 h-4 text-primary-600' />
@@ -481,24 +526,6 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
                       </CardBody>
                     </Card>
                   ))}
-                </div>
-              </div>
-            ) : (
-              <div className='border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8'>
-                <div className='text-center'>
-                  <Upload className='w-12 h-12 mx-auto mb-4 text-gray-400' />
-                  <h4 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
-                    Aucune sauvegarde trouvée
-                  </h4>
-                  <p className='text-sm text-gray-600 dark:text-gray-400 mb-4'>
-                    Créez d'abord une sauvegarde pour pouvoir la restaurer
-                  </p>
-                  <Button
-                    variant='primary'
-                    onClick={() => setActiveTab('backup')}
-                  >
-                    Créer une sauvegarde
-                  </Button>
                 </div>
               </div>
             )}

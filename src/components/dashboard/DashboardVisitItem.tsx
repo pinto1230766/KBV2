@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Visit } from '@/types';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, CheckCircle2, AlertCircle, Home } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface DashboardVisitItemProps {
@@ -10,10 +10,12 @@ interface DashboardVisitItemProps {
 
 /**
  * Enhanced Visit Item for Dashboard 2.0
- * Affiche une visite de manière élégante avec initiale et status badge
+ * Affiche une visite de manière élégante avec initiale, status et infos concises
  */
 export const DashboardVisitItem = memo<DashboardVisitItemProps>(({ visit, onClick }) => {
   const isPending = visit.status === 'pending';
+  const isConfirmed = visit.communicationStatus?.confirmation?.speaker;
+  const hasHosts = visit.hostAssignments && visit.hostAssignments.length > 0;
 
   return (
     <div
@@ -38,13 +40,36 @@ export const DashboardVisitItem = memo<DashboardVisitItemProps>(({ visit, onClic
           </h4>
           <span className='text-[10px] font-bold text-gray-400 uppercase'>{visit.visitTime}</span>
         </div>
-        <p className='text-[11px] text-gray-500 font-medium lowercase'>
+        <p className='text-[11px] text-gray-500 font-medium lowercase mb-1'>
           {new Date(visit.visitDate).toLocaleDateString('fr-FR', {
             weekday: 'long',
             day: 'numeric',
             month: 'short',
           })}
         </p>
+        
+        {/* Infos concises */}
+        <div className='flex items-center gap-3 text-[10px]'>
+          {/* Statut confirmation */}
+          <span className={cn(
+            'flex items-center gap-1 font-medium',
+            isConfirmed ? 'text-green-600 dark:text-green-400' : 'text-orange-500 dark:text-orange-400'
+          )}>
+            {isConfirmed ? (
+              <><CheckCircle2 className='w-3 h-3' /> Confirmé</>
+            ) : (
+              <><AlertCircle className='w-3 h-3' /> En attente</>
+            )}
+          </span>
+          
+          {/* Hôtes assignés */}
+          {hasHosts && (
+            <span className='flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium'>
+              <Home className='w-3 h-3' />
+              {visit.hostAssignments?.length} hôte(s)
+            </span>
+          )}
+        </div>
       </div>
 
       <ChevronRight className='w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all' />
