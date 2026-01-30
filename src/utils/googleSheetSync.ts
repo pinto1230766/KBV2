@@ -217,15 +217,13 @@ export const mergeVisitsIdempotent = (
   incomingVisits: Visit[]
 ): { mergedVisits: Visit[], stats: { added: number, updated: number, deleted: number } } => {
   const stats = { added: 0, updated: 0, deleted: 0 };
-  const mergedVisits = [...currentVisits];
-
-  // 1. Indexer les visites actuelles par date (clé simple pour recherche rapide, attention doublons possibles en base sale)
-  // On utilise une map plus complexe pour matcher : Date + Nom (approximatif)
+  
+  // 0. S'assurer que toutes les visites locales ont un externalId pour le matching
+  const visitsWithExternalIds = backfillExternalIds(currentVisits);
+  const mergedVisits = [...visitsWithExternalIds];
 
   for (const incoming of incomingVisits) {
-    // Recherche d'une visite existante correspondante
-    // Critère de "Même Visite" : Même Date ET Même Orateur
-        // Recherche par externalId en priorité
+    // Recherche d'une visite existante correspondante par externalId
     const matchIndex = mergedVisits.findIndex(existing => {
       // Si les deux ont un externalId, on matche dessus
       if (existing.externalId && incoming.externalId) {
@@ -235,19 +233,19 @@ export const mergeVisitsIdempotent = (
       return existing.visitDate === incoming.visitDate &&
              existing.nom.toLowerCase() === incoming.nom.toLowerCase();
     });
+    
     if (matchIndex > -1) {
-      // SKIP UPDATE for existing visits identified by externalId
-      // Do not update existing local visits
+      // La visite existe déjà, ne pas écraser pour préserver les données locales enrichies
+      // Mais on peut mettre à jour certains champs si nécessaire (statut, etc.)
+      // Pour l'instant, on SKIP comme avant
     } else {
-      // INSERT
-      // C'est une nouvelle visite, on l'ajoute.
+      // INSERT - C'est une nouvelle visite du Sheet
       mergedVisits.push(incoming);
       stats.added++;
     }
   }
 
-  // 2. Nettoyage (Anti-doublon post-merge)
-  // On réapplique le filtrage sur la totalité pour être sûr qu'aucun vieux doublon ne traîne
+  // Nettoyage des doublons
   const cleanedVisits = filterAndDeduplicateVisits(mergedVisits);
   
   if (cleanedVisits.length < mergedVisits.length) {
