@@ -1,5 +1,6 @@
 import React from 'react';
 import { Visit } from '@/types';
+import { getVisitKey } from '@/utils/visitKey';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar, User, MapPin, Clock } from 'lucide-react';
@@ -51,12 +52,13 @@ export const PlanningTimelineView: React.FC<PlanningTimelineViewProps> = ({ visi
 
           <div className='space-y-6'>
             {groupedVisits[monthKey].map((visit, index) => {
+              const visitKey = getVisitKey({ ...visit, visitDate: visit.visitDate ?? monthKey }, index);
               const date = parseISO(visit.visitDate);
               const isLeft = index % 2 === 0;
 
               return (
                 <div
-                  key={visit.id}
+                  key={visitKey}
                   className={`flex flex-col md:flex-row items-center gap-4 md:gap-8 ${isLeft ? 'md:flex-row-reverse' : ''}`}
                 >
                   {/* Contenu (Carte) */}
@@ -107,7 +109,7 @@ export const PlanningTimelineView: React.FC<PlanningTimelineViewProps> = ({ visi
                         </div>
                         <div className='flex items-center gap-2'>
                           <Clock className='w-3 h-3' />
-                          {visit.visitTime}
+                          {new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime}
                         </div>
                       </div>
                     </Card>

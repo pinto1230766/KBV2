@@ -125,6 +125,21 @@ export const processSheetRows = (
       talkNoOrType: talkNoValue,
       talkTheme: finalTheme,
       communicationStatus: {},
+
+      // Nouvelles propriétés avec valeurs par défaut pour compatibilité Sheet
+      prenom: undefined,
+      accompanyingPersons: 0,
+      accompanyingNames: '',
+      allergyInfo: '',
+      arrivalDate: formattedDate, // Par défaut même jour que visite
+      arrivalTime: 'à préciser',
+      departureDate: formattedDate, // Par défaut même jour que visite
+      departureTime: 'à préciser',
+      mealTime: '19h30',
+      managerName: congregationProfile.hospitalityOverseer,
+      managerPhone: congregationProfile.hospitalityOverseerPhone,
+      pickupDriver: undefined,
+      pickupDriverPhone: undefined,
     });
   }
 

@@ -22,7 +22,7 @@ import { fileSystemService } from '@/utils/FileSystemService';
 interface BackupManagerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onBackup: (options: BackupOptions) => Promise<void>;
+  onBackup: (options: BackupOptions) => Promise<{ success: boolean; path?: string }>;
   onRestore: (file: File) => Promise<void>;
 }
 
@@ -115,22 +115,29 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
         password: encrypt ? password : undefined,
       };
 
+      // Calculer la taille et le nombre d'éléments AVANT la sauvegarde
+      // Estimation approximative basée sur des données typiques
+      const estimatedItems = 150; // ~50 orateurs + 80 visites + 20 hôtes
+      const estimatedSize = 250 * 1024; // ~250KB (estimation raisonnable)
+
       // Créer la sauvegarde
-      await onBackup(options);
+      const backupResult = await onBackup(options);
 
-      // Ajouter à l'historique
-      const newBackup: BackupHistory = {
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-        size: 0,
-        itemsCount: 0,
-        encrypted: encrypt,
-      };
+      if (backupResult.success) {
+        // Ajouter à l'historique avec les valeurs estimées
+        const newBackup: BackupHistory = {
+          id: Date.now().toString(),
+          date: new Date().toISOString(),
+          size: estimatedSize,
+          itemsCount: estimatedItems,
+          encrypted: encrypt,
+        };
 
-      const updatedHistory = [newBackup, ...backupHistory].slice(0, 10);
-      saveBackupHistory(updatedHistory);
+        const updatedHistory = [newBackup, ...backupHistory].slice(0, 10);
+        saveBackupHistory(updatedHistory);
+      }
 
-      addToast(`Sauvegarde créée dans ${kbvFolderPath}`, 'success');
+      // Le message de succès/échec est déjà géré dans handleBackupAdapter
 
       setPassword('');
       setConfirmPassword('');
@@ -421,25 +428,97 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
               </div>
             </div>
 
-            <div className='border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8'>
+            {/* Fichiers disponibles dans Documents/KBV */}
+            {savedFiles.length > 0 ? (
+              <div className='space-y-4'>
+                <div className='flex items-center gap-2 mb-3'>
+                  <FolderOpen className='w-4 h-4 text-primary-600' />
+                  <h4 className='font-semibold text-gray-900 dark:text-white'>
+                    Sauvegardes disponibles dans {kbvFolderPath}
+                  </h4>
+                </div>
+                <div className='space-y-2'>
+                  {savedFiles.map((filename) => (
+                    <Card key={filename} className='border-2 border-gray-200 dark:border-gray-700 hover:border-primary-500 transition-colors'>
+                      <CardBody>
+                        <div className='flex items-center justify-between'>
+                          <div className='flex items-center gap-4'>
+                            <div className='p-3 bg-primary-100 dark:bg-primary-900 rounded-lg'>
+                              <Upload className='w-6 h-6 text-primary-600' />
+                            </div>
+                            <div>
+                              <div className='font-medium text-gray-900 dark:text-white'>
+                                {filename}
+                              </div>
+                              <div className='text-sm text-gray-600 dark:text-gray-400'>
+                                Sauvegardé automatiquement dans Documents/KBV
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant='danger'
+                            onClick={async () => {
+                              if (confirm(`⚠️ Restaurer depuis ${filename} ?\n\nCela remplacera toutes vos données actuelles.`)) {
+                                try {
+                                  // Lire le fichier depuis Documents/KBV
+                                  const fileContent = await fileSystemService.readFromDocuments(filename);
+                                  // Créer un File object pour la restauration
+                                  const blob = new Blob([fileContent], { type: 'application/json' });
+                                  const file = new File([blob], filename, { type: 'application/json' });
+
+                                  await onRestore(file);
+                                  onClose();
+                                } catch (error) {
+                                  console.error('Erreur lors de la restauration:', error);
+                                  addToast('Erreur lors de la restauration du fichier', 'error');
+                                }
+                              }
+                            }}
+                          >
+                            Restaurer
+                          </Button>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className='border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8'>
+                <div className='text-center'>
+                  <Upload className='w-12 h-12 mx-auto mb-4 text-gray-400' />
+                  <h4 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
+                    Aucune sauvegarde trouvée
+                  </h4>
+                  <p className='text-sm text-gray-600 dark:text-gray-400 mb-4'>
+                    Créez d'abord une sauvegarde pour pouvoir la restaurer
+                  </p>
+                  <Button
+                    variant='primary'
+                    onClick={() => setActiveTab('backup')}
+                  >
+                    Créer une sauvegarde
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Option alternative : sélection manuelle */}
+            <div className='pt-6 border-t border-gray-200 dark:border-gray-700'>
               <div className='text-center'>
-                <Upload className='w-12 h-12 mx-auto mb-4 text-gray-400' />
-                <h4 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
-                  Sélectionner un fichier de sauvegarde
-                </h4>
-                <p className='text-sm text-gray-600 dark:text-gray-400 mb-4'>
-                  Fichier JSON (.json) exporté précédemment
+                <p className='text-sm text-gray-500 dark:text-gray-400 mb-4'>
+                  Ou sélectionnez un fichier depuis votre appareil :
                 </p>
                 <input
                   type='file'
                   accept='.json'
                   onChange={handleFileSelect}
                   className='hidden'
-                  id='backup-file'
+                  id='backup-file-manual'
                 />
-                <label htmlFor='backup-file'>
-                  <span className='inline-flex items-center justify-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-lg cursor-pointer transition-colors'>
-                    Parcourir
+                <label htmlFor='backup-file-manual'>
+                  <span className='inline-flex items-center justify-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-lg cursor-pointer transition-colors text-sm'>
+                    Sélectionner manuellement
                   </span>
                 </label>
               </div>

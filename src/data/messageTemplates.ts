@@ -1,571 +1,978 @@
 import { MessageTemplate, Gender } from '@/types';
 
 // ============================================================================
-// MODÈLES DE MESSAGES PAR LANGUE ET TYPE
+// NOUVEAUX MODÈLES DE MESSAGES KBV LYON - 8 ÉTAPES WORKFLOW COMPLET
 // ============================================================================
 
 export const messageTemplates: MessageTemplate = {
   // ========== FRANÇAIS ==========
   fr: {
+    // ÉTAPE 1 : 1ER CONTACT ORATEUR - Confirmation
     confirmation: {
-      speaker: `Bonjour Frère *{speakerName}*,{firstTimeIntroduction}
+      speaker: `Bonjour Frère *{prenom_orateur}*,
 
-J'espère que tu vas bien. 🙏
+Je m'appelle {ton_nom}, je suis responsable de l'accueil auprès du Groupe Capverdien de Lyon. 🙏
 
-C'est avec joie que nous attendons ta visite le *{visitDate} à {visitTime}*.
+J'ai grand plaisir à te contacter pour te proposer une visite à notre Salle du Royaume.
 
-Pourrais-tu me confirmer ta présence et me faire savoir si tu as besoin de quelque chose de spécial (hébergement, repas, transport) ?
+Nous aimerions t'accueillir le *{jour_semaine} {date_visite} à {heure_visite}*
+(Salle du Royaume de Lyon)
 
-Merci beaucoup et à bientôt !
+Pourrais-tu me confirmer si :
+- ✅ Tu peux venir à cette date et heure ?
+- 🏠 Nécessites-tu un hébergement ?
+- 🍽️ Besoin d'aide pour les repas ?
+- 🚗 Transport depuis la gare ou l'aéroport ?
+- ⚠️ **Allergies alimentaires à signaler** (toi + accompagnants) ?
 
-Fraternellement,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-
-      host: `Bonjour Frère *{hostName}*,
-
-J'espère que tu vas bien. 🏠
-
-Nous avons le plaisir d'accueillir *{speakerName}* de la congrégation de *{congregation}* le *{visitDate}*.
-
-Pourrais-tu te charger de son accueil ? Merci de me confirmer.
+Merci de me répondre rapidement.
 
 Fraternellement,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}
+Groupe Capverdien de Lyon 🙏`,
+
+      // ÉTAPE 5a : MESSAGE À L'HÉBERGEUR
+      host: `Bonjour Frère *{prenom_hotesse}*,
+
+Merci d'accueillir Frère *{prenom_orateur}* chez toi ! 🙏
+
+📋 *INFOS SUR L'ORATEUR :*
+• Nom : {nom_orateur} ({congregation_orateur})
+• Origine : Cap-Vert
+• Tél. : {tel_orateur}
+• Accompagnants : {nb_accompagnants} (noms : {noms_accompagnants})
+
+📅 *DATES :*
+• Arrivée : {jour_arrivee} {date_arrivee} vers {heure_arrivee}
+• Départ : {jour_depart} {date_depart} vers {heure_depart}
+
+⚠️ *ALLERGIES IMPORTANTES :*
+{allergies_orateur_et_accompagnants}
+
+📍 *LIEU DE LA RÉUNION :*
+Salle du Royaume de Lyon - *{jour_visite} {heure_visite}*
+
+Si tu as des questions, appelle-moi : {mon_tel}
+
+Merci pour ton aide précieuse ! 🙏`,
     },
 
+    // ÉTAPE 2 : DEMANDE VOLONTAIRES AU GROUPE
     host_request_message: {
-      host: `Bonjour Frère *{hostName}*, 🏠
+      host: `Bonjour à tous ! 👋
 
-J'espère que vous allez bien.
+Nous recherchons des VOLONTAIRES pour accueillir notre orateur visiteur :
 
-Nous recherchons régulièrement des familles d'accueil pour les orateurs qui nous visitent.
+🎤 *Orateur :* Frère {prenom_orateur} {nom_orateur} ({congregation_orateur})
+📅 *Date & Heure :* *{jour_semaine} {date_visite} à {heure_visite}*
+🏠 *Lieu :* Salle du Royaume de Lyon
 
-Seriez-vous disponibles pour accueillir un orateur à l'avenir ? Si oui, pourriez-vous me contacter pour que nous puissions vous proposer des dates ?
+Nous avons besoin de volontaires pour :
 
-Merci beaucoup pour votre hospitalité !
+1️⃣ **HÉBERGEMENT** (1-2 nuits si nécessaire)
+2️⃣ **REPAS** (dimanche matin et/ou samedi soir)
+3️⃣ **TRANSPORT** (ramassage gare/aéroport, trajets locaux)
 
-Fraternellement,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+⚠️ *Allergies à connaître :* {allergies_orateur}
+
+Si vous pouvez aider, répondez-moi rapidement !
+
+Que Jéhovah vous bénisse 🙏
+{ton_nom}`,
     },
 
+    // ÉTAPE 3 : PLANNING COMPLET À L'ORATEUR
     preparation: {
-      speaker: `Bonjour Frère *{speakerName}*,
- 
-Merci pour ta confirmation ! 😊
- 
-Voici les détails pour ta visite du *{visitDate} à {visitTime}* :
+      speaker: `Bonjour Frère *{prenom_orateur}*,
 
-{accommodationLogistics}
-{mealsLogistics}
-{pickupLogistics}
+Merci de ta confirmation ! 😊
 
-N'hésite pas à nous contacter si besoin.
- 
-Au plaisir de te voir bientôt !
- 
+Voici l'organisation complète de ta visite :
+
+📅 *DATES & HORAIRES :*
+• Arrivée : {jour_arrivee} {date_arrivee} (vers {heure_arrivee})
+• Réunion : *{jour_visite} {date_visite} à {heure_visite}*
+• Départ : {jour_depart} {date_depart} (vers {heure_depart})
+
+🏠 *HÉBERGEMENT :*
+• Chez : {nom_hebergeur}
+• Adresse : {adresse_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*REPAS & ALLERGIES :*
+• Responsable : {nom_responsable_repas}
+• Tél. : {tel_responsable_repas}
+• ⚠️ Allergies signalées : {allergies_orateur_et_accompagnants}
+
+*TRANSPORT :*
+• Ramassage : {nom_chauffeur}
+• Tél. : {tel_chauffeur}
+
+*TRANSPORT ACCOMPAGNANTS :*
+• Mode : {mode_transport_accompagnants}
+• Véhicule : {accompagnants_vehicule}
+• Point RDV : {rdv_accompagnants}
+
+*RÉUNION :*
+• Lieu : Salle du Royaume de Lyon
+• Heure : *{heure_visite}*
+• Thème : {theme_discours}
+• N° discours : {numero_discours}
+
+Si tu as des questions, n'hésite pas à nous contacter !
+
 Fraternellement,
-{hospitalityOverseer}`,
+{ton_nom}`,
 
-      host: `Bonjour Frère *{hostName}*,
+      // ÉTAPE 4 : PLANNING RÉCAPITULATIF AU GROUPE
+      host: `Bonjour à tous ! 👋
 
-Merci pour ta disponibilité ! 🙏
+Voici le planning complet de la visite de Frère *{prenom_orateur}* ({congregation_orateur}) :
 
-Voici les coordonnées de notre orateur invité pour le *{visitDate}* :
+📅 *DATES & HORAIRES :*
+• Arrivée : {jour_arrivee} {date_arrivee}
+• Réunion : *{jour_visite} {date_visite} à {heure_visite}*
+• Départ : {jour_depart} {date_depart}
 
-👤 *Orateur* : {speakerName}
-🏛️ *Congrégation* : {congregation}
-📞 *Téléphone* : {speakerPhone}
+🏠 *HÉBERGEMENT :*
+Chez {nom_hebergeur} - Tél. {tel_hebergeur}
 
-Merci de prendre contact avec lui pour coordonner l'accueil.
+🍽️ *REPAS :*
+{nom_responsable_repas} s'en charge
+⚠️ Allergies : {allergies_orateur_et_accompagnants}
 
-Fraternellement,
-{hospitalityOverseer}`,
+🚗 *TRANSPORT :*
+{nom_chauffeur} ira chercher à la gare - Tél. {tel_chauffeur}
+
+👥 *RÉUNION :*
+Salle du Royaume - *{heure_visite}*
+Thème : {theme_discours}
+
+Merci à tous les volontaires ! 🙏✨
+
+N'hésitez pas à vérifier les détails ou contacter {ton_nom} si besoin.`,
     },
 
-    'reminder-7': {
-      speaker: `Bonjour Frère *{speakerName}*,
+    // ÉTAPE 5b : MESSAGE AU RESPONSABLE DES REPAS
+    meals_message: {
+      host: `Bonjour {prenom_responsable_repas},
 
-Petit rappel amical : nous attendons ta visite avec joie dans *7 jours*, le *{visitDate} à {visitTime}* ! 🎉
+Merci de t'occuper des repas pour Frère *{prenom_orateur}* ! 🍽️
 
-📍 Adresse : {hostAddress}
-📞 Contact : {hostName} - {hostPhone}
+📋 *INFOS SUR L'ORATEUR & ACCOMPAGNANTS :*
+• Orateur : {nom_orateur} ({congregation_orateur})
+• Accompagnants : {nb_accompagnants} personnes
+• Total à nourrir : {nb_total_personnes}
 
-Bon voyage et à très bientôt !
+📅 *REPAS À ORGANISER :*
+• {jour_arrivee} {date_arrivee} : dîner (vers {heure_diner_arrivee})
+• {jour_visite} {date_visite} : petit-déj + déjeuner
+• {jour_depart} {date_depart} : petit-déj (avant départ vers {heure_depart})
 
-Fraternellement,
-{hospitalityOverseer}`,
+⚠️ *ALLERGIES ALIMENTAIRES (TRÈS IMPORTANT) :*
+{allergies_orateur_et_accompagnants}
 
-      host: `Bonjour Frère *{hostName}*,
+📍 *LIEU HÉBERGEMENT :*
+Chez {nom_hebergeur}
+{adresse_hebergeur}
+Tél. {tel_hebergeur}
 
-Petit rappel : tu accueilles *{speakerName}* dans *7 jours*, le *{visitDate}* ! 🏠
+Pour toute question, contacte-moi : {mon_tel}
 
-Merci pour ton hospitalité !
-
-Fraternellement,
-{hospitalityOverseer}`,
+Merci pour ton généreux soutien ! 🙏`,
     },
 
-    'reminder-2': {
-      speaker: `Bonjour Frère *{speakerName}*,
+    // ÉTAPE 5c : MESSAGE AU RESPONSABLE DU TRANSPORT
+    transport_message: {
+      host: `Bonjour {prenom_chauffeur},
 
-Dernier rappel : nous t'attendons *après-demain*, le *{visitDate} à {visitTime}* ! 😊
+Pourrais-tu assurer le transport pour Frère *{prenom_orateur}* ? 🚗
 
-📍 {hostAddress}
-📞 {hostName} : {hostPhone}
+📋 *INFOS SUR L'ORATEUR & ACCOMPAGNANTS :*
+• Orateur : {nom_orateur} ({congregation_orateur})
+• Accompagnants : {nb_accompagnants}
+• Total : {nb_total_personnes} passagers
+• Tél. orateur : {tel_orateur}
 
-Bon voyage et à très vite !
+📅 *TRAJETS À ORGANISER :*
+• *{jour_arrivee} {date_arrivee}* : Gare/Aéroport → Hébergement (arrivée vers {heure_arrivee})
+• *{jour_visite} {date_visite}* : Hébergement → Salle du Royaume (départ {heure_visite_moins_30_min})
+• *{jour_depart} {date_depart}* : Hébergement → Gare/Aéroport (départ {heure_depart})
+
+📍 *ADRESSES CLÉS :*
+• Hébergement : {adresse_hebergeur}
+• Salle du Royaume : Lyon (près de la Part-Dieu)
+• Gare SNCF : Place Bellecour
+
+👥 *PASSAGERS :*
+{nb_total_personnes} personnes au total
+
+Pour confirmer ou poser des questions : {mon_tel}
+
+Merci pour ton aide ! `,
+},
+
+// ÉTAPE 6 : RAPPEL AUTOMATIQUE J-5
+'reminder-5': {
+  speaker: `Bonjour Frère *{prenom_orateur}*,
+
+Petit rappel : nous t'attendons dans *5 jours* ! 
+
+*{jour_visite} {date_visite} à {heure_visite}*
+
+*Ton accueil :*
+• Hébergement chez {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Lieu de la réunion :*
+Salle du Royaume de Lyon
+
+*Tes allergies bien notées :* {allergies_orateur_et_accompagnants}
+
+Si besoin de précisions, je suis disponible : {mon_tel}
+
+À très vite ! `,
+},
+
+// RAPPEL J-7
+'reminder-7': {
+  speaker: `Bonjour Frère *{prenom_orateur}*,
+
+Petit rappel : nous t'attendons dans *7 jours* ! 
+
+*{jour_visite} {date_visite} à {heure_visite}*
+
+*Ton accueil :*
+• Hébergement chez {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Lieu de la réunion :*
+Salle du Royaume de Lyon
+
+*Tes allergies bien notées :* {allergies_orateur_et_accompagnants}
+
+Si besoin de précisions, je suis disponible : {mon_tel}
+
+À très vite ! `,
+},
+
+// RAPPEL J-2
+'reminder-2': {
+  speaker: `Bonjour Frère *{prenom_orateur}*,
+
+Petit rappel : nous t'attendons dans *2 jours* ! 
+
+*{jour_visite} {date_visite} à {heure_visite}*
+
+*Ton accueil :*
+• Hébergement chez {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Lieu de la réunion :*
+Salle du Royaume de Lyon
+
+*Tes allergies bien notées :* {allergies_orateur_et_accompagnants}
+
+Si besoin de précisions, je suis disponible : {mon_tel}
+
+À très vite ! `,
+},
+
+// ÉTAPE 7 : REMERCIEMENTS À L'ORATEUR (post-visite)
+thanks_speaker: {
+  speaker: `Bonjour Frère *{prenom_orateur}*,
+
+Merci infiniment pour ta visite et ton discours édifiant ! 
+
+Ce fut un vrai plaisir de t'accueillir au Groupe Capverdien de Lyon. Ton message a touché beaucoup de cœurs et renforcé notre foi.
+
+Nous espérons très sincèrement te revoir bientôt pour une prochaine visite !
+
+Que Jéhovah continue de te bénir, toi et ta famille.
 
 Fraternellement,
-{hospitalityOverseer}`,
-
-      host: `Bonjour Frère *{hostName}*,
-
-Dernier rappel : tu accueilles *{speakerName}* *après-demain*, le *{visitDate}* ! 🏠
-
-Merci pour ton hospitalité !
-
-Fraternellement,
-{hospitalityOverseer}`,
+{ton_nom}
+Groupe Capverdien de Lyon 🙏`,
     },
 
-    thanks: {
-      speaker: `Bonjour Frère *{speakerName}*,
+    // ÉTAPE 8 : REMERCIEMENTS AUX HÔTES (post-visite)
+    thanks_hosts: {
+      host: `Bonjour {prenom_hotesse},
 
-Merci infiniment pour ta visite et ton discours édifiant ! 🙏✨
+Un grand merci pour ton aide généreuse lors de la visite de Frère *{prenom_orateur}* ! 🙏
 
-Ce fut un réel plaisir de t'accueillir parmi nous. Nous espérons te revoir très bientôt !
+✅ {ta_tache} - Parfait ! ✨
 
-Fraternellement,
-{hospitalityOverseer}`,
+Ton dévouement a contribué à rendre cette visite mémorable et à accueillir chaleureusement notre frère visiteur. C'est grâce à des personnes comme toi que notre groupe s'épanouit.
 
-      host: `Bonjour Frère *{hostName}*,
-
-Un grand merci pour ton hospitalité envers notre orateur invité, {speakerName} ! 🏠❤️
-
-Ton accueil chaleureux contribue grandement à la réussite de ces visites.
+Que Jéhovah te bénisse !
 
 Fraternellement,
-{hospitalityOverseer}`,
+{ton_nom}`,
     },
 
-    host_thanks: {
-      speaker: ``, // Non utilisé pour les hôtes
-      host: `Bonjour Frère *{hostName}*,
-
-Un grand merci pour ton hospitalité envers notre orateur invité, {speakerName} ! 🏠❤️
-
-Ton accueil chaleureux contribue grandement à la réussite de ces visites.
-
-Fraternellement,
-{hospitalityOverseer}`,
-    },
-
-    // NOUVEAU: Message libre pour les hôtes
+    // Messages libres pour personnalisation
     free_message: {
-      speaker: `Bonjour Frère *{speakerName}*,
+      speaker: `Bonjour Frère *{prenom_orateur}*,
 
 [Personnalisez votre message ici]
 
 Fraternellement,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}`,
 
-      host: `Bonjour Frère *{hostName}*,
- 
+      host: `Bonjour {prenom_hotesse},
+
 [Personnalisez votre message ici]
- 
+
 Fraternellement,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-    },
- 
-    visit_recap: {
-      speaker: ``, // Non utilisé pour ce type
-      host: `Bonjour à tous ! 🏠
- 
-Voici un récapitulatif de l'organisation pour la visite de Frère *{speakerName}* ({congregation}) le *{visitDate} à {visitTime}* :
- 
-{accommodationLogistics}
-{mealsLogistics}
-{pickupLogistics}
- 
-Merci à tous pour votre précieuse collaboration ! 🙏
- 
-Fraternellement,
-{hospitalityOverseer}`,
+{ton_nom}`,
     },
   },
 
   // ========== CAPVERDIEN ==========
   cv: {
     confirmation: {
-      speaker: `Bon dia Mon *{speakerName}*,{firstTimeIntroduction}
+      speaker: `Bon dia Mon *{prenom_orateur}*,
 
-N ta spera ma bu sta bon. 🙏
+N som e {ton_nom}, n responsavel di akolhimentu ku Grupu Kapverdianu di Lion. 🙏
 
-E ku alegria ma nu ta spera bu bizita dia *{visitDate} na {visitTime}*.
+N ten grandi prazeri di entra en kontatu ku bo pa propusi un bizita na nu Sala di Reino.
 
-Bu pode confirma-m bu prezensa i txoma-m si bu ten nesesidadi di kualker koza (alojamentu, kumida, transporte)?
+N gostari di akolhe bo dia *{jour_semaine} {date_visite} na {heure_visite}*
+(Sala di Reino di Lion)
 
-Obrigadu di more i te logu!
+Bu pode konfirma-m si :
+- ✅ Bu pode ben dia es data i ora ?
+- 🏠 Bu nesesita alojamentu ?
+- 🍽️ Bu presiza ajuda ku kumida ?
+- 🚗 Transporte partandu di stason ô aeroportu ?
+- ⚠️ **Alerjia alimentaria pa sinyala** (bo + akompayantis) ?
 
-Fraternalmenti,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-
-      host: `Bon dia Mon *{hostName}*,
-
-N ta spera ma bu sta bon. 🏠
-
-Nu ten prazer di akolhe *{speakerName}* di kongregason di *{congregation}* dia *{visitDate}*.
-
-Bu pode inkarga-u di akolhimentu? Favor konfirma-m.
+Favor responde-m liu !
 
 Fraternalmenti,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}
+Grupu Kapverdianu di Lion 🙏`,
+
+      host: `Bon dia Mana *{prenom_hotesse}*,
+
+Obrigadu pa akolhe Mon *{prenom_orateur}* na bo kaza! 🙏
+
+📋 *INFORMASON SUBRI ORADOR:*
+• Nom : {nom_orateur} ({congregation_orateur})
+• Origem : Kap-Vert
+• Tél. : {tel_orateur}
+• Akompayantis : {nb_accompagnants} (noms : {noms_accompagnants})
+
+📅 *DATAS :*
+• Txegada : {jour_arrivee} {date_arrivee} vers {heure_arrivee}
+• Partida : {jour_depart} {date_depart} vers {heure_depart}
+
+⚠️ *ALERJIAS IMPORTANTIS :*
+{allergies_orateur_et_accompagnants}
+
+📍 *LUGAR DI RUNION :*
+Sala di Reino di Lion - *{jour_visite} {heure_visite}*
+
+Si bu ten perguntas, txoma-m : {mon_tel}
+
+Obrigadu pa bu ajuda prezioza! 🙏`,
     },
 
     host_request_message: {
-      host: `Bon dia Mon *{hostName}*, 🏠
+      host: `Bon dia tudu! 👋
 
-N ta spera ma bu sta bon.
+N ta buska VOLUNTARIUS pa akolhe nu orador vizitante :
 
-Nu ta buska regularmenti família pa resebe oradoris ki ta vizitanu.
+🎤 *Orador :* Mon {prenom_orateur} {nom_orateur} ({congregation_orateur})
+📅 *Data & Ora :* *{jour_semaine} {date_visite} na {heure_visite}*
+🏠 *Lugar :* Sala di Reino di Lion
 
-Nhos ta disponivel pa resebe un orador na futuru? Si sta, pur favor entra en kontatu ku mim pa podé propusi datas.
+N presiza di voluntarius pa :
 
-Obrigadu pa nhos ospitalidadi!
+1️⃣ **ALOJAMENTU** (1-2 nuits si nesesariu)
+2️⃣ **KUMIDA** (dumingu di manhã i/ô sabadu noti)
+3️⃣ **TRANSPORTE** (buska na stason/aeroportu, trajetus lokalis)
 
-Fraternalmenti,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+⚠️ *Alerjias pa konxe :* {allergies_orateur}
+
+Si bu pode ajuda, responde-m liu !
+
+Ma Jeová abensoa-bu! 🙏
+{ton_nom}`,
     },
 
     preparation: {
-      speaker: `Bon dia Mon *{speakerName}*,
- 
+      speaker: `Bon dia Mon *{prenom_orateur}*,
+
 Obrigadu pa bu konfirmasón! 😊
- 
-Aki es detalhis pa bu bizita dia *{visitDate} na {visitTime}* :
 
-{accommodationLogistics}
-{mealsLogistics}
-{pickupLogistics}
+Aki es organizasón kompletu di bu bizita :
 
-N'hésite pas à nous contacter si besoin.
+📅 *DATAS & ORARIUS :*
+• Txegada : {jour_arrivee} {date_arrivee} (vers {heure_arrivee})
+• Runion : *{jour_visite} {date_visite} na {heure_visite}*
+• Partida : {jour_depart} {date_depart} (vers {heure_depart})
 
-Te logu!
+🏠 *ALOJAMENTU :*
+• Na kaza di : {nom_hebergeur}
+• Adresa : {adresse_hebergeur}
+• Tél. : {tel_hebergeur}
+
+🍽️ *KUMIDA & ALERJIAS :*
+• Responsavel : {nom_responsable_repas}
+• Tél. : {tel_responsable_repas}
+• ⚠️ Alerjias sinyaladas : {allergies_orateur_et_accompagnants}
+
+🚗 *TRANSPORTE :*
+• Buska : {nom_chauffeur}
+• Tél. : {tel_chauffeur}
+
+👥 *TRANSPORTE AKOMPAYANTIS :*
+• Modu : {mode_transport_accompagnants}
+• Vehículu : {accompagnants_vehicule}
+• Puntu RDV : {rdv_accompagnants}
+
+👥 *RUNION :*
+• Lugar : Sala di Reino di Lion
+• Ora : *{heure_visite}*
+• Tema : {theme_discours}
+• N° diskursu : {numero_discours}
+
+Si bu ten perguntas, n'hésite pas à nous contacter !
 
 Fraternalmenti,
-{hospitalityOverseer}`,
+{ton_nom}`,
 
-      host: `Bon dia Mon *{hostName}*,
+      host: `Bon dia tudu! 👋
 
-Obrigadu pa bu dizponibilidadi! 🙏
+Aki es planu kompletu di bizita di Mon *{prenom_orateur}* ({congregation_orateur}) :
 
-Aki es kontaktu di nu orador kombidadu pa dia *{visitDate}* :
+📅 *DATAS & ORARIUS :*
+• Txegada : {jour_arrivee} {date_arrivee}
+• Runion : *{jour_visite} {date_visite} na {heure_visite}*
+• Partida : {jour_depart} {date_depart}
 
-👤 *Orador* : {speakerName}
-🏛️ *Kongregason* : {congregation}
-📞 *Telefone* : {speakerPhone}
+🏠 *ALOJAMENTU :*
+Na kaza di {nom_hebergeur} - Tél. {tel_hebergeur}
 
-Favor kontakta-l pa kordina akolhimentu.
+🍽️ *KUMIDA :*
+{nom_responsable_repas} ta trata
+⚠️ Alerjias : {allergies_orateur_et_accompagnants}
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+🚗 *TRANSPORTE :*
+• Buska : {nom_chauffeur}
+• Tél. : {tel_chauffeur}
+
+👥 *TRANSPORTE AKOMPAYANTIS :*
+• Modu : {mode_transport_accompagnants}
+• Vehículu : {accompagnants_vehicule}
+• Puntu RDV : {rdv_accompagnants}
+
+👥 *RUNION :*
+Sala di Reino - *{heure_visite}*
+Tema : {theme_discours}
+
+Obrigadu tudu voluntarius! 🙏✨
+
+N'hésite pas à vérifier les détails ou contacter {ton_nom} si besoin.`,
+    },
+
+    meals_message: {
+      host: `Bon dia {prenom_responsable_repas},
+
+Obrigadu pa trata di kumida pa Mon *{prenom_orateur}*! 🍽️
+
+📋 *INFORMASON SUBRI ORADOR & AKOMPAYANTIS :*
+• Orador : {nom_orateur} ({congregation_orateur})
+• Akompayantis : {nb_accompagnants} pessoas
+• Total pa alimenta : {nb_total_personnes}
+
+📅 *KUMIDA PA ORGANIZA :*
+• {jour_arrivee} {date_arrivee} : jantu (vers {heure_diner_arrivee})
+• {jour_visite} {date_visite} : limpu + almorsu
+• {jour_depart} {date_depart} : limpu (antes di partida vers {heure_depart})
+
+⚠️ *ALERJIAS ALIMENTARIA (TXEIU IMPORTANTI) :*
+{allergies_orateur_et_accompagnants}
+
+📍 *LUGAR ALOJAMENTU :*
+Na kaza di {nom_hebergeur}
+{adresse_hebergeur}
+Tél. {tel_hebergeur}
+
+Pa todu pergunta, kontakta-m : {mon_tel}
+
+Obrigadu pa bu apoiu djenerozu! 🙏`,
+    },
+
+    transport_message: {
+      host: `Bon dia {prenom_chauffeur},
+
+Bu pode trata di transporte pa Mon *{prenom_orateur}*? 🚗
+
+📋 *INFORMASON SUBRI ORADOR & AKOMPAYANTIS :*
+• Orador : {nom_orateur} ({congregation_orateur})
+• Akompayantis : {nb_accompagnants}
+• Total : {nb_total_personnes} pasajerus
+• Tél. orador : {tel_orateur}
+
+📅 *TRAJETUS PA ORGANIZA :*
+• *{jour_arrivee} {date_arrivee}* : Stason/Aeroportu → Alojamentu (txegada vers {heure_arrivee})
+• *{jour_visite} {date_visite}* : Alojamentu → Sala di Reino (partida {heure_visite_moins_30_min})
+• *{jour_depart} {date_depart}* : Alojamentu → Stason/Aeroportu (partida {heure_depart})
+
+📍 *ADRESAS TXAVE :*
+• Alojamentu : {adresse_hebergeur}
+• Sala di Reino : Lion (pertu di Part-Dieu)
+• Stason SNCF : Plasa Bellecour
+
+👥 *PASAJERUS :*
+{nb_total_personnes} pessoas ao total
+
+Pa konfirma ô faze perguntas : {mon_tel}
+
+Obrigadu pa bu ajuda! 
+{ton_nom}`,
+    },
+
+    'reminder-5': {
+      speaker: `Bon dia Mon *{prenom_orateur}*,
+
+Limbransá : nu ta spera-u dento di *5 dia*! 
+
+{jou_visite} {date_visite} na {heure_visite}*
+
+*Bu akolhimentu :*
+Alojamentu na kaza di {nom_hebergeur}
+Tél. : {tel_hebergeur}
+
+*Lugar di runion :*
+Sala di Reino di Lion
+
+*Bu alerjias ben notadas :* {allergies_orateur_et_accompagnants}
+
+Si presiza di klarifikason, n ta disponivel : {mon_tel}
+
+Te logu! 
+{ton_nom}`,
     },
 
     'reminder-7': {
-      speaker: `Bon dia Mon *{speakerName}*,
- 
-Limbransá di amizadi: nu ta spera bu bizita ku alegria dento di *7 dia*, dia *{visitDate} na {visitTime}*! 🎉
+      speaker: `Bon dia Mon *{prenom_orateur}*,
 
-📍 Morada : {hostAddress}
-📞 Kontaktu : {hostName} - {hostPhone}
+Limbransá : nu ta spera-u dento di *7 dia*! 
 
-Bon biaji i te logu!
+{jou_visite} {date_visite} na {heure_visite}*
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+*Bu akolhimentu :*
+Alojamentu na kaza di {nom_hebergeur}
+Tél. : {tel_hebergeur}
 
-      host: `Bon dia Mon *{hostName}*,
- 
-Limbransá : bu ta akolhe *{speakerName}* dento di *7 dia*, dia *{visitDate}*! 🏠
+*Lugar di runion :*
+Sala di Reino di Lion
 
-Obrigadu pa bu ospitalidadi!
+*Bu alerjias ben notadas :* {allergies_orateur_et_accompagnants}
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+Si presiza di klarifikason, n ta disponivel : {mon_tel}
+
+Te logu! 
+{ton_nom}`,
     },
 
     'reminder-2': {
-      speaker: `Bon dia Mon *{speakerName}*,
- 
-Últimu limbransá : nu ta sperá-u *dizpois di manhã*, dia *{visitDate} na {visitTime}*! 😊
+      speaker: `Bon dia Mon *{prenom_orateur}*,
 
-📍 {hostAddress}
-📞 {hostName} : {hostPhone}
+Limbransá : nu ta spera-u dento di *2 dia*! 
 
-Bon biaji i te ja!
+{jou_visite} {date_visite} na {heure_visite}*
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+*Bu akolhimentu :*
+Alojamentu na kaza di {nom_hebergeur}
+Tél. : {tel_hebergeur}
 
-      host: `Bon dia Mon *{hostName}*,
+*Lugar di runion :*
+Sala di Reino di Lion
 
-Últimu limbransá : bu ta akolhe *{speakerName}* *dizpois di manhã*, dia *{visitDate}*! 🏠
+*Bu alerjias ben notadas :* {allergies_orateur_et_accompagnants}
 
-Obrigadu pa bu ospitalidadi!
+Si presiza di klarifikason, n ta disponivel : {mon_tel}
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+Te logu! 
+{ton_nom}`,
     },
 
-    thanks: {
-      speaker: `Bon dia Mon *{speakerName}*,
+    thanks_speaker: {
+      speaker: `Bon dia Mon *{prenom_orateur}*,
 
-Obrigadu infinitamenti pa bu bizita i bu diskursu idifikanti! 🙏✨
+Obrigadu infinitamenti pa bu bizita i bu diskursu idifikanti! 
 
-Foi un prazer riali di akolhe-u entre nu. Nu ta spera bo i-u logu!
+Foi un prazeri riali di akolhe-u ku Grupu Kapverdianu di Lion. Bu messajem txoka muntu kuraçons i refora nu fe.
 
-Fraternalmenti,
-{hospitalityOverseer}`,
+N ta spera bo i-u logu pa un próxima bizita!
 
-      host: `Bon dia Mon *{hostName}*,
-
-Un grandi obrigadu pa bu ospitalidadi pa ku nu orador kombidadu, {speakerName}! 🏠❤️
-
-Bu akolhimentu kalorozi ta kontribui munti pa susesu di es bizitas.
+Ma Jeová koutinu abensoando-u, bo i bo familía.
 
 Fraternalmenti,
-{hospitalityOverseer}`,
+{ton_nom}
+Grupu Kapverdianu di Lion 🙏`,
     },
 
-    host_thanks: {
-      speaker: ``, // Non utilisé pour les hôtes
-      host: `Bon dia Mon *{hostName}*,
+    thanks_hosts: {
+      host: `Bon dia {prenom_hotesse},
 
-Un grandi obrigadu pa bu ospitalidadi pa ku nu orador kombidadu, {speakerName}! 🏠❤️
+Un grandi obrigadu pa bu ajuda djenerozu durante di bizita di Mon *{prenom_orateur}*! 🙏
 
-Bu akolhimentu kalorozi ta kontribui munti pa susesu di es bizitas.
+✅ {ta_tache} - Perfetu! ✨
+
+Bu dedikasón ta kontribui pa torna es bizita memoravel i pa akolhe kalorozamenti nu mon vizitante. E grazas na pessoas manera bo ki nu grupu ta floresce.
+
+Ma Jeová abensoando-u!
 
 Fraternalmenti,
-{hospitalityOverseer}`,
+{ton_nom}`,
     },
 
-    // NOUVEAU: Message libre pour les hôtes
     free_message: {
-      speaker: `Bon dia Mon *{speakerName}*,
+      speaker: `Bon dia Mon *{prenom_orateur}*,
 
-[Personnalize bu messajem aki]
+[Personalize bu messajem aki]
 
 Fraternalmenti,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}`,
 
-      host: `Bon dia Mon *{hostName}*,
- 
-Un grandi obrigadu pa bu hospitalidadi pa nu mon palistrante konvidadu, {speakerName} ! 🏠❤️
- 
-Bu akolhimentu kalurozu ta kontribui txeu pa susesu di es bizitas.
- 
+      host: `Bon dia {prenom_hotesse},
+
+[Personalize bu messajem aki]
+
 Fraternalmenti,
-{hospitalityOverseer}`,
-    },
- 
-    visit_recap: {
-      speaker: ``,
-      host: `Bon dia tudu! 🏠
- 
-Aki es un rezumu di organizasón pa bizita di Nu Mon *{speakerName}* ({congregation}) dia *{visitDate} na {visitTime}* :
- 
-{accommodationLogistics}
-{mealsLogistics}
-{pickupLogistics}
- 
-Obrigadu tudu pa nhos kolaborasón valiozu! 🙏
- 
-Fraternalmenti,
-{hospitalityOverseer}`,
+{ton_nom}`,
     },
   },
 
   // ========== PORTUGAIS ==========
   pt: {
     confirmation: {
-      speaker: `Olá Irmão *{speakerName}*,{firstTimeIntroduction}
+      speaker: `Olá Irmão *{prenom_orateur}*,
 
-Espero que estejas bem. 🙏
+Eu me chamo {ton_nom}, sou responsável pela hospitalidade junto do Grupo Capverdiano de Lyon. 🙏
 
-Aguardamos com alegria a tua visita no dia *{visitDate} às {visitTime}*.
+Tenho grande prazer em contactar-te para propor uma visita à nossa Sala do Reino.
 
-Poderias confirmar a tua presença e dizer-me se precisas de algo especial (alojamento, refeições, transporte)?
+Gostaríamos de te receber no dia *{jour_semaine} {date_visite} às {heure_visite}*
+(Sala do Reino de Lyon)
 
-Muito obrigado e até breve!
+Podes confirmar-me se :
+- ✅ Podes vir nesta data e hora ?
+- 🏠 Necessitas de alojamento ?
+- 🍽️ Precisas de ajuda com as refeições ?
+- 🚗 Transporte a partir da estação ou aeroporto ?
+- ⚠️ **Alergias alimentares a assinalar** (tu + acompanhantes) ?
 
-Fraternalmente,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-
-      host: `Olá Irmão *{hostName}*,
-
-Espero que estejas bem. 🏠
-
-Temos o prazer de receber *{speakerName}* da congregação de *{congregation}* no dia *{visitDate}*.
-
-Poderias encarregar-te do seu acolhimento? Por favor, confirma-me.
+Obrigado por responderes rapidamente !
 
 Fraternalmente,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
-    },
+{ton_nom}
+Grupo Capverdiano de Lyon 🙏`,
 
-    preparation: {
-      speaker: `Olá Irmão *{speakerName}*,
+      host: `Olá Irmã *{prenom_hotesse}*,
 
-Obrigado pela tua confirmação! 😊
+Obrigado por acolheres o Irmão *{prenom_orateur}* em tua casa! 🙏
 
-Aqui estão os detalhes para a tua visita de *{visitDate} às {visitTime}*:
+📋 *INFORMAÇÕES SOBRE O ORADOR :*
+• Nome : {nom_orateur} ({congregation_orateur})
+• Origem : Cabo Verde
+• Tél. : {tel_orateur}
+• Acompanhantes : {nb_accompagnants} (nomes : {noms_accompagnants})
 
-{accommodationLogistics}
-{mealsLogistics}
-{pickupLogistics}
+📅 *DATAS :*
+• Chegada : {jour_arrivee} {date_arrivee} por volta de {heure_arrivee}
+• Partida : {jour_depart} {date_depart} por volta de {heure_depart}
 
-Não hesites em contactar-nos se precisares de algo.
+⚠️ *ALERGIAS IMPORTANTES :*
+{allergies_orateur_et_accompagnants}
 
-Até breve!
+📍 *LOCAL DA REUNIÃO :*
+Sala do Reino de Lyon - *{jour_visite} {heure_visite}*
 
-Fraternalmente,
-{hospitalityOverseer}`,
+Se tiveres perguntas, liga-me : {mon_tel}
 
-      host: `Olá Irmão *{hostName}*,
-
-Obrigado pela tua disponibilidade! 🙏
-
-Aqui estão os contactos do nosso orador convidado para *{visitDate}*:
-
-👤 *Orador*: {speakerName}
-🏛️ *Congregação*: {congregation}
-📞 *Telefone*: {speakerPhone}
-
-Por favor, contacta-o para coordenar o acolhimento.
-
-Fraternalmente,
-{hospitalityOverseer}`,
-    },
-
-    'reminder-7': {
-      speaker: `Olá Irmão *{speakerName}*,
-
-Lembrete amigável: aguardamos a tua visita com alegria daqui a *7 dias*, no dia *{visitDate} às {visitTime}*! 🎉
-
-📍 Morada: {hostAddress}
-📞 Contacto: {hostName} - {hostPhone}
-
-Boa viagem e até breve!
-
-Fraternalmente,
-{hospitalityOverseer}`,
-
-      host: `Olá Irmão *{hostName}*,
-
-Lembrete: irás acolher *{speakerName}* daqui a *7 dias*, no dia *{visitDate}*! 🏠
-
-Obrigado pela tua hospitalidade!
-
-Fraternalmente,
-{hospitalityOverseer}`,
-    },
-
-    'reminder-2': {
-      speaker: `Olá Irmão *{speakerName}*,
-
-Último lembrete: esperamos-te *depois de amanhã*, no dia *{visitDate} às {visitTime}*! 😊
-
-📍 {hostAddress}
-📞 {hostName}: {hostPhone}
-
-Boa viagem e até muito breve!
-
-Fraternalmente,
-{hospitalityOverseer}`,
-    },
-
-    thanks: {
-      speaker: `Olá Irmão *{speakerName}*,
- 
-Muito obrigado pela tua visita e pelo teu discurso edificante! 🙏✨
- 
-Foi um verdadeiro prazer receber-te entre nós. Esperamos ver-te novamente em breve!
-
-Fraternalmente,
-{hospitalityOverseer}`,
-
-      host: `Olá Irmão *{hostName}*,
-
-Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️
-
-O teu acolhimento caloroso contribui muito para o sucesso destas visitas.
-
-Fraternalmente,
-{hospitalityOverseer}`,
-    },
-
-    host_thanks: {
-      speaker: ``, // Non utilisé pour les hôtes
-      host: `Olá Irmão *{hostName}*,
-
-Um grande obrigado pela tua hospitalidade para com o nosso orador convidado, {speakerName}! 🏠❤️
-
-O teu acolhimento caloroso contribui muito para o sucesso destas visitas.
-
-Fraternalmente,
-{hospitalityOverseer}`,
+Obrigado pela tua ajuda preciosa! 🙏`,
     },
 
     host_request_message: {
-      host: `Olá Irmão *{hostName}*, 🏠
+      host: `Olá a todos! 👋
 
-Espero que esteja bem.
+Estamos à procura de VOLUNTÁRIOS para acolher o nosso orador visitante :
 
-Estamos regularmente à procura de famílias anfitriãs para os oradores que nos visitam.
+🎤 *Orador :* Irmão {prenom_orateur} {nom_orateur} ({congregation_orateur})
+📅 *Data & Hora :* *{jour_semaine} {date_visite} às {heure_visite}*
+🏠 *Local :* Sala do Reino de Lyon
 
-Estaria disponível para acolher um orador no futuro? Se sim, poderia entrar em contacto para podermos propor datas?
+Precisamos de voluntários para :
 
-Muito obrigado pela vossa hospitalidade!
+1️⃣ **ALOJAMENTO** (1-2 noites se necessário)
+2️⃣ **REFEIÇÕES** (domingo de manhã e/ou sábado à noite)
+3️⃣ **TRANSPORTE** (recolha estação/aeroporto, trajetos locais)
 
-Fraternalmente,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+⚠️ *Alergias a conhecer :* {allergies_orateur}
+
+Se puderes ajudar, responde-me rapidamente !
+
+Que Jeová vos abençoe! 🙏
+{ton_nom}`,
     },
 
-    // NOUVEAU: Message libre pour les hôtes
+    preparation: {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Obrigado pela tua confirmação! 😊
+
+Aqui está a organização completa da tua visita :
+
+📅 *DATAS & HORÁRIOS :*
+• Chegada : {jour_arrivee} {date_arrivee} (por volta de {heure_arrivee})
+• Reunião : *{jour_visite} {date_visite} às {heure_visite}*
+• Partida : {jour_depart} {date_depart} (por volta de {heure_depart})
+
+🏠 *ALOJAMENTO :*
+• Em casa de : {nom_hebergeur}
+• Morada : {adresse_hebergeur}
+• Tél. : {tel_hebergeur}
+
+🍽️ *REFEIÇÕES & ALERGIAS :*
+• Responsável : {nom_responsable_repas}
+• Tél. : {tel_responsable_repas}
+• ⚠️ Alergias assinaladas : {allergies_orateur_et_accompagnants}
+
+🚗 *TRANSPORTE :*
+• Recolha : {nom_chauffeur}
+• Tél. : {tel_chauffeur}
+
+👥 *TRANSPORTE ACOMPANHANTES :*
+• Modo : {mode_transport_accompagnants}
+• Veículo : {accompagnants_vehicule}
+• Ponto RDV : {rdv_accompagnants}
+
+👥 *REUNIÃO :*
+• Local : Sala do Reino de Lyon
+• Hora : *{heure_visite}*
+• Tema : {theme_discours}
+• N° discurso : {numero_discours}
+
+Se tiveres perguntas, não hesites em contactar-nos !
+
+Fraternalmente,
+{ton_nom}`,
+
+      host: `Olá a todos! 👋
+
+Aqui está o plano completo da visita do Irmão *{prenom_orateur}* ({congregation_orateur}) :
+
+📅 *DATAS & HORÁRIOS :*
+• Chegada : {jour_arrivee} {date_arrivee}
+• Reunião : *{jour_visite} {date_visite} às {heure_visite}*
+• Partida : {jour_depart} {date_depart}
+
+🏠 *ALOJAMENTO :*
+Em casa de {nom_hebergeur} - Tél. {tel_hebergeur}
+
+🍽️ *REFEIÇÕES :*
+{nom_responsable_repas} trata disso
+⚠️ Alergias : {allergies_orateur_et_accompagnants}
+
+🚗 *TRANSPORTE :*
+{nom_chauffeur} irá buscar à estação - Tél. {tel_chauffeur}
+
+👥 *TRANSPORTE ACOMPANHANTES :*
+• Modo : {mode_transport_accompagnants}
+• Veículo : {accompagnants_vehicule}
+• Ponto RDV : {rdv_accompagnants}
+
+👥 *REUNIÃO :*
+Sala do Reino - *{heure_visite}*
+Tema : {theme_discours}
+
+Obrigado a todos os voluntários! 🙏✨
+
+Não hesites em verificar os detalhes ou contactar {ton_nom} se necessário.`,
+    },
+
+    meals_message: {
+      host: `Olá {prenom_responsable_repas},
+
+Obrigado por tratares das refeições para o Irmão *{prenom_orateur}*! 🍽️
+
+📋 *INFORMAÇÕES SOBRE O ORADOR & ACOMPANHANTES :*
+• Orador : {nom_orateur} ({congregation_orateur})
+• Acompanhantes : {nb_accompagnants} pessoas
+• Total a alimentar : {nb_total_personnes}
+
+📅 *REFEIÇÕES A ORGANIZAR :*
+• {jour_arrivee} {date_arrivee} : jantar (por volta de {heure_diner_arrivee})
+• {jour_visite} {date_visite} : pequeno-almoço + almoço
+• {jour_depart} {date_depart} : pequeno-almoço (antes da partida por volta de {heure_depart})
+
+⚠️ *ALERGIAS ALIMENTARES (MUITO IMPORTANTE) :*
+{allergies_orateur_et_accompagnants}
+
+📍 *LOCAL DE ALOJAMENTO :*
+Em casa de {nom_hebergeur}
+{adresse_hebergeur}
+Tél. {tel_hebergeur}
+
+Para qualquer questão, contacta-me : {mon_tel}
+
+Obrigado pelo teu generoso apoio! 🙏`,
+    },
+
+    transport_message: {
+      host: `Olá {prenom_chauffeur},
+
+Poderias assegurar o transporte para o Irmão *{prenom_orateur}*? 🚗
+
+📋 *INFORMAÇÕES SOBRE O ORADOR & ACOMPANHANTES :*
+• Orador : {nom_orateur} ({congregation_orateur})
+• Acompanhantes : {nb_accompagnants}
+• Total : {nb_total_personnes} passageiros
+• Tél. orador : {tel_orateur}
+
+📅 *PERCURSOS A ORGANIZAR :*
+• *{jour_arrivee} {date_arrivee}* : Estação/Aeroporto → Alojamento (chegada por volta de {heure_arrivee})
+• *{jour_visite} {date_visite}* : Alojamento → Sala do Reino (partida {heure_visite_moins_30_min})
+• *{jour_depart} {date_depart}* : Alojamento → Estação/Aeroporto (partida {heure_depart})
+
+📍 *MORADAS-CHAVE :*
+• Alojamento : {adresse_hebergeur}
+• Sala do Reino : Lyon (perto da Part-Dieu)
+• Estação SNCF : Place Bellecour
+
+👥 *PASSAGEIROS :*
+{nb_total_personnes} pessoas ao total
+
+Para confirmar ou fazer perguntas : {mon_tel}
+
+Obrigado pela tua ajuda! `,
+
+    },
+
+    'reminder-5': {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Lembrar : esperamos-te dentro de *5 dias*! 
+
+*{jour_visite} {date_visite} às {heure_visite}*
+
+*A tua receção :*
+• Alojamento em casa de {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Local da reunião :*
+Sala do Reino de Lyon
+
+*As tuas alergias bem anotadas :* {allergies_orateur_et_accompagnants}
+
+Se precisares de esclarecimentos, estou disponível : {mon_tel}
+
+Até muito breve! `,
+
+    },
+
+    'reminder-7': {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Lembrar : esperamos-te dentro de *7 dias*! 
+
+*{jour_visite} {date_visite} às {heure_visite}*
+
+*A tua receção :*
+• Alojamento em casa de {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Local da reunião :*
+Sala do Reino de Lyon
+
+*As tuas alergias bem anotadas :* {allergies_orateur_et_accompagnants}
+
+Se precisares de esclarecimentos, estou disponível : {mon_tel}
+
+Até muito breve! `,
+
+    },
+
+    'reminder-2': {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Lembrar : esperamos-te dentro de *2 dias*! 
+
+*{jour_visite} {date_visite} às {heure_visite}*
+
+*A tua receção :*
+• Alojamento em casa de {nom_hebergeur}
+• Tél. : {tel_hebergeur}
+
+*Local da reunião :*
+Sala do Reino de Lyon
+
+*As tuas alergias bem anotadas :* {allergies_orateur_et_accompagnants}
+
+Se precisares de esclarecimentos, estou disponível : {mon_tel}
+
+Até muito breve! `,
+
+    },
+
+    thanks_speaker: {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Muito obrigado pela tua visita e pelo teu discurso edificante! 
+
+Foi um verdadeiro prazer receber-te no Grupo Capverdiano de Lyon. A tua mensagem tocou muitos corações e reforçou a nossa fé.
+
+Esperamos sinceramente voltar a ver-te em breve para uma próxima visita!
+
+Que Jeová continue a abençoar-te, a ti e à tua família.
+
+Fraternalmente,
+{ton_nom}
+Grupo Capverdiano de Lyon 🙏`,
+    },
+
+    thanks_hosts: {
+      host: `Olá {prenom_hotesse},
+
+Um grande obrigado pela tua ajuda generosa durante a visita do Irmão *{prenom_orateur}*! 🙏
+
+✅ {ta_tache} - Perfeito! ✨
+
+O teu devotamento contribuiu para tornar esta visita memorável e para acolher calorosamente o nosso irmão visitante. É graças a pessoas como tu que o nosso grupo floresce.
+
+Que Jeová te abençoe!
+
+Fraternalmente,
+{ton_nom}`,
+    },
+
     free_message: {
-      speaker: `Olá Irmão *{speakerName}*,
+      speaker: `Olá Irmão *{prenom_orateur}*,
 
 [Personalize a sua mensagem aqui]
 
 Fraternalmente,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}`,
 
-      host: `Olá Irmão *{hostName}*,
+      host: `Olá {prenom_hotesse},
 
 [Personalize a sua mensagem aqui]
 
 Fraternalmente,
-{hospitalityOverseer}
-📞 {hospitalityOverseerPhone}`,
+{ton_nom}`,
     },
   },
 };
 
 // ============================================================================
-// MODÈLES DE DEMANDE D'ACCUEIL INDIVIDUELLE
+// MODÈLES DE DEMANDE D'ACCUEIL INDIVIDUELLE (COMPATIBILITÉ)
 // ============================================================================
 
 export const individualHostRequestTemplates = {
@@ -589,9 +996,9 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
 
   cv: `Bon dia {hostName}, 🏠
- 
+
 N ta spera ma bu sta bon.
- 
+
 Nu ten prazer di akolhe *{speakerName}* di kongregason di *{congregation}* pa *{talkTitle}* dia *{visitDate} na {visitTime}*.
 
 Bu ta disponivel pa akolhe-l na bu kaza ? Aki es detalhis di bu vizita :
@@ -628,7 +1035,7 @@ Fraternalmente,
 };
 
 // ============================================================================
-// MODÈLES DE DEMANDE D'ACCUEIL
+// MODÈLES DE DEMANDE D'ACCUEIL (COMPATIBILITÉ)
 // ============================================================================
 
 export const hostRequestMessageTemplates = {
@@ -647,11 +1054,11 @@ Fraternellement,
 📞 {hospitalityOverseerPhone}`,
 
   cv: `Bon dia tudu! 🏠
- 
+
 Nu ta buska voluntáriu pa akolhe nu oradoris vizitantis na es datas li :
- 
+
 {visitsList}
- 
+
 Si bu sta disponivel pa akolhe un ô más di es oradoris, favor kontakta-m.
 
 Ma Jeová abensoa-bu!
@@ -690,43 +1097,49 @@ export function adaptMessageGender(
   if (speakerGender === 'female') {
     // Fr
     adapted = adapted.replace(/Bonjour Frère/g, 'Bonjour Sœur');
-    adapted = adapted.replace(/Frère \*{speakerName}\*/g, 'Sœur *{speakerName}*');
+    adapted = adapted.replace(/Frère \*{prenom_orateur}\*/g, 'Sœur *{prenom_orateur}*');
     adapted = adapted.replace(/notre orateur invité/g, 'notre oratrice invitée');
+    adapted = adapted.replace(/ta visite/g, 'ta visite');
     // Pt
     adapted = adapted.replace(/Olá Irmão/g, 'Olá Irmã');
-    adapted = adapted.replace(/Irmão \*{speakerName}\*/g, 'Irmã *{speakerName}*');
+    adapted = adapted.replace(/Irmão \*{prenom_orateur}\*/g, 'Irmã *{prenom_orateur}*');
     adapted = adapted.replace(/nosso orador convidado/g, 'nossa oradora convidada');
     // Cv
     adapted = adapted.replace(/Bon dia Mon/g, 'Bon dia Mana');
-    adapted = adapted.replace(/Mon \*{speakerName}\*/g, 'Mana *{speakerName}*');
+    adapted = adapted.replace(/Mon \*{prenom_orateur}\*/g, 'Mana *{prenom_orateur}*');
   }
 
   // Adaptation pour contact d'accueil féminin
   if (hostGender === 'female') {
     // Fr
-    adapted = adapted.replace(/Frère \*{hostName}\*/g, 'Sœur *{hostName}*');
+    adapted = adapted.replace(/Frère \*{prenom_hotesse}\*/g, 'Sœur *{prenom_hotesse}*');
     adapted = adapted.replace(/notre frère/g, 'notre sœur');
+    adapted = adapted.replace(/chez toi/g, 'chez toi');
     // Pt
-    adapted = adapted.replace(/Irmão \*{hostName}\*/g, 'Irmã *{hostName}*');
+    adapted = adapted.replace(/Irmã \*{prenom_hotesse}\*/g, 'Irmã *{prenom_hotesse}*');
     adapted = adapted.replace(/nosso irmão/g, 'nossa irmã');
+    adapted = adapted.replace(/em tua casa/g, 'em tua casa');
+    adapted = adapted.replace(/teu acolhimento/g, 'teu acolhimento');
     // Cv
-    adapted = adapted.replace(/Mon \*{hostName}\*/g, 'Mana *{hostName}*');
-    adapted = adapted.replace(/nu mon {hostName}/g, 'nu mana {hostName}');
+    adapted = adapted.replace(/Mon \*{prenom_hotesse}\*/g, 'Mana *{prenom_hotesse}*');
+    adapted = adapted.replace(/na bo kaza/g, 'na bo kaza');
   }
 
   // Adaptation pour couple
   if (hostGender === 'couple') {
     // Fr
-    adapted = adapted.replace(/Frère \*{hostName}\*/g, '*{hostName}*');
+    adapted = adapted.replace(/Frère \*{prenom_hotesse}\*/g, '*{prenom_hotesse}*');
     adapted = adapted.replace(/tu vas bien/g, 'vous allez bien');
+    adapted = adapted.replace(/chez toi/g, 'chez vous');
     // Pt
-    adapted = adapted.replace(/Irmão \*{hostName}\*/g, '*{hostName}*');
+    adapted = adapted.replace(/Irmã \*{prenom_hotesse}\*/g, '*{prenom_hotesse}*');
     adapted = adapted.replace(/estejas bem/g, 'estejam bem');
-    adapted = adapted.replace(/tua disponibilidade/g, 'vossa disponibilidade');
+    adapted = adapted.replace(/em tua casa/g, 'em vossa casa');
     adapted = adapted.replace(/teu acolhimento/g, 'vosso acolhimento');
     // Cv
-    adapted = adapted.replace(/Mon \*{hostName}\*/g, '*{hostName}*');
+    adapted = adapted.replace(/Mon \*{prenom_hotesse}\*/g, '*{prenom_hotesse}*');
     adapted = adapted.replace(/bu sta bon/g, 'nhós sta bon');
+    adapted = adapted.replace(/na bo kaza/g, 'na nhós kaza');
   }
 
   return adapted;

@@ -128,8 +128,7 @@ describe('Zod Schemas', () => {
 
     it('should reject speaker with invalid email', () => {
       const invalidSpeaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'not-an-email',
       };
 
@@ -139,10 +138,9 @@ describe('Zod Schemas', () => {
 
     it('should reject speaker with invalid phone format', () => {
       const invalidSpeaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'john@example.com',
-        phone: 'abc-def-ghij',
+        telephone: 'abc-def-ghij',
       };
 
       const result = SpeakerSchema.safeParse(invalidSpeaker);
@@ -154,10 +152,9 @@ describe('Zod Schemas', () => {
 
       validPhones.forEach((phone) => {
         const speaker = {
-          firstName: 'John',
-          lastName: 'Doe',
+          nom: 'John Doe',
           email: 'john@example.com',
-          phone,
+          telephone: phone,
         };
 
         const result = SpeakerSchema.safeParse(speaker);
@@ -187,7 +184,7 @@ describe('Zod Schemas', () => {
 
     it('should reject names exceeding max length', () => {
       const speaker = {
-        nom: 'x'.repeat(100),
+        nom: 'x'.repeat(101),
         email: 'john@example.com',
       };
 
@@ -229,8 +226,7 @@ describe('Zod Schemas', () => {
       };
 
       const speaker = {
-        firstName: 'John',
-        lastName: 'Doe',
+        nom: 'John Doe',
         email: 'john@example.com',
       };
 

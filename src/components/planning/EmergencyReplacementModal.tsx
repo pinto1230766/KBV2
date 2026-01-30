@@ -166,7 +166,7 @@ export const EmergencyReplacementModal: React.FC<EmergencyReplacementModalProps>
             <p className='text-sm text-red-800 dark:text-red-300 mt-1'>
               Visite de <strong>{visit.nom}</strong> le{' '}
               <strong>{new Date(visit.visitDate).toLocaleDateString('fr-FR')}</strong> à{' '}
-              <strong>{visit.visitTime}</strong>
+              <strong>{new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime}</strong>
             </p>
             {visit.talkNoOrType && (
               <p className='text-sm text-red-800 dark:text-red-300'>

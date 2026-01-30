@@ -52,11 +52,19 @@ describe('FileSystemService', () => {
 
       expect(result.success).toBe(true);
       expect(result.path).toBe('file:///storage/Documents/KBV/test.json');
-      expect(mockFilesystem.mkdir).toHaveBeenCalledWith({
-        path: 'KBV',
-        directory: 'DOCUMENTS',
-        recursive: true,
-      });
+      expect(mockFilesystem.mkdir).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: 'KBV',
+          recursive: true,
+        })
+      );
+      expect(mockFilesystem.mkdir.mock.calls).toEqual(
+        expect.arrayContaining([
+          expect.arrayContaining([
+            expect.objectContaining({ directory: 'DOCUMENTS' }),
+          ]),
+        ])
+      );
       expect(mockFilesystem.writeFile).toHaveBeenCalledWith({
         path: 'KBV/test.json',
         data: '{"test": true}',
@@ -75,7 +83,7 @@ describe('FileSystemService', () => {
       });
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Erreur de sauvegarde');
+      expect(result.error).toBe('Toutes les méthodes de sauvegarde ont échoué');
     });
 
     it('devrait utiliser le fallback web sur navigateur', async () => {

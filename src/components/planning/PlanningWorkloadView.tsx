@@ -44,8 +44,11 @@ export const PlanningWorkloadView: React.FC = () => {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-        {filteredData.map(({ speaker, workload }) => (
-          <Card key={speaker.id} className='overflow-hidden'>
+        {filteredData.map(({ speaker, workload }, index) => {
+          const baseKey = speaker.id || speaker.nom || 'speaker';
+          const cardKey = `${baseKey}-${index}`;
+          return (
+          <Card key={cardKey} className='overflow-hidden'>
             <CardBody className='p-4'>
               <div className='flex justify-between items-start mb-3'>
                 <div className='flex items-center gap-3'>
@@ -96,7 +99,7 @@ export const PlanningWorkloadView: React.FC = () => {
               </div>
             </CardBody>
           </Card>
-        ))}
+        );})}
       </div>
     </div>
   );

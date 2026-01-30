@@ -5,7 +5,8 @@ import { PlanningCardsView } from '@/components/planning/PlanningCardsView';
 import { PlanningListView } from '@/components/planning/PlanningListView';
 import { PlanningCalendarView } from '@/components/planning/PlanningCalendarView';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
-import { VisitActionModal } from '@/components/planning/VisitActionModal';
+import { VisitEditor } from '@/components/visits/VisitEditor/VisitEditor';
+import { Modal } from '@/components/ui/Modal';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -45,6 +46,8 @@ import { exportService } from '@/utils/ExportService';
 import { useToast } from '@/contexts/ToastContext';
 import { generateMessage, generateWhatsAppUrl } from '@/utils/messageGenerator';
 import { getPrimaryHostName } from '@/utils/hostUtils';
+import { useVisitStats } from '@/hooks/useVisitStats';
+import type { VisitEditorTab } from '@/components/visits/VisitEditor/VisitEditorContext';
 
 type ViewType = 'cards' | 'list' | 'calendar' | 'timeline' | 'workload' | 'finance' | 'archives';
 
@@ -136,12 +139,14 @@ export const Planning: React.FC = () => {
     speaker: any;
     visit: Visit | null;
     host: any;
+    simplified?: boolean;
   }>({
     isOpen: false,
     type: 'confirmation',
     speaker: null,
     visit: null,
     host: null,
+    simplified: false,
   });
 
   const componentRef = useRef<HTMLDivElement>(null);
@@ -245,22 +250,66 @@ export const Planning: React.FC = () => {
         | 'cancel'
         | 'replace'
         | 'conflict'
+        | 'quick_message',
+      messageType?: string
     ) => {
       setSelectedVisit(visit);
-      setSelectedAction(action);
 
       if (action === 'cancel') {
+        setSelectedAction('cancel');
         setIsCancellationModalOpen(true);
       } else if (action === 'replace') {
+        setSelectedAction('replace');
         setIsReplacementModalOpen(true);
       } else if (action === 'conflict') {
+        setSelectedAction('conflict');
         setIsConflictModalOpen(true);
+      } else if (action === 'message') {
+        // Handle message action - open MessageGeneratorModal directly
+        const speaker = _speakers.find((s) => s.id === visit.id);
+        const host = hosts.find((h) => h.nom === getPrimaryHostName(visit));
+        setMessageModalParams({
+          isOpen: true,
+          type: (messageType as any) || 'confirmation',
+          speaker,
+          visit,
+          host,
+          simplified: false,
+        });
+      } else if (action === 'quick_message' && messageType) {
+        // Handle quick message directly
+        const speaker = _speakers.find((s) => s.id === visit.id);
+        const host = hosts.find((h) => h.nom === getPrimaryHostName(visit));
+        setMessageModalParams({
+          isOpen: true,
+          type: messageType as any,
+          speaker,
+          visit,
+          host,
+          simplified: true, // Use simplified mode for quick actions
+        });
       } else {
+        setSelectedAction(action as any);
         setIsActionModalOpen(true);
       }
     },
-    []
+    [_speakers, hosts]
   );
+
+  const initialEditorTab: VisitEditorTab = useMemo(() => {
+    switch (selectedAction) {
+      case 'logistics':
+        return 'logistics';
+      case 'expenses':
+        return 'expenses';
+      case 'message':
+        return 'messages';
+      case 'feedback':
+        return 'history';
+      default:
+        return 'details';
+    }
+  }, [selectedAction]);
 
   const handleCloseActionModal = useCallback(() => {
     setIsActionModalOpen(false);
@@ -377,18 +426,7 @@ export const Planning: React.FC = () => {
     [visits, searchTerm, statusFilter, typeFilter, dateRange]
   );
 
-  const stats = useMemo(() => {
-    const total = filteredVisits.length;
-    const confirmed = filteredVisits.filter((v: Visit) => v.status === 'confirmed').length;
-    const pending = filteredVisits.filter((v: Visit) => v.status === 'pending').length;
-    const upcoming = filteredVisits.filter((v: Visit) => {
-      const visitDate = new Date(v.visitDate);
-      const today = new Date();
-      return visitDate >= today && v.status === 'confirmed';
-    }).length;
-
-    return { total, confirmed, pending, upcoming };
-  }, [filteredVisits]);
+  const visitStats = useVisitStats(filteredVisits);
 
   const SpecializedViewOption = ({ id, label, icon: Icon, desc }: any) => (
     <button
@@ -456,7 +494,7 @@ export const Planning: React.FC = () => {
       <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
         <StatCard
           icon={CalendarDays}
-          value={stats.total}
+          value={visitStats?.total ?? 0}
           label='Total Visites'
           colorClasses={{
             bg: 'bg-blue-50 dark:bg-blue-900/10',
@@ -466,7 +504,7 @@ export const Planning: React.FC = () => {
         />
         <StatCard
           icon={Sparkles}
-          value={stats.confirmed}
+          value={visitStats?.statusStats.confirmed ?? 0}
           label='Confirmées'
           colorClasses={{
             bg: 'bg-green-50 dark:bg-green-900/10',
@@ -476,7 +514,7 @@ export const Planning: React.FC = () => {
         />
         <StatCard
           icon={Clock}
-          value={stats.pending}
+          value={visitStats?.statusStats.pending ?? 0}
           label='En Attente'
           colorClasses={{
             bg: 'bg-orange-50 dark:bg-orange-900/10',
@@ -486,7 +524,7 @@ export const Planning: React.FC = () => {
         />
         <StatCard
           icon={CalendarIcon}
-          value={stats.upcoming}
+          value={visitStats?.upcomingCount ?? 0}
           label='À Venir'
           colorClasses={{
             bg: 'bg-purple-50 dark:bg-purple-900/10',
@@ -724,9 +762,12 @@ export const Planning: React.FC = () => {
               <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
                 {archivedVisits
                   .sort((a, b) => new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime())
-                  .map((visit) => (
+                  .map((visit, index) => {
+                    const baseKey = visit.visitId || visit.id || `${visit.nom}-${visit.visitDate}`;
+                    const visitKey = `${baseKey}-${index}`;
+                    return (
                     <div
-                      key={visit.visitId}
+                      key={visitKey}
                       className='group bg-gray-50 dark:bg-gray-900/30 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 hover:border-gray-300 dark:hover:border-gray-600 transition-all'
                     >
                       <div className='flex items-start justify-between mb-4'>
@@ -777,7 +818,7 @@ export const Planning: React.FC = () => {
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  );})}
               </div>
             )}
           </div>
@@ -786,13 +827,23 @@ export const Planning: React.FC = () => {
 
       <ScheduleVisitModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
-      <VisitActionModal
-        isOpen={isActionModalOpen}
-        onClose={handleCloseActionModal}
-        visit={selectedVisit}
-        action={selectedAction}
-        onOpenMessageModal={handleOpenMessageModal}
-      />
+      {selectedVisit && (
+        <Modal
+          isOpen={isActionModalOpen}
+          onClose={handleCloseActionModal}
+          title=''
+          size='xl'
+          padding='none'
+          className='max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] h-[85vh]'
+        >
+          <VisitEditor
+            visit={selectedVisit}
+            onClose={handleCloseActionModal}
+            initialTab={initialEditorTab}
+            onOpenMessageModal={handleOpenMessageModal}
+          />
+        </Modal>
+      )}
 
       <PlanningFilterModal
         isOpen={isFilterModalOpen}
@@ -842,6 +893,7 @@ export const Planning: React.FC = () => {
           initialType={messageModalParams.type}
           isGroupMessage={messageModalParams.isGroup}
           initialChannel={messageModalParams.channel}
+          simplified={messageModalParams.simplified}
         />
       )}
     </div>

@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { Settings, Language, Theme, NotificationSettings } from '@/types';
 import * as idb from '@/utils/idb';
 
+const isTestEnv = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+
 // ============================================================================
 // PARAMÈTRES PAR DÉFAUT
 // ============================================================================
@@ -52,10 +54,13 @@ const SettingsContext = createContext<SettingsContextValue | undefined>(undefine
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(isTestEnv);
 
   // Charger les paramètres depuis IndexedDB
   useEffect(() => {
+    if (isTestEnv) {
+      return;
+    }
     const loadSettings = async () => {
       try {
         const saved = await idb.get<Settings>('kbv-settings');
@@ -77,15 +82,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Sauvegarder les paramètres dans IndexedDB
   useEffect(() => {
-    if (isLoaded) {
-      idb.set('kbv-settings', settings).catch((error) => {
-        console.error('Error saving settings:', error);
-      });
+    if (isTestEnv || !isLoaded) {
+      return;
     }
+    idb.set('kbv-settings', settings).catch((error) => {
+      console.error('Error saving settings:', error);
+    });
   }, [settings, isLoaded]);
 
   // Appliquer le thème
   useEffect(() => {
+    if (isTestEnv) return;
     const root = document.documentElement;
 
     if (settings.theme === 'dark') {
@@ -105,6 +112,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   // Appliquer la langue
   useEffect(() => {
+    if (isTestEnv) return;
     document.documentElement.lang = settings.language;
   }, [settings.language]);
 

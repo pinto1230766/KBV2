@@ -1,33 +1,26 @@
 import React, { useState } from 'react';
-import { Logistics, Itinerary, Accommodation, ChecklistItem } from '@/types';
+import { Logistics, Itinerary, ChecklistItem } from '@/types';
 import { ItineraryView } from './ItineraryView';
-import { AccommodationView } from './AccommodationView';
 import { Checklist } from './Checklist';
-import { Map, Home, CheckSquare } from 'lucide-react';
+import { Map, CheckSquare } from 'lucide-react';
 
 interface LogisticsManagerProps {
   logistics: Logistics | undefined;
   onUpdate: (logistics: Logistics) => void;
   readOnly?: boolean;
-  hosts?: Array<{ nom: string; address?: string }>;
 }
 
-type Tab = 'itinerary' | 'accommodation' | 'checklist';
+type Tab = 'itinerary' | 'checklist';
 
 export const LogisticsManager: React.FC<LogisticsManagerProps> = ({
   logistics = {},
   onUpdate,
   readOnly = false,
-  hosts = [],
 }) => {
   const [activeTab, setActiveTab] = useState<Tab>('itinerary');
 
   const updateItinerary = (itinerary: Itinerary) => {
     onUpdate({ ...logistics, itinerary });
-  };
-
-  const updateAccommodation = (accommodation: Accommodation) => {
-    onUpdate({ ...logistics, accommodation });
   };
 
   const updateChecklist = (checklist: ChecklistItem[]) => {
@@ -36,7 +29,6 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({
 
   const tabs = [
     { id: 'itinerary', label: 'Trajet', icon: Map },
-    { id: 'accommodation', label: 'Hébergement', icon: Home },
     { id: 'checklist', label: 'Tâches', icon: CheckSquare },
   ];
 
@@ -65,15 +57,6 @@ export const LogisticsManager: React.FC<LogisticsManagerProps> = ({
             itinerary={logistics.itinerary || { transportMode: 'car' }}
             onUpdate={updateItinerary}
             readOnly={readOnly}
-          />
-        )}
-
-        {activeTab === 'accommodation' && (
-          <AccommodationView
-            accommodation={logistics.accommodation || { type: 'host', name: '' }}
-            onUpdate={updateAccommodation}
-            readOnly={readOnly}
-            hosts={hosts}
           />
         )}
 

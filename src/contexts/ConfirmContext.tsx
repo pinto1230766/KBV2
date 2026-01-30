@@ -54,6 +54,10 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             cancelText: 'Annuler',
             confirmVariant: 'primary',
             ...confirmOptions,
+            message:
+              typeof confirmOptions.message === 'string' && confirmOptions.message.length > 0
+                ? confirmOptions.message
+                : 'Êtes-vous sûr ? cette action est irréversible.',
           },
           resolve,
         });

@@ -4,6 +4,7 @@
  */
 /// <reference types="vitest/globals" />
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Déclaration des types manquants
 declare global {
@@ -16,6 +17,18 @@ declare global {
 }
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+
+// Valeurs par défaut pour usePlatform en tests
+(window as any).__TEST_PLATFORM_INFO__ = {
+  platform: 'web',
+  deviceType: 'desktop',
+  screenSize: { width: 1280, height: 720 },
+  orientation: 'landscape',
+  isSamsung: false,
+  hasSPen: false,
+  isTabletS10Ultra: false,
+  isPhoneS25Ultra: false,
+};
 
 // Mock des APIs navigateur non disponibles dans jsdom
 Object.defineProperty(window, 'matchMedia', {
@@ -106,41 +119,174 @@ Object.defineProperty(window, 'crypto', {
   writable: true,
 });
 
-// Mock d'IndexedDB pour les tests
+// Mock IndexedDB minimal
+class MockIDBRequest<T = unknown> {
+  onsuccess: ((this: IDBRequest<T>, ev: Event) => any) | null = null;
+  onerror: ((this: IDBRequest<T>, ev: Event) => any) | null = null;
+  result: T | null = null;
+  error: DOMException | null = null;
+  readyState: IDBRequestReadyState = 'done';
+  source: IDBObjectStore | IDBIndex | IDBCursor | null = null;
+  transaction: IDBTransaction | null = null;
+
+  constructor(result?: T) {
+    this.result = result ?? null;
+    queueMicrotask(() => {
+      this.onsuccess?.call(this as unknown as IDBRequest<T>, new Event('success'));
+    });
+  }
+
+  addEventListener() {}
+  removeEventListener() {}
+  dispatchEvent() {
+    return true;
+  }
+}
+
+class MockIDBDatabase {
+  createObjectStore() {
+    return new MockObjectStore();
+  }
+  transaction() {
+    return new MockTransaction();
+  }
+  close() {}
+  addEventListener() {}
+}
+
+class MockObjectStore {
+  get() {
+    return new MockIDBRequest();
+  }
+  put() {
+    return new MockIDBRequest();
+  }
+  delete() {
+    return new MockIDBRequest();
+  }
+  index() {
+    return new MockIndex();
+  }
+}
+
+class MockTransaction {
+  objectStore() {
+    return new MockObjectStore();
+  }
+}
+
+class MockIndex {
+  getAll() {
+    return new MockIDBRequest();
+  }
+}
+
+class MockIDBOpenDBRequest<T = MockIDBDatabase> extends MockIDBRequest<T> {
+  onblocked: ((this: IDBOpenDBRequest, ev: Event) => any) | null = null;
+  onupgradeneeded: ((this: IDBOpenDBRequest, ev: IDBVersionChangeEvent) => any) | null = null;
+  oldVersion = 1;
+  newVersion: number | null = 1;
+}
+
 const mockIndexedDB = {
-  open: () => ({
-    onsuccess: null,
-    onerror: null,
-    onupgradeneeded: null,
-    result: {
-      createObjectStore: () => ({
-        createIndex: () => {},
-      }),
-      transaction: () => ({
-        objectStore: () => ({
-          get: () => ({
-            onsuccess: null,
-            onerror: null,
-            result: null,
-          }),
-          put: () => ({
-            onsuccess: null,
-            onerror: null,
-          }),
-          delete: () => ({
-            onsuccess: null,
-            onerror: null,
-          }),
-        }),
-      }),
-    },
-  }),
+  open: () => {
+    const request = new MockIDBOpenDBRequest(new MockIDBDatabase());
+    return request as unknown as IDBOpenDBRequest;
+  },
 };
 
 Object.defineProperty(window, 'indexedDB', {
   value: mockIndexedDB,
   writable: true,
 });
+
+(window as any).IDBRequest = MockIDBRequest;
+(window as any).IDBOpenDBRequest = MockIDBOpenDBRequest;
+(window as any).IDBDatabase = MockIDBDatabase;
+
+// Mock URL.createObjectURL / revokeObjectURL pour les composants Upload
+if (!window.URL.createObjectURL) {
+  window.URL.createObjectURL = vi.fn(() => 'blob:mock');
+}
+
+if (!window.URL.revokeObjectURL) {
+  window.URL.revokeObjectURL = vi.fn();
+}
+
+// Mock scroll/animation helpers
+window.scrollTo = vi.fn();
+if (!window.requestAnimationFrame) {
+  window.requestAnimationFrame = (cb: FrameRequestCallback) => setTimeout(cb, 0);
+}
+if (!window.cancelAnimationFrame) {
+  window.cancelAnimationFrame = (id: number) => clearTimeout(id);
+}
+
+// Mock document.createRange pour les tests utilisant selection API
+if (!document.createRange) {
+  (document as any).createRange = () => ({
+    setStart: () => {},
+    setEnd: () => {},
+    commonAncestorContainer: document.body,
+    selectNodeContents: () => {},
+  });
+}
+
+// Mock window.open pour éviter les ouvertures réelles
+if (!window.open) {
+  window.open = vi.fn();
+}
+
+// Mock navigator.clipboard si nécessaire
+if (!navigator.clipboard) {
+  (navigator as any).clipboard = {
+    writeText: vi.fn(async () => {}),
+    readText: vi.fn(async () => ''),
+  };
+}
+
+const emptyDataTransferItemList = {
+  add: () => null,
+  clear: () => {},
+  item: () => null,
+  remove: () => {},
+  length: 0,
+  [Symbol.iterator]: function (): IterableIterator<DataTransferItem> {
+    return ([] as DataTransferItem[])[Symbol.iterator]();
+  },
+} as unknown as DataTransferItemList;
+
+// Mock DataTransfer utilisé dans les tests Drag & Drop
+class MockDataTransfer implements DataTransfer {
+  dropEffect: "none" | "copy" | "link" | "move" = 'none';
+  effectAllowed: "none" | "copy" | "copyLink" | "copyMove" | "link" | "linkMove" | "move" | "all" | "uninitialized" = 'all';
+  files: FileList = {
+    length: 0,
+    item: () => null,
+    [Symbol.iterator]: function* () {},
+  } as unknown as FileList;
+  items: DataTransferItemList = emptyDataTransferItemList;
+  types: string[] = [];
+  getData: (format: string) => string = () => '';
+  setData: (format: string, data: string) => void = () => {};
+  clearData: (format?: string | undefined) => void = () => {};
+  setDragImage: (image: Element, x: number, y: number) => void = () => {};
+}
+
+(window as any).MockDataTransfer = MockDataTransfer;
+
+// Utilitaires globaux pour faciliter les tests (ex: FileUpload)
+(globalThis as any).createFileList = (...files: File[]) => {
+  return {
+    length: files.length,
+    item: (index: number) => files[index] ?? null,
+    [Symbol.iterator]: function* () {
+      for (const file of files) {
+        yield file;
+      }
+    },
+  } as FileList;
+};
 
 // Reset des mocks après chaque test
 // afterEach(() => {

@@ -5,7 +5,7 @@ type Platform = 'ios' | 'android' | 'web';
 type DeviceType = 'phone' | 'tablet' | 'desktop';
 type Orientation = 'portrait' | 'landscape';
 
-interface PlatformContextType {
+export interface PlatformContextType {
   platform: Platform;
   deviceType: DeviceType;
   screenSize: {
@@ -19,7 +19,7 @@ interface PlatformContextType {
   isPhoneS25Ultra: boolean;
 }
 
-const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
+export const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
 
 interface PlatformProviderProps {
   children: ReactNode;

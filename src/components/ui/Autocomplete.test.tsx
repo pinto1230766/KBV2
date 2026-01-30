@@ -1,267 +1,98 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Autocomplete } from './Autocomplete';
 
-describe('Autocomplete', () => {
-  const mockOptions = [
-    { value: '1', label: 'Option 1' },
-    { value: '2', label: 'Option 2' },
-    { value: '3', label: 'Option 3' },
-  ];
+const OPTIONS = [
+  { value: '1', label: 'Option 1' },
+  { value: '2', label: 'Option 2' },
+  { value: '3', label: 'Option 3' },
+];
 
+describe('Autocomplete', () => {
   const defaultProps = {
-    options: mockOptions,
+    options: OPTIONS,
     value: '',
     onChange: vi.fn(),
-    placeholder: 'Search...',
   };
 
-  describe('Rendering', () => {
-    it('should render input field', () => {
-      render(<Autocomplete {...defaultProps} />);
-      expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
-    });
+  beforeEach(() => vi.clearAllMocks());
 
-    it('should render with placeholder', () => {
-      render(<Autocomplete {...defaultProps} placeholder='Select Option' />);
-      expect(screen.getByPlaceholderText('Select Option')).toBeInTheDocument();
-    });
-
-    it('should show placeholder', () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-      expect(input).toBeInTheDocument();
-    });
-
-    it('should display current value', () => {
-      render(<Autocomplete {...defaultProps} value='1' />);
-      const input = screen.getByDisplayValue('Option 1');
-      expect(input).toBeInTheDocument();
-    });
+  it('renders input with placeholder', () => {
+    render(<Autocomplete {...defaultProps} placeholder='Chercher...' />);
+    expect(screen.getByPlaceholderText('Chercher...')).toBeInTheDocument();
   });
 
-  describe('Dropdown behavior', () => {
-    it('should show options when input is focused', async () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
+  it('shows options on focus and allows selection', async () => {
+    const onChange = vi.fn();
+    render(<Autocomplete {...defaultProps} onChange={onChange} />);
 
-      fireEvent.focus(input);
+    const input = screen.getByRole('textbox');
+    fireEvent.focus(input);
 
-      await waitFor(() => {
-        expect(screen.getByText('Option 1')).toBeInTheDocument();
-        expect(screen.getByText('Option 2')).toBeInTheDocument();
-        expect(screen.getByText('Option 3')).toBeInTheDocument();
-      });
-    });
-
-    it('should hide options when clicking outside', async () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      fireEvent.focus(input);
-      await waitFor(() => {
-        expect(screen.getByText('Option 1')).toBeInTheDocument();
-      });
-
-      fireEvent.blur(input);
-
-      await waitFor(() => {
-        expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
-      });
-    });
-
-    it('should filter options based on input', async () => {
-      const user = userEvent.setup();
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      await user.type(input, 'Option 2');
-
-      await waitFor(() => {
-        expect(screen.getByText('Option 2')).toBeInTheDocument();
-        expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
-        expect(screen.queryByText('Option 3')).not.toBeInTheDocument();
-      });
-    });
+    expect(await screen.findByText('Option 1')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Option 2'));
+    expect(onChange).toHaveBeenCalledWith('2');
   });
 
-  describe('Selection', () => {
-    it('should call onChange when option is selected', async () => {
-      const onChange = vi.fn();
-      render(<Autocomplete {...defaultProps} onChange={onChange} />);
+  it('filters options based on search term', async () => {
+    const user = userEvent.setup();
+    render(<Autocomplete {...defaultProps} />);
 
-      const input = screen.getByPlaceholderText('Search...');
-      fireEvent.focus(input);
+    const input = screen.getByRole('textbox');
+    fireEvent.focus(input);
+    await user.type(input, '3');
 
-      await waitFor(() => {
-        const option = screen.getByText('Option 1');
-        fireEvent.click(option);
-      });
-
-      expect(onChange).toHaveBeenCalledWith('1');
-    });
-
-    it('should update input value after selection', async () => {
-      const { rerender } = render(<Autocomplete {...defaultProps} />);
-
-      const input = screen.getByPlaceholderText('Search...');
-      fireEvent.focus(input);
-
-      await waitFor(() => {
-        const option = screen.getByText('Option 2');
-        fireEvent.click(option);
-      });
-
-      rerender(<Autocomplete {...defaultProps} value='2' />);
-
-      expect(screen.getByDisplayValue('Option 2')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Option 3')).toBeInTheDocument();
+    expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
   });
 
-  describe('Keyboard navigation', () => {
-    it('should navigate with arrow keys', async () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
+  it('clears selection when clear button clicked', () => {
+    const onChange = vi.fn();
+    render(<Autocomplete {...defaultProps} value='1' onChange={onChange} />);
 
-      fireEvent.focus(input);
-
-      // Arrow down to first option
-      fireEvent.keyDown(input, { key: 'ArrowDown' });
-
-      // Options should be visible
-      await waitFor(() => {
-        expect(screen.getByText('Option 1')).toBeInTheDocument();
-      });
-    });
-
-    it('should select option with Enter key', async () => {
-      const onChange = vi.fn();
-      render(<Autocomplete {...defaultProps} onChange={onChange} />);
-
-      const input = screen.getByPlaceholderText('Search...');
-      fireEvent.focus(input);
-      fireEvent.keyDown(input, { key: 'ArrowDown' });
-      fireEvent.keyDown(input, { key: 'Enter' });
-
-      await waitFor(() => {
-        expect(onChange).toHaveBeenCalled();
-      });
-    });
-
-    it('should close dropdown with Escape key', async () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      fireEvent.focus(input);
-
-      await waitFor(() => {
-        expect(screen.getByText('Option 1')).toBeInTheDocument();
-      });
-
-      fireEvent.keyDown(input, { key: 'Escape' });
-
-      await waitFor(() => {
-        expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
-      });
-    });
+    const clearBtn = screen.getByLabelText('Effacer la sélection');
+    fireEvent.click(clearBtn);
+    expect(onChange).toHaveBeenCalledWith('');
   });
 
-  describe('States', () => {
-    it('should be disabled when disabled prop is true', () => {
-      render(<Autocomplete {...defaultProps} disabled />);
-      const input = screen.getByPlaceholderText('Search...');
-      expect(input).toBeDisabled();
-    });
+  it('closes dropdown on escape', async () => {
+    render(<Autocomplete {...defaultProps} />);
+    const input = screen.getByRole('textbox');
+    fireEvent.focus(input);
+    expect(await screen.findByText('Option 1')).toBeInTheDocument();
 
-    it('should handle required prop', () => {
-      render(<Autocomplete {...defaultProps} required />);
-      const input = screen.getByPlaceholderText('Search...');
-      expect(input).toHaveAttribute('required');
-    });
-
-    it('should handle disabled state', () => {
-      render(<Autocomplete {...defaultProps} disabled />);
-      const input = screen.getByPlaceholderText('Search...');
-      expect(input).toBeDisabled();
-    });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(screen.queryByText('Option 1')).not.toBeInTheDocument();
   });
 
-  describe('Clear functionality', () => {
-    it('should clear selection when clear button is clicked', async () => {
-      const onChange = vi.fn();
-      render(<Autocomplete {...defaultProps} value='1' onChange={onChange} />);
+  it('shows empty state messages', async () => {
+    const user = userEvent.setup();
+    render(<Autocomplete {...defaultProps} options={[]} />);
+    const input = screen.getByRole('textbox');
+    fireEvent.focus(input);
+    expect(await screen.findByText('Tapez pour rechercher...')).toBeInTheDocument();
 
-      const clearButton = screen.getByLabelText('Effacer la sélection');
-      fireEvent.click(clearButton);
-
-      expect(onChange).toHaveBeenCalledWith('');
-    });
-
-    it('should not show clear button when no value', () => {
-      render(<Autocomplete {...defaultProps} value='' />);
-      expect(screen.queryByLabelText('Effacer la sélection')).not.toBeInTheDocument();
-    });
+    render(<Autocomplete {...defaultProps} />);
+    const populatedInput = screen.getByRole('textbox');
+    fireEvent.focus(populatedInput);
+    await user.type(populatedInput, 'zzz');
+    expect(await screen.findByText('Aucun résultat trouvé')).toBeInTheDocument();
   });
 
-  describe('Empty states', () => {
-    it('should show "no options" message when options array is empty', () => {
-      render(<Autocomplete {...defaultProps} options={[]} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      fireEvent.focus(input);
-      // Should show no options message
-    });
-
-    it('should show "no results" when filter returns empty', async () => {
-      const user = userEvent.setup();
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      await user.type(input, 'nonexistent');
-
-      // Should show no results message
-    });
+  it('respects disabled prop', () => {
+    render(<Autocomplete {...defaultProps} disabled />);
+    expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
-  describe('Accessibility', () => {
-    it('should have proper ARIA attributes', () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
+  it('handles keyboard selection', () => {
+    const onChange = vi.fn();
+    render(<Autocomplete {...defaultProps} onChange={onChange} />);
 
-      // Should have aria-autocomplete
-      expect(input).toHaveAttribute('role', 'combobox');
-    });
+    const input = screen.getByRole('textbox');
+    fireEvent.focus(input);
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+    fireEvent.keyDown(input, { key: 'Enter' });
 
-    it('should announce changes to screen readers', async () => {
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      fireEvent.focus(input);
-
-      // ARIA live region should announce results
-    });
-  });
-
-  describe('Edge cases', () => {
-    it('should handle special characters in search', async () => {
-      const user = userEvent.setup();
-      render(<Autocomplete {...defaultProps} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      await user.type(input, '!@#$%');
-
-      // Should not crash
-      expect(input).toBeInTheDocument();
-    });
-
-    it('should handle very long option labels', () => {
-      const longOptions = [{ value: '1', label: 'x'.repeat(1000) }];
-
-      render(<Autocomplete {...defaultProps} options={longOptions} />);
-      const input = screen.getByPlaceholderText('Search...');
-
-      fireEvent.focus(input);
-      // Should handle long text gracefully
-    });
+    expect(onChange).toHaveBeenCalledWith('1');
   });
 });

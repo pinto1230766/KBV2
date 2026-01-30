@@ -37,9 +37,11 @@ import { ImportWizardModal } from '@/components/settings/ImportWizardModal';
 import { ArchiveManagerModal } from '@/components/settings/ArchiveManagerModal';
 import { DuplicateDetectionModal } from '@/components/settings/DuplicateDetectionModal';
 import { PhoneNumberImportModal } from '@/components/settings/PhoneNumberImportModal';
+import { TemplateEditor } from '@/components/settings/TemplateEditor';
 import { cn } from '@/utils/cn';
 import { useVisitNotifications } from '@/hooks/useVisitNotifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { Share } from '@capacitor/share';
 import { fileSystemService } from '@/utils/FileSystemService';
 
 interface BackupOptions {
@@ -119,6 +121,7 @@ export const Settings: React.FC = () => {
     | 'notifications'
     | 'security'
     | 'data'
+    | 'templates'
     | 'duplicates'
     | 'about'
   >('overview');
@@ -184,6 +187,13 @@ export const Settings: React.FC = () => {
       bg: 'bg-amber-50 dark:bg-amber-900/20',
     },
     {
+      id: 'templates',
+      label: 'Modèles Messages',
+      icon: MessageSquare,
+      color: 'text-teal-600',
+      bg: 'bg-teal-50 dark:bg-teal-900/20',
+    },
+    {
       id: 'duplicates',
       label: 'Maintenance (Doublons)',
       icon: Copy,
@@ -243,20 +253,35 @@ export const Settings: React.FC = () => {
       const blob = new Blob([json], { type: 'application/json' });
       const file = new File([blob], filename, { type: 'application/json' });
       
-      // Essayer de partager via WhatsApp Web
+      // Essayer de partager via Capacitor Share (meilleur support mobile)
       try {
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          console.log('[DEBUG] Trying WhatsApp share...');
-          await navigator.share({
-            files: [file],
-            title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
-            text: `📅 Sauvegarde du ${new Date().toLocaleDateString('fr-FR')}\n\n📊 Contient:\n• ${speakers.length} orateurs\n• ${visits.length} visites\n• ${hosts.length} hôtes\n\n📱 Importez ce fichier dans KBV sur mobile/tablette`,
-          });
-          addToast('📱 Sauvegarde envoyée via WhatsApp', 'success');
-          return;
-        }
+        console.log('[DEBUG] Trying Capacitor Share...');
+        const shareResult = await Share.share({
+          title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
+          text: `📅 Sauvegarde du ${new Date().toLocaleDateString('fr-FR')}\n\n📊 Contient:\n• ${speakers.length} orateurs\n• ${visits.length} visites\n• ${hosts.length} hôtes\n\n📱 Importez ce fichier dans KBV sur mobile/tablette`,
+          url: URL.createObjectURL(blob),
+          dialogTitle: 'Partager la sauvegarde KBV'
+        });
+        console.log('[DEBUG] Capacitor Share successful:', shareResult);
+        addToast('📱 Sauvegarde partagée avec succès', 'success');
+        return;
       } catch (shareError) {
-        console.log('[DEBUG] Share failed, trying download fallback:', shareError);
+        console.log('[DEBUG] Capacitor Share failed, trying navigator.share fallback:', shareError);
+        // Fallback vers navigator.share si Capacitor échoue
+        try {
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            console.log('[DEBUG] Trying navigator.share fallback...');
+            await navigator.share({
+              files: [file],
+              title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
+              text: `📅 Sauvegarde du ${new Date().toLocaleDateString('fr-FR')}\n\n📊 Contient:\n• ${speakers.length} orateurs\n• ${visits.length} visites\n• ${hosts.length} hôtes\n\n📱 Importez ce fichier dans KBV sur mobile/tablette`,
+            });
+            addToast('📱 Sauvegarde envoyée via WhatsApp', 'success');
+            return;
+          }
+        } catch (navShareError) {
+          console.log('[DEBUG] navigator.share also failed:', navShareError);
+        }
       }
       
       // Fallback: téléchargement direct avec instructions WhatsApp
@@ -284,7 +309,7 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const handleBackupAdapter = async (_options: BackupOptions): Promise<void> => {
+  const handleBackupAdapter = async (_options: BackupOptions): Promise<{ success: boolean; path?: string }> => {
     console.log('[DEBUG] handleBackupAdapter called with options:', _options);
     try {
       console.log('[DEBUG] Calling exportData()...');
@@ -296,6 +321,7 @@ export const Settings: React.FC = () => {
       console.log('[DEBUG] Generated filename:', filename);
 
       // 1. Essayer le FileSystemService (Documents/KBV)
+      let filesystemSuccess = false;
       try {
         console.log('[DEBUG] Trying FileSystemService backup...');
         const result = await fileSystemService.saveToDocuments({
@@ -306,36 +332,29 @@ export const Settings: React.FC = () => {
         console.log('[DEBUG] FileSystemService result:', result);
 
         if (result.success) {
-          addToast(`Sauvegarde créée dans Documents/KBV`, 'success');
-          return;
+          console.log('[DEBUG] FileSystemService succeeded');
+          filesystemSuccess = true;
+        } else {
+          console.log('[DEBUG] FileSystemService returned success=false, error:', result.error);
         }
       } catch (fsError) {
-        console.log('[DEBUG] FileSystemService failed, trying next method:', fsError);
+        console.log('[DEBUG] FileSystemService threw error:', fsError);
       }
 
-      // 2. Fallback: Partage de fichier (si disponible)
-      try {
-        console.log('[DEBUG] Trying file sharing fallback...');
-        const blob = new Blob([json], { type: 'application/json' });
-        const file = new File([blob], filename, { type: 'application/json' });
-
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          console.log('[DEBUG] Sharing file...');
-          await navigator.share({
-            files: [file],
-            title: 'Sauvegarde KBV',
-            text: 'Sauvegarde des données KBV Lyon'
-          });
-          addToast('Sauvegarde partagée avec succès', 'success');
-          return;
-        }
-      } catch (shareError) {
-        console.log('[DEBUG] Share fallback failed:', shareError);
+      if (filesystemSuccess) {
+        // Sauvegarde réussie dans Documents/KBV
+        addToast(`Sauvegarde créée dans Documents/KBV/${filename}`, 'success');
+        return { success: true, path: `Documents/KBV/${filename}` };
       }
 
-      // 3. Fallback: Téléchargement direct (toujours fonctionne)
+      // FORCER LE TÉLÉCHARGEMENT POUR CONSERVER LES DONNÉES
+      console.log('[DEBUG] Forcing download fallback for data preservation...');
+
+      console.log('[DEBUG] FileSystemService failed, using download fallback...');
+
+      // PRIORITÉ AU TÉLÉCHARGEMENT POUR CONSERVER LES DONNÉES
       try {
-        console.log('[DEBUG] Using download fallback...');
+        console.log('[DEBUG] Downloading backup file...');
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -346,10 +365,31 @@ export const Settings: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        addToast('Sauvegarde téléchargée dans vos téléchargements', 'success');
-        return;
+
+        addToast('💾 Sauvegarde téléchargée ! Conservez ce fichier .json en sécurité', 'success');
+        return { success: false, path: 'downloads' };
       } catch (downloadError) {
-        console.log('[DEBUG] Download fallback failed:', downloadError);
+        console.log('[DEBUG] Download failed:', downloadError);
+      }
+
+      // 2. Fallback: Partage de fichier (si téléchargement échoue)
+      try {
+        console.log('[DEBUG] Trying file sharing fallback...');
+        const blob = new Blob([json], { type: 'application/json' });
+        const file = new File([blob], filename, { type: 'application/json' });
+
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          console.log('[DEBUG] Sharing file...');
+          await navigator.share({
+            files: [file],
+            title: 'Sauvegarde KBV - IMPORTANT',
+            text: 'Sauvegarde des données KBV Lyon - À conserver en sécurité'
+          });
+          addToast('📱 Fichier partagé - sauvegardez-le dans vos documents', 'info');
+          return { success: false, path: 'shared' };
+        }
+      } catch (shareError) {
+        console.log('[DEBUG] Share fallback failed:', shareError);
       }
 
       // 4. Sauvegarde d'urgence dans localStorage (si tout échoue)
@@ -358,8 +398,8 @@ export const Settings: React.FC = () => {
         const backupKey = `kbv-emergency-backup-${Date.now()}`;
         localStorage.setItem(backupKey, json);
         localStorage.setItem('last-emergency-backup', backupKey);
-        addToast('Sauvegarde temporaire créée (localStorage)', 'warning');
-        return;
+        addToast('⚠️ Sauvegarde temporaire créée (localStorage seulement)', 'warning');
+        return { success: false, path: 'localStorage' };
       } catch (storageError) {
         console.log('[DEBUG] Emergency storage failed:', storageError);
       }
@@ -1416,6 +1456,13 @@ export const Settings: React.FC = () => {
                   </div>
                 </CardBody>
               </Card>
+            </div>
+          )}
+
+          {/* Templates */}
+          {activeTab === 'templates' && (
+            <div className='animate-in fade-in slide-in-from-right-4 duration-300'>
+              <TemplateEditor />
             </div>
           )}
 

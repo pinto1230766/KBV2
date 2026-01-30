@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint-baseline>
+  <issue id="UnsanitizedFilenameFromContentProvider" severity="ignore" message="Using name is unsafe as it is a filename obtained directly from a ContentProvider. You should sanitize it before using it for creating a File.">
+    <location file="node_modules/@capacitor/android/capacitor/src/main/java/com/getcapacitor/FileUtils.java" line="222"/>
+  </issue>
+</lint-baseline>

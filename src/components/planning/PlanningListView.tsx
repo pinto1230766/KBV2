@@ -1,5 +1,6 @@
 import React from 'react';
 import { Visit } from '@/types';
+import { getVisitKey } from '@/utils/visitKey';
 import { getPrimaryHostName, hasHostAssigned } from '@/utils/hostUtils';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/Badge';
@@ -113,20 +114,25 @@ export const PlanningListView: React.FC<PlanningListViewProps> = ({
               <th scope='col' className='relative px-6 py-3'>
                 <span className='sr-only'>Actions</span>
               </th>
+              <th scope='col' className='relative px-6 py-3'>
+                <span>Heure</span>
+              </th>
             </tr>
           </thead>
           <tbody className='bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700'>
-            {visits.map((visit) => (
-              <tr
-                key={visit.id}
-                className='hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer'
-                onClick={() => onVisitClick?.(visit)}
-              >
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='text-sm font-medium text-gray-900 dark:text-white'>
-                    {format(new Date(visit.visitDate), 'dd/MM/yyyy')}
+            {visits.map((visit, index) => {
+              const visitKey = getVisitKey(visit, index);
+              return (
+                <tr
+                  key={visitKey}
+                  className='hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer'
+                  onClick={() => onVisitClick?.(visit)}
+                >
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm font-medium text-gray-900 dark:text-white'>
+                      {format(new Date(visit.visitDate), 'dd/MM/yyyy')}
                   </div>
-                  <div className='text-sm text-gray-500 dark:text-gray-400'>{visit.visitTime}</div>
+                  <div className='text-sm text-gray-500 dark:text-gray-400'>{new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime}</div>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <div className='flex items-center'>
@@ -227,7 +233,8 @@ export const PlanningListView: React.FC<PlanningListViewProps> = ({
                   </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

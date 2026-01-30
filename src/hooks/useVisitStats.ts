@@ -11,6 +11,7 @@ export const useVisitStats = (visits: Visit[]) => {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     // Calculs de base
+    const total = visits.length;
     const pendingTotal = visits.filter((v) => v.status === 'pending').length;
     const confirmedTotal = visits.filter((v) => v.status === 'confirmed').length;
     const completedTotal = visits.filter((v) => v.status === 'completed').length;
@@ -61,6 +62,7 @@ export const useVisitStats = (visits: Visit[]) => {
 
     return {
       // Comptes de base
+      total,
       pendingTotal,
       confirmedTotal,
       completedTotal,

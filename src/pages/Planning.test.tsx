@@ -2,15 +2,83 @@
  * Tests unitaires pour Planning.tsx
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { TestWrapper } from '@/utils/TestWrapper';
+import { MemoryRouter } from 'react-router-dom';
+import { vi } from 'vitest';
 import { Planning } from '@/pages/Planning';
+
+const mockUpdateVisit = vi.fn();
+const mockAddToast = vi.fn();
+
+const mockSpeakers = [
+  {
+    id: 'speaker-1',
+    nom: 'John Doe',
+    congregation: 'Lyon-Centre',
+    telephone: '+33612345678',
+    gender: 'male',
+    talkHistory: [],
+  },
+  {
+    id: 'speaker-2',
+    nom: 'Jane Smith',
+    congregation: 'Villeurbanne',
+    telephone: '+33687654321',
+    gender: 'female',
+    talkHistory: [],
+  },
+];
+
+const createVisit = (overrides: Partial<any>) => ({
+  id: overrides.id ?? 'speaker-1',
+  visitId: overrides.visitId ?? 'visit-1',
+  visitDate: overrides.visitDate ?? '2025-12-30',
+  visitTime: overrides.visitTime ?? '10:00',
+  status: overrides.status ?? 'pending',
+  talkNoOrType: overrides.talkNoOrType ?? 'Discours 1',
+  locationType: overrides.locationType ?? 'physical',
+  host: overrides.host ?? 'Host 1',
+  accommodation: overrides.accommodation ?? 'Oui',
+  meals: overrides.meals ?? 'Déjeuner',
+  congregation: overrides.congregation ?? 'Lyon-Centre',
+  communicationStatus: overrides.communicationStatus ?? {},
+  notes: overrides.notes ?? '',
+});
+
+const mockVisits = [
+  createVisit({ id: 'speaker-1', visitId: 'visit-1', visitDate: '2025-12-30', visitTime: '10:00', status: 'confirmed' }),
+  createVisit({ id: 'speaker-2', visitId: 'visit-2', visitDate: '2025-12-31', visitTime: '14:00', status: 'pending', congregation: 'Villeurbanne' }),
+];
+
+vi.mock('@/contexts/DataContext', () => ({
+  useData: () => ({
+    visits: mockVisits,
+    archivedVisits: [],
+    speakers: mockSpeakers,
+    hosts: [],
+    updateVisit: mockUpdateVisit,
+    congregationProfile: { name: 'Lyon-Centre', hospitalityOverseer: 'Paul' },
+  }),
+}));
+
+vi.mock('@/contexts/ToastContext', () => ({
+  useToast: () => ({ addToast: mockAddToast }),
+}));
+
+vi.mock('@/contexts/PlatformContext', () => ({
+  usePlatformContext: () => ({ deviceType: 'desktop' }),
+}));
+
+vi.mock('@/utils/automationScheduler', () => ({
+  scheduleVisitAutomations: vi.fn(),
+  automationScheduler: { getActiveCount: () => 0 },
+}));
 
 describe('Planning', () => {
   const renderPlanning = () => {
     return render(
-      <TestWrapper>
+      <MemoryRouter>
         <Planning />
-      </TestWrapper>
+      </MemoryRouter>
     );
   };
 

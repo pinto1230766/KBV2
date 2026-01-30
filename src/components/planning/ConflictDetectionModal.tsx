@@ -237,7 +237,7 @@ export const ConflictDetectionModal: React.FC<ConflictDetectionModalProps> = ({
                 month: 'long',
                 year: 'numeric',
               })}{' '}
-              à {visit.visitTime}
+              à {new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime}
             </p>
           </div>
         </div>

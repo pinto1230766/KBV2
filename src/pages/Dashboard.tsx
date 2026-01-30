@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Users,
   Calendar,
@@ -8,7 +8,6 @@ import {
   Zap,
   CalendarPlus,
   MessageSquare,
-  FileText,
   ArrowUpRight,
   ShieldCheck,
   Search,
@@ -26,7 +25,6 @@ import {
   Area,
 } from 'recharts';
 import { useData } from '@/contexts/DataContext';
-import { useToast } from '@/contexts/ToastContext';
 
 import { useNavigate } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
@@ -36,28 +34,23 @@ import { cn } from '@/utils/cn';
 import { DashboardVisitItem } from '@/components/dashboard/DashboardVisitItem';
 
 import { Visit } from '@/types';
-import { getActiveHostsCount, getPrimaryHostName } from '@/utils/hostUtils';
-import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
 import { GlobalSearch } from '@/components/ui/GlobalSearch';
-import { generateReport } from '@/utils/reportGenerator';
-import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
-import { VisitActionModal } from '@/components/planning/VisitActionModal';
+import { VisitEditor } from '@/components/visits/VisitEditor/VisitEditor';
+import { Modal } from '@/components/ui/Modal';
 import { MessageGeneratorModal } from '@/components/messages/MessageGeneratorModal';
 import { ScheduleVisitModal } from '@/components/planning/ScheduleVisitModal';
+import { useAppStats } from '@/hooks/useVisitStats';
 
 
 export const Dashboard: React.FC = () => {
-  const { visits, speakers, hosts, congregationProfile } = useData();
+  const { visits, speakers, hosts } = useData();
 
   const navigate = useNavigate();
-  const { addToast } = useToast();
 
-  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
-  const [isVisitActionModalOpen, setIsVisitActionModalOpen] = useState(false);
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
   const [messageModalParams, setMessageModalParams] = useState<{
     isOpen: boolean;
     type: any;
@@ -74,57 +67,13 @@ export const Dashboard: React.FC = () => {
     host: null,
   });
 
-  // Memoized Data
-  const stats = useMemo(() => {
-    const pendingTotal = visits.filter((v) => v.status === 'pending').length;
-    return {
-      speakers: speakers.length,
-      hosts: getActiveHostsCount(visits),
-      visitsThisMonth: visits.filter((v) => {
-        const d = new Date(v.visitDate);
-        const now = new Date();
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-      }).length,
-      pending: pendingTotal,
-    };
-  }, [visits, speakers, hosts]);
-
-  const upcomingVisits = useMemo(() => {
-    return visits
-      .filter(
-        (v) =>
-          new Date(v.visitDate).getTime() >= new Date().setHours(0, 0, 0, 0) &&
-          v.status !== 'cancelled'
-      )
-      .sort((a, b) => new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime())
-      .slice(0, 5);
-  }, [visits]);
-
-  const chartData = useMemo(() => {
-    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'];
-    return months.map((m, i) => ({
-      name: m,
-      value: i % 2 === 0 ? 12 + i : 15 - i, // Placeholder realistic-looking data
-    }));
-  }, []);
+  const stats = useAppStats(visits, speakers, hosts);
+  const upcomingVisits = stats.visits.upcomingVisits;
+  const chartData = stats.visits.monthlyData;
 
   const handleVisitClick = (visit: Visit) => {
     setSelectedVisit(visit);
-    setIsVisitActionModalOpen(true);
-  };
-
-  const handleOpenMessageModal = (params: { type: any; isGroup?: boolean; channel?: any; visit: Visit }) => {
-    const speaker = speakers.find((s) => s.id === params.visit.id) || null;
-    const host = hosts.find((h) => h.nom === getPrimaryHostName(params.visit));
-    setMessageModalParams({
-      isOpen: true,
-      type: params.type,
-      isGroup: params.isGroup,
-      channel: params.channel,
-      speaker,
-      visit: params.visit,
-      host,
-    });
+    setIsVisitModalOpen(true);
   };
 
   return (
@@ -137,12 +86,12 @@ export const Dashboard: React.FC = () => {
              Bonjour Francis
            </h1>
            <p className='text-xs text-gray-500 dark:text-gray-400 mt-1' >
-             {stats.pending > 0 ? (
-               <span className='text-orange-600 font-bold'>Running • {stats.pending} validations en attente</span>
-             ) : (
-               <span className='text-green-600 font-bold'>System Normal • Tout est à jour</span>
-             )}
-           </p>
+            {stats.visits.pendingTotal > 0 ? (
+              <span className='text-orange-600 font-bold'>Running • {stats.visits.pendingTotal} validations en attente</span>
+            ) : (
+              <span className='text-green-600 font-bold'>System Normal • Tout est à jour</span>
+            )}
+          </p>
         </div>
 
         <div className='flex gap-2'>
@@ -153,13 +102,6 @@ export const Dashboard: React.FC = () => {
             >
               Nouvelle Visite
             </Button>
-            <Button
-              className='h-9 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 font-bold text-xs'
-              leftIcon={<Zap className='w-3 h-3 text-amber-500' />}
-              onClick={() => setIsQuickActionsOpen(true)}
-            >
-              Actions
-            </Button>
          </div>
       </div>
 
@@ -169,7 +111,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Visites du mois',
             desc: 'Toutes les visites programmées en cours',
-            value: stats.visitsThisMonth,
+            value: stats.visits.thisMonthCount,
             icon: Calendar,
             color: 'text-blue-500',
             bg: 'bg-blue-50 dark:bg-blue-900/20',
@@ -177,7 +119,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Orateurs actifs',
             desc: 'Orateurs enregistrés dans la base de données',
-            value: stats.speakers,
+            value: stats.speakers.total,
             icon: Users,
             color: 'text-indigo-500',
             bg: 'bg-indigo-50 dark:bg-indigo-900/20',
@@ -185,7 +127,7 @@ export const Dashboard: React.FC = () => {
           {
             label: 'Validations en attente',
             desc: 'Visites nécessitant une confirmation',
-            value: stats.pending,
+            value: stats.visits.pendingTotal,
             icon: AlertCircle,
             color: 'text-orange-500',
             bg: 'bg-orange-50 dark:bg-orange-900/20',
@@ -193,7 +135,7 @@ export const Dashboard: React.FC = () => {
           {
             label: "Contacts d'accueil",
             desc: 'Hôtes disponibles pour recevoir les orateurs',
-            value: stats.hosts,
+            value: stats.hosts.available,
             icon: ShieldCheck,
             color: 'text-green-500',
             bg: 'bg-green-50 dark:bg-green-900/20',
@@ -373,17 +315,10 @@ export const Dashboard: React.FC = () => {
                 path: '/speakers',
                 color: 'bg-green-600',
               },
-              {
-                title: 'Générateur de rapports',
-                desc: 'Créer des extractions PDF, Excel et analyses',
-                icon: FileText,
-                action: () => setIsReportModalOpen(true),
-                color: 'bg-orange-600',
-              },
             ].map((item, i) => (
               <button
                 key={i}
-                onClick={item.action || (() => navigate(item.path!))}
+                onClick={() => navigate(item.path!)}
                 className='group p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl hover:translate-y-[-6px] transition-all duration-300 text-left border border-transparent hover:border-primary-500/20'
               >
                 <div
@@ -476,70 +411,19 @@ export const Dashboard: React.FC = () => {
 
       {/* Modals */}
       {selectedVisit && (
-        <VisitActionModal
-          isOpen={isVisitActionModalOpen}
-          onClose={() => setIsVisitActionModalOpen(false)}
-          visit={selectedVisit}
-          action='edit'
-          onOpenMessageModal={handleOpenMessageModal}
-        />
+        <Modal
+          isOpen={isVisitModalOpen}
+          onClose={() => setIsVisitModalOpen(false)}
+          title=''
+          size='xl'
+          padding='none'
+          className='max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw]'
+        >
+          <div className='h-[80vh]'>
+            <VisitEditor visit={selectedVisit} onClose={() => setIsVisitModalOpen(false)} />
+          </div>
+        </Modal>
       )}
-
-      <QuickActionsModal
-        isOpen={isQuickActionsOpen}
-        onClose={() => setIsQuickActionsOpen(false)}
-        onAction={(action) => {
-          switch (action) {
-            case 'schedule-visit':
-              setIsScheduleModalOpen(true);
-              break;
-            case 'add-speaker':
-              navigate('/speakers', { state: { activeTab: 'speakers', openForm: true } });
-              break;
-            case 'add-host':
-              navigate('/speakers', { state: { activeTab: 'hosts', openForm: true } });
-              break;
-            case 'send-message':
-              navigate('/messages');
-              break;
-            case 'generate-report':
-              setIsReportModalOpen(true);
-              break;
-            case 'check-conflicts':
-              navigate('/planning', { state: { openConflicts: true } });
-              break;
-            case 'backup-data':
-              navigate('/settings', { state: { activeTab: 'data' } });
-              break;
-            case 'import-data':
-              navigate('/settings', { state: { activeTab: 'data' } });
-              break;
-            case 'sync-sheets':
-              navigate('/settings', { state: { activeTab: 'data' } });
-              break;
-            case 'export-all-data':
-              navigate('/settings', { state: { activeTab: 'data' } });
-              break;
-            case 'search-entities':
-              setIsGlobalSearchOpen(true);
-              break;
-          }
-        }}
-      />
-
-      <ReportGeneratorModal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        onGenerate={async (config) => {
-          try {
-            await generateReport(config, visits, speakers, hosts, congregationProfile);
-            addToast(`Rapport ${config.format.toUpperCase()} généré avec succès`, 'success');
-            setIsReportModalOpen(false);
-          } catch (error) {
-            addToast('Erreur lors de la génération du rapport', 'error');
-          }
-        }}
-      />
 
       <GlobalSearch isOpen={isGlobalSearchOpen} onClose={() => setIsGlobalSearchOpen(false)} />
 

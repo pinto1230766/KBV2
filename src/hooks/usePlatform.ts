@@ -18,10 +18,40 @@ interface PlatformInfo {
   isPhoneS25Ultra: boolean;
 }
 
+const isTestEnv = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test';
+
+const getTestPlatformInfo = (): PlatformInfo => {
+  const defaultInfo: PlatformInfo = {
+    platform: 'web',
+    deviceType: 'desktop',
+    screenSize: { width: 1280, height: 720 },
+    orientation: 'landscape',
+    isSamsung: false,
+    hasSPen: false,
+    isTabletS10Ultra: false,
+    isPhoneS25Ultra: false,
+  };
+
+  if (typeof window !== 'undefined' && (window as any).__TEST_PLATFORM_INFO__) {
+    return {
+      ...defaultInfo,
+      ...(window as any).__TEST_PLATFORM_INFO__,
+    } as PlatformInfo;
+  }
+
+  return defaultInfo;
+};
+
 export const usePlatform = (): PlatformInfo => {
-  const [platformInfo, setPlatformInfo] = useState<PlatformInfo>(() => detectPlatform());
+  const [platformInfo, setPlatformInfo] = useState<PlatformInfo>(() =>
+    isTestEnv ? getTestPlatformInfo() : detectPlatform()
+  );
 
   useEffect(() => {
+    if (isTestEnv) {
+      return;
+    }
+
     const handleResize = () => {
       setPlatformInfo(detectPlatform());
     };

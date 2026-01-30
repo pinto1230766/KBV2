@@ -47,6 +47,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
     // 1. Détection de doublons d'orateurs
     const speakerGroups = new Map<string, Speaker[]>();
     speakers.forEach((speaker) => {
+      if (!speaker.nom) return;
       const normalizedName = speaker.nom.toLowerCase().trim().replace(/\s+/g, ' ');
       const key = normalizedName;
 
@@ -85,6 +86,7 @@ export const DuplicateDetectionModal: React.FC<DuplicateDetectionModalProps> = (
     // 2. Détection de doublons d'hôtes
     const hostGroups = new Map<string, Host[]>();
     hosts.forEach((host) => {
+      if (!host.nom) return;
       const normalizedName = host.nom.toLowerCase().trim().replace(/\s+/g, ' ');
       const key = normalizedName;
 

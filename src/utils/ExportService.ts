@@ -1,7 +1,7 @@
 import { Visit as _Visit, Speaker as _Speaker, Host as _Host, AppData } from '@/types';
 
 export type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
-export type ExportType = 'visits' | 'speakers' | 'hosts' | 'all' | 'archives' | 'report';
+export type ExportType = 'visits' | 'speakers' | 'hosts' | 'all' | 'archives' | 'report' | 'communications';
 
 export interface ExportOptions {
   format: ExportFormat;
@@ -68,6 +68,9 @@ class ExportService {
           break;
         case 'report':
           ({ data, headers } = this.prepareReportData(options));
+          break;
+        case 'communications':
+          ({ data, headers } = this.prepareCommunicationsData(options));
           break;
         default:
           return {
@@ -283,6 +286,64 @@ class ExportService {
     ];
 
     return { data, headers };
+  }
+
+  private prepareCommunicationsData(_options: ExportOptions): { data: any[]; headers: string[] } {
+    const visits = this.data!.visits;
+    const speakers = this.data!.speakers;
+
+    const headers = [
+      'ID Visite',
+      'Orateur',
+      'Congrégation',
+      'Date Visite',
+      'Type Message',
+      'Destinataire',
+      'Date Envoi',
+      'Canal',
+      'Statut',
+    ];
+
+    const data: any[] = [];
+
+    visits.forEach((visit) => {
+      const speaker = speakers.find(s => s.id === visit.id);
+      if (!visit.communicationStatus) return;
+
+      Object.entries(visit.communicationStatus).forEach(([messageType, roles]) => {
+        if (typeof roles === 'object' && roles !== null) {
+          Object.entries(roles as Record<string, string>).forEach(([role, dateStr]) => {
+            data.push([
+              visit.visitId,
+              speaker?.nom || visit.nom,
+              speaker?.congregation || visit.congregation,
+              visit.visitDate,
+              messageType,
+              role,
+              dateStr,
+              this.getChannelForMessageType(messageType),
+              'Envoyé',
+            ]);
+          });
+        }
+      });
+    });
+
+    return { data, headers };
+  }
+
+  private getChannelForMessageType(messageType: string): string {
+    const channelMap: Record<string, string> = {
+      confirmation: 'WhatsApp',
+      preparation: 'WhatsApp',
+      'reminder-7': 'WhatsApp',
+      'reminder-2': 'WhatsApp',
+      thanks: 'WhatsApp',
+      host_thanks: 'WhatsApp',
+      host_request: 'Groupe WhatsApp',
+      visit_recap: 'WhatsApp',
+    };
+    return channelMap[messageType] || 'Inconnu';
   }
 
   private async generateFile(

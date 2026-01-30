@@ -23,9 +23,6 @@ const Dashboard = React.lazy(() =>
 const Planning = React.lazy(() =>
   import('@/pages/Planning').then((module) => ({ default: module.Planning }))
 );
-const Messages = React.lazy(() =>
-  import('@/pages/Messages').then((module) => ({ default: module.Messages }))
-);
 const Speakers = React.lazy(() =>
   import('@/pages/Speakers').then((module) => ({ default: module.Speakers }))
 );
@@ -142,14 +139,6 @@ function AppContent() {
                       element={
                         <ErrorBoundary>
                           <Planning />
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path='messages'
-                      element={
-                        <ErrorBoundary>
-                          <Messages />
                         </ErrorBoundary>
                       }
                     />

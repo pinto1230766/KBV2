@@ -293,9 +293,9 @@ describe('ConfirmContext', () => {
       const button = screen.getByText('Empty');
       fireEvent.click(button);
 
-      await waitFor(() => {
-        expect(screen.getByText('Empty')).toBeInTheDocument();
-      });
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toBeInTheDocument();
+      fireEvent.click(screen.getByText('Confirmer'));
     });
 
     it('should handle very long message', async () => {
@@ -323,9 +323,9 @@ describe('ConfirmContext', () => {
       const button = screen.getByText('Long');
       fireEvent.click(button);
 
-      await waitFor(() => {
-        expect(screen.getByText('Long')).toBeInTheDocument();
-      });
+      const dialog = await screen.findByRole('dialog');
+      expect(dialog).toBeInTheDocument();
+      fireEvent.click(screen.getByText('Confirmer'));
     });
   });
 });

@@ -20,6 +20,7 @@ interface MessageGeneratorModalProps {
   isGroupMessage?: boolean;
   initialChannel?: CommunicationChannel;
   initialType?: MessageType;
+  simplified?: boolean; // Mode simplifié pour les actions rapides
 }
 
 export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
@@ -31,6 +32,7 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
   isGroupMessage = false,
   initialChannel = 'whatsapp',
   initialType = 'reminder-7',
+  simplified = false,
 }) => {
   const { settings } = useSettings();
   const { hosts: allHosts, congregationProfile, logCommunication } = useData();
@@ -476,133 +478,121 @@ export const MessageGeneratorModal: React.FC<MessageGeneratorModalProps> = ({
       }
     >
       <div className='space-y-4'>
-        {/* Toolbar */}
-        <div className='flex flex-wrap gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700'>
-          <div className='w-full sm:w-auto min-w-[150px]'>
-            <Select
-              label={t('Type')}
-              options={
-                isHostMessage
-                  ? [
-                      { value: 'host_request_message', label: t("Demande d'accueil") },
-                      { value: 'confirmation', label: t('Confirmation') },
-                      { value: 'preparation', label: t('Préparation') },
-                       {value: 'reminder-7', label: t('Rappel (J-7)')},
-                       {value: 'reminder-2', label: t('Rappel (J-2)')},
-                       {value: 'host_thanks', label: t('Remerciements (pour hôte)')},
-                       {value: 'visit_recap', label: t('Récapitulatif Visite')},
-                       {value: 'free_message', label: t('Message libre')},
-                     ]
-                  : [
-                      { value: 'confirmation', label: t('Confirmation') },
-                      { value: 'reminder-7', label: t('Rappel (J-7)') },
-                      { value: 'reminder-2', label: t('Rappel (J-2)') },
-                      { value: 'thanks', label: t('Remerciements (pour orateur)') },
-                      { value: 'preparation', label: t('Préparation') },
-                    ]
-              }
-              value={type}
-              onChange={(e) =>
-                setType(e.target.value as MessageType | 'host_request_message' | 'free_message')
-              }
-            />
-          </div>
-
-          <div className='w-full sm:w-auto min-w-[150px]'>
-            <Select
-              label={t('Langue')}
-              options={[
-                { value: 'fr', label: t('Français') },
-                { value: 'cv', label: t('Capverdien') },
-                { value: 'pt', label: t('Português') },
-              ]}
-              value={language}
-              onChange={(e) => setLanguage(e.target.value as 'fr' | 'cv' | 'pt')}
-            />
-          </div>
-
-          <div className='w-full sm:w-auto min-w-[150px]'>
-            <Select
-              label={t('Canal')}
-              options={[
-                { value: 'whatsapp', label: t('WhatsApp (Individuel)') },
-                { value: 'whatsapp_group', label: t('WhatsApp (Groupe)') },
-                { value: 'sms', label: t('SMS') },
-                { value: 'email', label: t('Email') },
-              ]}
-              value={channel}
-              onChange={(e) => setChannel(e.target.value as CommunicationChannel)}
-            />
-          </div>
-        </div>
-
-        {/* Template Actions */}
-        <div className='flex gap-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => setShowTemplates(!showTemplates)}
-            leftIcon={<BookOpen className='w-4 h-4' />}
-          >
-            {t('Modèles')} ({messageTemplates.length})
-          </Button>
-
-          {showTemplates && (
-            <div className='flex gap-2'>
-              <input
-                type='text'
-                placeholder={t('Nom du modèle...')}
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                className='px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800'
+        {/* Toolbar - Hidden in simplified mode */}
+        {!simplified && (
+          <div className='flex flex-wrap gap-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700'>
+            <div className='w-full sm:w-auto min-w-[150px]'>
+              <Select
+                label={t('Langue')}
+                options={[
+                  { value: 'fr', label: t('Français') },
+                  { value: 'cv', label: t('Capverdien') },
+                  { value: 'pt', label: t('Português') },
+                ]}
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'fr' | 'cv' | 'pt')}
               />
+            </div>
+
+            <div className='w-full sm:w-auto min-w-[150px]'>
+              <Select
+                label={t('Canal')}
+                options={[
+                  { value: 'whatsapp', label: t('WhatsApp (Individuel)') },
+                  { value: 'whatsapp_group', label: t('WhatsApp (Groupe)') },
+                  { value: 'sms', label: t('SMS') },
+                  { value: 'email', label: t('Email') },
+                ]}
+                value={channel}
+                onChange={(e) => setChannel(e.target.value as CommunicationChannel)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Simplified mode info */}
+        {simplified && (
+          <div className='p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg'>
+            <div className='flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300'>
+              <Send className='w-4 h-4' />
+              <span className='font-medium'>Message rapide</span>
+              <span className='text-blue-600 dark:text-blue-400'>•</span>
+              <span>{type} • {language} • {channel === 'whatsapp' ? 'WhatsApp' : channel}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Template Actions - Hidden in simplified mode */}
+        {!simplified && (
+          <>
+            <div className='flex gap-2'>
               <Button
                 variant='outline'
                 size='sm'
-                onClick={handleSaveTemplate}
-                isLoading={isSavingTemplate}
-                leftIcon={<Save className='w-4 h-4' />}
+                onClick={() => setShowTemplates(!showTemplates)}
+                leftIcon={<BookOpen className='w-4 h-4' />}
               >
-                {t('Sauvegarder')}
+                {t('Modèles')} ({messageTemplates.length})
               </Button>
-            </div>
-          )}
-        </div>
 
-        {/* Templates List */}
-        {showTemplates && messageTemplates.length > 0 && (
-          <div className='border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50 max-h-48 overflow-y-auto'>
-            <h4 className='font-semibold text-sm mb-3'>{t('Modèles sauvegardés:')}</h4>
-            <div className='space-y-2'>
-              {messageTemplates.map((template) => (
-                <div
-                  key={template.id}
-                  className='flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border'
-                >
-                  <div className='flex-1'>
-                    <div className='font-medium text-sm'>{template.name}</div>
-                    <div className='text-xs text-gray-500'>
-                      {template.type} • {template.language} • {template.channel} •{' '}
-                      {new Date(template.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className='flex gap-2'>
-                    <Button variant='ghost' size='sm' onClick={() => handleLoadTemplate(template)}>
-                      {t('Charger')}
-                    </Button>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleDeleteTemplate(template.id)}
-                      className='text-red-600 hover:text-red-700'
-                    >
-                      {t('Suppr')}
-                    </Button>
-                  </div>
+              {showTemplates && (
+                <div className='flex gap-2'>
+                  <input
+                    type='text'
+                    placeholder={t('Nom du modèle...')}
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    className='px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800'
+                  />
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={handleSaveTemplate}
+                    isLoading={isSavingTemplate}
+                    leftIcon={<Save className='w-4 h-4' />}
+                  >
+                    {t('Sauvegarder')}
+                  </Button>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+
+            {/* Templates List */}
+            {showTemplates && messageTemplates.length > 0 && (
+              <div className='border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-900/50 max-h-48 overflow-y-auto'>
+                <h4 className='font-semibold text-sm mb-3'>{t('Modèles sauvegardés:')}</h4>
+                <div className='space-y-2'>
+                  {messageTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      className='flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border'
+                    >
+                      <div className='flex-1'>
+                        <div className='font-medium text-sm'>{template.name}</div>
+                        <div className='text-xs text-gray-500'>
+                          {template.type} • {template.language} • {template.channel} •{' '}
+                          {new Date(template.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className='flex gap-2'>
+                        <Button variant='ghost' size='sm' onClick={() => handleLoadTemplate(template)}>
+                          {t('Charger')}
+                        </Button>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => handleDeleteTemplate(template.id)}
+                          className='text-red-600 hover:text-red-700'
+                        >
+                          {t('Suppr')}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Message Area */}

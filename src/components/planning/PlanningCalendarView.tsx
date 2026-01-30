@@ -1,18 +1,7 @@
 import React, { useState } from 'react';
 import { Visit } from '@/types';
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  isSameMonth,
-  isSameDay,
-  addMonths,
-  subMonths,
-  isToday,
-} from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday } from 'date-fns';
+import { getVisitKey } from '@/utils/visitKey';
 import { fr } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -90,7 +79,7 @@ export const PlanningCalendarView: React.FC<PlanningCalendarViewProps> = ({
       </div>
 
       <div className='grid grid-cols-7 auto-rows-fr bg-gray-200 dark:bg-gray-700 gap-px'>
-        {calendarDays.map((day) => {
+        {calendarDays.map((day: Date) => {
           const dayVisits = getVisitsForDay(day);
           const isCurrentMonth = isSameMonth(day, monthStart);
           const isCurrentDay = isToday(day);
@@ -125,24 +114,27 @@ export const PlanningCalendarView: React.FC<PlanningCalendarViewProps> = ({
               </div>
 
               <div className='space-y-1 mt-1'>
-                {dayVisits.map((visit) => (
-                  <button
-                    key={visit.id}
-                    onClick={() => onVisitClick?.(visit)}
-                    className={`
-                      w-full text-left px-2 py-1 rounded text-xs font-medium truncate transition-colors
-                      ${
-                        visit.status === 'confirmed'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50'
-                          : visit.status === 'pending'
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-900/50'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                      }
-                    `}
-                  >
-                    {visit.visitTime} - {visit.nom}
-                  </button>
-                ))}
+                {dayVisits.map((visit, index) => {
+                  const visitKey = getVisitKey(visit, index);
+                  return (
+                    <button
+                      key={visitKey}
+                      onClick={() => onVisitClick?.(visit)}
+                      className={`
+                        w-full text-left px-2 py-1 rounded text-xs font-medium truncate transition-colors
+                        ${
+                          visit.status === 'confirmed'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/50'
+                            : visit.status === 'pending'
+                              ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-900/50'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }
+                      `}
+                    >
+                      {new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime} - {visit.nom}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, MessageSquare, Users, Settings } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Settings } from 'lucide-react';
 
 interface TabItem {
   id: string;
@@ -21,12 +21,6 @@ const tabs: TabItem[] = [
     label: 'Planning',
     icon: <Calendar className='w-6 h-6' />,
     path: '/planning',
-  },
-  {
-    id: 'messages',
-    label: 'Messages',
-    icon: <MessageSquare className='w-6 h-6' />,
-    path: '/messages',
   },
   {
     id: 'speakers',

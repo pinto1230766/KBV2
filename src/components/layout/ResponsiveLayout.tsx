@@ -3,32 +3,23 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Calendar,
-  MessageSquare,
   Users,
   Settings,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
-  Zap,
-  FileText,
 } from 'lucide-react';
 import { IOSTabBar } from '@/components/navigation/IOSTabBar';
 import { SPenCursor } from '@/components/spen/SPenCursor';
 import { usePlatformContext } from '@/contexts/PlatformContext';
 import { cn } from '@/utils/cn';
-import { QuickActionsModal } from '@/components/ui/QuickActionsModal';
-import { ReportGeneratorModal } from '@/components/reports/ReportGeneratorModal';
-import { useToast } from '@/contexts/ToastContext';
-import { useData } from '@/contexts/DataContext';
 import { useSettings } from '@/contexts/SettingsContext';
-import { generateReport } from '@/utils/reportGenerator';
 
 // Navigation items - centralisé
 const NAV_ITEMS = [
   { path: '/', label: 'Accueil', icon: LayoutDashboard },
   { path: '/planning', label: 'Planning', icon: Calendar },
-  { path: '/messages', label: 'Messages', icon: MessageSquare },
   { path: '/speakers', label: 'Orateurs', icon: Users },
   { path: '/settings', label: 'Paramètres', icon: Settings },
 ];
@@ -42,11 +33,7 @@ export const ResponsiveLayout: React.FC = () => {
   const navigate = useNavigate();
   const { deviceType, orientation } = usePlatformContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { visits, speakers, hosts, congregationProfile } = useData();
-  const { addToast } = useToast();
   const { settings, setTheme } = useSettings();
-  const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const isTablet = deviceType === 'tablet';
   const isPhone = deviceType === 'phone';
@@ -55,17 +42,6 @@ export const ResponsiveLayout: React.FC = () => {
 
   const toggleTheme = () => setTheme(settings.theme === 'dark' ? 'light' : 'dark');
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-  // Gestion de la génération de rapports (logique unifiée)
-  const handleReportGenerate = async (config: any) => {
-    try {
-      await generateReport(config, visits, speakers, hosts, congregationProfile);
-      addToast('Rapport généré avec succès !', 'success');
-      setIsReportModalOpen(false);
-    } catch (error) {
-      addToast('Erreur lors de la génération du rapport', 'error');
-    }
-  };
 
   const currentIndex = NAV_ITEMS.findIndex((item) => item.path === location.pathname);
   const canGoBack = currentIndex > 0;
@@ -89,21 +65,6 @@ export const ResponsiveLayout: React.FC = () => {
           </div>
         </main>
         <IOSTabBar />
-
-        {/* Modals */}
-        <QuickActionsModal
-          isOpen={isQuickActionsOpen}
-          onClose={() => setIsQuickActionsOpen(false)}
-          onAction={(action) => {
-            setIsQuickActionsOpen(false);
-            if (action === 'generate-report') setIsReportModalOpen(true);
-          }}
-        />
-        <ReportGeneratorModal
-          isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
-          onGenerate={handleReportGenerate}
-        />
       </div>
     );
   }
@@ -191,57 +152,6 @@ export const ResponsiveLayout: React.FC = () => {
                 )}
               </button>
             ))}
-
-            <div className='my-6 border-t border-white/5 mx-2'></div>
-
-            {/* Action Buttons */}
-            <div className='space-y-2'>
-              <button
-                onClick={() => setIsQuickActionsOpen(true)}
-                className={cn(
-                  'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
-                  isSidebarOpen
-                    ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800'
-                    : 'px-0 py-3 justify-center hover:bg-slate-800'
-                )}
-                title={!isSidebarOpen ? 'Actions rapides' : undefined}
-              >
-                <div
-                  className={cn(
-                    'bg-amber-500/10 rounded-lg group-hover:scale-110 transition-transform',
-                    isSidebarOpen ? 'p-2 mr-3' : 'p-2'
-                  )}
-                >
-                  <Zap className='w-5 h-5 text-amber-500' />
-                </div>
-                {isSidebarOpen && (
-                  <span className='font-bold text-slate-300 group-hover:text-white'>Actions</span>
-                )}
-              </button>
-
-              <button
-                onClick={() => setIsReportModalOpen(true)}
-                className={cn(
-                  'w-full flex items-center rounded-xl transition-all duration-200 group border border-transparent hover:border-white/5',
-                  isSidebarOpen
-                    ? 'px-4 py-3 bg-slate-800/50 hover:bg-slate-800'
-                    : 'px-0 py-3 justify-center hover:bg-slate-800'
-                )}
-                title={!isSidebarOpen ? 'Rapports' : undefined}
-              >
-                <div
-                  className={cn(
-                    'bg-blue-500/10 rounded-lg group-hover:scale-110 transition-transform',
-                    isSidebarOpen ? 'p-2 mr-3' : 'p-2'
-                  )}
-                >
-                  <FileText className='w-5 h-5 text-blue-500' />
-                </div>
-                {isSidebarOpen && (
-                  <span className='font-bold text-slate-300 group-hover:text-white'>Rapports</span>
-                )}
-              </button>
-            </div>
           </nav>
 
           {/* Footer */}
@@ -292,7 +202,7 @@ export const ResponsiveLayout: React.FC = () => {
                   <ChevronLeft className='w-4 h-4' />
                 </button>
                 <span className='text-[10px] font-bold text-slate-600 uppercase tracking-wider'>
-                  {currentIndex + 1} / 5
+                  {currentIndex + 1} / 4
                 </span>
                 <button
                   onClick={goToNext}
@@ -323,53 +233,8 @@ export const ResponsiveLayout: React.FC = () => {
           {/* Tab bar iOS - seulement en mode portrait sur tablette */}
           {isTablet && !isLandscape && <IOSTabBar />}
         </div>
-
-        {/* Modals */}
-        <QuickActionsModal
-          isOpen={isQuickActionsOpen}
-          onClose={() => setIsQuickActionsOpen(false)}
-          onAction={(action) => {
-            setIsQuickActionsOpen(false);
-            switch (action) {
-              case 'schedule-visit':
-                navigate('/planning', { state: { openSchedule: true } });
-                break;
-              case 'add-speaker':
-                navigate('/speakers', { state: { activeTab: 'speakers', openForm: true } });
-                break;
-              case 'add-host':
-                navigate('/speakers', { state: { activeTab: 'hosts', openForm: true } });
-                break;
-              case 'send-message':
-                navigate('/messages');
-                break;
-              case 'generate-report':
-                setIsReportModalOpen(true);
-                break;
-              case 'check-conflicts':
-                navigate('/planning', { state: { openConflicts: true } });
-                break;
-              case 'backup-data':
-                navigate('/settings', { state: { activeTab: 'data' } });
-                break;
-              case 'import-data':
-                navigate('/settings', { state: { activeTab: 'data' } });
-                break;
-              case 'sync-sheets':
-                navigate('/settings', { state: { activeTab: 'data' } });
-                break;
-              case 'export-all-data':
-                navigate('/settings', { state: { activeTab: 'data' } });
-                break;
-            }
-          }}
-        />
-        <ReportGeneratorModal
-          isOpen={isReportModalOpen}
-          onClose={() => setIsReportModalOpen(false)}
-          onGenerate={handleReportGenerate}
-        />
       </div>
     </SPenCursor>
   );
-};
+}
+;

@@ -45,9 +45,14 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
     has: false,
   });
 
+  // Déterminer l'heure par défaut : 11h30 pour toutes les dates
+  const getDefaultVisitTime = (dateStr?: string) => {
+    return '11:30';
+  };
+
   const [formData, setFormData] = useState<Partial<Visit>>({
     visitDate: initialDate ? initialDate.toISOString().split('T')[0] : '',
-    visitTime: congregationProfile.meetingTime || '14:30',
+    visitTime: getDefaultVisitTime(initialDate?.toISOString().split('T')[0]),
     locationType: 'physical',
     status: 'pending',
     talkNoOrType: '',
@@ -232,7 +237,14 @@ export const ScheduleVisitModal: React.FC<ScheduleVisitModalProps> = ({
                     <input
                       type='date'
                       value={formData.visitDate}
-                      onChange={(e) => setFormData((p) => ({ ...p, visitDate: e.target.value }))}
+                      onChange={(e) => {
+                        const newDate = e.target.value;
+                        setFormData((p) => ({
+                          ...p,
+                          visitDate: newDate,
+                          visitTime: getDefaultVisitTime(newDate),
+                        }));
+                      }}
                       className={cn(
                         'w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm font-medium focus:ring-2 transition-all',
                         dateError

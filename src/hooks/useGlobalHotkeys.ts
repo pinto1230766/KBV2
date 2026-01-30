@@ -18,7 +18,6 @@ export function useGlobalHotkeys() {
   const navigate = useNavigate();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showQuickActions, setShowQuickActions] = useState(false);
 
   // Définition de tous les raccourcis
   const hotkeys: HotkeyAction[] = [
@@ -110,7 +109,6 @@ export function useGlobalHotkeys() {
         // Fermer le modal ouvert
         setShowSearchModal(false);
         setShowHelpModal(false);
-        setShowQuickActions(false);
       },
       category: 'modals',
     },
@@ -120,12 +118,6 @@ export function useGlobalHotkeys() {
       key: 'shift+/',
       description: 'Afficher raccourcis (aide)',
       action: () => setShowHelpModal(true),
-      category: 'general',
-    },
-    {
-      key: 'ctrl+shift+p',
-      description: 'Palette de commandes',
-      action: () => setShowQuickActions(true),
       category: 'general',
     },
   ];
@@ -150,7 +142,6 @@ export function useGlobalHotkeys() {
     () => {
       setShowSearchModal(false);
       setShowHelpModal(false);
-      setShowQuickActions(false);
     },
     {
       enableOnFormTags: true,
@@ -170,15 +161,11 @@ export function useGlobalHotkeys() {
 
   const closeHelpModal = useCallback(() => setShowHelpModal(false), []);
   const closeSearchModal = useCallback(() => setShowSearchModal(false), []);
-  const closeQuickActions = useCallback(() => setShowQuickActions(false), []);
-
   return {
     hotkeys,
     showHelpModal,
     showSearchModal,
-    showQuickActions,
     closeHelpModal,
     closeSearchModal,
-    closeQuickActions,
   };
 }

@@ -17,6 +17,7 @@ export type MessageType =
   | 'free_message';
 export type MessageRole = 'speaker' | 'host';
 export type VisitStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
+export type WorkflowState = 'new' | 'speaker_confirmed' | 'hosts_needed' | 'logistics_ready' | 'active' | 'completed';
 export type LocationType = 'physical' | 'zoom' | 'streaming';
 export type Gender = 'male' | 'female' | 'couple';
 export type SpecialDateType =
@@ -106,6 +107,12 @@ export interface Itinerary {
   meetingPoint?: string;
   mapLink?: string;
   notes?: string;
+  // Transport des accompagnants
+  companionsTransportMode?: 'car' | 'train' | 'plane' | 'other' | 'same_as_speaker';
+  companionsHaveCar?: boolean;
+  companionsCarDetails?: string; // Plaque, modèle, etc.
+  companionsMeetingPoint?: string;
+  companionsNotes?: string;
 }
 
 export interface Accommodation {
@@ -129,7 +136,7 @@ export interface HostAssignment {
   id: string;
   hostId: string; // ID de l'hôte
   hostName: string; // Nom de l'hôte
-  role: 'accommodation' | 'pickup' | 'meals' | 'transport' | 'other';
+  role: 'accommodation' | 'hotel' | 'pickup' | 'meals' | 'transport' | 'other';
   notes?: string;
   createdAt?: string; // ISO date
 }
@@ -150,6 +157,7 @@ export interface Visit {
   visitId: string; // ID unique de la visite
   externalId?: string; // ID stable construit depuis les colonnes du Sheet (Orador + Kongregason + N°)
   nom: string;
+  prenom?: string; // Nouveau: prénom de l'orateur
   congregation: string;
   telephone?: string;
   photoUrl?: string;
@@ -160,6 +168,7 @@ export interface Visit {
   meals: string; // Repas (legacy)
   hostAssignments?: HostAssignment[]; // Nouveaux hôtes avec rôles spécifiques
   status: VisitStatus;
+  workflowState?: WorkflowState; // Nouvel état intelligent du workflow
   locationType: LocationType;
   talkNoOrType: string | null;
   talkTheme: string | null;
@@ -173,6 +182,17 @@ export interface Visit {
   zoomLink?: string;
   streamingLink?: string;
   accompanyingPersons?: number; // Nombre de personnes accompagnant l'orateur
+  accompanyingNames?: string; // Nouveau: noms des accompagnants
+  allergyInfo?: string; // Nouveau: informations allergies
+  arrivalDate?: string; // Nouveau: date d'arrivée
+  arrivalTime?: string; // Nouveau: heure d'arrivée
+  departureDate?: string; // Nouveau: date de départ
+  departureTime?: string; // Nouveau: heure de départ
+  mealTime?: string; // Nouveau: heure du repas
+  managerName?: string; // Nouveau: nom du gestionnaire
+  managerPhone?: string; // Nouveau: téléphone du gestionnaire
+  pickupDriver?: string; // Nouveau: chauffeur ramassage
+  pickupDriverPhone?: string; // Nouveau: téléphone chauffeur
   companions?: Companion[]; // Liste détaillée des accompagnants
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date

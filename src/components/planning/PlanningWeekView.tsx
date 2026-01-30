@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Visit } from '@/types';
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
+import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
+import { getVisitKey } from '@/utils/visitKey';
 import { fr } from 'date-fns/locale';
 import { Badge } from '@/components/ui/Badge';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
@@ -137,34 +138,37 @@ export const PlanningWeekView: React.FC<PlanningWeekViewProps> = ({ visits, onVi
 
               {/* Visites du jour */}
               <div className='p-2 space-y-2'>
-                {dayVisits.map((visit) => (
-                  <div
-                    key={visit.id}
-                    onClick={() => onVisitClick?.(visit)}
-                    className={`p-2 rounded-lg border cursor-pointer hover:shadow-md transition-all ${getStatusColor(visit.status)}`}
-                  >
-                    <div className='text-xs font-medium text-gray-900 dark:text-white mb-1'>
-                      {visit.visitTime}
-                    </div>
-                    <div className='text-sm font-semibold text-gray-900 dark:text-white line-clamp-1'>
-                      {visit.nom}
-                    </div>
-                    <div className='text-xs text-gray-600 dark:text-gray-400 line-clamp-1'>
-                      {visit.congregation}
-                    </div>
-                    {visit.talkNoOrType && (
-                      <div className='text-xs text-gray-500 dark:text-gray-500 mt-1'>
-                        <div className='font-medium'>N°{visit.talkNoOrType}</div>
-                        {visit.talkTheme && <div className='line-clamp-1'>{visit.talkTheme}</div>}
+                {dayVisits.map((visit, index) => {
+                  const visitKey = getVisitKey(visit, index);
+                  return (
+                    <div
+                      key={visitKey}
+                      onClick={() => onVisitClick?.(visit)}
+                      className={`p-2 rounded-lg border cursor-pointer hover:shadow-md transition-all ${getStatusColor(visit.status)}`}
+                    >
+                      <div className='text-xs font-medium text-gray-900 dark:text-white mb-1'>
+                        {new Date(visit.visitDate) >= new Date('2026-01-19') ? '11:30' : visit.visitTime}
                       </div>
-                    )}
-                    {visit.host && (
-                      <div className='text-xs text-gray-500 dark:text-gray-500 mt-1'>
-                        🏠 {visit.host}
+                      <div className='text-sm font-semibold text-gray-900 dark:text-white line-clamp-1'>
+                        {visit.nom}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div className='text-xs text-gray-600 dark:text-gray-400 line-clamp-1'>
+                        {visit.congregation}
+                      </div>
+                      {visit.talkNoOrType && (
+                        <div className='text-xs text-gray-500 dark:text-gray-500 mt-1'>
+                          <div className='font-medium'>N°{visit.talkNoOrType}</div>
+                          {visit.talkTheme && <div className='line-clamp-1'>{visit.talkTheme}</div>}
+                        </div>
+                      )}
+                      {visit.host && (
+                        <div className='text-xs text-gray-500 dark:text-gray-500 mt-1'>
+                          🏠 {visit.host}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
                 {dayVisits.length === 0 && (
                   <div className='text-center py-8 text-gray-400 dark:text-gray-600'>

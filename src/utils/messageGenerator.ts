@@ -64,10 +64,138 @@ function replaceVariables(
 
   // Variables de l'orateur (si visite fournie)
   if (visit) {
+    // Variables existantes (compatibilité)
     message = message.replace(/{speakerName}/g, visit.nom);
     message = message.replace(/{congregation}/g, visit.congregation);
     message = message.replace(/{speakerPhone}/g, visit.telephone || '(non renseigné)');
 
+    // Nouvelles variables détaillées
+    message = message.replace(/{prenom_orateur}/g, visit.prenom || visit.nom.split(' ')[0] || visit.nom);
+    message = message.replace(/{nom_orateur}/g, visit.nom);
+    message = message.replace(/{congregation_orateur}/g, visit.congregation);
+    message = message.replace(/{tel_orateur}/g, visit.telephone || '(non renseigné)');
+
+    // Accompagnants
+    message = message.replace(/{nb_accompagnants}/g, String(visit.accompanyingPersons || 0));
+    message = message.replace(/{noms_accompagnants}/g, visit.accompanyingNames || '(non spécifié)');
+    message = message.replace(/{nb_total_personnes}/g, String((visit.accompanyingPersons || 0) + 1));
+
+    // Allergies
+    message = message.replace(/{allergies_orateur}/g, visit.allergyInfo || 'Aucune allergie connue');
+    message = message.replace(/{allergies_orateur_et_accompagnants}/g, visit.allergyInfo ? `Allergies orateur: ${visit.allergyInfo}` : 'Aucune allergie connue');
+
+    // Gestionnaire (utilisateur actuel)
+    message = message.replace(/{ton_nom}/g, visit.managerName || congregationProfile.hospitalityOverseer);
+    message = message.replace(/{mon_tel}/g, visit.managerPhone || congregationProfile.hospitalityOverseerPhone);
+
+    // Dates et horaires détaillés
+    const visitDate = new Date(visit.visitDate);
+    const joursSemaine = {
+      fr: ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+      cv: ['dumingu', 'sigunda-fera', 'tersa-fera', 'kuarta-fera', 'kinta-fera', 'seksa-fera', 'sabadu'],
+      pt: ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado']
+    };
+
+    const jourSemaine = joursSemaine[language][visitDate.getDay()] || joursSemaine.fr[visitDate.getDay()];
+    message = message.replace(/{jour_semaine}/g, jourSemaine);
+    message = message.replace(/{date_visite}/g, formatFullDate(visit.visitDate, language));
+    message = message.replace(/{heure_visite}/g, visit.visitTime);
+
+    // Dates d'arrivée et départ (valeurs par défaut si non disponibles)
+    const arrivalDate = visit.arrivalDate || visit.visitDate;
+    const arrivalTime = visit.arrivalTime || 'à préciser';
+    const departureDate = visit.departureDate || visit.visitDate;
+    const departureTime = visit.departureTime || 'à préciser';
+
+    const arrivalDateObj = new Date(arrivalDate);
+    const departureDateObj = new Date(departureDate);
+
+    const jourArrivee = joursSemaine[language][arrivalDateObj.getDay()] || joursSemaine.fr[arrivalDateObj.getDay()];
+    const jourDepart = joursSemaine[language][departureDateObj.getDay()] || joursSemaine.fr[departureDateObj.getDay()];
+
+    message = message.replace(/{jour_arrivee}/g, jourArrivee);
+    message = message.replace(/{date_arrivee}/g, formatFullDate(arrivalDate, language));
+    message = message.replace(/{heure_arrivee}/g, arrivalTime);
+    message = message.replace(/{jour_depart}/g, jourDepart);
+    message = message.replace(/{date_depart}/g, formatFullDate(departureDate, language));
+    message = message.replace(/{heure_depart}/g, departureTime);
+
+    // Heure visite moins 30 minutes (pour transport)
+    try {
+      const [hours, minutes] = visit.visitTime.split(':').map(Number);
+      const visitTimeMinus30 = new Date();
+      visitTimeMinus30.setHours(hours, minutes - 30, 0, 0);
+      const heureVisiteMoins30 = visitTimeMinus30.toTimeString().substring(0, 5);
+      message = message.replace(/{heure_visite_moins_30_min}/g, heureVisiteMoins30);
+    } catch {
+      message = message.replace(/{heure_visite_moins_30_min}/g, 'à préciser');
+    }
+
+    // Heure dîner arrivée
+    message = message.replace(/{heure_diner_arrivee}/g, visit.mealTime || '19h30');
+
+    // Thème et numéro du discours
+    message = message.replace(/{theme_discours}/g, visit.talkTheme || 'à préciser');
+    message = message.replace(/{numero_discours}/g, visit.talkNoOrType || 'à préciser');
+
+    // Transport des accompagnants (depuis logistics.itinerary)
+    if (visit.logistics?.itinerary) {
+      const itinerary = visit.logistics.itinerary;
+      
+      // Mode de transport des accompagnants
+      const transportModeLabels = {
+        fr: {
+          same_as_speaker: 'Même que l\'orateur',
+          car: 'Voiture',
+          train: 'Train',
+          plane: 'Avion',
+          other: 'Autre',
+        },
+        cv: {
+          same_as_speaker: 'Mesmu ku orador',
+          car: 'Karru',
+          train: 'Tren',
+          plane: 'Avion',
+          other: 'Outru',
+        },
+        pt: {
+          same_as_speaker: 'Mesmo que o orador',
+          car: 'Carro',
+          train: 'Comboio',
+          plane: 'Avião',
+          other: 'Outro',
+        },
+      };
+      const modeLabel = transportModeLabels[language]?.[itinerary.companionsTransportMode || 'same_as_speaker'] 
+        || transportModeLabels.fr.same_as_speaker;
+      message = message.replace(/{mode_transport_accompagnants}/g, modeLabel);
+      
+      // Véhicule des accompagnants
+      if (itinerary.companionsHaveCar) {
+        const carText = itinerary.companionsCarDetails 
+          ? `Oui (${itinerary.companionsCarDetails})`
+          : 'Oui (véhicule des accompagnants)';
+        message = message.replace(/{accompagnants_vehicule}/g, carText);
+        message = message.replace(/{accompagnants_voiture}/g, itinerary.companionsCarDetails || 'Véhicule des accompagnants');
+      } else {
+        message = message.replace(/{accompagnants_vehicule}/g, 'Non');
+        message = message.replace(/{accompagnants_voiture}/g, 'Pas de véhicule');
+      }
+      
+      // Point de rendez-vous des accompagnants
+      message = message.replace(/{rdv_accompagnants}/g, itinerary.companionsMeetingPoint || itinerary.meetingPoint || 'Même point que l\'orateur');
+      
+      // Notes sur le transport des accompagnants
+      message = message.replace(/{notes_transport_accompagnants}/g, itinerary.companionsNotes || 'Aucune information');
+    } else {
+      // Valeurs par défaut si pas d'itinéraire défini
+      message = message.replace(/{mode_transport_accompagnants}/g, 'Non spécifié');
+      message = message.replace(/{accompagnants_vehicule}/g, 'Non spécifié');
+      message = message.replace(/{accompagnants_voiture}/g, 'Non spécifié');
+      message = message.replace(/{rdv_accompagnants}/g, 'Même point que l\'orateur');
+      message = message.replace(/{notes_transport_accompagnants}/g, 'Aucune information');
+    }
+    
     // Variables du contact d'accueil principal (Hébergement par défaut)
     const hostName = visit.host !== 'À définir' ? visit.host : '(non assigné)';
     message = message.replace(/{hostName}/g, hostName);
@@ -192,6 +320,17 @@ function replaceVariables(
     message = message.replace(/{hostName}/g, host.nom);
     message = message.replace(/{hostPhone}/g, host.telephone || '(non renseigné)');
     message = message.replace(/{hostAddress}/g, host.address || '(non renseignée)');
+
+    // Nouvelles variables d'hôte
+    message = message.replace(/{prenom_hotesse}/g, host.nom.split(' ')[0] || host.nom);
+    message = message.replace(/{nom_hebergeur}/g, host.nom);
+    message = message.replace(/{adresse_hebergeur}/g, host.address || '(non renseignée)');
+    message = message.replace(/{tel_hebergeur}/g, host.telephone || '(non renseigné)');
+    message = message.replace(/{nom_responsable_repas}/g, host.nom); // Par défaut même hôte
+    message = message.replace(/{tel_responsable_repas}/g, host.telephone || '(non renseigné)');
+    message = message.replace(/{nom_chauffeur}/g, visit?.pickupDriver || host.nom);
+    message = message.replace(/{tel_chauffeur}/g, visit?.pickupDriverPhone || host.telephone || '(non renseigné)');
+    message = message.replace(/{ta_tache}/g, 'accueil chaleureux'); // Valeur par défaut
   }
 
   // Variables de la congrégation (toujours disponibles)

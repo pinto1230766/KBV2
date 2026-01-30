@@ -29,16 +29,20 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', handleEscape, true); // Use capture phase
       document.body.style.overflow = 'hidden';
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleEscape, true);
       document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
@@ -56,14 +60,22 @@ export const Modal: React.FC<ModalProps> = ({
     full: 'max-w-full m-4 h-[calc(100vh-2rem)]',
   };
 
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   const content = (
     <>
       <div
         className='fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity z-50'
-        onClick={onClose}
         aria-hidden='true'
       />
-      <div className='fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6'>
+      <div
+        className='fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6'
+        onClick={handleContainerClick}
+      >
         <div
           ref={modalRef}
           className={`
@@ -75,13 +87,11 @@ export const Modal: React.FC<ModalProps> = ({
           role='dialog'
           aria-modal='true'
         >
-        {!hideCloseButton && (
+        {!hideCloseButton && title && (
           <div
-            className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0 ${title ? '' : 'justify-end border-none pb-0'}`}
+            className='flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0'
           >
-            {title && (
-              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
-            )}
+            <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>{title}</h3>
             <button
               onClick={onClose}
               aria-label='Fermer'
