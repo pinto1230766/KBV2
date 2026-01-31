@@ -141,6 +141,10 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
 
         const updatedHistory = [newBackup, ...backupHistory].slice(0, 10);
         saveBackupHistory(updatedHistory);
+        
+        // Recharger la liste des fichiers après sauvegarde
+        const files = await fileSystemService.listKBVFiles();
+        setSavedFiles(files.filter(f => f.endsWith('.json')));
       }
 
       // Le message de succès/échec est déjà géré dans handleBackupAdapter
@@ -530,26 +534,28 @@ export const BackupManagerModal: React.FC<BackupManagerModalProps> = ({
               </div>
             )}
 
-            {/* Option alternative : sélection manuelle */}
-            <div className='pt-6 border-t border-gray-200 dark:border-gray-700'>
-              <div className='text-center'>
-                <p className='text-sm text-gray-500 dark:text-gray-400 mb-4'>
-                  Ou sélectionnez un fichier depuis votre appareil :
-                </p>
-                <input
-                  type='file'
-                  accept='.json'
-                  onChange={handleFileSelect}
-                  className='hidden'
-                  id='backup-file-manual'
-                />
-                <label htmlFor='backup-file-manual'>
-                  <span className='inline-flex items-center justify-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-lg cursor-pointer transition-colors text-sm'>
-                    Sélectionner manuellement
-                  </span>
-                </label>
+            {/* Option alternative : sélection manuelle (masquée si fichiers existent) */}
+            {savedFiles.length === 0 && (
+              <div className='pt-6 border-t border-gray-200 dark:border-gray-700'>
+                <div className='text-center'>
+                  <p className='text-sm text-gray-500 dark:text-gray-400 mb-4'>
+                    Aucune sauvegarde trouvée dans Documents/KBV. Sélectionnez un fichier manuellement :
+                  </p>
+                  <input
+                    type='file'
+                    accept='.json'
+                    onChange={handleFileSelect}
+                    className='hidden'
+                    id='backup-file-manual'
+                  />
+                  <label htmlFor='backup-file-manual'>
+                    <span className='inline-flex items-center justify-center px-4 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-lg cursor-pointer transition-colors text-sm'>
+                      Sélectionner manuellement
+                    </span>
+                  </label>
+                </div>
               </div>
-            </div>
+            )}
 
             {selectedFile && (
               <div className='p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg'>
