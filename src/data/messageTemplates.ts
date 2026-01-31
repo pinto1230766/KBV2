@@ -327,6 +327,108 @@ Fraternellement,
 Fraternellement,
 {ton_nom}`,
     },
+
+    // MESSAGE D'ANNULATION
+    cancellation: {
+      speaker: `Bonjour Frère *{prenom_orateur}*,
+
+J'ai bien reçu ta demande d'annulation pour le {date_visite}.
+
+Pas de souci, des imprévus ça arrive à tout le monde ! 😊
+
+On essaie de reporter ta visite à une prochaine date ? Dis-moi quand tu serais disponible et on verra ce qu'on peut faire.
+
+Fraternellement,
+{ton_nom}
+Groupe Capverdien de Lyon 🙏`,
+
+      host: `Bonjour {prenom_hotesse},
+
+Je te contacte car la visite de Frère *{prenom_orateur}* prévue le {date_visite} est malheureusement annulée.
+
+Merci quand même pour ta disponibilité, je te recontacterai très vite pour une autre visite !
+
+Fraternellement,
+{ton_nom}`,
+    },
+
+    // MESSAGE D'URGENCE / IMPRÉVU
+    urgency: {
+      speaker: `🚨 Info urgente - Frère *{prenom_orateur}*
+
+Petit imprévu : {details_urgence}
+
+Nouveau plan :
+⏰ Horaire : {nouvelle_heure}
+📞 Contact : {mon_tel}
+
+Désolé pour ce changement de dernière minute !
+
+{ton_nom}`,
+
+      host: `🚨 Info urgente - Accueil de {prenom_orateur}
+
+Changement de dernière minute :
+{details_urgence}
+
+Nouveau horaire/infos : {nouvelle_heure}
+
+Merci pour ta flexibilité ! 🙏
+
+{ton_nom}`,
+    },
+
+    // MESSAGE DE REPORT
+    postponement: {
+      speaker: `Bonjour Frère *{prenom_orateur}*,
+
+On doit reporter ta visite du {date_visite} à une autre date.
+
+Prochaines dates possibles chez nous :
+• {date_alternative_1}
+• {date_alternative_2}
+• {date_alternative_3}
+
+Dis-moi ce qui t'arrange et je bloque ça direct !
+
+Fraternellement,
+{ton_nom}`,
+
+      host: `Bonjour {prenom_hotesse},
+
+Info : la visite de Frère *{prenom_orateur}* est reportée du {date_visite} au {nouvelle_date}.
+
+Tu confirmes que c'est toujours OK pour toi ?
+
+Merci !
+{ton_nom}`,
+    },
+
+    // CONFIRMATION FINALE J-1
+    'final-confirmation': {
+      speaker: `Demain c'est le grand jour ! 🎉
+
+Frère *{prenom_orateur}*, dernier rappel :
+📅 {jour_visite} {date_visite} à {heure_visite}
+🏠 Hébergement : {nom_hebergeur} ({tel_hebergeur})
+📍 Salle du Royaume de Lyon
+
+Ton vol/train arrive bien vers {heure_arrivee} ?
+Si souci, appelle-moi : {mon_tel}
+
+À demain ! 👋
+{ton_nom}`,
+
+      host: `Rappel : tu accueilles {prenom_orateur} demain ! 🏠
+
+📅 Arrivée : {jour_arrivee} vers {heure_arrivee}
+📞 Orateur : {tel_orateur}
+
+Tout est prêt de ton côté ?
+
+Merci encore ! 🙏
+{ton_nom}`,
+    },
   },
 
   // ========== CAPVERDIEN ==========
@@ -541,7 +643,7 @@ Obrigadu pa bu ajuda!
 
 Limbransá : nu ta spera-u dento di *5 dia*! 
 
-{jou_visite} {date_visite} na {heure_visite}*
+*{jour_visite} {date_visite} na {heure_visite}*
 
 *Bu akolhimentu :*
 Alojamentu na kaza di {nom_hebergeur}
@@ -563,7 +665,7 @@ Te logu!
 
 Limbransá : nu ta spera-u dento di *7 dia*! 
 
-{jou_visite} {date_visite} na {heure_visite}*
+*{jour_visite} {date_visite} na {heure_visite}*
 
 *Bu akolhimentu :*
 Alojamentu na kaza di {nom_hebergeur}
@@ -585,7 +687,7 @@ Te logu!
 
 Limbransá : nu ta spera-u dento di *2 dia*! 
 
-{jou_visite} {date_visite} na {heure_visite}*
+*{jour_visite} {date_visite} na {heure_visite}*
 
 *Bu akolhimentu :*
 Alojamentu na kaza di {nom_hebergeur}
@@ -646,6 +748,108 @@ Fraternalmenti,
 [Personalize bu messajem aki]
 
 Fraternalmenti,
+{ton_nom}`,
+    },
+
+    // KANCELAMENTU
+    cancellation: {
+      speaker: `Bon dia Mon *{prenom_orateur}*,
+
+N risibi bu pedidu di kanselamentu pa dia {date_visite}.
+
+Ka ten problema, kualker kousa ki pode aontisi! 😊
+
+N ta tenta remarka bu vizita pa un otu data ? Diz-mi ki dia bu ta disponivel.
+
+Fraternalmenti,
+{ton_nom}
+Grupu Kapverdianu di Lion 🙏`,
+
+      host: `Bon dia {prenom_hotesse},
+
+N ta kontaktu-bu pasu ki bizita di Mon *{prenom_orateur}* pa dia {date_visite} kanseladu.
+
+Obrigadu mesmu pa bu disponibilidadi, n ta kontaktu-bu liu pa un otu bizita!
+
+Fraternalmenti,
+{ton_nom}`,
+    },
+
+    // URJENSIA
+    urgency: {
+      speaker: `🚨 Urjensia - Mon *{prenom_orateur}*
+
+Imprevistu : {details_urgence}
+
+Planu novu :
+⏰ Ora : {nouvelle_heure}
+📞 Kontaktu : {mon_tel}
+
+Diskulpa pa es mudansa di ultimu minutu!
+
+{ton_nom}`,
+
+      host: `🚨 Info urjenti - Akolhimentu di {prenom_orateur}
+
+Mudansa di ultimu minutu :
+{details_urgence}
+
+Ora/Info novu : {nouvelle_heure}
+
+Obrigadu pa bu flexibilidadi! 🙏
+
+{ton_nom}`,
+    },
+
+    // REMARKA
+    postponement: {
+      speaker: `Bon dia Mon *{prenom_orateur}*,
+
+Nu ten ki remarka bu vizita di {date_visite} pa un otu data.
+
+Datas posivel li :
+• {date_alternative_1}
+• {date_alternative_2}
+• {date_alternative_3}
+
+Diz-mi ki dia bu prefere i n ta marca!
+
+Fraternalmenti,
+{ton_nom}`,
+
+      host: `Bon dia {prenom_hotesse},
+
+Info : bizita di Mon *{prenom_orateur}* remarkadu di {date_visite} pa {nouvelle_date}.
+
+Bu ta konfirma ma ta dretu pa bo?
+
+Obrigadu!
+{ton_nom}`,
+    },
+
+    // KONFIRMASAUN FINAL J-1
+    'final-confirmation': {
+      speaker: `Amanha teni dia grandi! 🎉
+
+Mon *{prenom_orateur}*, ultimu lembransa :
+📅 {jour_visite} {date_visite} na {heure_visite}
+🏠 Alojamentu : {nom_hebergeur} ({tel_hebergeur})
+📍 Sala di Reino di Lion
+
+Bu vliu/tren ta txiga vers {heure_arrivee} ?
+Si problema, txoma-m : {mon_tel}
+
+Te amanha! 👋
+{ton_nom}`,
+
+      host: `Lembransa : bu ta akolhe {prenom_orateur} amanha! 🏠
+
+📅 Txegada : {jour_arrivee} vers {heure_arrivee}
+📞 Orador : {tel_orateur}
+
+Tudu sta prontu?
+
+Obrigadu mesmu! 🙏
 {ton_nom}`,
     },
   },
@@ -966,6 +1170,108 @@ Fraternalmente,
 [Personalize a sua mensagem aqui]
 
 Fraternalmente,
+{ton_nom}`,
+    },
+
+    // CANCELAMENTO
+    cancellation: {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Recebi o teu pedido de cancelamento para {date_visite}.
+
+Sem problema, imprevistos acontecem! 😊
+
+Queres tentar remarcar para outra data? Diz-me quando estás disponível.
+
+Fraternalmente,
+{ton_nom}
+Grupo Capverdiano de Lyon 🙏`,
+
+      host: `Olá {prenom_hotesse},
+
+Contacto-te porque a visita do Irmão *{prenom_orateur}* prevista para {date_visite} foi cancelada.
+
+Obrigado mesmo assim pela tua disponibilidade, contacto-te em breve para outra visita!
+
+Fraternalmente,
+{ton_nom}`,
+    },
+
+    // URGÊNCIA
+    urgency: {
+      speaker: `🚨 Urgência - Irmão *{prenom_orateur}*
+
+Imprevisto: {details_urgence}
+
+Novo plano:
+⏰ Horário: {nouvelle_heure}
+📞 Contacto: {mon_tel}
+
+Desculpa esta mudança de última hora!
+
+{ton_nom}`,
+
+      host: `🚨 Info urgente - Acolhimento do {prenom_orateur}
+
+Mudança de última hora:
+{details_urgence}
+
+Novo horário/info: {nouvelle_heure}
+
+Obrigado pela tua flexibilidade! 🙏
+
+{ton_nom}`,
+    },
+
+    // REAGENDAMENTO
+    postponement: {
+      speaker: `Olá Irmão *{prenom_orateur}*,
+
+Temos de remarcar a tua visita de {date_visite} para outra data.
+
+Próximas datas possíveis:
+• {date_alternative_1}
+• {date_alternative_2}
+• {date_alternative_3}
+
+Diz-me o que te convém e eu marco!
+
+Fraternalmente,
+{ton_nom}`,
+
+      host: `Olá {prenom_hotesse},
+
+Info: a visita do Irmão *{prenom_orateur}* foi remarcada de {date_visite} para {nouvelle_date}.
+
+Confirmas que continua OK para ti?
+
+Obrigado!
+{ton_nom}`,
+    },
+
+    // CONFIRMAÇÃO FINAL D-1
+    'final-confirmation': {
+      speaker: `Amanhã é o grande dia! 🎉
+
+Irmão *{prenom_orateur}*, último lembrete:
+📅 {jour_visite} {date_visite} às {heure_visite}
+🏠 Alojamento: {nom_hebergeur} ({tel_hebergeur})
+📍 Sala do Reino de Lyon
+
+O teu voo/comboio chega mesmo às {heure_arrivee}?
+Se houver problema, liga-me: {mon_tel}
+
+Até amanhã! 👋
+{ton_nom}`,
+
+      host: `Lembrete: vais acolher o {prenom_orateur} amanhã! 🏠
+
+📅 Chegada: {jour_arrivee} por volta de {heure_arrivee}
+📞 Orador: {tel_orateur}
+
+Tudo pronto do teu lado?
+
+Obrigado! 🙏
 {ton_nom}`,
     },
   },

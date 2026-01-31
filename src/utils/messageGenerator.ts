@@ -138,6 +138,63 @@ function replaceVariables(
     message = message.replace(/{theme_discours}/g, visit.talkTheme || 'à préciser');
     message = message.replace(/{numero_discours}/g, visit.talkNoOrType || 'à préciser');
 
+    // Transport aérien (vol, terminal, compagnie)
+    if (visit.logistics?.itinerary) {
+      const itinerary = visit.logistics.itinerary;
+      message = message.replace(/{numero_vol}/g, itinerary.flightNumber || 'non précisé');
+      message = message.replace(/{numero_voo}/g, itinerary.flightNumber || 'não especificado');
+      message = message.replace(/{terminal}/g, itinerary.terminal || 'non précisé');
+      message = message.replace(/{compagnie_aerienne}/g, itinerary.airline || 'non précisée');
+    } else {
+      message = message.replace(/{numero_vol}/g, 'non précisé');
+      message = message.replace(/{numero_voo}/g, 'não especificado');
+      message = message.replace(/{terminal}/g, 'non précisé');
+      message = message.replace(/{compagnie_aerienne}/g, 'non précisée');
+    }
+
+    // Préférences alimentaires
+    const dietaryLabels = {
+      fr: {
+        vegetarian: 'Végétarien',
+        vegan: 'Végétalien',
+        halal: 'Halal',
+        kosher: 'Casher',
+        gluten_free: 'Sans gluten',
+        lactose_free: 'Sans lactose',
+        none: 'Aucune préférence particulière',
+      },
+      cv: {
+        vegetarian: 'Vegetarianu',
+        vegan: 'Vegan',
+        halal: 'Halal',
+        kosher: 'Kosher',
+        gluten_free: 'Sen glúten',
+        lactose_free: 'Sen lactosi',
+        none: 'Nenhuma preferência',
+      },
+      pt: {
+        vegetarian: 'Vegetariano',
+        vegan: 'Vegan',
+        halal: 'Halal',
+        kosher: 'Kosher',
+        gluten_free: 'Sem glúten',
+        lactose_free: 'Sem lactose',
+        none: 'Nenhuma preferência',
+      },
+    };
+    const dietaryPref = visit.dietaryPreferences || 'none';
+    const dietaryLabel = dietaryLabels[language]?.[dietaryPref] || dietaryLabels.fr.none;
+    message = message.replace(/{preferences_alimentaires}/g, dietaryLabel);
+    message = message.replace(/{regime_alimentaire}/g, dietaryLabel);
+
+    // Variables pour urgence et report
+    message = message.replace(/{details_urgence}/g, visit.urgencyDetails || 'Précisions à venir');
+    message = message.replace(/{nouvelle_heure}/g, visit.newTime || 'à préciser');
+    message = message.replace(/{nouvelle_date}/g, visit.newDate ? formatFullDate(visit.newDate, language) : 'à préciser');
+    message = message.replace(/{date_alternative_1}/g, visit.alternativeDate1 ? formatFullDate(visit.alternativeDate1, language) : '(à définir)');
+    message = message.replace(/{date_alternative_2}/g, visit.alternativeDate2 ? formatFullDate(visit.alternativeDate2, language) : '(à définir)');
+    message = message.replace(/{date_alternative_3}/g, visit.alternativeDate3 ? formatFullDate(visit.alternativeDate3, language) : '(à définir)');
+
     // Transport des accompagnants (depuis logistics.itinerary)
     if (visit.logistics?.itinerary) {
       const itinerary = visit.logistics.itinerary;

@@ -107,6 +107,10 @@ export interface Itinerary {
   meetingPoint?: string;
   mapLink?: string;
   notes?: string;
+  // Transport aérien
+  flightNumber?: string; // Numéro de vol
+  terminal?: string; // Terminal d'aéroport
+  airline?: string; // Compagnie aérienne
   // Transport des accompagnants
   companionsTransportMode?: 'car' | 'train' | 'plane' | 'other' | 'same_as_speaker';
   companionsHaveCar?: boolean;
@@ -194,6 +198,14 @@ export interface Visit {
   pickupDriver?: string; // Nouveau: chauffeur ramassage
   pickupDriverPhone?: string; // Nouveau: téléphone chauffeur
   companions?: Companion[]; // Liste détaillée des accompagnants
+  // Nouvelles propriétés pour messages d'urgence et report
+  dietaryPreferences?: 'vegetarian' | 'vegan' | 'halal' | 'kosher' | 'gluten_free' | 'lactose_free' | 'none';
+  urgencyDetails?: string; // Détails pour message d'urgence
+  newTime?: string; // Nouvel horaire (pour urgence/report)
+  newDate?: string; // Nouvelle date (pour report)
+  alternativeDate1?: string; // Date alternative 1
+  alternativeDate2?: string; // Date alternative 2
+  alternativeDate3?: string; // Date alternative 3
   createdAt?: string; // ISO date
   updatedAt?: string; // ISO date
 }
