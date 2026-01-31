@@ -244,7 +244,6 @@ export const Settings: React.FC = () => {
 
   // WhatsApp Backup Function
   const handleWhatsAppBackup = async () => {
-    console.log('[DEBUG] Starting WhatsApp backup...');
     try {
       const json = exportData();
       const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -255,22 +254,18 @@ export const Settings: React.FC = () => {
       
       // Essayer de partager via Capacitor Share (meilleur support mobile)
       try {
-        console.log('[DEBUG] Trying Capacitor Share...');
-        const shareResult = await Share.share({
+        await Share.share({
           title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
           text: `📅 Sauvegarde du ${new Date().toLocaleDateString('fr-FR')}\n\n📊 Contient:\n• ${speakers.length} orateurs\n• ${visits.length} visites\n• ${hosts.length} hôtes\n\n📱 Importez ce fichier dans KBV sur mobile/tablette`,
           url: URL.createObjectURL(blob),
           dialogTitle: 'Partager la sauvegarde KBV'
         });
-        console.log('[DEBUG] Capacitor Share successful:', shareResult);
         addToast('📱 Sauvegarde partagée avec succès', 'success');
         return;
       } catch (shareError) {
-        console.log('[DEBUG] Capacitor Share failed, trying navigator.share fallback:', shareError);
         // Fallback vers navigator.share si Capacitor échoue
         try {
           if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            console.log('[DEBUG] Trying navigator.share fallback...');
             await navigator.share({
               files: [file],
               title: `📋 Sauvegarde KBV Lyon - ${new Date().toLocaleDateString('fr-FR')}`,
@@ -280,12 +275,11 @@ export const Settings: React.FC = () => {
             return;
           }
         } catch (navShareError) {
-          console.log('[DEBUG] navigator.share also failed:', navShareError);
+          // navigator.share échoué aussi
         }
       }
       
       // Fallback: téléchargement direct avec instructions WhatsApp
-      console.log('[DEBUG] Using download fallback...');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -304,41 +298,30 @@ export const Settings: React.FC = () => {
       }, 1000);
       
     } catch (error) {
-      console.error('[DEBUG] WhatsApp backup failed:', error);
       addToast('❌ Erreur lors de la sauvegarde WhatsApp', 'error');
     }
   };
 
   const handleBackupAdapter = async (_options: BackupOptions): Promise<{ success: boolean; path?: string }> => {
-    console.log('[DEBUG] handleBackupAdapter called with options:', _options);
     try {
-      console.log('[DEBUG] Calling exportData()...');
       const json = exportData();
-      console.log('[DEBUG] exportData() completed, JSON length:', json.length);
-      console.log('[DEBUG] First 200 chars of JSON:', json.substring(0, 200));
 
       const filename = `kbv-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      console.log('[DEBUG] Generated filename:', filename);
 
       // 1. Essayer le FileSystemService (Documents/KBV)
       let filesystemSuccess = false;
       try {
-        console.log('[DEBUG] Trying FileSystemService backup...');
         const result = await fileSystemService.saveToDocuments({
           filename,
           data: json,
           mimeType: 'application/json',
         });
-        console.log('[DEBUG] FileSystemService result:', result);
 
         if (result.success) {
-          console.log('[DEBUG] FileSystemService succeeded');
           filesystemSuccess = true;
-        } else {
-          console.log('[DEBUG] FileSystemService returned success=false, error:', result.error);
         }
       } catch (fsError) {
-        console.log('[DEBUG] FileSystemService threw error:', fsError);
+        // FileSystemService a échoué, continuer avec les fallbacks
       }
 
       if (filesystemSuccess) {
@@ -348,13 +331,9 @@ export const Settings: React.FC = () => {
       }
 
       // FORCER LE TÉLÉCHARGEMENT POUR CONSERVER LES DONNÉES
-      console.log('[DEBUG] Forcing download fallback for data preservation...');
-
-      console.log('[DEBUG] FileSystemService failed, using download fallback...');
 
       // PRIORITÉ AU TÉLÉCHARGEMENT POUR CONSERVER LES DONNÉES
       try {
-        console.log('[DEBUG] Downloading backup file...');
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -369,17 +348,15 @@ export const Settings: React.FC = () => {
         addToast('💾 Sauvegarde téléchargée ! Conservez ce fichier .json en sécurité', 'success');
         return { success: false, path: 'downloads' };
       } catch (downloadError) {
-        console.log('[DEBUG] Download failed:', downloadError);
+        // Download échoué, essayer le partage
       }
 
       // 2. Fallback: Partage de fichier (si téléchargement échoue)
       try {
-        console.log('[DEBUG] Trying file sharing fallback...');
         const blob = new Blob([json], { type: 'application/json' });
         const file = new File([blob], filename, { type: 'application/json' });
 
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          console.log('[DEBUG] Sharing file...');
           await navigator.share({
             files: [file],
             title: 'Sauvegarde KBV - IMPORTANT',
@@ -389,28 +366,24 @@ export const Settings: React.FC = () => {
           return { success: false, path: 'shared' };
         }
       } catch (shareError) {
-        console.log('[DEBUG] Share fallback failed:', shareError);
+        // Partage échoué
       }
 
       // 4. Sauvegarde d'urgence dans localStorage (si tout échoue)
       try {
-        console.log('[DEBUG] Using emergency localStorage backup...');
         const backupKey = `kbv-emergency-backup-${Date.now()}`;
         localStorage.setItem(backupKey, json);
         localStorage.setItem('last-emergency-backup', backupKey);
         addToast('⚠️ Sauvegarde temporaire créée (localStorage seulement)', 'warning');
         return { success: false, path: 'localStorage' };
       } catch (storageError) {
-        console.log('[DEBUG] Emergency storage failed:', storageError);
+        // Emergency storage failed
       }
 
       // Si tout échoue
       throw new Error('Toutes les méthodes de sauvegarde ont échoué');
 
     } catch (error) {
-      console.error('[DEBUG] Erreur sauvegarde in handleBackupAdapter:', error);
-      console.error('[DEBUG] Error stack:', error instanceof Error ? error.stack : 'No stack available');
-
       // Message d'erreur informatif
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue lors de la sauvegarde';
       addToast(`Erreur sauvegarde: ${errorMessage}. Essayez de redémarrer l'application.`, 'error');

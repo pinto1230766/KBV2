@@ -84,7 +84,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         (Date.now() - parseInt(lastRestoreTimestamp)) < (5 * 60 * 1000); // 5 minutes
 
       if (isRecentRestore) {
-        console.log('🔄 RECENT RESTORE DETECTED: Using saved data without fusion');
         // Utiliser directement les données sauvegardées sans fusion
         const dataToUse = saved || completeData;
         setData({
@@ -115,7 +114,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       let mergedData;
       if (shouldForceReload) {
-        console.log('🔄 FORCE RELOAD: Utilisation exclusive de completeData (version 1.3.0)');
         mergedData = {
           ...completeData,
           dataVersion: '1.3.0', // Forcer la nouvelle version
@@ -129,7 +127,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
           // Chercher la visite correspondante dans les données sauvegardées
           const savedVisit = saved?.visits?.find((sv) => sv.visitId === visit.visitId);
           if (savedVisit?.hostAssignments && savedVisit.hostAssignments.length > 0) {
-            console.log(`🔄 Préservation hostAssignments pour ${visit.nom}:`, savedVisit.hostAssignments);
             return {
               ...visit,
               hostAssignments: savedVisit.hostAssignments,
@@ -178,7 +175,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
       );
       
       if (needsMigration) {
-        console.log('🔄 Migration: Adding externalId to existing visits');
         setData((prev) => ({ ...prev, visits: migratedVisits }));
 
               // Dedupe: Remove duplicate visits based on externalId
@@ -190,15 +186,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
                         const duplicate = acc.find(v => v.externalId === visit.externalId);
                         if (!duplicate) {
                                     acc.push(visit);
-                                  } else {
-                                    console.log(`🗑️ Removing duplicate visit for ${visit.nom} on ${visit.visitDate}`);
                                   }
                         return acc;
                       }, [] as Visit[]);
 
               if (uniqueVisits.length < migratedVisits.length) {
-                        const removed = migratedVisits.length - uniqueVisits.length;
-                        console.log(`🔄 Migration: Removed ${removed} duplicate visit(s)`);
                         setData((prev) => ({ ...prev, visits: uniqueVisits }));
                       }
       }
@@ -223,7 +215,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
           await storage.set(backupKey, data);
           await storage.set('lastAutoBackup', new Date().toISOString());
           
-          console.log(`💾 Sauvegarde automatique effectuée : ${backupKey}`);
           addToast('Sauvegarde automatique hebdomadaire effectuée.', 'success');
         }
       } catch (error) {
@@ -293,16 +284,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateVisit = (visit: Visit) => {
-    console.log('🔄 UPDATE VISIT CALLED:', visit.visitId, 'New speaker:', visit.nom, 'ID:', visit.id);
     setData((d) => {
       const updatedVisits = d.visits.map((v) => {
         if (v.visitId === visit.visitId) {
-          console.log('🔄 UPDATING VISIT:', v.nom, '->', visit.nom);
           return visit;
         }
         return v;
       });
-      console.log('🔄 VISITS UPDATED, new count:', updatedVisits.length);
       return {
         ...d,
         visits: updatedVisits,
@@ -420,7 +408,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (data.visits.length > 0) {
         // Idéalement on garde une version datée, mais pour l'instant on force une persistence
         await storage.set('kbv-app-data-backup-pre-sync', data);
-        console.log('🛡️ Backup de sécurité pré-synchro effectué.');
     }
 
     const googleSheetId = '1drIzPPi6AohCroSyUkF1UmMFxuEtMACBF4XATDjBOcg';
@@ -577,9 +564,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       // Si version manquante, on assume 1.0.0
       if (!parsed.dataVersion) {
-        console.warn(
-          "Version de données manquante lors de l'import, ajout de la version par défaut 1.0.0"
-        );
         parsed.dataVersion = '1.0.0';
       }
 

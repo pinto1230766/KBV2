@@ -579,21 +579,3 @@ export const {
   useAutoDetectLanguage,
   useTemplatesByCategory,
 } = createSelectors(useMessagingStore);
-
-// ============================================================================
-// SUBSCRIPTIONS POUR DEBUGGING
-// ============================================================================
-
-useMessagingStore.subscribe(
-  (state) => state.messages.length,
-  (messageCount) => {
-    console.log('Messages count changed:', messageCount);
-  }
-);
-
-useMessagingStore.subscribe(
-  (state) => state.stats.totalSent,
-  (totalSent) => {
-    console.log('Total messages sent:', totalSent);
-  }
-);
